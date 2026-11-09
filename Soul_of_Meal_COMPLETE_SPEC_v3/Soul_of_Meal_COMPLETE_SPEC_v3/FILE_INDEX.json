@@ -1,0 +1,686 @@
+{
+  "package": "Soul of Meal Complete Spec v3.0",
+  "built_at": "2026-11-09",
+  "files": [
+    {
+      "path": ".agents/skills/soul-of-meal-sprite/SKILL.md",
+      "bytes": 6053,
+      "sha256": "3a05e2fa10db071bdbc8d6942079437866fb94c80811c6f9bef323fbb5954165"
+    },
+    {
+      "path": ".agents/skills/soul-of-meal-sprite/references/animation_matrix.md",
+      "bytes": 1319,
+      "sha256": "229a5ced1fc9381c6c21bacb40278ce00431bb6a9196aff27cc77810f0ea0294"
+    },
+    {
+      "path": ".agents/skills/soul-of-meal-sprite/references/export_contract.md",
+      "bytes": 1327,
+      "sha256": "74d12fda87b3df8e6db0184118973038adfc06d87aabc5521bd32fe76511ddf0"
+    },
+    {
+      "path": ".agents/skills/soul-of-meal-sprite/references/prompt_library.md",
+      "bytes": 3744,
+      "sha256": "96b552930ebc9dcadff441337ee0700d68cff1db9280a21cf9e4f615add97a6f"
+    },
+    {
+      "path": ".agents/skills/soul-of-meal-sprite/references/quality_gate.md",
+      "bytes": 1639,
+      "sha256": "6dce0c08226b72f704a2869ac282905fab0409be303cd4b1aaf54838756c1689"
+    },
+    {
+      "path": ".agents/skills/soul-of-meal-sprite/scripts/build_atlas.py",
+      "bytes": 2915,
+      "sha256": "c14b7a6c1416fe8caa49d94ebbe9a2bd7af2209cdf250fce47eed72a65da1f28"
+    },
+    {
+      "path": ".agents/skills/soul-of-meal-sprite/scripts/make_preview.py",
+      "bytes": 1377,
+      "sha256": "e0912a10a7afd8b8a3904330921180d73cb68f996f5a56ded67c5bfed4acd217"
+    },
+    {
+      "path": ".agents/skills/soul-of-meal-sprite/scripts/validate_sprite.py",
+      "bytes": 3631,
+      "sha256": "a40809ae95a52d2a733b595bcd31f6a1b936647e2feba4e1cb85e12db5e51baf"
+    },
+    {
+      "path": ".agents/skills/soul-of-meal-sprite/templates/identity.template.json",
+      "bytes": 795,
+      "sha256": "2485ae0af097fac2fa7d0565ac012ad49f0a4569bebba41ef16d8e7b4bca6ef1"
+    },
+    {
+      "path": ".agents/skills/soul-of-meal-sprite/templates/manifest.template.json",
+      "bytes": 680,
+      "sha256": "4b351292f8d1cc54610ebe70a4429ef469d143bff2818ba32c0523d91189782e"
+    },
+    {
+      "path": ".agents/skills/soul-of-meal-sprite/templates/sprite_job.template.json",
+      "bytes": 637,
+      "sha256": "78859da44c1716e129618fa8fe6ebc09125da9ca1eda71d6d8c5c1e2a3d9f4d7"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 1555,
+      "sha256": "e1fa7817ac02761ca12bff7951e235d2bb1ecd2b2c79a0c4eb76944dbba77724"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5217,
+      "sha256": "3163d4c8dde82af3904b8677338aeb32b521fa59da59c7033e278222417c6b8d"
+    },
+    {
+      "path": "agents/SPRITE_TASK_HANDOFF.md",
+      "bytes": 1503,
+      "sha256": "3daab32c73ed5ae54ca1cab6d664ceb795af08f76064893c5d53a16c3e2e1a2f"
+    },
+    {
+      "path": "archive/v2_production_spec/README.md",
+      "bytes": 2452,
+      "sha256": "1d372b8e922bdfb62291322ad55ec1e8476ea233e82367071d1fc987befc3e6a"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/01_character_sheet/CHARACTER_BLUEPRINT.svg",
+      "bytes": 11555,
+      "sha256": "d11b1cfe19c1042da6ccdd3087894649dc8ea9c9546dc19b307321df664ceba5"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/01_character_sheet/CHARACTER_CONCEPT_PLATE.png",
+      "bytes": 1281080,
+      "sha256": "3a0cc0c2113f1754f68d3beca83dc9d44c2c3b6ce39102885a5ec7962575f09e"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/01_character_sheet/CHARACTER_SHEET.md",
+      "bytes": 11868,
+      "sha256": "f75a5fb04bcaa787955336c7abf5e12963c68cf5190dc2c1ce3c61f72753c909"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/02_environment_sheet/ENVIRONMENT_BLUEPRINT.svg",
+      "bytes": 13466,
+      "sha256": "b52f3010140276edf90757f98221d40b5be52e48891bc24d4b747ccf9ddfc171"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/02_environment_sheet/ENVIRONMENT_CONCEPT_PLATE.png",
+      "bytes": 1865246,
+      "sha256": "919c6cf95fa350f4fa6f23a0bfe86a7ff0ec03ae7522cbfc8d71607066b72aac"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/02_environment_sheet/ENVIRONMENT_SHEET.md",
+      "bytes": 9566,
+      "sha256": "5d85e39f2f35605085ea879a9480362b37c5ae0c0646aa69b09466d6d8cd9f07"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/03_ui_wireframe/UI_BLUEPRINT.svg",
+      "bytes": 7660,
+      "sha256": "3369018e16280550df3ab6c83532e9c755f8a801ae1cedeb01cac80549e0c313"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/03_ui_wireframe/UI_CONCEPT_PLATE.png",
+      "bytes": 304961,
+      "sha256": "d66e71c35fa1c13b352ee969f23aff4c65aab43453071be1cfb6e4b27f17f694"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/03_ui_wireframe/UI_WIREFRAME.md",
+      "bytes": 13385,
+      "sha256": "458420d0d0c17913511e54366798de2ee5f606f2b92fda40ff87decce30d5401"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/04_combat_storyboard/COMBAT_BLUEPRINT.svg",
+      "bytes": 11742,
+      "sha256": "e7eeb7f8de80a84b9d2696155132ab05cfbd54c33582311d181f7b0b83ebcf3b"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/04_combat_storyboard/COMBAT_CONCEPT_PLATE.png",
+      "bytes": 1704704,
+      "sha256": "dbbc5fed45b67b9af8299059e0e99bdf8ceddf662cb5abc4595a3528a4721f40"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/04_combat_storyboard/COMBAT_STORYBOARD.md",
+      "bytes": 10422,
+      "sha256": "f3ff291a4c92b6c306b352fe4bff56145156ffdac0fc17be07a227f660851722"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/05_vfx_sfx_style_guide/VFX_SFX_BLUEPRINT.svg",
+      "bytes": 7039,
+      "sha256": "367ac9ac1421297c5ee78d743d11c81902ea5a4cbd0b931890035cc8274915d5"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/05_vfx_sfx_style_guide/VFX_SFX_CONCEPT_PLATE.png",
+      "bytes": 1198370,
+      "sha256": "414612cc7cf1405e9a5708a8741a421faec791dcf478acbf6f8841d65916a26e"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/05_vfx_sfx_style_guide/VFX_SFX_STYLE_GUIDE.md",
+      "bytes": 11797,
+      "sha256": "fe27f4aa99ed2481d6cf8bbffe04c44d106a7d8f3c643091b0c5badafe4a62e9"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/README.md",
+      "bytes": 5398,
+      "sha256": "271fb390b9ad15d8b9eea09303dab9ce0e4cea82566595bf2927813519fbf7a3"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/build_blueprints.py",
+      "bytes": 11556,
+      "sha256": "5bd7b687bc514fea4a4931dd4708a24b618d810ac294f3b3aca19633a98e563c"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/build_concept_plates.py",
+      "bytes": 9967,
+      "sha256": "f5e1bba9be8f468586360e2398153cb7707502fa8791b3267f6c9c8cd012ef57"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/schemas/assets.manifest.json",
+      "bytes": 36393,
+      "sha256": "2b5dbb8b4fc4ede66e1945f3a9e3d1801e666933acc8fa529b91aeaddaddfcaf"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/schemas/build_registry.py",
+      "bytes": 7443,
+      "sha256": "42ec5bc638348d34bf0971cd53cc0a6fe674328dab63165c64e8c0792ee411aa"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/schemas/events.schema.json",
+      "bytes": 1465,
+      "sha256": "5415c34ca7feb5d36a7b3dbb4d20f2b1df3a985b03ace1e27d0bf100661bfe52"
+    },
+    {
+      "path": "archive/v2_production_spec/design_pack_v1/schemas/screen_states.csv",
+      "bytes": 1412,
+      "sha256": "5c56232d4616b1789c76451bc80f78e0af3de9d6d504ab22aaeefda9aad38836"
+    },
+    {
+      "path": "archive/v2_production_spec/docs/00_README_AND_DECISIONS.md",
+      "bytes": 5870,
+      "sha256": "dc6485109484bb733ead0c883bed1d3ef070ad808b38fd7313f42405105d4315"
+    },
+    {
+      "path": "archive/v2_production_spec/docs/01_CHARACTER_PRODUCTION_SPEC.md",
+      "bytes": 10829,
+      "sha256": "b9da80a5a3692d17ccdba01162ed094842aa7fd20bc5dc25d4bc4a831922872b"
+    },
+    {
+      "path": "archive/v2_production_spec/docs/02_ENVIRONMENT_PRODUCTION_SPEC.md",
+      "bytes": 10567,
+      "sha256": "8a79f3e9cb592379ddea20ad6c45af69a85daf5db8fde3fae3fda044f6037a6a"
+    },
+    {
+      "path": "archive/v2_production_spec/docs/03_UI_UX_PRODUCTION_SPEC.md",
+      "bytes": 12201,
+      "sha256": "09e051d98e7c1e24f3ff031106bde2e090b257bc09c525dd3c23ea80587f238a"
+    },
+    {
+      "path": "archive/v2_production_spec/docs/04_COMBAT_PRODUCTION_SPEC.md",
+      "bytes": 11912,
+      "sha256": "3772414ea86e6e2295fdf36dcedce05b36b0bfe32ebb12b04c44e7884313dda7"
+    },
+    {
+      "path": "archive/v2_production_spec/docs/05_VFX_SFX_AUDIO_PRODUCTION_SPEC.md",
+      "bytes": 10817,
+      "sha256": "2ad5a1e2bdc6e4fd9aceae85426e584e47355069c21c544a3ff476081a2a5458"
+    },
+    {
+      "path": "archive/v2_production_spec/docs/06_PRODUCTION_ROADMAP_AND_NEXT_STEPS.md",
+      "bytes": 7895,
+      "sha256": "844a0599436814771b9d946ac07842d300286f66cee63de5defced40212a7d86"
+    },
+    {
+      "path": "archive/v2_production_spec/docs/07_GAME_RULES_AND_OPEN_DECISIONS.md",
+      "bytes": 5227,
+      "sha256": "02b1ff7ab28d9580ea02e41cfeb9f4199ca4186ce67c8e7e6ddfbb8771c4f3a2"
+    },
+    {
+      "path": "archive/v2_production_spec/examples/character_bunbo.json",
+      "bytes": 1278,
+      "sha256": "cb1ab54a50e2b96904386fd94601b4ac616c840e509a0d949974a8cce82bd85a"
+    },
+    {
+      "path": "archive/v2_production_spec/examples/event_combat_hit.json",
+      "bytes": 404,
+      "sha256": "8db0868a505302e095cc5476fe7d67476bd0e6bb5d2709eb004d1c71b50bcb9f"
+    },
+    {
+      "path": "archive/v2_production_spec/examples/map_lilia_interactables.json",
+      "bytes": 1417,
+      "sha256": "8c9f25593b91e65ac1dba09861e032781fa29bb98c7878b964e2de0326252614"
+    },
+    {
+      "path": "archive/v2_production_spec/examples/sfx_impact.json",
+      "bytes": 412,
+      "sha256": "f78c89f86d58cb54750dde9ed795c89a23305d32c4f54499a361fec0755c489d"
+    },
+    {
+      "path": "archive/v2_production_spec/examples/ui_screen_home.json",
+      "bytes": 1118,
+      "sha256": "81d830ddf34c1fe2e83797d1c8145b2c525f279a14fa6da3b900121d63c88450"
+    },
+    {
+      "path": "archive/v2_production_spec/examples/vfx_fire_ultimate.json",
+      "bytes": 483,
+      "sha256": "ca859182010102b49214e67c6627437f277a9d6ad98b903d3111bfa5ebb8660b"
+    },
+    {
+      "path": "archive/v2_production_spec/tracking/BACKLOG.csv",
+      "bytes": 6477,
+      "sha256": "58d6ba04bc071fc7566a4f233c2247c8e53dbe7077ea709eed2eed52642ab0e2"
+    },
+    {
+      "path": "archive/v2_production_spec/tracking/DECISION_REGISTER.csv",
+      "bytes": 958,
+      "sha256": "8c5543e6d6d0d1e6c87589b2e9112566c0487dc8e24ce5352bf2fdbc88a92d3b"
+    },
+    {
+      "path": "archive/v2_production_spec/tracking/QA_ACCEPTANCE_MATRIX.csv",
+      "bytes": 4804,
+      "sha256": "696979f63518b3ab8b6a96a3cfe97b5bb4764c264a418de2bdde7cc7b304545d"
+    },
+    {
+      "path": "docs/00_foundation/DECISION_REGISTER.md",
+      "bytes": 2244,
+      "sha256": "5ed74d787ebeafe85fc833415944d4b13683be1c2cc7ab00d582a52bd451239d"
+    },
+    {
+      "path": "docs/00_foundation/PROJECT_BIBLE.md",
+      "bytes": 3804,
+      "sha256": "0191d11e5598aa98bf6507a191570d444f42e6db1adeee001ccdf6551f5353b4"
+    },
+    {
+      "path": "docs/01_gameplay/ADVENTURE_RULEBOOK.md",
+      "bytes": 6505,
+      "sha256": "30a6e8fab681eb9105a14c7ef904b33288bc7b9c15c3884b60263d33cf489468"
+    },
+    {
+      "path": "docs/01_gameplay/AUTO_CHESS_RULEBOOK.md",
+      "bytes": 5181,
+      "sha256": "186f9d7d0e1ac8ad528dbfd081db45168de630cc53acca1f45e14c792b6663b4"
+    },
+    {
+      "path": "docs/01_gameplay/TCG_RULEBOOK.md",
+      "bytes": 6142,
+      "sha256": "2ddc3335cb31b6bd7ff8aa3372f2276703ca590b892e4b90d79471ea2beed52a"
+    },
+    {
+      "path": "docs/02_art/LICENSE_AND_PROVENANCE.md",
+      "bytes": 1082,
+      "sha256": "b8df0bd6993db8d8da4c36598fc008e4a5f1360963620372bcb7adc02cfb5a8d"
+    },
+    {
+      "path": "docs/02_art/SPRITE_PIPELINE.md",
+      "bytes": 5975,
+      "sha256": "e2e4e177ad2f3d54f3d7745bf0720d4012a05be71fa309df306425c7e35cc8c3"
+    },
+    {
+      "path": "docs/02_art/VISUAL_REFERENCE_INDEX.md",
+      "bytes": 3527,
+      "sha256": "ed84d187264480492812107bfaf62c1558cfb9a6fd2e35f9c057c11a6a458b87"
+    },
+    {
+      "path": "docs/03_engineering/CONTENT_CONTRACTS.md",
+      "bytes": 1534,
+      "sha256": "3a9a000a484f221690a4779059028211f873646afaf94d008169d288bb290115"
+    },
+    {
+      "path": "docs/03_engineering/ENGINE_ARCHITECTURE.md",
+      "bytes": 4751,
+      "sha256": "6b8406137ff90c9a0ccde7f4568632835601a1e5bd15cd83250b9820e02a7e64"
+    },
+    {
+      "path": "docs/04_qa/ACCEPTANCE_TEST_PLAN.md",
+      "bytes": 4950,
+      "sha256": "5cbe4d965f9bd1ffbad57c7b03bede371854f4878a401feae97bd00dd30411be"
+    },
+    {
+      "path": "docs/05_production/PRODUCTION_PLAN.md",
+      "bytes": 4516,
+      "sha256": "effbd85e1f7567a48838fa2b417363fe4ff741ff199a3d49fa556cd4c33f2ff7"
+    },
+    {
+      "path": "examples/adventure/bunbo_ability.json",
+      "bytes": 480,
+      "sha256": "ae38bbf15aa1aca29d26f4036d5bd64ff99fbb3c6b8a1f05eaa678e68553304d"
+    },
+    {
+      "path": "examples/auto_chess/shop_odds.json",
+      "bytes": 964,
+      "sha256": "cf32b7b7659d52a48ae64cbaf89264e1e9a2f409f8c5b916a8d2147d1ede101b"
+    },
+    {
+      "path": "examples/auto_chess/units.json",
+      "bytes": 1125,
+      "sha256": "7499b42be089415cf0d6ba15163654556e38c14fff4c2a0689a982b0dcc69c26"
+    },
+    {
+      "path": "examples/cards/cards.catalog.json",
+      "bytes": 5382,
+      "sha256": "e1f4cfc193aa5c07759f76f0814eef46a262dc2b4924405ff95c1df9dd01ac1e"
+    },
+    {
+      "path": "examples/cards/starter_deck.json",
+      "bytes": 1263,
+      "sha256": "172e55efdc060365405e69674c5ee06c8948b1181e5a595d83debbe9c43aae7c"
+    },
+    {
+      "path": "examples/characters/chr_banhbao_bachngoc/identity.json",
+      "bytes": 385,
+      "sha256": "364c0401a08b25453d455170df2f4da963d29fd215e81572c0434a1b6f01d98b"
+    },
+    {
+      "path": "examples/characters/chr_bunbo_holinh/identity.json",
+      "bytes": 385,
+      "sha256": "b17370e139adbd167d14b0eddbbeb37e0091b34cbf6e12e7350ed4c27a0bdfbc"
+    },
+    {
+      "path": "examples/characters/chr_bunbo_holinh/sprite_job.json",
+      "bytes": 563,
+      "sha256": "7d0eeb539b81c638a397420dbf8e166f444e5de27e2ae29d025c5c801fd7be09"
+    },
+    {
+      "path": "examples/characters/chr_caphe_davu/identity.json",
+      "bytes": 384,
+      "sha256": "6da372a4443dca86929ce444b79fa85cb730e46ae56d9fd6b5dac621db39d6d3"
+    },
+    {
+      "path": "examples/characters/chr_goicuon_diepnhi/identity.json",
+      "bytes": 376,
+      "sha256": "c5dcf141d44f7e0908776073c5469a3ea79f237e0ab95182b643d71fbc806254"
+    },
+    {
+      "path": "examples/characters/chr_pho_lamvu/identity.json",
+      "bytes": 367,
+      "sha256": "427e2251ea1033af68b767815dd355d5950e068ad98c2e7098b5ceb1b53b4476"
+    },
+    {
+      "path": "references/original_user_images/guide_adventure.png",
+      "bytes": 4072264,
+      "sha256": "154f0164748d0211a34df8c06ce10ad6362a0dad850eca837d1fa081a9b183fd"
+    },
+    {
+      "path": "references/original_user_images/guide_autochess.png",
+      "bytes": 3975786,
+      "sha256": "25f0ae122d1a7a6317711835b91460eb8323d2471f174ac1c00b0c2542434318"
+    },
+    {
+      "path": "references/original_user_images/guide_tcg.png",
+      "bytes": 4122491,
+      "sha256": "69e89238127447ca9ab309c20b7d59ca311bbfd703ac85950d16977c98345d32"
+    },
+    {
+      "path": "references/original_user_images/guide_update.png",
+      "bytes": 3519651,
+      "sha256": "a75ecd23f8f3168f9b4b5fb5d1a7fe0b0b4b45ac3e8a163a9d6800384ede54fc"
+    },
+    {
+      "path": "references/original_user_images/guide_world.png",
+      "bytes": 4114165,
+      "sha256": "96f8f60afac7fe292ff80d884809df0b3c49cb21dab3f957809e7afb5d001759"
+    },
+    {
+      "path": "references/visuals/VISUAL_MANIFEST.json",
+      "bytes": 11286,
+      "sha256": "28442f752601cdef47276cb52d87c148010c59f981c3b8e974e3c923ef27853b"
+    },
+    {
+      "path": "references/visuals/crops/character/animation_key_poses.png",
+      "bytes": 523719,
+      "sha256": "b3cedd902859ed2274b4b2b6f52d73b2ef71160ce58f228e60815cd5f137701b"
+    },
+    {
+      "path": "references/visuals/crops/character/expression_set.png",
+      "bytes": 341954,
+      "sha256": "25f1543de8f935fef58fade6dcdbb1cc22388a6e636089a71ebcebfe610caf74"
+    },
+    {
+      "path": "references/visuals/crops/character/hero_full.png",
+      "bytes": 703138,
+      "sha256": "dcb354d63cece7ff6e2a8924827b07484791f0e7b623adc73dcffa752ecf4650"
+    },
+    {
+      "path": "references/visuals/crops/character/identity_palette.png",
+      "bytes": 322356,
+      "sha256": "9ec5683328ddee22d9b2b185178484e7e3249a1ffbb96ab2e93ffee7512447d1"
+    },
+    {
+      "path": "references/visuals/crops/character/starter_roster.png",
+      "bytes": 511007,
+      "sha256": "dd3da4a3a1b498fce3511279e15d2bf0b388a1abdc6c6d153d9b91bcc2ee57d5"
+    },
+    {
+      "path": "references/visuals/crops/character/turnaround.png",
+      "bytes": 234988,
+      "sha256": "255da5b52a7b8df1d9013316c6c6f2122cfe79d451552a3670297eb0135e6ef5"
+    },
+    {
+      "path": "references/visuals/crops/combat/adventure_frames_1_2.png",
+      "bytes": 429544,
+      "sha256": "590c2f00d105c9f60a7e4d5a7f17a37c09c13c242856dd277e9b1d66c375c5d0"
+    },
+    {
+      "path": "references/visuals/crops/combat/adventure_frames_3_4.png",
+      "bytes": 381324,
+      "sha256": "de9a9388ae105a44d5cb875c0f3ad1dd08e0831f266194a811a2abfb332fa031"
+    },
+    {
+      "path": "references/visuals/crops/combat/adventure_frames_5_6.png",
+      "bytes": 420863,
+      "sha256": "8ccf625562c934155bed12b64b74b9bf01121ae5578766f9cbc49e0d96b860be"
+    },
+    {
+      "path": "references/visuals/crops/combat/autochess_sequence.png",
+      "bytes": 381965,
+      "sha256": "3bf58ea0d696274ebb125d5f029290d2209abe806c17c800ee993b84615056db"
+    },
+    {
+      "path": "references/visuals/crops/combat/combat_flow.png",
+      "bytes": 189160,
+      "sha256": "958fd180bb7f3cbb52a696091d2c19e50c7666622a3651b507227d47fcf00323"
+    },
+    {
+      "path": "references/visuals/crops/combat/combat_legend.png",
+      "bytes": 157886,
+      "sha256": "c9601ce3040ed8ec77fce8fa8f5697dd4735602f3471af364571feb8adb85c9c"
+    },
+    {
+      "path": "references/visuals/crops/combat/hit_callouts.png",
+      "bytes": 242054,
+      "sha256": "9c274c7a27bbcb3d4b7c8f1b68c3010a64f90eed3111be133891afa165225edd"
+    },
+    {
+      "path": "references/visuals/crops/combat/tcg_sequence.png",
+      "bytes": 322827,
+      "sha256": "99689002f6f9f73ae9ede1bf833565e1deb4539c150e20aea0cc3f2fcca1aca1"
+    },
+    {
+      "path": "references/visuals/crops/environment/buildings.png",
+      "bytes": 413557,
+      "sha256": "0e3b184a7f057a78e32400ddef68ea5b21f61cf486ccf59ae9a312be1bf9bbbf"
+    },
+    {
+      "path": "references/visuals/crops/environment/interactions.png",
+      "bytes": 150407,
+      "sha256": "082471bb1205b94f4754f16582eeb81cadce7d14c01821595393750f2adbb577"
+    },
+    {
+      "path": "references/visuals/crops/environment/neighbor_regions.png",
+      "bytes": 442812,
+      "sha256": "79e68994a0fda7aecb52611625746cb12819df074b73703577b9b7c4ef83c015"
+    },
+    {
+      "path": "references/visuals/crops/environment/npcs.png",
+      "bytes": 421007,
+      "sha256": "91b53072770109d92d4590d718610456bd6a5af1c21257b3b6a3b171c32478c9"
+    },
+    {
+      "path": "references/visuals/crops/environment/props.png",
+      "bytes": 301109,
+      "sha256": "1e9728842fe7dab26f756fdf62d824c58e6a735e5e74c2482240012524a21827"
+    },
+    {
+      "path": "references/visuals/crops/environment/tiles.png",
+      "bytes": 195534,
+      "sha256": "90e39d166155f0102be4c82cedd5e98a39126d21cfdf7b8218e6aa14535309a2"
+    },
+    {
+      "path": "references/visuals/crops/environment/village_overview.png",
+      "bytes": 953731,
+      "sha256": "1a6a8dc9e376899c0c6a3097f5a33f00b9c9e7a7a58c4264b27448ed99c19a74"
+    },
+    {
+      "path": "references/visuals/crops/ui/adventure_hud.png",
+      "bytes": 395974,
+      "sha256": "f5a562c63c5ae7052f5d19e0ff3dc581ab4bbe279cebab24623b385a3d6a61cb"
+    },
+    {
+      "path": "references/visuals/crops/ui/autochess_battle.png",
+      "bytes": 368039,
+      "sha256": "ba44bed8de9e785345232cbd33c4b24c9b05415376593ba4f3683280814c366f"
+    },
+    {
+      "path": "references/visuals/crops/ui/character_detail.png",
+      "bytes": 289455,
+      "sha256": "35a1b53a97c6b5e98f2f8438fbf1de38ebd2f4bd4785ba3b6480f822f5227ee6"
+    },
+    {
+      "path": "references/visuals/crops/ui/gacha.png",
+      "bytes": 336777,
+      "sha256": "2ea84ecda8f15275cbafbb15d7245d30ae8d59fe90d390dbdb24c849fafdf60e"
+    },
+    {
+      "path": "references/visuals/crops/ui/home.png",
+      "bytes": 378360,
+      "sha256": "65bce79d7c9522270613d629ab6cabe6b4000a77a2b2b1d2027d379fb7d95c4f"
+    },
+    {
+      "path": "references/visuals/crops/ui/navigation_and_ui.png",
+      "bytes": 382125,
+      "sha256": "9f137e38d8e54ac8c361845fb718fc228a42eea112bb2049a1b26c00aad0fd72"
+    },
+    {
+      "path": "references/visuals/crops/ui/tcg_battle.png",
+      "bytes": 367968,
+      "sha256": "1025443963c24cf1bf62bb4ad26066341dddea2fc91efb468a6c023aeed5a2cd"
+    },
+    {
+      "path": "references/visuals/crops/vfx/dos_and_donts.png",
+      "bytes": 178752,
+      "sha256": "b9915f217a24e45c6f66030b11768b62a98a2ea442546febfe1a90ef1d17cb38"
+    },
+    {
+      "path": "references/visuals/crops/vfx/effect_categories.png",
+      "bytes": 192093,
+      "sha256": "249010e39d3b12e8573a0b61b7b1b16d91cd01cc393a68573fadda5a7df3289c"
+    },
+    {
+      "path": "references/visuals/crops/vfx/elements.png",
+      "bytes": 812743,
+      "sha256": "e4159b99ba5c35a2d2d6cdf93a13bbe3c872f8477c4b6b97fe85e3a72a1175bc"
+    },
+    {
+      "path": "references/visuals/crops/vfx/fire_ultimate_detail.png",
+      "bytes": 455551,
+      "sha256": "5b6abc74748d48b3c561af14045aeb8a4f2c1a83858aa6f1eb6f35d167f82118"
+    },
+    {
+      "path": "references/visuals/crops/vfx/sfx_groups.png",
+      "bytes": 191530,
+      "sha256": "8f0a07201f1551f07214815b1410cd541c10e658c2c8f1b39dab97289a43e1ef"
+    },
+    {
+      "path": "references/visuals/crops/vfx/timing_budget.png",
+      "bytes": 259822,
+      "sha256": "b9926e7b342f996f924d9875904526aaf3fc77e3247254e4e2aca2e8a3691d26"
+    },
+    {
+      "path": "references/visuals/crops/vfx/vfx_four_phases.png",
+      "bytes": 313071,
+      "sha256": "9c977e30e68d5f5566ab3cf18ccb51478721db1220d8c9414d9fd247c751342f"
+    },
+    {
+      "path": "references/visuals/full/character_sheet.png",
+      "bytes": 3205924,
+      "sha256": "b0a8d8891f5e01ac918e21592b00c7ead7d9dc24461a07d6f05cc5914df244d1"
+    },
+    {
+      "path": "references/visuals/full/combat_sheet.png",
+      "bytes": 3170398,
+      "sha256": "33488f6c0a82f0fcdf66af430d135a6afec4720fb0dbb6da8610e3baafa26013"
+    },
+    {
+      "path": "references/visuals/full/environment_sheet.png",
+      "bytes": 3461408,
+      "sha256": "95e183e31f14dc1bb097167f1d45999970235f7265a9bc363745f8e6802fac5d"
+    },
+    {
+      "path": "references/visuals/full/ui_sheet.png",
+      "bytes": 3105885,
+      "sha256": "de56f1f20204c938c3caaf4d67dc4f2a09f9737e59abd16bbcde0a8c5662f5af"
+    },
+    {
+      "path": "references/visuals/full/vfx_sheet.png",
+      "bytes": 2873272,
+      "sha256": "375251cf6ae561cca3cfc4ef48ee093dd6865c482fab043c5115f8e4968c23eb"
+    },
+    {
+      "path": "scripts/SPRITE_TOOLS.md",
+      "bytes": 938,
+      "sha256": "5220710e2755522f1c20000e5bb0db59f5162109627a71a71854930556ad475a"
+    },
+    {
+      "path": "scripts/TEST_INSTRUCTIONS.md",
+      "bytes": 1683,
+      "sha256": "49aae969c9e2312fc68a0b4d59b3f59d6aa9ed8e2a5a74df0eabd9d418a23733"
+    },
+    {
+      "path": "scripts/validate_package.py",
+      "bytes": 4565,
+      "sha256": "e5aabbe85852d17f8d81bed59eea83e9f804e57c578c0a9edb4a20500b915cb5"
+    },
+    {
+      "path": "game_rules/auto_chess.py",
+      "bytes": 17808,
+      "sha256": "c00727c2e5204643c6db8650bef14a13df702600b8cb991f03a4470f3fbd1734"
+    },
+    {
+      "path": "tests/test_auto_chess.py",
+      "bytes": 10379,
+      "sha256": "8dc0a75e21606ffb70868399ed07515eff4f32783e07bb690e58deb64ef9000f"
+    },
+    {
+      "path": "docs/03_engineering/AUTO_CHESS_RULES_REFERENCE.md",
+      "bytes": 6099,
+      "sha256": "adb10af9aff2dc861e324b0659649ff7aae981d4a4072b04aa5a3ea8ebc29336"
+    },
+    {
+      "path": "scripts/update_file_index.py",
+      "bytes": 1415,
+      "sha256": "2368cee81f9175f47e2a469a91d1f3dd8508e4e79c4da9bba232a2df8b5afa97"
+    },
+    {
+      "path": "docs/03_engineering/TCG_RULES_REFERENCE.md",
+      "bytes": 6712,
+      "sha256": "954aa77a9b5a29721179cc92a987464aab6ea9a8a5edc4f401999d259e9daca6"
+    },
+    {
+      "path": "game_rules/tcg.py",
+      "bytes": 35172,
+      "sha256": "659a52ab117fbd26abb10b0477ca197e9d606d61b37948159392b53d2022cab6"
+    },
+    {
+      "path": "tests/test_tcg.py",
+      "bytes": 24475,
+      "sha256": "05808d6f3577abcae582c607036dbb71595a968af4eb249f6bc31889a5c57ccf"
+    },
+    {
+      "path": "docs/03_engineering/ADVENTURE_RULES_REFERENCE.md",
+      "bytes": 3564,
+      "sha256": "13127f796191660afe53c35f91ad91da8b52ddb4bc97fc8c1adcc574f3a41d7d"
+    },
+    {
+      "path": "game_rules/adventure.py",
+      "bytes": 17619,
+      "sha256": "ec89eab1818db67c504f7de9c88584fc321397f9ed64b021c8afe360d6aa8465"
+    },
+    {
+      "path": "tests/test_adventure.py",
+      "bytes": 6565,
+      "sha256": "88701752145f61d0f1c1ad460da5d383fe41690f5d5634ecee5d74d6caae86f2"
+    }
+  ]
+}

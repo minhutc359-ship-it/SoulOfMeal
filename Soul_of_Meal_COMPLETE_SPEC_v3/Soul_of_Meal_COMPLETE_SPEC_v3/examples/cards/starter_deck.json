@@ -1,0 +1,79 @@
+{
+  "deck_id": "deck_demo_culinary_mix",
+  "catalog_version": "0.3-proposed",
+  "rules_version": "v3-proposed",
+  "cards": [
+    {
+      "card_id": "card_demo_01",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_02",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_03",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_04",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_05",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_06",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_07",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_08",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_09",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_10",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_11",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_12",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_13",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_14",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_15",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_16",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_17",
+      "count": 2
+    },
+    {
+      "card_id": "card_demo_18",
+      "count": 2
+    }
+  ]
+}

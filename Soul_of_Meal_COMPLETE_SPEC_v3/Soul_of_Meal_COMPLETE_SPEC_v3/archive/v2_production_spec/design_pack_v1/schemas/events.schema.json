@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soul-of-meal.local/schema/events.json",
+  "title": "Soul of Meal runtime event contract",
+  "type": "object",
+  "required": [
+    "event_id",
+    "type",
+    "instance_id",
+    "timestamp_ms",
+    "payload"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "animation.cast_start",
+        "animation.projectile_spawn",
+        "combat.hit_confirmed",
+        "combat.damage_applied",
+        "combat.status_applied",
+        "combat.cast_complete",
+        "interaction.open",
+        "interaction.close",
+        "ui.card.play.request",
+        "ui.trap.trigger",
+        "vfx.spawn",
+        "sfx.play",
+        "chess.unit.merge",
+        "update.detected"
+      ]
+    },
+    "instance_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "actor_id": {
+      "type": "string"
+    },
+    "target_id": {
+      "type": "string"
+    },
+    "map_id": {
+      "type": "string"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "correlation_id": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Transport-neutral event envelope. Handler must deduplicate event_id/action instance; combat.server authoritative in PvP."
+}

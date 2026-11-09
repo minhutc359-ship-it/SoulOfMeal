@@ -1,0 +1,17 @@
+{
+  "event_id": "evt_000121",
+  "type": "combat.damage_applied",
+  "instance_id": "act_001_ultimate_01",
+  "timestamp_ms": 2000,
+  "actor_id": "chr_bunbo_holinh_ally_01",
+  "target_id": "enemy_mushroom_01",
+  "payload": {
+    "sim_tick": 120,
+    "sequence": 9,
+    "ability_id": "skill_bunbo_ngonluaamthuc",
+    "damage": 418,
+    "is_crit": false,
+    "element": "fire",
+    "fixture_only": true
+  }
+}

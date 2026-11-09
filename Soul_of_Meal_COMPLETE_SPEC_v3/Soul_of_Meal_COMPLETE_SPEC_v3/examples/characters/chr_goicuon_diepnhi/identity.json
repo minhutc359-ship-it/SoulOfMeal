@@ -1,0 +1,11 @@
+{
+  "character_id": "chr_goicuon_diepnhi",
+  "display_name": "Gỏi Cuốn Diệp Nhi",
+  "element": "wood",
+  "role": "support",
+  "identity_lock": "green hair; flowers and leaves; vine energy",
+  "palette_status": "proposed",
+  "turnaround_status": "reference_only",
+  "source_reference": "references/visuals/full/character_sheet.png",
+  "license_status": "pending_review"
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "character_id": "chr_bunbo_holinh",
+  "skin_id": "default",
+  "frame_size_px": [
+    512,
+    512
+  ],
+  "anchor_normalized": [
+    0.5,
+    0.9
+  ],
+  "animations": {
+    "idle": {
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "E": {
+          "frames": [],
+          "events": []
+        }
+      }
+    }
+  },
+  "hitbox_world": {
+    "w": 0.8,
+    "h": 1.4,
+    "offset_x": 0,
+    "offset_y": 0.7
+  },
+  "sockets": {
+    "weapon_tip": {
+      "x": 0.75,
+      "y": 0.5
+    },
+    "root": {
+      "x": 0.5,
+      "y": 0.9
+    }
+  },
+  "identity_review": "pending",
+  "rights_status": "pending_review",
+  "status": "pending_art"
+}

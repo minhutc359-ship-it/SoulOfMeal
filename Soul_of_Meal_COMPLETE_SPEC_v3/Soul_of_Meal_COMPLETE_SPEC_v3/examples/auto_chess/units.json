@@ -1,0 +1,65 @@
+{
+  "catalog_version": "v3-proposed",
+  "units": [
+    {
+      "id": "chr_bunbo_holinh",
+      "display_name": "Bún Bò Hỏa Linh",
+      "element": "fire",
+      "job": "fighter",
+      "cost": 1,
+      "stars": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "chr_pho_lamvu",
+      "display_name": "Phở Lam Vũ",
+      "element": "water",
+      "job": "mage",
+      "cost": 2,
+      "stars": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "chr_goicuon_diepnhi",
+      "display_name": "Gỏi Cuốn Diệp Nhi",
+      "element": "wood",
+      "job": "support",
+      "cost": 3,
+      "stars": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "chr_banhbao_bachngoc",
+      "display_name": "Bánh Bao Bạch Ngọc",
+      "element": "light",
+      "job": "guardian",
+      "cost": 4,
+      "stars": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "chr_caphe_davu",
+      "display_name": "Cà Phê Dạ Vũ",
+      "element": "shadow",
+      "job": "assassin",
+      "cost": 5,
+      "stars": [
+        1,
+        2,
+        3
+      ]
+    }
+  ]
+}

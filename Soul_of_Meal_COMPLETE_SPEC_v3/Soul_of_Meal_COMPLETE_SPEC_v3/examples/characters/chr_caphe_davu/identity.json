@@ -1,0 +1,11 @@
+{
+  "character_id": "chr_caphe_davu",
+  "display_name": "Cà Phê Dạ Vũ",
+  "element": "shadow",
+  "role": "assassin",
+  "identity_lock": "dark purple hair; copper accessories; coffee-shadow daggers",
+  "palette_status": "proposed",
+  "turnaround_status": "reference_only",
+  "source_reference": "references/visuals/full/character_sheet.png",
+  "license_status": "pending_review"
+}

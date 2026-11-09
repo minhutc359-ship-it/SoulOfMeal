@@ -1,0 +1,24 @@
+{
+  "schema_version": "2.0-draft",
+  "effect_id": "vfx_fire_bunbo_ultimate_impact",
+  "element": "fire",
+  "trigger_event": "combat.hit_confirmed",
+  "anchor": "target.area_center",
+  "layer": "arena_vfx",
+  "priority": "critical",
+  "lifetime_ms": 900,
+  "master_source_px": [
+    2048,
+    2048
+  ],
+  "max_instances": 1,
+  "variants": [
+    "high",
+    "medium",
+    "low",
+    "reduced_motion"
+  ],
+  "fallback_id": null,
+  "requires_license_review": true,
+  "status": "draft"
+}

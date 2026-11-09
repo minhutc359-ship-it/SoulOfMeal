@@ -1,0 +1,17 @@
+﻿screen_id,orientation,mandatory_states,acceptance
+screen_splash,both,loading/update/offline/error,version compare; retry on failure
+screen_home,portrait,default/new_reward/news,adventure/tcg/autochess routes
+screen_world_map,portrait,locked/unlocked/selected/loading,zone click + details
+screen_adventure_explore,both,idle/moving/interacting/dialogue/encounter,movement + modal interaction
+screen_quest_journal,portrait,new/active/complete/claimed/empty,accept/track/claim
+screen_team_builder,portrait,valid/invalid/locked/loading,save 5 slots
+screen_adventure_battle,landscape,ready/casting/cooldown/win/lose,ultimate timing + HUD readability
+screen_battle_result,both,pending/claimed/error,idempotent rewards
+screen_vilin_detail,portrait,owned/locked/maxed/missing_resources,upgrade/skin/bond
+screen_gacha,portrait,idle/confirm/processing/reveal/error,draw txn ID + odds
+screen_tcg_deck_builder,landscape,valid/invalid/empty/filtered,36 card rules
+screen_tcg_match,landscape,my_priority/opponent_priority/stack_resolving/win,trap reaction & damage
+screen_autochess_lobby,portrait,ready/matching/error,normal/hard/extreme bot
+screen_autochess_match,landscape,preparation/combat/reward/end,5 shop slots/traits/gold
+screen_settings,both,dirty/saving/saved/error,persist volume + reduced_motion
+screen_update_prompt,both,detected/downloading/verifying/restart/error,progress+retry+no save loss

@@ -1,0 +1,63 @@
+{
+  "schema_version": "2.0-draft",
+  "character_id": "chr_bunbo_holinh",
+  "display_name": "Bún Bò Hỏa Linh",
+  "element": "fire",
+  "role": "fighter",
+  "appearance": {
+    "palette": [
+      "#E45A3B",
+      "#FFE17A",
+      "#FF7B31",
+      "#FFF1DA",
+      "#B92D3F",
+      "#4A2F35"
+    ],
+    "dominant_hand": "right",
+    "chibi_heads": 2.6
+  },
+  "assets": {
+    "full": "chr_bunbo_holinh_full",
+    "portrait": "chr_bunbo_holinh_portrait",
+    "card": "chr_bunbo_holinh_card",
+    "ultimate_cutin": "chr_bunbo_holinh_cutin_ultimate"
+  },
+  "rig": {
+    "root": "feet",
+    "sockets": [
+      "feet",
+      "hip",
+      "spine",
+      "head",
+      "hand_l",
+      "hand_r",
+      "blade_tip",
+      "target_lock",
+      "shield_center"
+    ],
+    "atlas_max_size_px": 2048
+  },
+  "expressions": [
+    "neutral",
+    "smile",
+    "laugh",
+    "surprised",
+    "angry",
+    "sad",
+    "hurt",
+    "victory"
+  ],
+  "animations": {
+    "attack_a": {
+      "visual_duration_frames_60fps": 30,
+      "preview_hit_frame": 18,
+      "logic_hit_source": "combat.hit_confirmed"
+    },
+    "ultimate_01": {
+      "visual_duration_frames_60fps": 150,
+      "ability_id": "skill_bunbo_ngonluaamthuc"
+    }
+  },
+  "license_status": "pending_review",
+  "review_status": "draft"
+}

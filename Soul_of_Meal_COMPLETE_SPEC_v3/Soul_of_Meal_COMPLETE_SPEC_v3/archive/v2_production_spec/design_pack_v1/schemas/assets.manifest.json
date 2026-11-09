@@ -1,0 +1,1298 @@
+{
+  "pack_version": "1.0.0",
+  "design_status": "proposed_not_production_ready",
+  "coordinate_rules": {
+    "ui_portrait_dp": [
+      390,
+      844
+    ],
+    "ui_landscape_dp": [
+      960,
+      540
+    ],
+    "world_tile_units": [
+      64,
+      64
+    ],
+    "runtime_target_fps": 60
+  },
+  "characters": [
+    "chr_bunbo_holinh",
+    "chr_pho_lamvu",
+    "chr_goicuon_diepnhi",
+    "chr_banhbao_bachngoc",
+    "chr_caphe_davu"
+  ],
+  "assets": [
+    {
+      "id": "chr_bunbo_holinh_full",
+      "domain": "character",
+      "path": "assets/characters/chr_bunbo_holinh/art/full_v001.webp",
+      "design_size": "2048x3072 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_bunbo_holinh_portrait",
+      "domain": "character",
+      "path": "assets/characters/chr_bunbo_holinh/art/portrait_v001.webp",
+      "design_size": "2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_bunbo_holinh_card",
+      "domain": "character",
+      "path": "assets/characters/chr_bunbo_holinh/art/card_v001.webp",
+      "design_size": "768x1024 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_bunbo_holinh_cutin_ultimate",
+      "domain": "character",
+      "path": "assets/characters/chr_bunbo_holinh/art/cutin_ultimate_v001.webp",
+      "design_size": "2048x1152 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_bunbo_holinh_avatar",
+      "domain": "character",
+      "path": "assets/characters/chr_bunbo_holinh/art/avatar_v001.webp",
+      "design_size": "512x512 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_bunbo_holinh_skeleton",
+      "domain": "character",
+      "path": "assets/characters/chr_bunbo_holinh/rig/skeleton.json",
+      "design_size": "rig vector coordinates",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_bunbo_holinh_atlas_0",
+      "domain": "character",
+      "path": "assets/characters/chr_bunbo_holinh/rig/atlas_0.webp",
+      "design_size": "<=2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_bunbo_holinh_animation_events",
+      "domain": "character",
+      "path": "assets/characters/chr_bunbo_holinh/animations/events.json",
+      "design_size": "events timing/frames",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_pho_lamvu_full",
+      "domain": "character",
+      "path": "assets/characters/chr_pho_lamvu/art/full_v001.webp",
+      "design_size": "2048x3072 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_pho_lamvu_portrait",
+      "domain": "character",
+      "path": "assets/characters/chr_pho_lamvu/art/portrait_v001.webp",
+      "design_size": "2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_pho_lamvu_card",
+      "domain": "character",
+      "path": "assets/characters/chr_pho_lamvu/art/card_v001.webp",
+      "design_size": "768x1024 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_pho_lamvu_cutin_ultimate",
+      "domain": "character",
+      "path": "assets/characters/chr_pho_lamvu/art/cutin_ultimate_v001.webp",
+      "design_size": "2048x1152 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_pho_lamvu_avatar",
+      "domain": "character",
+      "path": "assets/characters/chr_pho_lamvu/art/avatar_v001.webp",
+      "design_size": "512x512 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_pho_lamvu_skeleton",
+      "domain": "character",
+      "path": "assets/characters/chr_pho_lamvu/rig/skeleton.json",
+      "design_size": "rig vector coordinates",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_pho_lamvu_atlas_0",
+      "domain": "character",
+      "path": "assets/characters/chr_pho_lamvu/rig/atlas_0.webp",
+      "design_size": "<=2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_pho_lamvu_animation_events",
+      "domain": "character",
+      "path": "assets/characters/chr_pho_lamvu/animations/events.json",
+      "design_size": "events timing/frames",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_goicuon_diepnhi_full",
+      "domain": "character",
+      "path": "assets/characters/chr_goicuon_diepnhi/art/full_v001.webp",
+      "design_size": "2048x3072 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_goicuon_diepnhi_portrait",
+      "domain": "character",
+      "path": "assets/characters/chr_goicuon_diepnhi/art/portrait_v001.webp",
+      "design_size": "2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_goicuon_diepnhi_card",
+      "domain": "character",
+      "path": "assets/characters/chr_goicuon_diepnhi/art/card_v001.webp",
+      "design_size": "768x1024 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_goicuon_diepnhi_cutin_ultimate",
+      "domain": "character",
+      "path": "assets/characters/chr_goicuon_diepnhi/art/cutin_ultimate_v001.webp",
+      "design_size": "2048x1152 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_goicuon_diepnhi_avatar",
+      "domain": "character",
+      "path": "assets/characters/chr_goicuon_diepnhi/art/avatar_v001.webp",
+      "design_size": "512x512 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_goicuon_diepnhi_skeleton",
+      "domain": "character",
+      "path": "assets/characters/chr_goicuon_diepnhi/rig/skeleton.json",
+      "design_size": "rig vector coordinates",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_goicuon_diepnhi_atlas_0",
+      "domain": "character",
+      "path": "assets/characters/chr_goicuon_diepnhi/rig/atlas_0.webp",
+      "design_size": "<=2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_goicuon_diepnhi_animation_events",
+      "domain": "character",
+      "path": "assets/characters/chr_goicuon_diepnhi/animations/events.json",
+      "design_size": "events timing/frames",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_banhbao_bachngoc_full",
+      "domain": "character",
+      "path": "assets/characters/chr_banhbao_bachngoc/art/full_v001.webp",
+      "design_size": "2048x3072 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_banhbao_bachngoc_portrait",
+      "domain": "character",
+      "path": "assets/characters/chr_banhbao_bachngoc/art/portrait_v001.webp",
+      "design_size": "2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_banhbao_bachngoc_card",
+      "domain": "character",
+      "path": "assets/characters/chr_banhbao_bachngoc/art/card_v001.webp",
+      "design_size": "768x1024 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_banhbao_bachngoc_cutin_ultimate",
+      "domain": "character",
+      "path": "assets/characters/chr_banhbao_bachngoc/art/cutin_ultimate_v001.webp",
+      "design_size": "2048x1152 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_banhbao_bachngoc_avatar",
+      "domain": "character",
+      "path": "assets/characters/chr_banhbao_bachngoc/art/avatar_v001.webp",
+      "design_size": "512x512 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_banhbao_bachngoc_skeleton",
+      "domain": "character",
+      "path": "assets/characters/chr_banhbao_bachngoc/rig/skeleton.json",
+      "design_size": "rig vector coordinates",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_banhbao_bachngoc_atlas_0",
+      "domain": "character",
+      "path": "assets/characters/chr_banhbao_bachngoc/rig/atlas_0.webp",
+      "design_size": "<=2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_banhbao_bachngoc_animation_events",
+      "domain": "character",
+      "path": "assets/characters/chr_banhbao_bachngoc/animations/events.json",
+      "design_size": "events timing/frames",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_caphe_davu_full",
+      "domain": "character",
+      "path": "assets/characters/chr_caphe_davu/art/full_v001.webp",
+      "design_size": "2048x3072 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_caphe_davu_portrait",
+      "domain": "character",
+      "path": "assets/characters/chr_caphe_davu/art/portrait_v001.webp",
+      "design_size": "2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_caphe_davu_card",
+      "domain": "character",
+      "path": "assets/characters/chr_caphe_davu/art/card_v001.webp",
+      "design_size": "768x1024 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_caphe_davu_cutin_ultimate",
+      "domain": "character",
+      "path": "assets/characters/chr_caphe_davu/art/cutin_ultimate_v001.webp",
+      "design_size": "2048x1152 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_caphe_davu_avatar",
+      "domain": "character",
+      "path": "assets/characters/chr_caphe_davu/art/avatar_v001.webp",
+      "design_size": "512x512 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_caphe_davu_skeleton",
+      "domain": "character",
+      "path": "assets/characters/chr_caphe_davu/rig/skeleton.json",
+      "design_size": "rig vector coordinates",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_caphe_davu_atlas_0",
+      "domain": "character",
+      "path": "assets/characters/chr_caphe_davu/rig/atlas_0.webp",
+      "design_size": "<=2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "chr_caphe_davu_animation_events",
+      "domain": "character",
+      "path": "assets/characters/chr_caphe_davu/animations/events.json",
+      "design_size": "events timing/frames",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "character",
+      "notes": ""
+    },
+    {
+      "id": "env_village_square",
+      "domain": "environment",
+      "path": "assets/world/maps/env_village_square/map.json",
+      "design_size": "64x48 tiles @64 units",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "env_village_lilia_kitchen",
+      "domain": "environment",
+      "path": "assets/world/maps/env_village_lilia_kitchen/map.json",
+      "design_size": "interior 28x20 tiles",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "env_village_guild_hall",
+      "domain": "environment",
+      "path": "assets/world/maps/env_village_guild_hall/map.json",
+      "design_size": "interior 36x24 tiles",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "env_village_market",
+      "domain": "environment",
+      "path": "assets/world/maps/env_village_market/map.json",
+      "design_size": "48x32 tiles",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "env_forest_entrance",
+      "domain": "environment",
+      "path": "assets/world/maps/env_forest_entrance/map.json",
+      "design_size": "48x32 tiles",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "env_prop_banhbao_statue",
+      "domain": "environment",
+      "path": "assets/world/props/env_prop_banhbao_statue.webp",
+      "design_size": "384x512 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "env_build_lilia_kitchen",
+      "domain": "environment",
+      "path": "assets/world/props/env_build_lilia_kitchen.webp",
+      "design_size": "1024x1024 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "env_build_guild_hall",
+      "domain": "environment",
+      "path": "assets/world/props/env_build_guild_hall.webp",
+      "design_size": "1536x1024 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "env_prop_questboard",
+      "domain": "environment",
+      "path": "assets/world/props/env_prop_questboard.webp",
+      "design_size": "256x384 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "env_prop_chest_wood",
+      "domain": "environment",
+      "path": "assets/world/props/env_prop_chest_wood.webp",
+      "design_size": "256x256 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "env_prop_berry_bush",
+      "domain": "environment",
+      "path": "assets/world/props/env_prop_berry_bush.webp",
+      "design_size": "256x256 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "env_prop_bridge_wood",
+      "domain": "environment",
+      "path": "assets/world/props/env_prop_bridge_wood.webp",
+      "design_size": "modular 4x1 tiles",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "env_prop_door_generic",
+      "domain": "environment",
+      "path": "assets/world/props/env_prop_door_generic.webp",
+      "design_size": "128x192 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "env_prop_sign_forest",
+      "domain": "environment",
+      "path": "assets/world/props/env_prop_sign_forest.webp",
+      "design_size": "256x256 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "env_prop_lantern",
+      "domain": "environment",
+      "path": "assets/world/props/env_prop_lantern.webp",
+      "design_size": "128x256 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "environment",
+      "notes": ""
+    },
+    {
+      "id": "npc_lilia",
+      "domain": "npc",
+      "path": "assets/npcs/npc_lilia/rig/atlas_0.webp",
+      "design_size": "<=2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "npc",
+      "notes": ""
+    },
+    {
+      "id": "npc_market_merchant",
+      "domain": "npc",
+      "path": "assets/npcs/npc_market_merchant/rig/atlas_0.webp",
+      "design_size": "<=2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "npc",
+      "notes": ""
+    },
+    {
+      "id": "npc_guild_guard",
+      "domain": "npc",
+      "path": "assets/npcs/npc_guild_guard/rig/atlas_0.webp",
+      "design_size": "<=2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "npc",
+      "notes": ""
+    },
+    {
+      "id": "npc_ingredient_collector",
+      "domain": "npc",
+      "path": "assets/npcs/npc_ingredient_collector/rig/atlas_0.webp",
+      "design_size": "<=2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "npc",
+      "notes": ""
+    },
+    {
+      "id": "npc_child_explorer",
+      "domain": "npc",
+      "path": "assets/npcs/npc_child_explorer/rig/atlas_0.webp",
+      "design_size": "<=2048x2048 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "npc",
+      "notes": ""
+    },
+    {
+      "id": "ui_btn_primary",
+      "domain": "ui",
+      "path": "assets/ui/ui_btn_primary.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_btn_secondary",
+      "domain": "ui",
+      "path": "assets/ui/ui_btn_secondary.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_btn_ghost",
+      "domain": "ui",
+      "path": "assets/ui/ui_btn_ghost.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_btn_danger",
+      "domain": "ui",
+      "path": "assets/ui/ui_btn_danger.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_panel_parchment",
+      "domain": "ui",
+      "path": "assets/ui/ui_panel_parchment.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_panel_dark",
+      "domain": "ui",
+      "path": "assets/ui/ui_panel_dark.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_panel_modal",
+      "domain": "ui",
+      "path": "assets/ui/ui_panel_modal.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_modal_overlay",
+      "domain": "ui",
+      "path": "assets/ui/ui_modal_overlay.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_toast_success",
+      "domain": "ui",
+      "path": "assets/ui/ui_toast_success.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_toast_error",
+      "domain": "ui",
+      "path": "assets/ui/ui_toast_error.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_icon_adventure",
+      "domain": "ui",
+      "path": "assets/ui/ui_icon_adventure.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_icon_tcg",
+      "domain": "ui",
+      "path": "assets/ui/ui_icon_tcg.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_icon_autochess",
+      "domain": "ui",
+      "path": "assets/ui/ui_icon_autochess.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_icon_vilin",
+      "domain": "ui",
+      "path": "assets/ui/ui_icon_vilin.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_icon_gacha",
+      "domain": "ui",
+      "path": "assets/ui/ui_icon_gacha.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_icon_quests",
+      "domain": "ui",
+      "path": "assets/ui/ui_icon_quests.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_icon_settings",
+      "domain": "ui",
+      "path": "assets/ui/ui_icon_settings.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_progress_hp",
+      "domain": "ui",
+      "path": "assets/ui/ui_progress_hp.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_progress_energy",
+      "domain": "ui",
+      "path": "assets/ui/ui_progress_energy.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_progress_load",
+      "domain": "ui",
+      "path": "assets/ui/ui_progress_load.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_avatar_frame_ssr",
+      "domain": "ui",
+      "path": "assets/ui/ui_avatar_frame_ssr.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_reward_shine",
+      "domain": "ui",
+      "path": "assets/ui/ui_reward_shine.svg",
+      "design_size": "vector/9-slice",
+      "runtime_format": "svg",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_illustration_home_bg_portrait",
+      "domain": "ui",
+      "path": "assets/ui/backgrounds/home_portrait.webp",
+      "design_size": "1080x1920 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "ui_illustration_home_bg_landscape",
+      "domain": "ui",
+      "path": "assets/ui/backgrounds/home_landscape.webp",
+      "design_size": "1920x1080 px",
+      "runtime_format": "webp",
+      "priority": "P0",
+      "category": "ui",
+      "notes": ""
+    },
+    {
+      "id": "vfx_fire_slash_a",
+      "domain": "vfx",
+      "path": "assets/vfx/vfx_fire_slash_a/effect.json",
+      "design_size": "512–2048 px master; scaled in world",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "vfx",
+      "notes": ""
+    },
+    {
+      "id": "vfx_fire_hit_small",
+      "domain": "vfx",
+      "path": "assets/vfx/vfx_fire_hit_small/effect.json",
+      "design_size": "512–2048 px master; scaled in world",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "vfx",
+      "notes": ""
+    },
+    {
+      "id": "vfx_fire_bunbo_ultimate_cast",
+      "domain": "vfx",
+      "path": "assets/vfx/vfx_fire_bunbo_ultimate_cast/effect.json",
+      "design_size": "512–2048 px master; scaled in world",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "vfx",
+      "notes": ""
+    },
+    {
+      "id": "vfx_fire_bunbo_ultimate_impact",
+      "domain": "vfx",
+      "path": "assets/vfx/vfx_fire_bunbo_ultimate_impact/effect.json",
+      "design_size": "512–2048 px master; scaled in world",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "vfx",
+      "notes": ""
+    },
+    {
+      "id": "vfx_water_cast_ring",
+      "domain": "vfx",
+      "path": "assets/vfx/vfx_water_cast_ring/effect.json",
+      "design_size": "512–2048 px master; scaled in world",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "vfx",
+      "notes": ""
+    },
+    {
+      "id": "vfx_water_splash_medium",
+      "domain": "vfx",
+      "path": "assets/vfx/vfx_water_splash_medium/effect.json",
+      "design_size": "512–2048 px master; scaled in world",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "vfx",
+      "notes": ""
+    },
+    {
+      "id": "vfx_wood_heal_bloom",
+      "domain": "vfx",
+      "path": "assets/vfx/vfx_wood_heal_bloom/effect.json",
+      "design_size": "512–2048 px master; scaled in world",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "vfx",
+      "notes": ""
+    },
+    {
+      "id": "vfx_light_shield_bubble",
+      "domain": "vfx",
+      "path": "assets/vfx/vfx_light_shield_bubble/effect.json",
+      "design_size": "512–2048 px master; scaled in world",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "vfx",
+      "notes": ""
+    },
+    {
+      "id": "vfx_shadow_cut_01",
+      "domain": "vfx",
+      "path": "assets/vfx/vfx_shadow_cut_01/effect.json",
+      "design_size": "512–2048 px master; scaled in world",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "vfx",
+      "notes": ""
+    },
+    {
+      "id": "vfx_tcg_trap_reveal",
+      "domain": "vfx",
+      "path": "assets/vfx/vfx_tcg_trap_reveal/effect.json",
+      "design_size": "512–2048 px master; scaled in world",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "vfx",
+      "notes": ""
+    },
+    {
+      "id": "vfx_chess_merge_star",
+      "domain": "vfx",
+      "path": "assets/vfx/vfx_chess_merge_star/effect.json",
+      "design_size": "512–2048 px master; scaled in world",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "vfx",
+      "notes": ""
+    },
+    {
+      "id": "vfx_fire_anticipation_small",
+      "domain": "vfx",
+      "path": "assets/vfx/vfx_fire_anticipation_small/effect.json",
+      "design_size": "512–2048 px master; scaled in world",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "vfx",
+      "notes": ""
+    },
+    {
+      "id": "vfx_fire_dash_trail",
+      "domain": "vfx",
+      "path": "assets/vfx/vfx_fire_dash_trail/effect.json",
+      "design_size": "512–2048 px master; scaled in world",
+      "runtime_format": "json",
+      "priority": "P0",
+      "category": "vfx",
+      "notes": ""
+    },
+    {
+      "id": "sfx_ui_confirm",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_ui_confirm_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_ui_cancel",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_ui_cancel_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_page_open",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_page_open_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_card_draw",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_card_draw_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_tcg_trap_flip",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_tcg_trap_flip_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_shop_buy",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_shop_buy_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_star_upgrade",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_star_upgrade_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_fire_whoosh_a",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_fire_whoosh_a_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_blade_impact",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_blade_impact_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_water_splash_medium",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_water_splash_medium_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_fire_blast_large",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_fire_blast_large_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_victory_fanfare",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_victory_fanfare_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "vo_chr_bunbo_ultimate_vi",
+      "domain": "audio",
+      "path": "assets/audio/voice/vo_chr_bunbo_ultimate_vi_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_step_light",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_step_light_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_enemy_hit_short",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_enemy_hit_short_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_water_gather",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_water_gather_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_fire_dash",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_fire_dash_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_round_start",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_round_start_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_victory_small",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_victory_small_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "sfx_pick_unit",
+      "domain": "audio",
+      "path": "assets/audio/sfx/sfx_pick_unit_v001.ogg",
+      "design_size": "48 kHz source",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "bgm_home_village",
+      "domain": "audio",
+      "path": "assets/audio/bgm/bgm_home_village_v001.ogg",
+      "design_size": "48 kHz source, loop markers metadata",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "bgm_forest_explore",
+      "domain": "audio",
+      "path": "assets/audio/bgm/bgm_forest_explore_v001.ogg",
+      "design_size": "48 kHz source, loop markers metadata",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "bgm_sea_explore",
+      "domain": "audio",
+      "path": "assets/audio/bgm/bgm_sea_explore_v001.ogg",
+      "design_size": "48 kHz source, loop markers metadata",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "bgm_volcano_explore",
+      "domain": "audio",
+      "path": "assets/audio/bgm/bgm_volcano_explore_v001.ogg",
+      "design_size": "48 kHz source, loop markers metadata",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "bgm_adventure_battle",
+      "domain": "audio",
+      "path": "assets/audio/bgm/bgm_adventure_battle_v001.ogg",
+      "design_size": "48 kHz source, loop markers metadata",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "bgm_boss_hoadiem",
+      "domain": "audio",
+      "path": "assets/audio/bgm/bgm_boss_hoadiem_v001.ogg",
+      "design_size": "48 kHz source, loop markers metadata",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "bgm_tcg_match",
+      "domain": "audio",
+      "path": "assets/audio/bgm/bgm_tcg_match_v001.ogg",
+      "design_size": "48 kHz source, loop markers metadata",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "bgm_autochess_match",
+      "domain": "audio",
+      "path": "assets/audio/bgm/bgm_autochess_match_v001.ogg",
+      "design_size": "48 kHz source, loop markers metadata",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "bgm_gacha_reveal",
+      "domain": "audio",
+      "path": "assets/audio/bgm/bgm_gacha_reveal_v001.ogg",
+      "design_size": "48 kHz source, loop markers metadata",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    },
+    {
+      "id": "bgm_main_hanhtrinhvigiac",
+      "domain": "audio",
+      "path": "assets/audio/bgm/bgm_main_hanhtrinhvigiac_v001.ogg",
+      "design_size": "48 kHz source, loop markers metadata",
+      "runtime_format": "ogg",
+      "priority": "P0",
+      "category": "audio",
+      "notes": ""
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "character_id": "chr_bunbo_holinh",
+  "skin_id": "default",
+  "direction": "E",
+  "frame_size": [
+    512,
+    512
+  ],
+  "animation_jobs": [
+    {
+      "clip": "idle",
+      "frames": 8,
+      "fps": 8,
+      "loop": true
+    },
+    {
+      "clip": "walk",
+      "frames": 8,
+      "fps": 12,
+      "loop": true
+    },
+    {
+      "clip": "attack_a",
+      "frames": 12,
+      "fps": 16,
+      "loop": false
+    }
+  ],
+  "anchor_normalized": [
+    0.5,
+    0.9
+  ],
+  "safe_padding_fraction": 0.08,
+  "output_root": "assets/characters/chr_bunbo_holinh/default",
+  "identity_review": "pending",
+  "rights_status": "pending_review"
+}

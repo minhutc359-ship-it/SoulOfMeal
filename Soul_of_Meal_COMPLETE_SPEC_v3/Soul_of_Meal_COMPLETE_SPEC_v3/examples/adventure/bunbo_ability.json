@@ -1,0 +1,20 @@
+{
+  "mode": "adventure",
+  "rules_version": "v3-proposed",
+  "ability_id": "abl_bunbo_flame_slash_01",
+  "character_id": "chr_bunbo_holinh",
+  "element": "fire",
+  "coefficient_bp": 15000,
+  "damage_formula": "mitigated_v1",
+  "max_targets": 1,
+  "attack_range_world": 1.4,
+  "cast_ticks": 12,
+  "hit_tick_offset": 7,
+  "vfx_id": "vfx_fire_slash_hit_a",
+  "sfx_id": "sfx_fire_slash_01",
+  "sample_damage_fixture": {
+    "atk": 320,
+    "def": 100,
+    "expected_damage": 240
+  }
+}

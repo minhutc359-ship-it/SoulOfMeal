@@ -1,0 +1,22 @@
+{
+  "schema_version": "2.0-draft",
+  "audio_id": "sfx_blade_impact",
+  "bus": "SFX",
+  "trigger_event": "combat.hit_confirmed",
+  "master_format": {
+    "container": "WAV",
+    "sample_rate_hz": 48000,
+    "bit_depth": 24
+  },
+  "runtime_formats": [
+    "ogg",
+    "fallback_tbd"
+  ],
+  "length_target_ms": [
+    150,
+    260
+  ],
+  "voice_limit": 4,
+  "positional": true,
+  "license_status": "pending_review"
+}

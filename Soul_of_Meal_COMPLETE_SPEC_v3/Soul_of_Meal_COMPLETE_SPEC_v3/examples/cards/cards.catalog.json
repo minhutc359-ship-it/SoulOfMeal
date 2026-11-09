@@ -1,0 +1,239 @@
+{
+  "catalog_version": "0.3-proposed",
+  "cards": [
+    {
+      "card_id": "card_demo_01",
+      "display_name": "Soul of Meal Sample 01",
+      "type": "unit",
+      "element": "fire",
+      "cost": 1,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "atk": 300,
+      "max_def": 500
+    },
+    {
+      "card_id": "card_demo_02",
+      "display_name": "Soul of Meal Sample 02",
+      "type": "unit",
+      "element": "water",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "atk": 500,
+      "max_def": 750
+    },
+    {
+      "card_id": "card_demo_03",
+      "display_name": "Soul of Meal Sample 03",
+      "type": "unit",
+      "element": "wood",
+      "cost": 3,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "atk": 700,
+      "max_def": 1000
+    },
+    {
+      "card_id": "card_demo_04",
+      "display_name": "Soul of Meal Sample 04",
+      "type": "unit",
+      "element": "light",
+      "cost": 4,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "atk": 900,
+      "max_def": 1250
+    },
+    {
+      "card_id": "card_demo_05",
+      "display_name": "Soul of Meal Sample 05",
+      "type": "unit",
+      "element": "shadow",
+      "cost": 5,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "atk": 1100,
+      "max_def": 500
+    },
+    {
+      "card_id": "card_demo_06",
+      "display_name": "Soul of Meal Sample 06",
+      "type": "unit",
+      "element": "fire",
+      "cost": 1,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "atk": 300,
+      "max_def": 750
+    },
+    {
+      "card_id": "card_demo_07",
+      "display_name": "Soul of Meal Sample 07",
+      "type": "unit",
+      "element": "water",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "atk": 500,
+      "max_def": 1000
+    },
+    {
+      "card_id": "card_demo_08",
+      "display_name": "Soul of Meal Sample 08",
+      "type": "unit",
+      "element": "wood",
+      "cost": 3,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "atk": 700,
+      "max_def": 1250
+    },
+    {
+      "card_id": "card_demo_09",
+      "display_name": "Soul of Meal Sample 09",
+      "type": "unit",
+      "element": "light",
+      "cost": 4,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "atk": 900,
+      "max_def": 500
+    },
+    {
+      "card_id": "card_demo_10",
+      "display_name": "Soul of Meal Sample 10",
+      "type": "fast_spell",
+      "element": "shadow",
+      "cost": 5,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "effect": {
+        "kind": "deal_damage",
+        "value": 470
+      }
+    },
+    {
+      "card_id": "card_demo_11",
+      "display_name": "Soul of Meal Sample 11",
+      "type": "fast_spell",
+      "element": "fire",
+      "cost": 1,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "effect": {
+        "kind": "deal_damage",
+        "value": 500
+      }
+    },
+    {
+      "card_id": "card_demo_12",
+      "display_name": "Soul of Meal Sample 12",
+      "type": "fast_spell",
+      "element": "water",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "effect": {
+        "kind": "deal_damage",
+        "value": 530
+      }
+    },
+    {
+      "card_id": "card_demo_13",
+      "display_name": "Soul of Meal Sample 13",
+      "type": "fast_spell",
+      "element": "wood",
+      "cost": 3,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "effect": {
+        "kind": "deal_damage",
+        "value": 560
+      }
+    },
+    {
+      "card_id": "card_demo_14",
+      "display_name": "Soul of Meal Sample 14",
+      "type": "trap",
+      "element": "light",
+      "cost": 4,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "trigger": {
+        "when": "attack_declared",
+        "condition": {
+          "min_attackers": 1
+        }
+      },
+      "effect": {
+        "kind": "conditional_counter",
+        "value": 590
+      }
+    },
+    {
+      "card_id": "card_demo_15",
+      "display_name": "Soul of Meal Sample 15",
+      "type": "trap",
+      "element": "shadow",
+      "cost": 5,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "trigger": {
+        "when": "spell_cast",
+        "condition": {
+          "card_type": "fast_spell"
+        }
+      },
+      "effect": {
+        "kind": "conditional_counter",
+        "value": 620
+      }
+    },
+    {
+      "card_id": "card_demo_16",
+      "display_name": "Soul of Meal Sample 16",
+      "type": "trap",
+      "element": "fire",
+      "cost": 1,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "trigger": {
+        "when": "spell_cast",
+        "condition": {
+          "card_type": "fast_spell"
+        }
+      },
+      "effect": {
+        "kind": "conditional_counter",
+        "value": 650
+      }
+    },
+    {
+      "card_id": "card_demo_17",
+      "display_name": "Soul of Meal Sample 17",
+      "type": "slow_spell",
+      "element": "water",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "effect": {
+        "kind": "deal_damage",
+        "value": 680
+      }
+    },
+    {
+      "card_id": "card_demo_18",
+      "display_name": "Soul of Meal Sample 18",
+      "type": "slow_spell",
+      "element": "wood",
+      "cost": 3,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "effect": {
+        "kind": "deal_damage",
+        "value": 710
+      }
+    }
+  ]
+}

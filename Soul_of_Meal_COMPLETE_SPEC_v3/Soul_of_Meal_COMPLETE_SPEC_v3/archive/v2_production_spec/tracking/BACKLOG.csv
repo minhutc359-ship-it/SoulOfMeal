@@ -1,0 +1,52 @@
+﻿ticket_id,priority,owner_role,task,spec_doc,references_or_decisions,definition_of_done,depends_on,status
+DSN-001,P0,Game Design,Approve 5 element roles and game modes,07,DEC-004;DEC-005,Approved GDD + role sheet,,todo
+DSN-002,P0,Game Design,Lock Adventure damage/status/energy formulas,07,DEC-006;DEC-007,Rules + 10 golden fixtures,DSN-001,todo
+DSN-003,P0,Game Design,Lock TCG deck/turn/priority/block/trap rules,07,DEC-008;DEC-012,Full rulebook + invalid cases,DSN-001,todo
+DSN-004,P0,Game Design,Lock AutoChess economy/shop/odds/board/rounds,07,DEC-013;DEC-016,Rules + bot-vs-bot fixtures,DSN-001,todo
+TEC-001,P0,Tech Lead,Select engine after Web/PWA 5 rig benchmark,00,DEC-001;DEC-018;DEC-019,Device benchmark table,,todo
+TEC-002,P0,Tech Lead,Agree save/replay/account authority,07,DEC-002;DEC-003,Architecture decision record,TEC-001,todo
+TEC-003,P0,Content Engineer,Build ID/registry/content validator,00,assets.manifest.json,CI fails missing IDs,TEC-001,todo
+TEC-004,P0,Gameplay Engineer,Event bus and idempotent action IDs,04,events.schema.json,No duplicate damage on replay,TEC-001,todo
+TEC-005,P0,Gameplay Engineer,Snapshot and seeded replay simulation,04,TEC-004,Golden seed matches across runs,TEC-004,todo
+ART-001,P0,Character Artist,Bun Bo turnaround/palette/silhouette,01,chr_bunbo_holinh,4 views + identity approved,DSN-001,todo
+ART-002,P0,Character Artist,Bun Bo 8 expressions/layered source,01,ART-001,8 valid expression IDs,ART-001,todo
+ART-003,P0,Animator,Rig Bun Bo sockets/atlas,01,ART-001,All required sockets validated,ART-001,todo
+ART-004,P0,Animator,Bun Bo idle/walk/run/attack/skill/ultimate,01,ART-003,No clipping or moonwalk,ART-003,todo
+ART-005,P0,Character Artist,Define other four starter character identities,01,chr_pho_lamvu;chr_goicuon_diepnhi;chr_banhbao_bachngoc;chr_caphe_davu,Approved turnaround each,ART-001,todo
+ART-006,P0,Animator,Other starter animations for battle and map,01,ART-005,Core animations all 5,ART-005,todo
+ENV-001,P0,Environment Artist,Village tileset and 64x48 visual map,02,env_village_square,Seam and layer validation,TEC-001,todo
+ENV-002,P0,Level Designer,"Build 4x3 chunks, walkable/collision graph",02,ENV-001,Spawn to forest reachable,ENV-001,todo
+ENV-003,P0,Environment Artist,"Lilia kitchen, questboard, chest, forest gate",02,ENV-001,Each art + collider + states,ENV-001,todo
+ENV-004,P0,Gameplay Engineer,Interaction prefab + line of sight system,02,ENV-002;TEC-004,10 interactions no fake buttons,ENV-002;TEC-004,todo
+ENV-005,P0,Game Designer,Quest chain Q001-Q005 with save keys,02,ENV-004,Quest persistence after reload,ENV-004,todo
+ENV-006,P0,Gameplay Engineer,Doors/interior transition + rollback,02,ENV-003;ENV-004,Two interiors with safe fallback,ENV-003;ENV-004,todo
+ENV-007,P0,Gameplay Engineer,NPC Lilia routine/dialogue/quest marker,02,ENV-004,No quest softlock,ENV-004,todo
+UI-001,P0,UI/UX,Design tokens + responsive layout scaffold,03,TEC-001,390x844 and 960x540 pass,TEC-001,todo
+UI-002,P0,UI/UX,Home+map+explore+team+result screens,03,UI-001,No scroll to play,UI-001,todo
+UI-003,P0,UI/UX,Adventure battle HUD + target/ultimate states,03,DSN-002;UI-001,States visible while fighting,DSN-002;UI-001,todo
+UI-004,P0,UI/UX,TCG board/deck/trap/priority UX,03,DSN-003;UI-001,Legal/illegal action feedback,DSN-003;UI-001,todo
+UI-005,P0,UI/UX,AutoChess shop/board/bench/economy UX,03,DSN-004;UI-001,Drag only in preparation,DSN-004;UI-001,todo
+UI-006,P0,UI/UX,Settings/update prompt/error & accessibility,03,UI-001,Reduced motion + retry,UI-001,todo
+CBT-001,P0,Gameplay Engineer,Adventure nav/range/targeting/attack simulation,04,DSN-002;TEC-004,No ranged melee hits,DSN-002;TEC-004,todo
+CBT-002,P0,Gameplay Engineer,Projectile travel/collision/hit resolution,04,CBT-001,Impact only on hit,CBT-001,todo
+CBT-003,P0,Gameplay Engineer,Boss telegraph phases and shields,04,CBT-001,Telegraph/phase readable,CBT-001,todo
+CBT-004,P0,Gameplay Engineer,Bun Bo ultimate presentation bridge,04,ART-004;CBT-001,No stacked cinematics,ART-004;CBT-001,todo
+CBT-005,P0,TCG Engineer,Implement card rules/deck & priority state machine,04,DSN-003;TEC-005,"Bot match completes, replay match",DSN-003;TEC-005,todo
+CBT-006,P0,TCG Engineer,"Trap reveal, stack response, hidden info",04,CBT-005,"No information leak, chain tests",CBT-005,todo
+CBT-007,P0,AutoChess Engineer,Implement shop/bench/gold/merge rules,04,DSN-004;TEC-005,Three units merge atomically,DSN-004;TEC-005,todo
+CBT-008,P0,AutoChess Engineer,Combat units targeting and round state,04,CBT-007,Bot match finishes with ranking,CBT-007,todo
+FX-001,P0,VFX Artist,Bun Bo primary slash/projectile impact FX,05,ART-004;CBT-002,Socket/hit sync on 30/60fps,ART-004;CBT-002,todo
+FX-002,P0,VFX Artist,Five element cast/travel/impact style samples,05,FX-001,Distinct shapes not only color,FX-001,todo
+FX-003,P0,Technical Artist,VFX quality presets/pooling/load budgets,05,TEC-001;FX-001,Low/High/Reduced QA,TEC-001;FX-001,todo
+AUD-001,P0,Composer,Compose core leitmotif and Home/Battle demos,05,DSN-001,Original masters + loop metadata,DSN-001,todo
+AUD-002,P0,Sound Designer,Build SFX UI/combat/TCG/chess cue registry,05,TEC-004,SFX at confirmed events,TEC-004,todo
+AUD-003,P0,Audio Engineer,Mixer buses/BGM duck/pause/restart,05,AUD-001;AUD-002,"No double BGM, no clipping",AUD-001;AUD-002,todo
+QA-001,P0,QA,Create event/replay regression fixtures,04,TEC-005,All deterministic tests green,TEC-005,todo
+QA-002,P0,QA,Device performance + low preset benchmark,05,TEC-001;FX-003,Reports FPS/memory/overdraw,TEC-001;FX-003,todo
+QA-003,P0,QA,First 20min onboarding E2E test,06,ENV-005;UI-002;CBT-004,"No softlocks, rewards once",ENV-005;UI-002;CBT-004,todo
+QA-004,P0,QA,TGC/Auto Chess match E2E + invalid inputs,04,CBT-006;CBT-008,Both modes result/replay correct,CBT-006;CBT-008,todo
+REL-001,P0,Producer,License provenance ledger for all source art/audio,00,ART-001;AUD-001,All release assets approved,ART-001;AUD-001,todo
+REL-002,P1,DevOps,PWA update/rollback/manifest/cache strategies,03,TEC-002,Update preserves progress,TEC-002,todo
+REL-003,P1,Backend Engineer,Account sync/PvP authority if approved,07,DEC-002;DEC-003,No client-trusted rank results,TEC-002,todo
+CNT-001,P1,Narrative Designer,Full Chapter 1 dialogue/quest/voice cue,02,ENV-005,No missing dialogue IDs,ENV-005,todo
+CNT-002,P1,Game Designer,Expansion 12-character and 3-zone content plan,06,ART-006;ENV-005,Validated content roadmap,ART-006;ENV-005,todo

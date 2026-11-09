@@ -1,0 +1,11 @@
+{
+  "character_id": "chr_pho_lamvu",
+  "display_name": "Phở Lam Vũ",
+  "element": "water",
+  "role": "mage",
+  "identity_lock": "silver-blue hair; flowing aqua fabric; water ribbons",
+  "palette_status": "proposed",
+  "turnaround_status": "reference_only",
+  "source_reference": "references/visuals/full/character_sheet.png",
+  "license_status": "pending_review"
+}

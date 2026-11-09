@@ -1,0 +1,11 @@
+{
+  "character_id": "chr_banhbao_bachngoc",
+  "display_name": "Bánh Bao Bạch Ngọc",
+  "element": "light",
+  "role": "guardian",
+  "identity_lock": "round cream mascot; chef hat; blush; wooden spoon",
+  "palette_status": "proposed",
+  "turnaround_status": "reference_only",
+  "source_reference": "references/visuals/full/character_sheet.png",
+  "license_status": "pending_review"
+}

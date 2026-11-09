@@ -1,0 +1,32 @@
+{
+  "character_id": "chr_your_character_id",
+  "display_name": "Tên Vị Linh",
+  "skin_id": "default",
+  "element": "fire",
+  "role": "fighter",
+  "identity": {
+    "silhouette": "describe unique shape",
+    "hair": "fixed silhouette and color",
+    "eyes": "fixed",
+    "outfit": "materials, patterns, proportions",
+    "weapon": "right-hand blade",
+    "accessory": "unique motif",
+    "palette": {
+      "primary": "#F45129",
+      "secondary": "#FFB038",
+      "shadow": "#4B2226"
+    }
+  },
+  "art": {
+    "style": "Soul of Meal anime chibi",
+    "heads_tall": 2.6,
+    "approved_turnaround": null,
+    "source_references": []
+  },
+  "provenance": {
+    "origin": "original commission / generated",
+    "rights_status": "pending_review",
+    "reviewed_by": null
+  },
+  "status": "draft"
+}

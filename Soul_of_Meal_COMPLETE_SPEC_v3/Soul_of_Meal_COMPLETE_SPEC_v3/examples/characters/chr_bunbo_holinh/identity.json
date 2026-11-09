@@ -1,0 +1,11 @@
+{
+  "character_id": "chr_bunbo_holinh",
+  "display_name": "Bún Bò Hỏa Linh",
+  "element": "fire",
+  "role": "fighter",
+  "identity_lock": "red-orange hair; amber eyes; spice-flower clip; fiery blade",
+  "palette_status": "proposed",
+  "turnaround_status": "reference_only",
+  "source_reference": "references/visuals/full/character_sheet.png",
+  "license_status": "pending_review"
+}

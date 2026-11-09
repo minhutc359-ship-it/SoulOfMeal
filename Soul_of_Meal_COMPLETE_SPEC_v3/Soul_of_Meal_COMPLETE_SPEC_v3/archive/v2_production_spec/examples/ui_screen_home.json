@@ -1,0 +1,76 @@
+{
+  "schema_version": "2.0-draft",
+  "screen_id": "screen_home",
+  "orientation": "portrait_preferred",
+  "base_dp": [
+    390,
+    844
+  ],
+  "safe_area": {
+    "min_horizontal_dp": 16,
+    "min_tap_dp": 44
+  },
+  "regions": [
+    {
+      "id": "resources",
+      "bounds_dp": [
+        0,
+        0,
+        390,
+        68
+      ]
+    },
+    {
+      "id": "hero_zone",
+      "bounds_dp": [
+        0,
+        76,
+        390,
+        390
+      ]
+    },
+    {
+      "id": "mode_cta",
+      "bounds_dp": [
+        16,
+        470,
+        358,
+        130
+      ]
+    },
+    {
+      "id": "shortcuts",
+      "bounds_dp": [
+        16,
+        600,
+        358,
+        90
+      ]
+    },
+    {
+      "id": "bottom_nav",
+      "bounds_dp": [
+        0,
+        768,
+        390,
+        76
+      ]
+    }
+  ],
+  "states": [
+    "default",
+    "news",
+    "claimable",
+    "loading",
+    "error"
+  ],
+  "routes": [
+    "screen_world_map",
+    "screen_tcg_deck_builder",
+    "screen_autochess_lobby",
+    "screen_vilin_detail",
+    "screen_gacha"
+  ],
+  "supports_reduced_motion": true,
+  "localization": "runtime_text"
+}

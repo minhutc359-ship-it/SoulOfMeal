@@ -1,0 +1,29 @@
+{
+  "job_id": "sprite_chr_bunbo_default_p0",
+  "character_id": "chr_bunbo_holinh",
+  "skin_id": "default",
+  "directions": [
+    "E"
+  ],
+  "frame_size_px": [
+    512,
+    512
+  ],
+  "animation_ids": [
+    "idle",
+    "walk",
+    "run",
+    "attack_a",
+    "attack_b",
+    "skill_01",
+    "ultimate_01",
+    "hit",
+    "victory"
+  ],
+  "source_reference_ids": [
+    "references/visuals/crops/character/hero_full.png",
+    "references/visuals/crops/character/animation_key_poses.png"
+  ],
+  "status": "pending_art_generation",
+  "rights_status": "pending_review"
+}

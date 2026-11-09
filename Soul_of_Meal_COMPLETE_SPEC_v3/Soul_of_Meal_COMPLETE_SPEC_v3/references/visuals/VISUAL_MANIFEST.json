@@ -1,0 +1,597 @@
+[
+  {
+    "category": "character",
+    "id": "hero_full",
+    "file": "references/visuals/crops/character/hero_full.png",
+    "crop_from": "character_sheet.png",
+    "pixel_box": [
+      0,
+      155,
+      650,
+      654
+    ],
+    "size_px": [
+      650,
+      499
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "character",
+    "id": "identity_palette",
+    "file": "references/visuals/crops/character/identity_palette.png",
+    "crop_from": "character_sheet.png",
+    "pixel_box": [
+      640,
+      175,
+      1122,
+      644
+    ],
+    "size_px": [
+      482,
+      469
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "character",
+    "id": "turnaround",
+    "file": "references/visuals/crops/character/turnaround.png",
+    "crop_from": "character_sheet.png",
+    "pixel_box": [
+      0,
+      645,
+      561,
+      875
+    ],
+    "size_px": [
+      561,
+      230
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "character",
+    "id": "expression_set",
+    "file": "references/visuals/crops/character/expression_set.png",
+    "crop_from": "character_sheet.png",
+    "pixel_box": [
+      0,
+      862,
+      561,
+      1190
+    ],
+    "size_px": [
+      561,
+      328
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "character",
+    "id": "animation_key_poses",
+    "file": "references/visuals/crops/character/animation_key_poses.png",
+    "crop_from": "character_sheet.png",
+    "pixel_box": [
+      560,
+      645,
+      1122,
+      1190
+    ],
+    "size_px": [
+      562,
+      545
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "character",
+    "id": "starter_roster",
+    "file": "references/visuals/crops/character/starter_roster.png",
+    "crop_from": "character_sheet.png",
+    "pixel_box": [
+      0,
+      1180,
+      1122,
+      1402
+    ],
+    "size_px": [
+      1122,
+      222
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "environment",
+    "id": "village_overview",
+    "file": "references/visuals/crops/environment/village_overview.png",
+    "crop_from": "environment_sheet.png",
+    "pixel_box": [
+      0,
+      165,
+      1122,
+      526
+    ],
+    "size_px": [
+      1122,
+      361
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "environment",
+    "id": "buildings",
+    "file": "references/visuals/crops/environment/buildings.png",
+    "crop_from": "environment_sheet.png",
+    "pixel_box": [
+      0,
+      525,
+      540,
+      897
+    ],
+    "size_px": [
+      540,
+      372
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "environment",
+    "id": "npcs",
+    "file": "references/visuals/crops/environment/npcs.png",
+    "crop_from": "environment_sheet.png",
+    "pixel_box": [
+      535,
+      525,
+      1122,
+      897
+    ],
+    "size_px": [
+      587,
+      372
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "environment",
+    "id": "props",
+    "file": "references/visuals/crops/environment/props.png",
+    "crop_from": "environment_sheet.png",
+    "pixel_box": [
+      0,
+      885,
+      495,
+      1210
+    ],
+    "size_px": [
+      495,
+      325
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "environment",
+    "id": "tiles",
+    "file": "references/visuals/crops/environment/tiles.png",
+    "crop_from": "environment_sheet.png",
+    "pixel_box": [
+      490,
+      885,
+      815,
+      1210
+    ],
+    "size_px": [
+      325,
+      325
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "environment",
+    "id": "interactions",
+    "file": "references/visuals/crops/environment/interactions.png",
+    "crop_from": "environment_sheet.png",
+    "pixel_box": [
+      805,
+      885,
+      1122,
+      1210
+    ],
+    "size_px": [
+      317,
+      325
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "environment",
+    "id": "neighbor_regions",
+    "file": "references/visuals/crops/environment/neighbor_regions.png",
+    "crop_from": "environment_sheet.png",
+    "pixel_box": [
+      0,
+      1185,
+      1122,
+      1402
+    ],
+    "size_px": [
+      1122,
+      217
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "ui",
+    "id": "home",
+    "file": "references/visuals/crops/ui/home.png",
+    "crop_from": "ui_sheet.png",
+    "pixel_box": [
+      0,
+      177,
+      559,
+      513
+    ],
+    "size_px": [
+      559,
+      336
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "ui",
+    "id": "adventure_hud",
+    "file": "references/visuals/crops/ui/adventure_hud.png",
+    "crop_from": "ui_sheet.png",
+    "pixel_box": [
+      554,
+      177,
+      1122,
+      513
+    ],
+    "size_px": [
+      568,
+      336
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "ui",
+    "id": "tcg_battle",
+    "file": "references/visuals/crops/ui/tcg_battle.png",
+    "crop_from": "ui_sheet.png",
+    "pixel_box": [
+      0,
+      510,
+      559,
+      848
+    ],
+    "size_px": [
+      559,
+      338
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "ui",
+    "id": "autochess_battle",
+    "file": "references/visuals/crops/ui/autochess_battle.png",
+    "crop_from": "ui_sheet.png",
+    "pixel_box": [
+      554,
+      510,
+      1122,
+      848
+    ],
+    "size_px": [
+      568,
+      338
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "ui",
+    "id": "character_detail",
+    "file": "references/visuals/crops/ui/character_detail.png",
+    "crop_from": "ui_sheet.png",
+    "pixel_box": [
+      0,
+      848,
+      559,
+      1150
+    ],
+    "size_px": [
+      559,
+      302
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "ui",
+    "id": "gacha",
+    "file": "references/visuals/crops/ui/gacha.png",
+    "crop_from": "ui_sheet.png",
+    "pixel_box": [
+      554,
+      848,
+      1122,
+      1150
+    ],
+    "size_px": [
+      568,
+      302
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "ui",
+    "id": "navigation_and_ui",
+    "file": "references/visuals/crops/ui/navigation_and_ui.png",
+    "crop_from": "ui_sheet.png",
+    "pixel_box": [
+      0,
+      1140,
+      1122,
+      1402
+    ],
+    "size_px": [
+      1122,
+      262
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "combat",
+    "id": "adventure_frames_1_2",
+    "file": "references/visuals/crops/combat/adventure_frames_1_2.png",
+    "crop_from": "combat_sheet.png",
+    "pixel_box": [
+      0,
+      200,
+      775,
+      470
+    ],
+    "size_px": [
+      775,
+      270
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "combat",
+    "id": "adventure_frames_3_4",
+    "file": "references/visuals/crops/combat/adventure_frames_3_4.png",
+    "crop_from": "combat_sheet.png",
+    "pixel_box": [
+      0,
+      466,
+      775,
+      700
+    ],
+    "size_px": [
+      775,
+      234
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "combat",
+    "id": "adventure_frames_5_6",
+    "file": "references/visuals/crops/combat/adventure_frames_5_6.png",
+    "crop_from": "combat_sheet.png",
+    "pixel_box": [
+      0,
+      691,
+      775,
+      945
+    ],
+    "size_px": [
+      775,
+      254
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "combat",
+    "id": "combat_flow",
+    "file": "references/visuals/crops/combat/combat_flow.png",
+    "crop_from": "combat_sheet.png",
+    "pixel_box": [
+      775,
+      205,
+      1122,
+      595
+    ],
+    "size_px": [
+      347,
+      390
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "combat",
+    "id": "hit_callouts",
+    "file": "references/visuals/crops/combat/hit_callouts.png",
+    "crop_from": "combat_sheet.png",
+    "pixel_box": [
+      775,
+      591,
+      1122,
+      945
+    ],
+    "size_px": [
+      347,
+      354
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "combat",
+    "id": "tcg_sequence",
+    "file": "references/visuals/crops/combat/tcg_sequence.png",
+    "crop_from": "combat_sheet.png",
+    "pixel_box": [
+      0,
+      944,
+      1122,
+      1120
+    ],
+    "size_px": [
+      1122,
+      176
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "combat",
+    "id": "autochess_sequence",
+    "file": "references/visuals/crops/combat/autochess_sequence.png",
+    "crop_from": "combat_sheet.png",
+    "pixel_box": [
+      0,
+      1110,
+      1122,
+      1300
+    ],
+    "size_px": [
+      1122,
+      190
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "combat",
+    "id": "combat_legend",
+    "file": "references/visuals/crops/combat/combat_legend.png",
+    "crop_from": "combat_sheet.png",
+    "pixel_box": [
+      0,
+      1293,
+      1122,
+      1402
+    ],
+    "size_px": [
+      1122,
+      109
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "vfx",
+    "id": "elements",
+    "file": "references/visuals/crops/vfx/elements.png",
+    "crop_from": "vfx_sheet.png",
+    "pixel_box": [
+      0,
+      165,
+      1122,
+      559
+    ],
+    "size_px": [
+      1122,
+      394
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "vfx",
+    "id": "vfx_four_phases",
+    "file": "references/visuals/crops/vfx/vfx_four_phases.png",
+    "crop_from": "vfx_sheet.png",
+    "pixel_box": [
+      0,
+      552,
+      671,
+      823
+    ],
+    "size_px": [
+      671,
+      271
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "vfx",
+    "id": "sfx_groups",
+    "file": "references/visuals/crops/vfx/sfx_groups.png",
+    "crop_from": "vfx_sheet.png",
+    "pixel_box": [
+      660,
+      553,
+      1122,
+      823
+    ],
+    "size_px": [
+      462,
+      270
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "vfx",
+    "id": "fire_ultimate_detail",
+    "file": "references/visuals/crops/vfx/fire_ultimate_detail.png",
+    "crop_from": "vfx_sheet.png",
+    "pixel_box": [
+      0,
+      811,
+      514,
+      1300
+    ],
+    "size_px": [
+      514,
+      489
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "vfx",
+    "id": "dos_and_donts",
+    "file": "references/visuals/crops/vfx/dos_and_donts.png",
+    "crop_from": "vfx_sheet.png",
+    "pixel_box": [
+      505,
+      811,
+      770,
+      1300
+    ],
+    "size_px": [
+      265,
+      489
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "vfx",
+    "id": "timing_budget",
+    "file": "references/visuals/crops/vfx/timing_budget.png",
+    "crop_from": "vfx_sheet.png",
+    "pixel_box": [
+      755,
+      811,
+      1122,
+      1300
+    ],
+    "size_px": [
+      367,
+      489
+    ],
+    "status": "concept_reference_not_asset"
+  },
+  {
+    "category": "vfx",
+    "id": "effect_categories",
+    "file": "references/visuals/crops/vfx/effect_categories.png",
+    "crop_from": "vfx_sheet.png",
+    "pixel_box": [
+      0,
+      1285,
+      1122,
+      1402
+    ],
+    "size_px": [
+      1122,
+      117
+    ],
+    "status": "concept_reference_not_asset"
+  }
+]

@@ -1,0 +1,74 @@
+{
+  "schema_version": "2.0-draft",
+  "map_id": "env_village_square",
+  "size_tiles": [
+    64,
+    48
+  ],
+  "tile_world_units": 64,
+  "chunk_tiles": [
+    16,
+    16
+  ],
+  "player_spawns": [
+    {
+      "spawn_id": "spawn_village_south",
+      "tile": [
+        30,
+        43
+      ],
+      "facing": "north"
+    }
+  ],
+  "objects": [
+    {
+      "instance_id": "env_prop_chest_wood_003",
+      "prefab_id": "env_prop_chest_wood",
+      "tile": [
+        17,
+        29
+      ],
+      "interaction": {
+        "action": "chest.open",
+        "range_units": 80,
+        "requires_los": true,
+        "once": true
+      },
+      "save_key": "world.env_village_square.chest_003"
+    },
+    {
+      "instance_id": "env_prop_questboard_001",
+      "prefab_id": "env_prop_questboard",
+      "tile": [
+        22,
+        17
+      ],
+      "interaction": {
+        "action": "quest.open",
+        "range_units": 80,
+        "requires_los": true,
+        "once": false
+      }
+    },
+    {
+      "instance_id": "npc_lilia_001",
+      "prefab_id": "npc_lilia",
+      "tile": [
+        37,
+        27
+      ],
+      "interaction": {
+        "action": "dialogue.open",
+        "dialogue_id": "dlg_lilia_intro",
+        "range_units": 80,
+        "requires_los": true
+      }
+    }
+  ],
+  "validation_rules": [
+    "unique_instance_ids",
+    "all_objects_in_bounds",
+    "all_interactions_resolve",
+    "spawn_walkable"
+  ]
+}

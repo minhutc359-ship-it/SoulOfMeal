@@ -1,0 +1,54 @@
+﻿domain,case_id,scenario,expected,test_type,priority,status
+CHAR,C01,Character silhouette at 64px,Same ID identifiable across 3 modes,visual review,P0,not_run
+CHAR,C02,Rig socket atlas consistent,No missing socket on any skin/clip,metadata validator,P0,not_run
+CHAR,C03,Walk/run animation speed changes,No moonwalk or foot drift at 0.8–1.2x,playtest,P0,not_run
+CHAR,C04,Attack interrupt policy,Cancels only when gameplay allows,unit test + playback,P0,not_run
+CHAR,C05,Expression ID set,8 expressions all callable by runtime,asset validator,P0,not_run
+CHAR,C06,Chibi clipping & atlas,No body/weapon cropped on extreme pose,visual review,P0,not_run
+ENV,E01,Village spawn walkable,Valid nav path to first NPC,map validator,P0,not_run
+ENV,E02,Chest double tap/reload,Reward granted once,integration,P0,not_run
+ENV,E03,Interior scene failure,Rollback to door safely,integration,P0,not_run
+ENV,E04,Quest NPC schedule,Main quest never softlocked,E2E,P0,not_run
+ENV,E05,Depth sorting behind buildings,Player visible; roof fade works,visual review,P0,not_run
+ENV,E06,Duplicate save key,Build fails before publish,validator,P0,not_run
+ENV,E07,Collision and nav holes,No walk through walls or stuck tiles,E2E,P0,not_run
+ENV,E08,Low graphics weather,Quest markers remain visible,visual QA,P0,not_run
+UI,U01,Home portrait 390x844 safe area,All primary buttons visible and tappable,visual/interaction,P0,not_run
+UI,U02,TCG landscape 960x540,Hand/traps/mana/priority visible without page scroll,E2E,P0,not_run
+UI,U03,AutoChess landscape 960x540,Shop/bench/board visible and responsive,E2E,P0,not_run
+UI,U04,Gacha double submit,"One transaction, no double charge",integration,P0,not_run
+UI,U05,Reward claim retry,Same claim returns same result,integration,P0,not_run
+UI,U06,Back during match,Confirmation/pause; no silent match loss,E2E,P0,not_run
+UI,U07,Invalid action feedback,Reason shown; UI state rolled back,E2E,P0,not_run
+UI,U08,Missing route or action handler,No inert clickable button in release,automated UI coverage,P0,not_run
+UI,U09,Keyboard focus/modals,Focus returns to invoking control,accessibility,P1,not_run
+UI,U10,Long Vietnamese text,No clipping/overlap on translation,visual QA,P0,not_run
+CBT,B01,Melee out of range,No damage until in range,unit test,P0,not_run
+CBT,B02,Projectile target died,Rule-accurate miss/retarget,unit test,P0,not_run
+CBT,B03,Projectile hit VFX,Impact location matches collider,visual/event test,P0,not_run
+CBT,B04,Dropped frames during ultimate,Damage exactly once,simulation replay,P0,not_run
+CBT,B05,Multiple ultimates simultaneous,No overlapping full-screen cut-ins,visual integration,P0,not_run
+CBT,B06,Boss telegraph on Low,Safe-zone and warning remain readable,visual QA,P0,not_run
+CBT,B07,TCG trap hidden information,Opponent cannot inspect face-down card,security + E2E,P0,not_run
+CBT,B08,TCG invalid mana/target,Rejected action does not discard card,unit + UI,P0,not_run
+CBT,B09,TCG priority window,Stack resolves only after both pass,rules fixture,P0,not_run
+CBT,B10,TCG same seed/actions,Final state identical across runs,replay,P0,not_run
+CBT,B11,Chess 3-of-kind upgrade,Atomic consume exactly 3 units,unit test,P0,not_run
+CBT,B12,Chess after preparation lock,No buy/drag/change lineup allowed,integration,P0,not_run
+CBT,B13,Chess extreme bot,Difficulty affects decisions not RNG cheat,bot sim stats,P1,not_run
+CBT,B14,Match reconnect / replay,No duplicated reward/damage,integration,P0,not_run
+VFX,V01,5 elemental styles,Distinct shape and behavior without relying color only,art review,P0,not_run
+VFX,V02,FX lifecycle/pooling,No immortal particles/memory leak,performance,P0,not_run
+VFX,V03,Ultimate primary assets,No generic fallback at release,manifest lint,P0,not_run
+VFX,V04,Reduced motion,No strobe/shake; telegraph preserved,accessibility,P0,not_run
+VFX,V05,Performance settings,Low preset maintains hit readability,device QA,P0,not_run
+AUD,A01,Impact sounds after hit,No fake impact on miss,event test,P0,not_run
+AUD,A02,BGM transition scene,No two tracks overlapping accidentally,audio QA,P0,not_run
+AUD,A03,Voice duck & restore,VO intelligible; BGM returns after,audio QA,P0,not_run
+AUD,A04,Background browser resume,No duplicate AudioContexts/SFX burst,integration,P0,not_run
+AUD,A05,Clip and loudness,No clipping under 5-unit combat,audio QA,P0,not_run
+SYS,S01,Asset registry references,All used IDs resolve or build fails,validator,P0,not_run
+SYS,S02,Source asset license,Release build rejects unapproved content,pipeline gate,P0,not_run
+SYS,S03,PWA reload update,State unchanged after safe update,E2E,P1,not_run
+SYS,S04,Save migration,Old snapshot migrates or has safe rollback,integration,P1,not_run
+SYS,S05,RNG reproducibility,Same seed+commands produces same hash,unit test,P0,not_run
