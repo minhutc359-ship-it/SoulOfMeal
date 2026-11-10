@@ -8,13 +8,14 @@
 2. [`docs/00_foundation/DECISION_REGISTER.md`](docs/00_foundation/DECISION_REGISTER.md): các giá trị prototype (PROPOSED) và những quyết định phải duyệt.
 3. [`docs/01_gameplay/ADVENTURE_RULEBOOK.md`](docs/01_gameplay/ADVENTURE_RULEBOOK.md), [`TCG_RULEBOOK.md`](docs/01_gameplay/TCG_RULEBOOK.md), [`AUTO_CHESS_RULEBOOK.md`](docs/01_gameplay/AUTO_CHESS_RULEBOOK.md).
 4. [`docs/02_art/SPRITE_PIPELINE.md`](docs/02_art/SPRITE_PIPELINE.md): kích thước, animation, crop, schema, sprite pipeline.
-5. [`docs/02_art/VISUAL_REFERENCE_INDEX.md`](docs/02_art/VISUAL_REFERENCE_INDEX.md): link từng tấm hình nhỏ, không cần nhìn poster chữ li ti.
-6. [`docs/03_engineering/ENGINE_ARCHITECTURE.md`](docs/03_engineering/ENGINE_ARCHITECTURE.md): kiến trúc đích và trạng thái triển khai hiện tại.
-7. [`docs/03_engineering/AUTO_CHESS_RULES_REFERENCE.md`](docs/03_engineering/AUTO_CHESS_RULES_REFERENCE.md): API, state contract, lệnh test và giới hạn của rules prototype đã chạy.
-8. [`docs/03_engineering/TCG_RULES_REFERENCE.md`](docs/03_engineering/TCG_RULES_REFERENCE.md): API, state contract và giới hạn của phần TCG setup/draw.
-9. [`docs/03_engineering/ADVENTURE_RULES_REFERENCE.md`](docs/03_engineering/ADVENTURE_RULES_REFERENCE.md): API, combat event contract, test fixture và giới hạn Adventure rules prototype.
-10. [`docs/04_qa/ACCEPTANCE_TEST_PLAN.md`](docs/04_qa/ACCEPTANCE_TEST_PLAN.md) và [`docs/05_production/PRODUCTION_PLAN.md`](docs/05_production/PRODUCTION_PLAN.md).
-11. [`.agents/skills/soul-of-meal-sprite/SKILL.md`](.agents/skills/soul-of-meal-sprite/SKILL.md): AI skill tạo sprite từ reference đến frame, atlas và QA.
+5. [`docs/02_art/ANIMATION_INTEGRATION_SPEC.md`](docs/02_art/ANIMATION_INTEGRATION_SPEC.md): agent handoff để nối animation đã duyệt vào browser runtime.
+6. [`docs/02_art/VISUAL_REFERENCE_INDEX.md`](docs/02_art/VISUAL_REFERENCE_INDEX.md): link từng tấm hình nhỏ, không cần nhìn poster chữ li ti.
+7. [`docs/03_engineering/ENGINE_ARCHITECTURE.md`](docs/03_engineering/ENGINE_ARCHITECTURE.md): kiến trúc đích và trạng thái triển khai hiện tại.
+8. [`docs/03_engineering/AUTO_CHESS_RULES_REFERENCE.md`](docs/03_engineering/AUTO_CHESS_RULES_REFERENCE.md): API, state contract, lệnh test và giới hạn của rules prototype đã chạy.
+9. [`docs/03_engineering/TCG_RULES_REFERENCE.md`](docs/03_engineering/TCG_RULES_REFERENCE.md): API, state contract và giới hạn của phần TCG setup/draw.
+10. [`docs/03_engineering/ADVENTURE_RULES_REFERENCE.md`](docs/03_engineering/ADVENTURE_RULES_REFERENCE.md): API, combat event contract, test fixture và giới hạn Adventure rules prototype.
+11. [`docs/04_qa/ACCEPTANCE_TEST_PLAN.md`](docs/04_qa/ACCEPTANCE_TEST_PLAN.md) và [`docs/05_production/PRODUCTION_PLAN.md`](docs/05_production/PRODUCTION_PLAN.md).
+12. [`.agents/skills/soul-of-meal-sprite/SKILL.md`](.agents/skills/soul-of-meal-sprite/SKILL.md): AI skill tạo sprite từ reference đến frame, atlas và QA.
 
 ## Bản vẽ
 - `references/original_user_images/`: 5 hình gốc user đưa.
@@ -27,6 +28,7 @@
 - `AGENTS.md`: nhiệm vụ chung, invariant, thứ tự đọc.
 - `.agents/skills/soul-of-meal-sprite/`: `SKILL.md`, prompts, template JSON, script local.
 - `agents/SPRITE_TASK_HANDOFF.md`: hướng dẫn giao ticket cho bất kỳ AI editor/coder/art agent nào.
+- `docs/02_art/ANIMATION_INTEGRATION_SPEC.md`: contract và copy-ready task riêng cho agent nối animation runtime.
 - `scripts/`: wrapper (standalone; Python 3.10+, Pillow), demo và check spec.
 - `examples/`: mẫu character identity, sprite job, combat, card, chess data.
 
@@ -47,6 +49,9 @@ python .agents/skills/soul-of-meal-sprite/scripts/build_atlas.py --help
 python .agents/skills/soul-of-meal-sprite/scripts/make_preview.py --help
 ```
 
-**Không có sprite/runtime game hoàn thiện trong gói này.** Ảnh concept là đầu vào mỹ thuật; AI skill là quy trình và công cụ để sinh/kiểm chứng sprite. Tệp `examples` là fixture và thiết lập đề xuất, không phải asset đã được cấp phép phát hành.
+## Chạy browser runtime
+Client kỹ thuật placeholder hiện nằm trong [`client/README.md`](client/README.md). Chạy server từ package root bằng `python3 -m http.server 4173 --directory .`, rồi mở `http://localhost:4173/client/`. Test runtime client: `node --test client/tests/runtime.test.js`.
 
-Hiện có **rules prototype Auto Chess**, **TCG setup/action/combat slice** và **Adventure combat slice** bằng Python, chưa phải game runtime: xem các engineering references dưới `docs/03_engineering/` để biết phạm vi thực thi. Adventure exploration, boss/wave/reward flow, phần còn lại của TCG/Auto Chess, client/UI và lưu trận chưa được triển khai.
+**Không có sprite/animation/runtime phát hành hoàn thiện trong gói này.** Có browser technical vertical slice ở `client/` dùng Canvas 2D placeholder; xem giới hạn triển khai trong `client/README.md`. Ảnh concept là đầu vào mỹ thuật; AI skill là quy trình và công cụ để sinh/kiểm chứng sprite. Tệp `examples` là fixture và thiết lập đề xuất, không phải asset đã được cấp phép phát hành.
+
+Hiện có **browser technical vertical slice** gồm Adventure quest/combat/reward, TCG bot-match slice và Auto Chess preparation/combat slice, cùng Python rules prototypes riêng. Đây chưa phải game hoàn chỉnh hoặc production runtime; các giới hạn cụ thể, gồm art/rendering, pathfinding, full card effects, eight-player tournament, offline PWA và device benchmark, xem `client/README.md` và engineering references.

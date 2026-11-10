@@ -11,9 +11,11 @@
 
 ### Current implementation status
 
-The component list above is the target architecture, not a claim that those components already exist. Current executable Python references cover Auto Chess preparation/merge, TCG setup/actions/combat, and Adventure damage/status/ultimate scheduling. There is no game client, renderer, full mode runtime, exploration/pathfinding, Auto Chess combat, persistence layer or multiplayer service yet. See the mode references in this directory for their APIs, tests and limitations.
+The component list above remains the production target. A dependency-free browser client now exists in `client/`: it has a local-save shell, Canvas 2D placeholder renderer, Adventure quest/exploration/combat/reward slice, TCG bot-match slice and Auto Chess preparation/combat run. The browser rules are separate JavaScript modules; the existing Python references remain independent prototypes. The browser client is not yet a production renderer or complete implementation of any mode. See `client/README.md` and the mode references for exact coverage and gaps.
 
-The reference functions accept content/config data and return values or copied state. They are not yet integrated behind a command dispatcher that validates match phase, records ordered events or persists a replay.
+The Python reference functions accept content/config data and return values or copied state. The browser slices validate their local phases and emit animation-facing events; Adventure now includes radius-aware collision against static placeholder obstacles and grid A* tap routing. Map collision still is not authored from tile/map content. The client is not integrated with a shared command service, replay serializer or game-wide persistent event log.
+
+The current Canvas 2D geometry is a technical placeholder, not the approved final WebGL renderer. No production sprite, animation, audio, cloud service or online authority is included.
 
 ## 2. Screen state machine
 `boot -> preload_core -> home -> adventure | tcg | auto_chess | characters | gacha | quests | settings`. Every page supports `loading | ready | empty | error | offline_optional`. Each battle has `preload | prepare | play | pause_if_pve | result | rewards | exit`. Forbidden transitions rejected with `reason_code`; route history never leaves an orphan active battle.

@@ -10,7 +10,7 @@ Before expanding gameplay implementation, keep the documents and code in sync:
 4. Update examples/config schemas and their validators when a documented contract changes.
 5. Re-run `python -m unittest discover -s tests -v` and `python scripts/validate_package.py .` after documentation or contract updates.
 
-Current implementation note: narrow Python rules prototypes exist for Auto Chess preparation/merge, TCG setup/actions/combat/trap reactions, and Adventure damage/status/ultimate scheduling. Their exact coverage and known gaps are recorded in the mode-specific references in `docs/03_engineering/`; none is a complete playable mode or runtime described by later gates. Adventure exploration, boss/wave/reward flow and presentation are not implemented.
+Current implementation note: Python rules prototypes remain available for focused unit tests. A separate local browser technical vertical slice now connects an Adventure quest/encounter/reward loop, TCG bot-match slice and Auto Chess preparation/combat run using placeholder Canvas 2D presentation and local versioned saves. Adventure movement has static placeholder collision and grid A* tap routing, but no tile-authored navmesh/chunk streaming. This is not a production client or complete implementation of every rule. `client/README.md` records run instructions, event adapter contract and gaps; mode-specific Python references remain authoritative for those Python modules only.
 
 ## Gate 0 — Approve art & rule baselines
 Game designer and tech lead review v3 prototype baselines and mark ADR statuses. Art director approves 5 character identities, color board, one isometric map angle, and Home/TCG/Chess hierarchy. Unapproved items stay in data configs. Output: decisions and constraints, not code.

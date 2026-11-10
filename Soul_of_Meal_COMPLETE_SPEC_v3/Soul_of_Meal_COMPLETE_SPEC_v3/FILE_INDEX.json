@@ -64,13 +64,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 5217,
-      "sha256": "3163d4c8dde82af3904b8677338aeb32b521fa59da59c7033e278222417c6b8d"
+      "bytes": 6017,
+      "sha256": "786a1ee92f534a5667dbbadd39924e9dc47e4d97e587bd10996791313b48fcc7"
     },
     {
       "path": "agents/SPRITE_TASK_HANDOFF.md",
-      "bytes": 1503,
-      "sha256": "3daab32c73ed5ae54ca1cab6d664ceb795af08f76064893c5d53a16c3e2e1a2f"
+      "bytes": 1938,
+      "sha256": "6af9ef0baf6106b8519b989dd8b0bf89dd0dc83f2cf91309fcdee766dd125201"
     },
     {
       "path": "archive/v2_production_spec/README.md",
@@ -184,8 +184,8 @@
     },
     {
       "path": "archive/v2_production_spec/design_pack_v1/schemas/screen_states.csv",
-      "bytes": 1412,
-      "sha256": "5c56232d4616b1789c76451bc80f78e0af3de9d6d504ab22aaeefda9aad38836"
+      "bytes": 1395,
+      "sha256": "1eb1444cd2052c0e7b75fc578e887458c06d68667601809a3d3a936d63329ad3"
     },
     {
       "path": "archive/v2_production_spec/docs/00_README_AND_DECISIONS.md",
@@ -259,23 +259,23 @@
     },
     {
       "path": "archive/v2_production_spec/tracking/BACKLOG.csv",
-      "bytes": 6477,
-      "sha256": "58d6ba04bc071fc7566a4f233c2247c8e53dbe7077ea709eed2eed52642ab0e2"
+      "bytes": 6425,
+      "sha256": "4ddeac861fc138939ab066f0082d5131c03d35116769d82a7b82ad2a899a4e21"
     },
     {
       "path": "archive/v2_production_spec/tracking/DECISION_REGISTER.csv",
-      "bytes": 958,
-      "sha256": "8c5543e6d6d0d1e6c87589b2e9112566c0487dc8e24ce5352bf2fdbc88a92d3b"
+      "bytes": 942,
+      "sha256": "6752b2d374c6176e8129bbfffcbf08456b0261994f3cc710056b68b4fe317b49"
     },
     {
       "path": "archive/v2_production_spec/tracking/QA_ACCEPTANCE_MATRIX.csv",
-      "bytes": 4804,
-      "sha256": "696979f63518b3ab8b6a96a3cfe97b5bb4764c264a418de2bdde7cc7b304545d"
+      "bytes": 4750,
+      "sha256": "2a8be9b58e40485a7dc4774c69b69b7c3853cf0f428f8fe0f5ae0df267c2fa70"
     },
     {
       "path": "docs/00_foundation/DECISION_REGISTER.md",
-      "bytes": 2244,
-      "sha256": "5ed74d787ebeafe85fc833415944d4b13683be1c2cc7ab00d582a52bd451239d"
+      "bytes": 3830,
+      "sha256": "2c12346ef9959b05f48b39963d09b1d2c42ac6c83c51fc6ee803a961bc4ee170"
     },
     {
       "path": "docs/00_foundation/PROJECT_BIBLE.md",
@@ -319,18 +319,18 @@
     },
     {
       "path": "docs/03_engineering/ENGINE_ARCHITECTURE.md",
-      "bytes": 4751,
-      "sha256": "6b8406137ff90c9a0ccde7f4568632835601a1e5bd15cd83250b9820e02a7e64"
+      "bytes": 5263,
+      "sha256": "fe86b5c0810e01ab8d6a8f74f26a831fbe5db940b0b30c73dadabbf8b773497f"
     },
     {
       "path": "docs/04_qa/ACCEPTANCE_TEST_PLAN.md",
-      "bytes": 4950,
-      "sha256": "5cbe4d965f9bd1ffbad57c7b03bede371854f4878a401feae97bd00dd30411be"
+      "bytes": 5886,
+      "sha256": "00f1d957fbef22efa62d22b2750c07ccb2f83bebf5c0f85cfe450a92e8ccb26a"
     },
     {
       "path": "docs/05_production/PRODUCTION_PLAN.md",
-      "bytes": 4516,
-      "sha256": "effbd85e1f7567a48838fa2b417363fe4ff741ff199a3d49fa556cd4c33f2ff7"
+      "bytes": 4749,
+      "sha256": "224defad1471f92a6caff1f0d2337041d14d9b31f379875a14f7df1fb0f799e9"
     },
     {
       "path": "examples/adventure/bunbo_ability.json",
@@ -634,53 +634,223 @@
     },
     {
       "path": "game_rules/auto_chess.py",
-      "bytes": 17808,
-      "sha256": "c00727c2e5204643c6db8650bef14a13df702600b8cb991f03a4470f3fbd1734"
+      "bytes": 17380,
+      "sha256": "8e9e1b82964dd7600b3e8601bd1a01ab281e63e670408cbd3422a055dd65e05d"
     },
     {
       "path": "tests/test_auto_chess.py",
-      "bytes": 10379,
-      "sha256": "8dc0a75e21606ffb70868399ed07515eff4f32783e07bb690e58deb64ef9000f"
+      "bytes": 10128,
+      "sha256": "1a5e27cd38096fdbe9cc66a74659f31123c2363039fb860691f0761a60c9805f"
     },
     {
       "path": "docs/03_engineering/AUTO_CHESS_RULES_REFERENCE.md",
-      "bytes": 6099,
-      "sha256": "adb10af9aff2dc861e324b0659649ff7aae981d4a4072b04aa5a3ea8ebc29336"
+      "bytes": 6026,
+      "sha256": "7896f61ce7b5dc9e5d7f24c26a7440c2cc2817cd50d2e8cb43d7fdfdaf7a9327"
     },
     {
       "path": "scripts/update_file_index.py",
-      "bytes": 1415,
-      "sha256": "2368cee81f9175f47e2a469a91d1f3dd8508e4e79c4da9bba232a2df8b5afa97"
+      "bytes": 1372,
+      "sha256": "82c9075f1eb324b586a84a96a9e8b454b53bc95907ec734cd2ec156cccda07ff"
     },
     {
       "path": "docs/03_engineering/TCG_RULES_REFERENCE.md",
-      "bytes": 6712,
-      "sha256": "954aa77a9b5a29721179cc92a987464aab6ea9a8a5edc4f401999d259e9daca6"
+      "bytes": 6663,
+      "sha256": "ddc4fa7fa77ff7753ee8417eb878d47b41233eb29c80aaba700c27e489b23ae6"
     },
     {
       "path": "game_rules/tcg.py",
-      "bytes": 35172,
-      "sha256": "659a52ab117fbd26abb10b0477ca197e9d606d61b37948159392b53d2022cab6"
+      "bytes": 34324,
+      "sha256": "28cd411a5f489dea00b090b8a2b4da8427b6ebf71ec2d7f312eb15288d2e336c"
     },
     {
       "path": "tests/test_tcg.py",
-      "bytes": 24475,
-      "sha256": "05808d6f3577abcae582c607036dbb71595a968af4eb249f6bc31889a5c57ccf"
+      "bytes": 23961,
+      "sha256": "d02ddb8682556231cb4cec19e93fedce5b385dd6927c6be5cbb107bccc897622"
     },
     {
       "path": "docs/03_engineering/ADVENTURE_RULES_REFERENCE.md",
-      "bytes": 3564,
-      "sha256": "13127f796191660afe53c35f91ad91da8b52ddb4bc97fc8c1adcc574f3a41d7d"
+      "bytes": 3522,
+      "sha256": "d7f1cdea6cdad8de5010ef69aaed0b995fd73fb33df577ea4a80c4bc7b5b6725"
     },
     {
       "path": "game_rules/adventure.py",
-      "bytes": 17619,
-      "sha256": "ec89eab1818db67c504f7de9c88584fc321397f9ed64b021c8afe360d6aa8465"
+      "bytes": 17211,
+      "sha256": "36e89a80d2c34e871f58998274263deb9a2a195321d08022292bbf1362a18a7d"
     },
     {
       "path": "tests/test_adventure.py",
-      "bytes": 6565,
-      "sha256": "88701752145f61d0f1c1ad460da5d383fe41690f5d5634ecee5d74d6caae86f2"
+      "bytes": 6406,
+      "sha256": "cdd38563cd662762921ed1417f83463a7865323a8b9837ba938173bf7a1caaf5"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-001.md",
+      "bytes": 952,
+      "sha256": "561878f88ef6e70b16e4f2752f4e2a73a5b59981f805fb8584df9d3337105ec5"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-002.md",
+      "bytes": 907,
+      "sha256": "c4aea6933969b4a881d000a924dbcf8ee24ad89ddb9437151695213989bee38f"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-003.md",
+      "bytes": 867,
+      "sha256": "8733c932a50fc6e8c2a58f9c7d7c63cb2baee62152fafa63a4bc05f6740ebbee"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-004.md",
+      "bytes": 854,
+      "sha256": "1a10c6de849afcfe347a2db30334cc216d1add2968ce07d44f3b0f971862242f"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-005.md",
+      "bytes": 856,
+      "sha256": "1fe034b56ff4973cc85ee8efd4de0596d57b5e926efd607d884fa80ff6221946"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-006.md",
+      "bytes": 862,
+      "sha256": "2e5a82e9f456d42bbb23160cc946aabb2dd3cb9ca591a9f446b6440d5d5b7a37"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-007.md",
+      "bytes": 890,
+      "sha256": "10d22f167c914b6a4a18eedc8b42f2a636ca38d70856a98018d580b2a3e3b3de"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-008.md",
+      "bytes": 842,
+      "sha256": "d92e4fad4866af11766ad8e78bf6de7306577464444c3d8e566860c02eba26de"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-009.md",
+      "bytes": 883,
+      "sha256": "ff2d72f8d6741f41ba01daf0fe39fc5d864e4c9665a506da1c0cf6c0d8d83b2f"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-010.md",
+      "bytes": 929,
+      "sha256": "d9ccb55551d81b40826b67a7c67fec6a2111cd96785321926095d56e1ca20084"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-011.md",
+      "bytes": 912,
+      "sha256": "145b38161902cc67ddc293d82817568202a8a1d4d818e67ead692631e214c86c"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-012.md",
+      "bytes": 848,
+      "sha256": "903a83318e765588388bcac4197f09ba529aea1414394be64f6b6792f35def37"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-013.md",
+      "bytes": 837,
+      "sha256": "6f4f3d80adc06aec47ca18d4d33435465f3cfadaead721b0f51cd0ad2d283187"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-014.md",
+      "bytes": 902,
+      "sha256": "a887dd3eef2406ec2cd689e9135e070611f8e6c0c8ba9d00e279b5947b003abb"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-015.md",
+      "bytes": 827,
+      "sha256": "2b7a1adb8f28cd0eae2a5ecc522f9c3d8a6ebd0048ef3710e62b72e5027a3903"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-016.md",
+      "bytes": 834,
+      "sha256": "234b44094789db7f76937a8f73189f4fa0c69c6fc5fc2591dfdc1a68e2ffca31"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-017.md",
+      "bytes": 910,
+      "sha256": "48c51466dde5288d61e2ef24d8335e35d1b45b2b1843e13038a6fd2ee9f9f229"
+    },
+    {
+      "path": "client/README.md",
+      "bytes": 4626,
+      "sha256": "c1b6f7d883949c5465c0179c8c759a18c1706d3e85dbee419d397f7f18680a82"
+    },
+    {
+      "path": "client/index.html",
+      "bytes": 435,
+      "sha256": "605faf6d1c4b2d1141c90eb2247ad543d1e8bd6414660d6310d745a2472389e0"
+    },
+    {
+      "path": "client/package.json",
+      "bytes": 120,
+      "sha256": "aae54800a054f8cf16e4be229934ad5a4b2585affbe592af2768501f05aa091b"
+    },
+    {
+      "path": "client/src/core/events.js",
+      "bytes": 650,
+      "sha256": "38e84f2187c9b0e412b0d9fd7105c024751a49b8a17f88ef8054686e1c427969"
+    },
+    {
+      "path": "client/src/core/save.js",
+      "bytes": 2732,
+      "sha256": "6b77ba716ce75eee432afeca0d8655371d173494a120e916ea5790fa18136dc4"
+    },
+    {
+      "path": "client/src/main.js",
+      "bytes": 47932,
+      "sha256": "76e78d97ffac45de34d593ddac56b8066a77a4da28481946ef2a4c4dc2ff7156"
+    },
+    {
+      "path": "client/src/modes/adventure.js",
+      "bytes": 13993,
+      "sha256": "e6370743ab21a243889e85b75f0484941daa3fa1af74e56cd8ebf91a7b57e8d5"
+    },
+    {
+      "path": "client/src/modes/autoChess.js",
+      "bytes": 11793,
+      "sha256": "8bb379a5dbdc9fa2cc1b5d0434d93004661e0d198ddb3d092358226dbdcb797e"
+    },
+    {
+      "path": "client/src/modes/tcg.js",
+      "bytes": 17620,
+      "sha256": "a552dcca0b0f6364cc0a4ee4647e54100095fb80ca0ba8c6db67ce4a109ed608"
+    },
+    {
+      "path": "client/styles.css",
+      "bytes": 20568,
+      "sha256": "f2f6556c8cb373a44c468230e9c053a4c5ddca5a10c28a98ec3d58d06c0751b6"
+    },
+    {
+      "path": "client/tests/runtime.test.js",
+      "bytes": 12614,
+      "sha256": "677c4132ae4856624114f0571a3971867957752fb599a2271e223ab92539b2e3"
+    },
+    {
+      "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
+      "bytes": 15870,
+      "sha256": "7228b62159eaef7b2b43fccd6428fde0db92f96555d8cf410948b253139fab3a"
+    },
+    {
+      "path": "client/src/render/actorViewRegistry.js",
+      "bytes": 652,
+      "sha256": "0bc849a0eda1ec43271a7627d76d90baa0908cb9a77d908e3a9852809d18c252"
+    },
+    {
+      "path": "client/src/render/animationAdapter.js",
+      "bytes": 7995,
+      "sha256": "f76f1979e6addb8e3cdcfe360311453724cd4f90c39134e22c139a70c96745d9"
+    },
+    {
+      "path": "client/src/render/clipPlayer.js",
+      "bytes": 7137,
+      "sha256": "27b10f67a74596f52d714e49181ced808f6f533375b42bb10d12088630f7f7f1"
+    },
+    {
+      "path": "client/tests/animation.test.js",
+      "bytes": 7369,
+      "sha256": "a5e6638bc2f4cfb86487ceab456f39d1e79c07bb85e1024e84383ae7bcfbe436"
+    },
+    {
+      "path": "client/src/modes/adventureNavigation.js",
+      "bytes": 9705,
+      "sha256": "d25bab8232fe397729599a5b9a2ef233e3633f47a765cf53f77e0857fa817bb8"
     }
   ]
 }

@@ -6,5 +6,8 @@
 4. Agent cleans transparent PNGs and exports valid JSON metadata, atlas and preview, runs technical QA.
 5. Human art review mandatory for animation readability, fidelity and rights. Only then integrate into engine.
 
+## Runtime integration handoff
+After animation assets and manifest are approved, use [`docs/02_art/ANIMATION_INTEGRATION_SPEC.md`](../docs/02_art/ANIMATION_INTEGRATION_SPEC.md) as the implementation contract for the browser adapter. That spec covers event payload gaps, clip priority, fallback behavior, tests and a copy-ready agent task. Do not mix runtime integration with art approval or let animation callbacks mutate game rules.
+
 ## Copy-ready agent task
 > Apply skill `soul-of-meal-sprite`. Character: `chr_bunbo_holinh`, skin `default`, reference: `references/visuals/crops/character/hero_full.png` and `docs/00_foundation/PROJECT_BIBLE.md`. Deliver a consistent 4-view chibi identity board, 8 facial expressions, `idle/walk/run/attack_a/attack_b/skill_01/ultimate_01/hit/victory` animations, transparent 512×512 individual frames, atlas PNG+JSON, GIF previews and QA/provenance report. Keep fire overlays separate from base animation. Do not bake captions or UI into sprites. Use strict validator and report missing items honestly.

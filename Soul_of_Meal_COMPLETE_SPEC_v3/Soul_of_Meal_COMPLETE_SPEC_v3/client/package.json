@@ -1,0 +1,8 @@
+{
+  "name": "soul-of-meal-client",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}

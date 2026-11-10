@@ -1,25 +1,25 @@
 # Decision Register — v3.0
 
-Đây là bảng lựa chọn cần duyệt. **Trạng thái tất cả các mục: PROPOSED / NEEDS APPROVAL**. Đây không phải phê duyệt ngầm.
+Các baseline D-001 đến D-017 dưới đây được Project Owner duyệt ngày 2026-11-10 theo yêu cầu trong phiên làm việc. Phạm vi duyệt là baseline thiết kế/prototype; cổng benchmark, playtest, art, thiết bị và pháp lý vẫn là điều kiện nghiệm thu trước khi triển khai/phát hành, không được hiểu là đã hoàn tất.
 
-| ID | Phạm vi | Baseline đề xuất | Cổng chốt |
+| ID | Phạm vi | Baseline đã duyệt | ADR | Cổng nghiệm thu còn lại |
 |---|---|---|---|
-| D-001 | Renderer | 2D/2.5D engine có atlas + texture management + WebGL/WebGPU fallback | Benchmark 3 máy mục tiêu |
-| D-002 | Sprite pipeline | PNG RGBA individual frames → shared atlas; rig tùy nhân vật nếu đủ chất lượng | Golden Sample |
-| D-003 | Lưu game | local-first, phiên bản schema, optional cloud sync | Recover/reload tests |
-| D-004 | PvP | bot-only P0, PvP sau deterministic tests | anti-cheat review |
-| D-005 | Adventure | hero + 4 spirits, auto basic + manual ult | playtest |
-| D-006 | Adventure formula | `floor(max(1, ATK*coef*100/(100+DEF)))` | balance spreadsheet/playtest |
-| D-007 | TCG | 36 cards, 5 units, 2 traps, 8000 HP, 1..10 mana | simulation 100 games |
-| D-008 | TCG priority | sequential priority, stack LIFO, two passes resolve top item | edge-case tests |
-| D-009 | Auto Chess | 8 players/bots, shop 5, bench 9, 7×8 battle grid | bot simulation |
-| D-010 | Auto Chess economy | interest 1/10 up to 5, shop odds per level | balance simulations |
-| D-011 | Gacha | rates/pity TBD, display transparent published odds when approved | legal/policy |
-| D-012 | FPS | 60 high / 30 low; sim fixed independent of render | perf QA |
-| D-013 | Audio | 48 kHz source, buses Music/SFX/Voice/Ambience | mix/playback tests |
-| D-014 | Source licenses | original / licensable only, provenance required | legal sign-off |
-| D-015 | UX orientation | Home portrait first, battle strategy landscape-friendly | UX tests |
-| D-016 | UI density | minimum 44 dp touch, safe area OS inset | actual devices |
-| D-017 | Release content | P0 five characters, one village & one forest map | production capacity |
+| D-001 | Renderer | 2D/2.5D; WebGL required, WebGPU optional; named engine after benchmark | [D-001](decisions/D-001.md) | Benchmark 3 target devices before engine lock |
+| D-002 | Sprite pipeline | Individual RGBA PNG frames + metadata → shared atlas; rig only if Golden Sample qualifies | [D-002](decisions/D-002.md) | Golden Sample art/clip review |
+| D-003 | Lưu game | Local-first, versioned schema/migrations; cloud sync outside P0 | [D-003](decisions/D-003.md) | Recovery, reload, migration and duplicate-claim tests |
+| D-004 | PvP | Bot-only P0; no online PvP until server authority and anti-cheat gates pass | [D-004](decisions/D-004.md) | Determinism, server authority, reconnect and anti-cheat review |
+| D-005 | Adventure | 1 hero + 4 spirits; auto basic attacks + manual ultimate | [D-005](decisions/D-005.md) | Playtest; full party/runtime not implemented |
+| D-006 | Adventure formula | `max(1, floor(ATK * coefficient * 100 / (100 + DEF)))` | [D-006](decisions/D-006.md) | Balance playtest; coefficients remain data |
+| D-007 | TCG | 36-card deck, max 2 copies where configured, 5 units, 2 traps, 8000 HP, mana cap 10 | [D-007](decisions/D-007.md) | 100-game simulation; not release balance |
+| D-008 | TCG priority | Sequential priority; two passes resolve top LIFO item or close empty window | [D-008](decisions/D-008.md) | Edge-case tests; remaining card/effect grammar |
+| D-009 | Auto Chess | 8 competitors (bots allowed), shop 5, bench 9, total grid 7×8 / each half 7×4 | [D-009](decisions/D-009.md) | Bot simulation; full combat not implemented |
+| D-010 | Auto Chess economy | Interest `min(floor(pre-payout gold/10), 5)`; configured per-level odds | [D-010](decisions/D-010.md) | Economy simulations; current shop is with replacement |
+| D-011 | Gacha | No monetized gacha in P0; rates/pity need separate approval and transparent disclosure | [D-011](decisions/D-011.md) | Economy/legal review before any future paid pulls |
+| D-012 | FPS | Target 60 FPS high / 30 FPS low; fixed simulation independent of render | [D-012](decisions/D-012.md) | Device profiling; target is not measured performance |
+| D-013 | Audio | 48 kHz source; independent Music/SFX/Voice/Ambience buses | [D-013](decisions/D-013.md) | Platform playback, mix and clipping tests |
+| D-014 | Source licenses | Original or appropriately licensed assets; provenance required | [D-014](decisions/D-014.md) | Per-asset legal sign-off |
+| D-015 | UX orientation | Home portrait-first; strategy screens landscape-friendly | [D-015](decisions/D-015.md) | Responsive UX/device tests |
+| D-016 | UI density | Minimum 44 dp touch targets; honor OS safe-area insets | [D-016](decisions/D-016.md) | Actual device validation |
+| D-017 | Release content | P0 scope: five characters, one village and one forest map | [D-017](decisions/D-017.md) | Capacity and slice acceptance; approval is not delivery |
 
-Decision records khi chốt được lưu `docs/00_foundation/decisions/D-XXX.md`, có các trường: context, options, approved_by, approved_on, balance/version implications, rollback, test fixtures. Nếu chưa có bản APPROVED, hệ thống xử lý dưới mode `prototype` và hiển thị trong tài liệu là chưa khóa.
+Decision records được lưu `docs/00_foundation/decisions/D-XXX.md`, gồm context, decision, approver, date, implications, rollback và test fixtures. Người duyệt được ghi là Project Owner theo xác nhận trong phiên làm việc; tên hiển thị chưa được cung cấp. Các mục có cổng nghiệm thu vẫn là prototype cho đến khi bằng chứng kiểm thử/duyệt tương ứng được ghi nhận.
