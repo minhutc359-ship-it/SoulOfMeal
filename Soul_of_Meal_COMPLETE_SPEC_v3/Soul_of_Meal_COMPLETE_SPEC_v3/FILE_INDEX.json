@@ -784,8 +784,8 @@
     },
     {
       "path": "client/src/core/events.js",
-      "bytes": 650,
-      "sha256": "38e84f2187c9b0e412b0d9fd7105c024751a49b8a17f88ef8054686e1c427969"
+      "bytes": 899,
+      "sha256": "097d6951683693d04d326d4e4d0a4bbd789207090366e6dee7264638da0c11e5"
     },
     {
       "path": "client/src/core/save.js",
@@ -794,13 +794,13 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 47932,
-      "sha256": "76e78d97ffac45de34d593ddac56b8066a77a4da28481946ef2a4c4dc2ff7156"
+      "bytes": 52063,
+      "sha256": "a29ba9b5d8af96d7980053b969b07b060bc478256a6a303a0f7d3fe7b2aef97f"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 13993,
-      "sha256": "e6370743ab21a243889e85b75f0484941daa3fa1af74e56cd8ebf91a7b57e8d5"
+      "bytes": 15210,
+      "sha256": "34e427e297f64af6a1afc7b81cba3dd42333fffb7efdf333e6036f177fe48af2"
     },
     {
       "path": "client/src/modes/autoChess.js",
@@ -814,13 +814,13 @@
     },
     {
       "path": "client/styles.css",
-      "bytes": 20568,
-      "sha256": "f2f6556c8cb373a44c468230e9c053a4c5ddca5a10c28a98ec3d58d06c0751b6"
+      "bytes": 21004,
+      "sha256": "f0ccd7b32a2c900f275b9c15ab294623f57f4f11bb9f5d0363234c3b5c19b81f"
     },
     {
       "path": "client/tests/runtime.test.js",
-      "bytes": 12614,
-      "sha256": "677c4132ae4856624114f0571a3971867957752fb599a2271e223ab92539b2e3"
+      "bytes": 13672,
+      "sha256": "5902f4c29a1f6375b398ace4ee3649177a48e471bf32286767883c30e737079f"
     },
     {
       "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
@@ -834,8 +834,8 @@
     },
     {
       "path": "client/src/render/animationAdapter.js",
-      "bytes": 7995,
-      "sha256": "f76f1979e6addb8e3cdcfe360311453724cd4f90c39134e22c139a70c96745d9"
+      "bytes": 8704,
+      "sha256": "43c2df6c835bc96b3afd3e3f6a080b7199cee9025a8a7f78a071cac91c2b4be6"
     },
     {
       "path": "client/src/render/clipPlayer.js",
@@ -844,13 +844,458 @@
     },
     {
       "path": "client/tests/animation.test.js",
-      "bytes": 7369,
-      "sha256": "a5e6638bc2f4cfb86487ceab456f39d1e79c07bb85e1024e84383ae7bcfbe436"
+      "bytes": 8233,
+      "sha256": "0d9b47ddd741ed352b0d72dd87dc62e5b8b06371454c32a8f3c0dccb94479761"
     },
     {
       "path": "client/src/modes/adventureNavigation.js",
-      "bytes": 9705,
-      "sha256": "d25bab8232fe397729599a5b9a2ef233e3633f47a765cf53f77e0857fa817bb8"
+      "bytes": 9760,
+      "sha256": "753a7a5f7d7a8bf6e17f4300e1fbd2741446e0f328eaed9e9f4ffb71a987a535"
+    },
+    {
+      "path": "client/assets/avatars/avatar_banhbao_bachngoc.png",
+      "bytes": 32520,
+      "sha256": "f96235edba63dfe4002ae5014d9dfadd9700cf5465e8e99f78a5b27422fc10ea"
+    },
+    {
+      "path": "client/assets/avatars/avatar_boss_thief.png",
+      "bytes": 32349,
+      "sha256": "8a167dad4081fa9bf33adfb56fb27063fd59bac8c7c6e8627a2265026776475a"
+    },
+    {
+      "path": "client/assets/avatars/avatar_bunbo_holinh.png",
+      "bytes": 34573,
+      "sha256": "b327808753304f81a6aaf1fffb795fd3aa134f5e3786d30f22e8bd8d7b47c4a2"
+    },
+    {
+      "path": "client/assets/avatars/avatar_caphe_davu.png",
+      "bytes": 33568,
+      "sha256": "81742832b87e1dba88b7b3da133a789f3c8668dd3f4dd22ebc6ca72601847877"
+    },
+    {
+      "path": "client/assets/avatars/avatar_goicuon_diepnhi.png",
+      "bytes": 33875,
+      "sha256": "960e987edf7431eb8245356d81615efad56e3c8906ab7e7be2ed54cf8370fac9"
+    },
+    {
+      "path": "client/assets/avatars/avatar_pho_lamvu.png",
+      "bytes": 33550,
+      "sha256": "22861c47bd09795e089cd2f7494ffb88cb70a54c2b745baac0c2384d1048c39e"
+    },
+    {
+      "path": "client/assets/cards/card_demo_01.png",
+      "bytes": 301334,
+      "sha256": "75d319d12c95ee481793289f639a9e12bc57f9db5d698f54ef34c62465117398"
+    },
+    {
+      "path": "client/assets/cards/card_demo_02.png",
+      "bytes": 297697,
+      "sha256": "50f990f981f38bdb455848034c68779ddd6d435572a75dae50bfd146c1efbcc2"
+    },
+    {
+      "path": "client/assets/cards/card_demo_03.png",
+      "bytes": 296423,
+      "sha256": "23437d19f98927995dfe2c7d0992613f44f9988c6f1a682d3014a733448a6ecb"
+    },
+    {
+      "path": "client/assets/cards/card_demo_04.png",
+      "bytes": 293767,
+      "sha256": "a3ce388042250d003203c8df9d17ba45b2e4951f49c195c20adacd905ca84445"
+    },
+    {
+      "path": "client/assets/cards/card_demo_05.png",
+      "bytes": 281876,
+      "sha256": "db69a11b390add6b6a9cdddf0f40cc0ab6611113da3ea27f4a50015659f2880a"
+    },
+    {
+      "path": "client/assets/cards/card_demo_06.png",
+      "bytes": 195710,
+      "sha256": "f21f514ed6bc26b2798d578e41e579022fd4aa4787eba789998b54a18533f9d1"
+    },
+    {
+      "path": "client/assets/cards/card_demo_07.png",
+      "bytes": 188844,
+      "sha256": "79e6d8c253c329b4066161974f708428d103920ecb4428de528a5da7c88e8d29"
+    },
+    {
+      "path": "client/assets/cards/card_demo_08.png",
+      "bytes": 230003,
+      "sha256": "b2672516d217ff869eaad412396f29d6c70588a4339b426449d6b3d8a1ca12ca"
+    },
+    {
+      "path": "client/assets/cards/card_demo_09.png",
+      "bytes": 326840,
+      "sha256": "4cecf288b0a3f037082439d5da29eed726ff5548ce8dd6b9ef34fea8c50392b1"
+    },
+    {
+      "path": "client/assets/cards/card_demo_10.png",
+      "bytes": 346651,
+      "sha256": "5d0f7c0c1f363060108936656eea33293dd90d1887a69e3da0c74d33f555d175"
+    },
+    {
+      "path": "client/assets/cards/card_demo_11.png",
+      "bytes": 430697,
+      "sha256": "9fc5fe0db6ff41a2a6f99849a39134732a7bdf3b64282f2551a59cc4c3718f39"
+    },
+    {
+      "path": "client/assets/cards/card_demo_12.png",
+      "bytes": 348360,
+      "sha256": "0312e4e8b6890f85d3a40e135e48133f18db9f8414f44f1269b8227f8f5f0d86"
+    },
+    {
+      "path": "client/assets/cards/card_demo_13.png",
+      "bytes": 296423,
+      "sha256": "23437d19f98927995dfe2c7d0992613f44f9988c6f1a682d3014a733448a6ecb"
+    },
+    {
+      "path": "client/assets/cards/card_demo_14.png",
+      "bytes": 362737,
+      "sha256": "a468c386660dcd8856b4aa74ae8d438d06a198c699e2b9b709bac08cfba6a0ad"
+    },
+    {
+      "path": "client/assets/cards/card_demo_15.png",
+      "bytes": 281876,
+      "sha256": "db69a11b390add6b6a9cdddf0f40cc0ab6611113da3ea27f4a50015659f2880a"
+    },
+    {
+      "path": "client/assets/cards/card_demo_16.png",
+      "bytes": 362737,
+      "sha256": "a468c386660dcd8856b4aa74ae8d438d06a198c699e2b9b709bac08cfba6a0ad"
+    },
+    {
+      "path": "client/assets/cards/card_demo_17.png",
+      "bytes": 188844,
+      "sha256": "79e6d8c253c329b4066161974f708428d103920ecb4428de528a5da7c88e8d29"
+    },
+    {
+      "path": "client/assets/cards/card_demo_18.png",
+      "bytes": 230003,
+      "sha256": "b2672516d217ff869eaad412396f29d6c70588a4339b426449d6b3d8a1ca12ca"
+    },
+    {
+      "path": "client/assets/generate_cards_and_portraits.py",
+      "bytes": 16689,
+      "sha256": "de03d165095483af9223dbf83b5b9f0d602d7287df766eaa26f5a686c548140c"
+    },
+    {
+      "path": "client/assets/generate_sprites.py",
+      "bytes": 61518,
+      "sha256": "165d7cf605884a19f9d9f735aec22ef39aa80489cb40bb4cc1e4677d0ab66ef3"
+    },
+    {
+      "path": "client/assets/portraits/boss_thief.png",
+      "bytes": 558857,
+      "sha256": "63b2b9b25d874185e1f0fcde2141dfe7c3a492fad1f22487ea853fc0795f4014"
+    },
+    {
+      "path": "client/assets/portraits/chr_banhbao_bachngoc.png",
+      "bytes": 407799,
+      "sha256": "6cef2f42324ceb0e995a3773e3d9eddbe2d1c0e5ea98cd7616ed3d6be1d4277e"
+    },
+    {
+      "path": "client/assets/portraits/chr_bunbo_holinh.png",
+      "bytes": 583156,
+      "sha256": "6f56dc115985011400cb633033eb114a3adcfb0d27a4c7b6dc53ac211d8ffcf7"
+    },
+    {
+      "path": "client/assets/portraits/chr_caphe_davu.png",
+      "bytes": 432761,
+      "sha256": "95b4bf47c00483e82623a2c866f37892fa6052e73da7d16c368f40f3b91c1437"
+    },
+    {
+      "path": "client/assets/portraits/chr_goicuon_diepnhi.png",
+      "bytes": 435190,
+      "sha256": "d4152da907aa59b1090a07a5167547ca230d522e09133e9a838352a63263943f"
+    },
+    {
+      "path": "client/assets/portraits/chr_pho_lamvu.png",
+      "bytes": 431410,
+      "sha256": "bfc7ae2fae9d8229935ab77c9af80537f897721e859de979d91b4ca27e4b9f6c"
+    },
+    {
+      "path": "client/assets/sprites/boss_thief.manifest.json",
+      "bytes": 14567,
+      "sha256": "b98d36561cb10f04dfb420626e385275d43930222917c4b8b7205fcba7b2ff6c"
+    },
+    {
+      "path": "client/assets/sprites/boss_thief.png",
+      "bytes": 326753,
+      "sha256": "37295375a45334626942b5662424b5b8dcae15a6f804ac8d6e5e25512ee971e6"
+    },
+    {
+      "path": "client/assets/sprites/chr_banhbao_bachngoc.manifest.json",
+      "bytes": 16347,
+      "sha256": "7047e42675d36ab4ae83009573175fa0b2055b456ecf4cb2f08df195dfc99bd1"
+    },
+    {
+      "path": "client/assets/sprites/chr_banhbao_bachngoc.png",
+      "bytes": 163829,
+      "sha256": "52108c62c4a80921ec9bce387edd150a5bad793d97ff61f966fd399b3cbdd189"
+    },
+    {
+      "path": "client/assets/sprites/chr_bunbo_holinh.manifest.json",
+      "bytes": 15635,
+      "sha256": "e5b557445d43674b107e5659fd31c6741d11034e7614e9e7c2f605601bfda662"
+    },
+    {
+      "path": "client/assets/sprites/chr_bunbo_holinh.png",
+      "bytes": 156313,
+      "sha256": "871493433c9ee25051f4ba6c200e7bb7f97cc0445da29f15bf494e2222073c5e"
+    },
+    {
+      "path": "client/assets/sprites/chr_caphe_davu.manifest.json",
+      "bytes": 15279,
+      "sha256": "a521cbdbb137b651fb5d8ca45e098fc0dad5a5dd447c09933d00dc4d3ffd532a"
+    },
+    {
+      "path": "client/assets/sprites/chr_caphe_davu.png",
+      "bytes": 167531,
+      "sha256": "859057832e414ff0a4834a6a1119e9379125b8cc96d599c04ba28034c2fa2973"
+    },
+    {
+      "path": "client/assets/sprites/chr_goicuon_diepnhi.manifest.json",
+      "bytes": 16169,
+      "sha256": "0d4a02f779bc649068f7b1c4fd13d6938d16bb46018e2af8b75cdec776af6719"
+    },
+    {
+      "path": "client/assets/sprites/chr_goicuon_diepnhi.png",
+      "bytes": 168828,
+      "sha256": "8d56bdd1154d06386eb6750c292a8b389ac22020e794716ebbe8e07b8bb95116"
+    },
+    {
+      "path": "client/assets/sprites/chr_pho_lamvu.manifest.json",
+      "bytes": 15101,
+      "sha256": "b3fc3d55860c2a99337d1237791f95d7ff93543cfc172044c313d02fd9ac5794"
+    },
+    {
+      "path": "client/assets/sprites/chr_pho_lamvu.png",
+      "bytes": 165023,
+      "sha256": "fa890cd6c64f6f6526d63763ccefb6ecc113e5115dcbf37d6b62a0d84d76a697"
+    },
+    {
+      "path": "client/assets/sprites/effects/fire_burst.png",
+      "bytes": 1154,
+      "sha256": "38ee7461477587ec63d8537bdc0d383f51ec9765ae8b6f1a78d4e41c292ddb74"
+    },
+    {
+      "path": "client/assets/sprites/effects/heal_glow.png",
+      "bytes": 865,
+      "sha256": "d7ecaf5a1d62d878e2f17738661392d295a5a6d817d88b2823eee09911d60b03"
+    },
+    {
+      "path": "client/assets/sprites/effects/hit_spark.png",
+      "bytes": 831,
+      "sha256": "c7e53eee81ebc051ddb8653b60dc733e6712222a87237693eea31045606c9eda"
+    },
+    {
+      "path": "client/assets/sprites/effects/leaf_swirl.png",
+      "bytes": 730,
+      "sha256": "a534f7f4fd108830e60a46fed85d82309328b0758def2561cc797847c2ca6d0a"
+    },
+    {
+      "path": "client/assets/sprites/effects/light_flash.png",
+      "bytes": 1148,
+      "sha256": "1021de2da57e063eae11ffeab288df25983366fb3110e7d2cd9035ae91a15885"
+    },
+    {
+      "path": "client/assets/sprites/effects/shadow_fade.png",
+      "bytes": 1289,
+      "sha256": "581e4c622cc99f6a1a85c6681591decfcd171e4d8b152c204bf2b8afda542053"
+    },
+    {
+      "path": "client/assets/sprites/effects/water_splash.png",
+      "bytes": 1125,
+      "sha256": "3ae1790468889ac11f2cce93fc0aa95f4520ac7efa1e4f75847c72a3b4f99486"
+    },
+    {
+      "path": "client/assets/sprites/icons/icon_fire.png",
+      "bytes": 2125,
+      "sha256": "87030296efabffd2ef447c64b0fcf4c943ebe3965cbd1d3df7202d928bd7bcd5"
+    },
+    {
+      "path": "client/assets/sprites/icons/icon_light.png",
+      "bytes": 2084,
+      "sha256": "9f4424783a4b5d4cc52373e6a4dc1b65d7e8ded18134727c178308b7333b4666"
+    },
+    {
+      "path": "client/assets/sprites/icons/icon_shadow.png",
+      "bytes": 2507,
+      "sha256": "3864a7331753b0dbd198de770917f3a21c2f8412a3afe73d52543f1837fdfc82"
+    },
+    {
+      "path": "client/assets/sprites/icons/icon_water.png",
+      "bytes": 1922,
+      "sha256": "554e67004ff847c46d5a01e70ac4a5b81249d8e689391344e514fab5f2ddbc7e"
+    },
+    {
+      "path": "client/assets/sprites/icons/icon_wood.png",
+      "bytes": 1849,
+      "sha256": "81a9c83743058af6b2a03be426711d3c273aaeca138a05e74723a864fb6a9d64"
+    },
+    {
+      "path": "client/assets/sprites/maps/chest_closed.png",
+      "bytes": 7287,
+      "sha256": "34522256afd5d38bef3df7df625ce53e221e6059cb59f8cb5d1f5397593d9d91"
+    },
+    {
+      "path": "client/assets/sprites/maps/chest_open.png",
+      "bytes": 7287,
+      "sha256": "34522256afd5d38bef3df7df625ce53e221e6059cb59f8cb5d1f5397593d9d91"
+    },
+    {
+      "path": "client/assets/sprites/maps/house_guild.png",
+      "bytes": 49631,
+      "sha256": "afab5236d29d2d9dd46000b49cf21ee57b854db8e41d0be3985eb92baef0a3db"
+    },
+    {
+      "path": "client/assets/sprites/maps/house_kitchen.png",
+      "bytes": 50290,
+      "sha256": "c6687b1a3f64fc1d5e5f1be540c3e7303392089c72ca23788f2c15c04a17d0c2"
+    },
+    {
+      "path": "client/assets/sprites/maps/house_merchant.png",
+      "bytes": 47160,
+      "sha256": "2a80e12df9fbc8be1166fcbd9f57706dc5877ed099f142c3c9fe10bbadd5d2eb"
+    },
+    {
+      "path": "client/assets/sprites/maps/portal.png",
+      "bytes": 10967,
+      "sha256": "c7838d2a2aafae1da4254f579f858fe943706890fc04dd98920a6ba6eb610b0b"
+    },
+    {
+      "path": "client/assets/sprites/maps/tile_grass_dark.png",
+      "bytes": 370,
+      "sha256": "5f0976f3aa992986d5c2bcddd86757b9cd36ffe760883d301af3c0f2cbab1300"
+    },
+    {
+      "path": "client/assets/sprites/maps/tile_grass_light.png",
+      "bytes": 369,
+      "sha256": "7938cbc1f9174cdd59f76ab676f7fef10db7ebaa33e1ce4c0e51c27154b33588"
+    },
+    {
+      "path": "client/assets/sprites/maps/tile_path.png",
+      "bytes": 396,
+      "sha256": "802d3777250897a61b5b71465746624b0d25d8e0c977a9b1a1b8812feb0854eb"
+    },
+    {
+      "path": "client/assets/sprites/maps/tile_water.png",
+      "bytes": 197,
+      "sha256": "f4c9aa533ea4f9b73833f4884af8d13cb72e1462207041891005088f4ea8767f"
+    },
+    {
+      "path": "client/assets/sprites/maps/tree_01.png",
+      "bytes": 11854,
+      "sha256": "93fc1eac77ba8e5f1ff137ab61eb8e50a23697c63ae2faa43272541092a79c3d"
+    },
+    {
+      "path": "client/assets/sprites/maps/tree_02.png",
+      "bytes": 11854,
+      "sha256": "93fc1eac77ba8e5f1ff137ab61eb8e50a23697c63ae2faa43272541092a79c3d"
+    },
+    {
+      "path": "client/assets/sprites/ui/card_frame_R.png",
+      "bytes": 1688,
+      "sha256": "d248255e54a4fa4aa81489f6291753f9055bccfd7143f58d3c9d21759f590a89"
+    },
+    {
+      "path": "client/assets/sprites/ui/card_frame_SR.png",
+      "bytes": 1666,
+      "sha256": "dbc4e197c1807c76d8f6bde1f11214b769293ab7ba99410ea682c398bf6ed55e"
+    },
+    {
+      "path": "client/assets/sprites/ui/card_frame_SSR.png",
+      "bytes": 1812,
+      "sha256": "b747a17d1474b3b3befc2dd6f39296aa6b4105dd18c915646fcaf80c425876b1"
+    },
+    {
+      "path": "client/assets/sprites/ui/energy_bar_frame.png",
+      "bytes": 184,
+      "sha256": "b4e1aa7d667dd2a082e1d4de6274f5be830536a437af8d337f8ae0908c150910"
+    },
+    {
+      "path": "client/assets/sprites/ui/gold_coin.png",
+      "bytes": 289,
+      "sha256": "2f78d7b2e2d610a49bbc456c04e82b8d445cc8d729c63c23fa3751740b93b2d5"
+    },
+    {
+      "path": "client/assets/sprites/ui/hp_bar_frame.png",
+      "bytes": 184,
+      "sha256": "e959820a308e80a25076002e7b504da5170b24cf17974ffda99c4eebef46fd68"
+    },
+    {
+      "path": "client/assets/sprites/ui/logo_mark.png",
+      "bytes": 2072,
+      "sha256": "80064214f2653af32ca5a36e905e62d6409ff632ffb5aeb014d686833924117b"
+    },
+    {
+      "path": "client/assets/sprites/ui/mana_gem.png",
+      "bytes": 283,
+      "sha256": "4d724b593486e0a5d1ec1fcb3b146eff73ea87e910941661da004710cfb00441"
+    },
+    {
+      "path": "client/assets/sprites/ui/star_empty.png",
+      "bytes": 183,
+      "sha256": "f8c1c9d239ac79d69fa0659d6f01de3f9440482c2d30aaea2e02c071a1b0887a"
+    },
+    {
+      "path": "client/assets/sprites/ui/star_filled.png",
+      "bytes": 193,
+      "sha256": "9e4282b960266e42ffd1232bbb847a9280151aebb9542e3cbe7b3b9d9ad9624e"
+    },
+    {
+      "path": "client/gallery.html",
+      "bytes": 16545,
+      "sha256": "e8f99ec5b7affa35733b326d78fb351932e7cc3c8d261a815e8a39d27bec5c96"
+    },
+    {
+      "path": "client/src/modes/mapCatalog.js",
+      "bytes": 10486,
+      "sha256": "0219670a75d8bd4270c27ebabd7e29e9ed4bf28f45569b77fbbed8f97326fd96"
+    },
+    {
+      "path": "client/src/render/animationManifest.js",
+      "bytes": 1094,
+      "sha256": "27911929bc5739056e969a862f768941f423bc8c6673729ff06221d9f458d832"
+    },
+    {
+      "path": "client/src/render/spriteAssets.js",
+      "bytes": 2636,
+      "sha256": "0e0e5b586c4a02222ade3df0d4effaa5238c4fa23e68fb1b4e6dcf6e81fdef33"
+    },
+    {
+      "path": "client/src/render/spriteRenderer.js",
+      "bytes": 6726,
+      "sha256": "19289d44aa1ec034fe9cf06917baa989f6609906aad44e6156c45293a37b4438"
+    },
+    {
+      "path": "examples/maps/forest.json",
+      "bytes": 3570,
+      "sha256": "91f194988bbe9a270a8e65319622538b1b7dcb093dd35bf913778ed1ea9f65c4"
+    },
+    {
+      "path": "examples/maps/village.json",
+      "bytes": 2136,
+      "sha256": "fa486dcc172685e13aa5372468495498d5fba6569bf27325a5546c42373b5fbd"
+    },
+    {
+      "path": "client/assets/avatars/avatar_lilia.png",
+      "bytes": 31971,
+      "sha256": "5e09f7647ee5634312426fc5f0529171c44370a6fcfe9d23de339d32eb8cb406"
+    },
+    {
+      "path": "client/assets/build_official_assets.py",
+      "bytes": 13072,
+      "sha256": "bc7622db15884b1ec20b2dd2eb59399ca1ee2c5c93a70e6ea7e25240e48b3973"
+    },
+    {
+      "path": "client/assets/portraits/npc_lilia.png",
+      "bytes": 444084,
+      "sha256": "c8ef1086bdcfaaa4db642e83962f43cbda9cecc7cf451a9196152328e5179808"
+    },
+    {
+      "path": "client/tests/spriteRenderer.test.js",
+      "bytes": 2371,
+      "sha256": "61a83a7c904dd6dcdbfb6cdb941a59d589455e7c72078d7efb4fafc874ec7ba2"
     }
   ]
 }

@@ -149,7 +149,11 @@ h2 { font-size: 24px; }
 .hand-heading,.bench-heading,.shop-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 14px 0 8px; font-size: 13px; }
 .hand-heading span,.bench-heading span,.shop-heading span { color: var(--muted); font-size: 11px; }
 .hand-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 7px; }
-.playing-card { min-width: 0; min-height: 118px; text-align: left; position: relative; border: 1px solid #d9dece; border-radius: 7px; padding: 12px 9px 9px; background: #fbf8eb; color: var(--ink); display: flex; flex-direction: column; gap: 5px; cursor: pointer; transition: transform .14s ease, box-shadow .14s ease; }
+.playing-card { min-width: 0; min-height: 140px; text-align: left; position: relative; border: 1px solid #d9dece; border-radius: 7px; padding: 12px 9px 9px; background: #fbf8eb; color: var(--ink); display: flex; flex-direction: column; gap: 5px; cursor: pointer; transition: transform .14s ease, box-shadow .14s ease; }
+.card-thumb { width: 100%; height: 68px; border-radius: 4px; overflow: hidden; background: #e3ebd8; margin-top: 14px; margin-bottom: 2px; }
+.card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tcg-unit-avatar { width: 36px; height: 36px; border-radius: 4px; overflow: hidden; margin: 0 auto 3px; background: #e3ebd8; }
+.tcg-unit-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .playing-card:hover { transform: translateY(-4px); box-shadow: 0 6px 12px #203b331a; }
 .playing-card .card-cost { position: absolute; right: 7px; top: 6px; width: 21px; aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%; background: var(--forest); color: white; font-weight: 800; }
 .card-element { text-transform: uppercase; color: #718174; font-size: 9px; font-weight: 800; }

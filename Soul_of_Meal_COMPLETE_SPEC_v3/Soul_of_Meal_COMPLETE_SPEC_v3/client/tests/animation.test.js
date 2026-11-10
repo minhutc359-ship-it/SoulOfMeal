@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { ClipPlayer, validateAnimationManifest } from '../src/render/clipPlayer.js';
 import { AnimationAdapter, normalizePresentationEvent } from '../src/render/animationAdapter.js';
+import { createAnimationManifestRegistry, loadAnimationManifest, resolveCharacterManifest } from '../src/render/animationManifest.js';
 
 const manifest = {
   schema_version: 1,
@@ -22,6 +23,19 @@ test('manifest validator accepts valid frame references and rejects missing ones
   const invalid = validateAnimationManifest(manifest, new Set(['idle_0']));
   assert.equal(invalid.valid, false);
   assert.ok(invalid.errors.some((error) => error.includes('missing frame')));
+});
+
+test('manifest loader resolves valid registry entries and drops invalid ones without blocking runtime', () => {
+  const registry = createAnimationManifestRegistry({
+    chr_bunbo_holinh: manifest,
+    chr_pho_lamvu: { ...manifest, character_id: 'chr_pho_lamvu', atlas: 'assets/pho.png' },
+    invalid: { schema_version: 99 },
+  });
+  assert.equal(registry.get('chr_bunbo_holinh').character_id, 'chr_bunbo_holinh');
+  assert.equal(resolveCharacterManifest(registry, 'chr_pho_lamvu').skin_id, 'default');
+  assert.equal(resolveCharacterManifest(registry, 'chr_missing'), null);
+  const loaded = loadAnimationManifest({ ...manifest, character_id: 'chr_bunbo_holinh' });
+  assert.equal(loaded.character_id, 'chr_bunbo_holinh');
 });
 
 test('clip player advances frames and loops without wall-clock dependencies', () => {

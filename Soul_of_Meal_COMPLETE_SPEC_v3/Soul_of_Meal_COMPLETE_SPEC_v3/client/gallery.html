@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Soul of Meal - Bộ Đồ Họa Chính Thức (Official Art Suite)</title>
+  <link rel="stylesheet" href="./styles.css?v=2">
+  <style>
+    .gallery-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+    .gallery-section {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 12px rgba(24, 63, 59, 0.05);
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .card-art-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .gallery-item {
+      background: #fdfbf7;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+    .gallery-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+    }
+    .gallery-item img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      display: block;
+    }
+    .gallery-item h4 {
+      margin: 10px 0 4px;
+      font-size: 14px;
+    }
+    .gallery-item p {
+      margin: 0;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .sprite-sheet-preview {
+      background: #1e382f;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    .sprite-sheet-preview img {
+      image-rendering: pixelated;
+      display: block;
+      max-width: 100%;
+    }
+    .anim-showcase {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 16px;
+      justify-content: center;
+      background: #183f3b;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    .anim-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: white;
+    }
+    .anim-card canvas {
+      image-rendering: pixelated;
+      width: 96px;
+      height: 96px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 6px;
+    }
+    .anim-card span {
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+      margin-top: 6px;
+    }
+    .badge-fire { background: #dd684a; }
+    .badge-water { background: #428eac; }
+    .badge-wood { background: #548d56; }
+    .badge-light { background: #b8923c; }
+    .badge-shadow { background: #75627e; }
+  </style>
+</head>
+<body style="background: var(--paper); color: var(--ink);">
+  <div class="gallery-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <div>
+        <div class="eyebrow" style="color: var(--coral);">Soul of Meal · Production Art Suite</div>
+        <h1 style="margin: 4px 0;">Bộ Đồ Họa Chính Thức Của Dự Án</h1>
+        <p class="subtitle">Đã tích hợp đầy đủ tranh vẽ Anime HD, Chibi Sprite Sheets, Animation Frames, 18 Thẻ Bài TCG, Chân Dung và Công Trình Làng.</p>
+      </div>
+      <div>
+        <a href="./index.html" class="button" style="text-decoration: none; display: inline-block;">▶ Chơi Game Thử Nghiệm</a>
+      </div>
+    </div>
+
+    <!-- PHẦN 1: ĐỘNG TÁC ANIMATION LIVE CỦA BÚN BÒ HỎA LINH -->
+    <section class="gallery-section">
+      <div class="eyebrow" style="color: var(--forest-2);">Live Sprite Animation</div>
+      <h2>Trực Quan Hóa Động Tác Bún Bò Hỏa Linh</h2>
+      <p class="subtitle">Các khung hình chibi vẽ tay chính thức được cắt ghép và chạy animation thời gian thực từ Sprite Sheet <code>chr_bunbo_holinh.png</code>:</p>
+      
+      <div class="anim-showcase" id="anim-container">
+        <!-- Javascript renders canvases here -->
+      </div>
+    </section>
+
+    <!-- PHẦN 2: 5 VỊ LINH CỐT LÕI & BOSS -->
+    <section class="gallery-section">
+      <div class="eyebrow" style="color: var(--forest-2);">Chân Dung Vị Linh & Boss</div>
+      <h2>Đội Hình Nhân Vật Anime HD</h2>
+      
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="./assets/portraits/chr_bunbo_holinh.png" alt="Bún Bò Hỏa Linh" style="max-height: 200px;">
+          <img src="./assets/avatars/avatar_bunbo_holinh.png" alt="Avatar" style="width: 52px; height: 52px; margin-top: -26px; border-radius: 50%;">
+          <h4>Bún Bò Hỏa Linh</h4>
+          <span class="badge badge-fire">Hỏa · Fighter</span>
+          <p>Tóc lửa, khăn đỏ, kiếm lửa, muôi gỗ lớn</p>
+        </div>
+        <div class="gallery-item">
+          <img src="./assets/portraits/chr_pho_lamvu.png" alt="Phở Lam Vũ" style="max-height: 200px;">
+          <img src="./assets/avatars/avatar_pho_lamvu.png" alt="Avatar" style="width: 52px; height: 52px; margin-top: -26px; border-radius: 50%;">
+          <h4>Phở Lam Vũ</h4>
+          <span class="badge badge-water">Thủy · Mage</span>
+          <p>Tà áo nước dùng lụa xanh, bát phở, sương khói</p>
+        </div>
+        <div class="gallery-item">
+          <img src="./assets/portraits/chr_goicuon_diepnhi.png" alt="Gỏi Cuốn Diệp Nhi" style="max-height: 200px;">
+          <img src="./assets/avatars/avatar_goicuon_diepnhi.png" alt="Avatar" style="width: 52px; height: 52px; margin-top: -26px; border-radius: 50%;">
+          <h4>Gỏi Cuốn Diệp Nhi</h4>
+          <span class="badge badge-wood">Mộc · Support</span>
+          <p>Bánh tráng trong suốt, tôm thịt, rau thơm</p>
+        </div>
+        <div class="gallery-item">
+          <img src="./assets/portraits/chr_banhbao_bachngoc.png" alt="Bánh Bao Bạch Ngọc" style="max-height: 200px;">
+          <img src="./assets/avatars/avatar_banhbao_bachngoc.png" alt="Avatar" style="width: 52px; height: 52px; margin-top: -26px; border-radius: 50%;">
+          <h4>Bánh Bao Bạch Ngọc</h4>
+          <span class="badge badge-light">Quang · Guardian</span>
+          <p>Mũ đầu bếp, thân tròn, bánh bao linh vật</p>
+        </div>
+        <div class="gallery-item">
+          <img src="./assets/portraits/chr_caphe_davu.png" alt="Cà Phê Dạ Vũ" style="max-height: 200px;">
+          <img src="./assets/avatars/avatar_caphe_davu.png" alt="Avatar" style="width: 52px; height: 52px; margin-top: -26px; border-radius: 50%;">
+          <h4>Cà Phê Dạ Vũ</h4>
+          <span class="badge badge-shadow">Ám · Assassin</span>
+          <p>Mắt hổ phách, tách cà phê, bóng đêm huyền bí</p>
+        </div>
+        <div class="gallery-item">
+          <img src="./assets/portraits/boss_thief.png" alt="Bếp Trưởng Hỏa Diệm" style="max-height: 200px;">
+          <img src="./assets/avatars/avatar_boss_thief.png" alt="Avatar" style="width: 52px; height: 52px; margin-top: -26px; border-radius: 50%;">
+          <h4>Bếp Trưởng Hỏa Diệm</h4>
+          <span class="badge badge-fire">World Boss · Lv.50</span>
+          <p>Chảo lửa khổng lồ, sừng dung nham, xẻng băm</p>
+        </div>
+        <div class="gallery-item">
+          <img src="./assets/portraits/npc_lilia.png" alt="Cô Bếp Lilia" style="max-height: 200px;">
+          <img src="./assets/avatars/avatar_lilia.png" alt="Avatar" style="width: 52px; height: 52px; margin-top: -26px; border-radius: 50%;">
+          <h4>Cô Bếp Lilia</h4>
+          <span class="badge badge-wood">NPC Trưởng Làng</span>
+          <p>Người giao nhiệm vụ khởi đầu tại Làng Ẩm Thực</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PHẦN 3: 18 THẺ BÀI TCG CHÍNH THỨC -->
+    <section class="gallery-section">
+      <div class="eyebrow" style="color: var(--forest-2);">TCG Official Illustrations</div>
+      <h2>18 Lá Bài Chiến Thuật (Cards Catalog)</h2>
+      <p class="subtitle">Được cắt ghép trực tiếp từ các tác phẩm nghệ thuật chính thức của chế độ TCG (Hỏa, Thủy, Mộc, Quang, Ám, Bẫy, Phép thuật, Rồng lửa combo).</p>
+      
+      <div class="card-art-grid">
+        <div class="gallery-item"><img src="./assets/cards/card_demo_01.png" alt="01"><h4>01 · Bún Bò Hỏa Thần</h4><p>Unit Hỏa · Cost 1</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_02.png" alt="02"><h4>02 · Phở Lam Hải Long</h4><p>Unit Thủy · Cost 2</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_03.png" alt="03"><h4>03 · Gỏi Cuốn Thanh Tiên</h4><p>Unit Mộc · Cost 3</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_04.png" alt="04"><h4>04 · Bánh Bao Kim Quang</h4><p>Unit Quang · Cost 4</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_05.png" alt="05"><h4>05 · Cà Phê Huyền Dạ</h4><p>Unit Ám · Cost 5</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_06.png" alt="06"><h4>06 · Bếp Lửa Bùng Cháy</h4><p>Unit Hỏa · Cost 1</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_07.png" alt="07"><h4>07 · Dòng Chảy Hương Vị</h4><p>Unit Thủy · Cost 2</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_08.png" alt="08"><h4>08 · Vườn Xanh Tươi Ngon</h4><p>Unit Mộc · Cost 3</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_09.png" alt="09"><h4>09 · Thánh Quang Bánh Bao</h4><p>Unit Quang · Cost 4</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_10.png" alt="10"><h4>10 · Ám Ảnh Cà Phê</h4><p>Fast Spell Ám · Cost 5</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_11.png" alt="11"><h4>11 · Hỏa Long Bùng Nổ</h4><p>Fast Spell Hỏa · Cost 1</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_12.png" alt="12"><h4>12 · Tiệc Thịnh Soạn</h4><p>Fast Spell Thủy · Cost 2</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_13.png" alt="13"><h4>13 · Diệp Thảo Hồi Sinh</h4><p>Fast Spell Mộc · Cost 3</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_14.png" alt="14"><h4>14 · Bẫy Ngon Tuyệt Hảo</h4><p>Trap Quang · Cost 4</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_15.png" alt="15"><h4>15 · Hắc Vụ Trói Buộc</h4><p>Trap Ám · Cost 5</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_16.png" alt="16"><h4>16 · Hỏa Trận Phản Đòn</h4><p>Trap Hỏa · Cost 1</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_17.png" alt="17"><h4>17 · Sóng Thần Nước Hầm</h4><p>Slow Spell Thủy · Cost 2</p></div>
+        <div class="gallery-item"><img src="./assets/cards/card_demo_18.png" alt="18"><h4>18 · Rừng Già Thức Tỉnh</h4><p>Slow Spell Mộc · Cost 3</p></div>
+      </div>
+    </section>
+
+    <!-- PHẦN 4: CÔNG TRÌNH LÀNG & BIỂU TƯỢNG -->
+    <section class="gallery-section">
+      <div class="eyebrow" style="color: var(--forest-2);">World Environment</div>
+      <h2>Công Trình Làng Ẩm Thực & Biểu Tượng Nguyên Tố</h2>
+      
+      <h3 style="margin-top: 16px;">Công Trình Chính Thức</h3>
+      <div style="display: flex; gap: 20px; flex-wrap: wrap; margin: 12px 0;">
+        <div class="gallery-item" style="width: 220px;">
+          <img src="./assets/sprites/maps/house_kitchen.png" alt="Nhà bếp">
+          <h4>Quán Ăn (Nhà Bếp)</h4>
+          <p>Mái ngói, bát phở khổng lồ, đèn lồng đỏ</p>
+        </div>
+        <div class="gallery-item" style="width: 220px;">
+          <img src="./assets/sprites/maps/house_guild.png" alt="Hội quán">
+          <h4>Hội Quán Ẩm Thực</h4>
+          <p>Huy hiệu thìa nĩa bắt chéo, cờ lệnh</p>
+        </div>
+        <div class="gallery-item" style="width: 220px;">
+          <img src="./assets/sprites/maps/house_merchant.png" alt="Tiệm vật phẩm">
+          <h4>Tiệm Vật Phẩm</h4>
+          <p>Mái vòm xanh sọc, lọ thuốc phép</p>
+        </div>
+        <div class="gallery-item" style="width: 140px;">
+          <img src="./assets/sprites/maps/tree_01.png" alt="Cây anh đào" style="max-height: 110px;">
+          <h4>Cây Hoa Anh Đào</h4>
+          <p>Cảnh quan làng ẩm thực</p>
+        </div>
+        <div class="gallery-item" style="width: 140px;">
+          <img src="./assets/sprites/maps/chest_closed.png" alt="Rương báu" style="max-height: 80px; margin: auto;">
+          <h4>Rương Nguyên Liệu</h4>
+          <p>Chứa báu vật & vàng</p>
+        </div>
+        <div class="gallery-item" style="width: 140px;">
+          <img src="./assets/sprites/maps/portal.png" alt="Cổng rừng" style="max-height: 90px; margin: auto;">
+          <h4>Cổng Làng</h4>
+          <p>Lối vào Rừng Nguyên Liệu</p>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 24px;">Biểu Tượng 5 Nguyên Tố</h3>
+      <div style="display: flex; gap: 16px; margin: 12px 0;">
+        <div class="gallery-item" style="width: 80px;"><img src="./assets/sprites/icons/icon_fire.png" alt="Fire"><p>Hỏa</p></div>
+        <div class="gallery-item" style="width: 80px;"><img src="./assets/sprites/icons/icon_water.png" alt="Thủy"><p>Thủy</p></div>
+        <div class="gallery-item" style="width: 80px;"><img src="./assets/sprites/icons/icon_wood.png" alt="Mộc"><p>Mộc</p></div>
+        <div class="gallery-item" style="width: 80px;"><img src="./assets/sprites/icons/icon_light.png" alt="Quang"><p>Quang</p></div>
+        <div class="gallery-item" style="width: 80px;"><img src="./assets/sprites/icons/icon_shadow.png" alt="Ám"><p>Ám</p></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Live animation canvas player for Bún Bò Hỏa Linh
+    const clips = [
+      { id: 'idle', name: 'Đứng chờ (Idle)', row: 0, frames: 4, fps: 4 },
+      { id: 'walk', name: 'Bước đi (Walk)', row: 1, frames: 6, fps: 8 },
+      { id: 'run', name: 'Chạy nhanh (Run)', row: 2, frames: 6, fps: 10 },
+      { id: 'attack_a', name: 'Đánh kiếm (Attack 1)', row: 3, frames: 4, fps: 7 },
+      { id: 'attack_b', name: 'Chém lửa (Attack 2)', row: 4, frames: 4, fps: 7 },
+      { id: 'hit', name: 'Bị đánh (Hit)', row: 5, frames: 2, fps: 4 },
+      { id: 'skill_01', name: 'Kỹ năng (Skill)', row: 6, frames: 4, fps: 6 },
+      { id: 'ultimate_01', name: 'Tuyệt kỹ (Ultimate)', row: 7, frames: 6, fps: 5 },
+      { id: 'victory', name: 'Chiến thắng (Victory)', row: 9, frames: 4, fps: 5 },
+    ];
+
+    const sheetImg = new Image();
+    sheetImg.src = './assets/sprites/chr_bunbo_holinh.png';
+
+    sheetImg.onload = () => {
+      const container = document.querySelector('#anim-container');
+      clips.forEach(clip => {
+        const card = document.createElement('div');
+        card.className = 'anim-card';
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        const span = document.createElement('span');
+        span.textContent = clip.name;
+        card.appendChild(canvas);
+        card.appendChild(span);
+        container.appendChild(card);
+
+        const ctx = canvas.getContext('2d');
+        let frame = 0;
+        let lastTime = 0;
+        const interval = 1000 / clip.fps;
+
+        function animate(timestamp) {
+          if (!lastTime) lastTime = timestamp;
+          if (timestamp - lastTime >= interval) {
+            lastTime = timestamp;
+            ctx.clearRect(0, 0, 64, 64);
+            ctx.drawImage(sheetImg, frame * 64, clip.row * 64, 64, 64, 0, 0, 64, 64);
+            frame = (frame + 1) % clip.frames;
+          }
+          requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+      });
+    };
+  </script>
+</body>
+</html>

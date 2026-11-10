@@ -1,5 +1,15 @@
 import { ClipPlayer, validateAnimationManifest } from './clipPlayer.js';
 import { ActorViewRegistry } from './actorViewRegistry.js';
+import { createAnimationManifestRegistry, loadAnimationManifest, resolveCharacterManifest } from './animationManifest.js';
+
+if (typeof globalThis.CustomEvent === 'undefined') {
+  globalThis.CustomEvent = class CustomEvent extends Event {
+    constructor(type, eventInitDict = {}) {
+      super(type, eventInitDict);
+      this.detail = eventInitDict?.detail;
+    }
+  };
+}
 
 const PRESENTATION_CUES = Object.freeze({
   quest_accepted: 'quest_accepted',
@@ -39,16 +49,21 @@ export class AnimationAdapter extends EventTarget {
   constructor({ eventTarget = null, manifests = {}, reducedMotion = false, onWarning = () => {} } = {}) {
     super();
     this.eventTarget = eventTarget;
-    this.manifests = {};
-    for (const [characterId, manifest] of Object.entries(manifests)) {
-      const validation = validateAnimationManifest(manifest);
-      if (validation.valid && manifest.character_id === characterId) this.manifests[characterId] = manifest;
-      else onWarning(`Rejected animation manifest ${characterId}: ${validation.errors.join('; ') || 'character ID mismatch'}`);
+    const registry = createAnimationManifestRegistry(manifests);
+    this.manifests = Object.fromEntries(registry.entries());
+    for (const [characterId, manifest] of Object.entries(manifests ?? {})) {
+      const resolved = resolveCharacterManifest(registry, characterId);
+      if (resolved && resolved.character_id === characterId) this.manifests[characterId] = resolved;
+      else if (manifest && typeof manifest === 'object') {
+        const validation = validateAnimationManifest(manifest);
+        if (!validation.valid) onWarning(`Rejected animation manifest ${characterId}: ${validation.errors.join('; ') || 'character ID mismatch'}`);
+      }
     }
     this.reducedMotion = reducedMotion;
     this.onWarning = onWarning;
     this.views = new ActorViewRegistry();
     this.players = new Map();
+    this.manifestRegistry = createAnimationManifestRegistry(this.manifests);
     this.warnedManifests = new Set();
     this.seenSequences = new Set();
     this.sequenceOrder = [];

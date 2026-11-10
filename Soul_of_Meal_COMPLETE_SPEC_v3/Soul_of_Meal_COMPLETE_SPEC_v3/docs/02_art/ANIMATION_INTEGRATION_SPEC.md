@@ -74,7 +74,7 @@ These are implementation gaps, not permission for the adapter to guess:
 - Adventure basic-attack windup is not emitted separately; the adapter can show a short attack reaction on `hit_resolved`, but must not pretend this is frame-accurate anticipation.
 - Canvas presentation currently has no shared actor-view model for mapping simulation actor IDs to world/screen coordinates, anchors or sockets.
 - TCG and Auto Chess event context is inconsistent. Some IDs are card IDs or per-match instance IDs rather than character IDs.
-- There is no clip player, sprite-atlas loader, VFX renderer, audio event bridge, asset manifest validator or reduced-motion hook in the browser client yet.
+- The browser client has a clip player, animation-manifest validation, event adapter and reduced-motion support. `SpriteRenderer` can draw frame-ID atlas rectangles when atlas metadata is loaded, while preserving the legacy grid-sheet path. The approved manifest/atlas assets are not yet wired through the adapter at runtime; VFX rendering and the audio event bridge are also still absent.
 
 The agent must document and test any event/context additions it makes. Prefer adding optional presentation cues or context fields without changing existing gameplay results or removing current event types.
 
@@ -96,6 +96,7 @@ client/src/render/
 - `client/src/render/actorViewRegistry.js`: render-only actor identity/transform registry and scene retention.
 - `client/src/render/animationAdapter.js`: subscribes to the internal `game-event` bus, normalizes optional IDs, deduplicates `seq`, maps spawn/cast/hit/death/result events to clip state, maps scene/wave/boss/trap/summon/chess events to presentation cue IDs, and falls back when a manifest/clip is missing.
 - `client/src/main.js`: syncs Adventure actor transforms and locomotion from runtime state; applies procedural pose transforms to the existing Canvas placeholders.
+- `client/src/render/spriteRenderer.js`: draws atlas rectangles by the clip snapshot's `frameId`, applies normalized anchors and falls back safely on missing/out-of-bounds frames. Approved atlas loading and wiring to the animation adapter remain pending.
 
 No image atlas loader or approved animation frames exist yet. The code only proves the event-to-presentation boundary and visible placeholder response. The remaining agent work is to connect approved frame/atlas data, implement an actual sprite draw path and cover the additional mode-specific visual states without changing the rules contract.
 
@@ -195,7 +196,7 @@ Rules:
 The technical adapter scaffold, manifest validation, Adventure actor-view mapping, event cue routing and focused Node tests are implemented. The next animation agent should complete only the asset-backed tasks below; do not rebuild the existing modules or claim art that was not provided.
 
 1. Load approved animation manifest(s) and atlas metadata/images through explicit asset IDs. Add a sample manifest only when it references delivered/approved frames; do not add fake PNGs.
-2. Draw actual atlas frames on the Canvas using the clip player's current frame ID and normalized anchor. Keep the existing procedural/shape renderer as per-actor fallback.
+2. Wire approved manifests and atlas metadata/images into the existing frame-ID Canvas draw path. Keep the current procedural/shape renderer as per-actor fallback and verify the live runtime uses the approved frame IDs.
 3. Add a stable TCG/Auto Chess unit-to-character visual mapping only when the content catalog provides an approved character identity; leave demo cards with a generic placeholder otherwise.
 4. Cover remaining visual needs such as boss telegraph presentation, VFX sockets and audio cues only when source state/assets exist. These cues must remain presentation-only.
 5. Add atlas loading/draw tests and a browser smoke test with real approved frames on desktop and 390×844 mobile. Report all missing IDs/manifest entries.

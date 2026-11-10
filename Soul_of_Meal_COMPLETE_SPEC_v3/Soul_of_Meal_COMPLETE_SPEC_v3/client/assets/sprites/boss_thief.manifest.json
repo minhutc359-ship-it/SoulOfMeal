@@ -1,0 +1,645 @@
+{
+  "schema_version": 1,
+  "character_id": "boss_thief",
+  "skin_id": "default",
+  "asset_version": "1.0.0",
+  "atlas": "./boss_thief.png",
+  "frame_width": 96,
+  "frame_height": 96,
+  "clips": {
+    "idle": {
+      "loop": true,
+      "fps": 4,
+      "directions": {
+        "S": {
+          "frames": [
+            "boss_thief_idle_0",
+            "boss_thief_idle_1",
+            "boss_thief_idle_2",
+            "boss_thief_idle_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "N": {
+          "frames": [
+            "boss_thief_idle_0",
+            "boss_thief_idle_1",
+            "boss_thief_idle_2",
+            "boss_thief_idle_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "boss_thief_idle_0",
+            "boss_thief_idle_1",
+            "boss_thief_idle_2",
+            "boss_thief_idle_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "boss_thief_idle_0",
+            "boss_thief_idle_1",
+            "boss_thief_idle_2",
+            "boss_thief_idle_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "walk": {
+      "loop": true,
+      "fps": 8,
+      "directions": {
+        "S": {
+          "frames": [
+            "boss_thief_walk_0",
+            "boss_thief_walk_1",
+            "boss_thief_walk_2",
+            "boss_thief_walk_3",
+            "boss_thief_walk_4",
+            "boss_thief_walk_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 1,
+              "name": "footstep"
+            },
+            {
+              "frame": 4,
+              "name": "footstep"
+            }
+          ]
+        },
+        "N": {
+          "frames": [
+            "boss_thief_walk_0",
+            "boss_thief_walk_1",
+            "boss_thief_walk_2",
+            "boss_thief_walk_3",
+            "boss_thief_walk_4",
+            "boss_thief_walk_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "boss_thief_walk_0",
+            "boss_thief_walk_1",
+            "boss_thief_walk_2",
+            "boss_thief_walk_3",
+            "boss_thief_walk_4",
+            "boss_thief_walk_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "boss_thief_walk_0",
+            "boss_thief_walk_1",
+            "boss_thief_walk_2",
+            "boss_thief_walk_3",
+            "boss_thief_walk_4",
+            "boss_thief_walk_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "run": {
+      "loop": true,
+      "fps": 10,
+      "directions": {
+        "S": {
+          "frames": [
+            "boss_thief_run_0",
+            "boss_thief_run_1",
+            "boss_thief_run_2",
+            "boss_thief_run_3",
+            "boss_thief_run_4",
+            "boss_thief_run_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 1,
+              "name": "footstep"
+            },
+            {
+              "frame": 4,
+              "name": "footstep"
+            }
+          ]
+        },
+        "N": {
+          "frames": [
+            "boss_thief_run_0",
+            "boss_thief_run_1",
+            "boss_thief_run_2",
+            "boss_thief_run_3",
+            "boss_thief_run_4",
+            "boss_thief_run_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "boss_thief_run_0",
+            "boss_thief_run_1",
+            "boss_thief_run_2",
+            "boss_thief_run_3",
+            "boss_thief_run_4",
+            "boss_thief_run_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "boss_thief_run_0",
+            "boss_thief_run_1",
+            "boss_thief_run_2",
+            "boss_thief_run_3",
+            "boss_thief_run_4",
+            "boss_thief_run_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "attack_a": {
+      "loop": false,
+      "fps": 8,
+      "directions": {
+        "S": {
+          "frames": [
+            "boss_thief_attack_a_0",
+            "boss_thief_attack_a_1",
+            "boss_thief_attack_a_2",
+            "boss_thief_attack_a_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 2,
+              "name": "hit_connect"
+            }
+          ]
+        },
+        "N": {
+          "frames": [
+            "boss_thief_attack_a_0",
+            "boss_thief_attack_a_1",
+            "boss_thief_attack_a_2",
+            "boss_thief_attack_a_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "boss_thief_attack_a_0",
+            "boss_thief_attack_a_1",
+            "boss_thief_attack_a_2",
+            "boss_thief_attack_a_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "boss_thief_attack_a_0",
+            "boss_thief_attack_a_1",
+            "boss_thief_attack_a_2",
+            "boss_thief_attack_a_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "attack_b": {
+      "loop": false,
+      "fps": 8,
+      "directions": {
+        "S": {
+          "frames": [
+            "boss_thief_attack_b_0",
+            "boss_thief_attack_b_1",
+            "boss_thief_attack_b_2",
+            "boss_thief_attack_b_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 2,
+              "name": "hit_connect"
+            }
+          ]
+        },
+        "N": {
+          "frames": [
+            "boss_thief_attack_b_0",
+            "boss_thief_attack_b_1",
+            "boss_thief_attack_b_2",
+            "boss_thief_attack_b_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "boss_thief_attack_b_0",
+            "boss_thief_attack_b_1",
+            "boss_thief_attack_b_2",
+            "boss_thief_attack_b_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "boss_thief_attack_b_0",
+            "boss_thief_attack_b_1",
+            "boss_thief_attack_b_2",
+            "boss_thief_attack_b_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "hit": {
+      "loop": false,
+      "fps": 6,
+      "directions": {
+        "S": {
+          "frames": [
+            "boss_thief_hit_0",
+            "boss_thief_hit_1"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "N": {
+          "frames": [
+            "boss_thief_hit_0",
+            "boss_thief_hit_1"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "boss_thief_hit_0",
+            "boss_thief_hit_1"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "boss_thief_hit_0",
+            "boss_thief_hit_1"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "skill_01": {
+      "loop": false,
+      "fps": 6,
+      "directions": {
+        "S": {
+          "frames": [
+            "boss_thief_skill_01_0",
+            "boss_thief_skill_01_1",
+            "boss_thief_skill_01_2",
+            "boss_thief_skill_01_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 2,
+              "name": "effect_trigger"
+            }
+          ]
+        },
+        "N": {
+          "frames": [
+            "boss_thief_skill_01_0",
+            "boss_thief_skill_01_1",
+            "boss_thief_skill_01_2",
+            "boss_thief_skill_01_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "boss_thief_skill_01_0",
+            "boss_thief_skill_01_1",
+            "boss_thief_skill_01_2",
+            "boss_thief_skill_01_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "boss_thief_skill_01_0",
+            "boss_thief_skill_01_1",
+            "boss_thief_skill_01_2",
+            "boss_thief_skill_01_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "ultimate_01": {
+      "loop": false,
+      "fps": 5,
+      "directions": {
+        "S": {
+          "frames": [
+            "boss_thief_ultimate_01_0",
+            "boss_thief_ultimate_01_1",
+            "boss_thief_ultimate_01_2",
+            "boss_thief_ultimate_01_3",
+            "boss_thief_ultimate_01_4",
+            "boss_thief_ultimate_01_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 3,
+              "name": "effect_trigger"
+            }
+          ]
+        },
+        "N": {
+          "frames": [
+            "boss_thief_ultimate_01_0",
+            "boss_thief_ultimate_01_1",
+            "boss_thief_ultimate_01_2",
+            "boss_thief_ultimate_01_3",
+            "boss_thief_ultimate_01_4",
+            "boss_thief_ultimate_01_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "boss_thief_ultimate_01_0",
+            "boss_thief_ultimate_01_1",
+            "boss_thief_ultimate_01_2",
+            "boss_thief_ultimate_01_3",
+            "boss_thief_ultimate_01_4",
+            "boss_thief_ultimate_01_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "boss_thief_ultimate_01_0",
+            "boss_thief_ultimate_01_1",
+            "boss_thief_ultimate_01_2",
+            "boss_thief_ultimate_01_3",
+            "boss_thief_ultimate_01_4",
+            "boss_thief_ultimate_01_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "defeat": {
+      "loop": false,
+      "fps": 4,
+      "directions": {
+        "S": {
+          "frames": [
+            "boss_thief_defeat_0",
+            "boss_thief_defeat_1",
+            "boss_thief_defeat_2",
+            "boss_thief_defeat_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "N": {
+          "frames": [
+            "boss_thief_defeat_0",
+            "boss_thief_defeat_1",
+            "boss_thief_defeat_2",
+            "boss_thief_defeat_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "boss_thief_defeat_0",
+            "boss_thief_defeat_1",
+            "boss_thief_defeat_2",
+            "boss_thief_defeat_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "boss_thief_defeat_0",
+            "boss_thief_defeat_1",
+            "boss_thief_defeat_2",
+            "boss_thief_defeat_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "victory": {
+      "loop": true,
+      "fps": 4,
+      "directions": {
+        "S": {
+          "frames": [
+            "boss_thief_victory_0",
+            "boss_thief_victory_1",
+            "boss_thief_victory_2",
+            "boss_thief_victory_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "N": {
+          "frames": [
+            "boss_thief_victory_0",
+            "boss_thief_victory_1",
+            "boss_thief_victory_2",
+            "boss_thief_victory_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "boss_thief_victory_0",
+            "boss_thief_victory_1",
+            "boss_thief_victory_2",
+            "boss_thief_victory_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "boss_thief_victory_0",
+            "boss_thief_victory_1",
+            "boss_thief_victory_2",
+            "boss_thief_victory_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    }
+  }
+}

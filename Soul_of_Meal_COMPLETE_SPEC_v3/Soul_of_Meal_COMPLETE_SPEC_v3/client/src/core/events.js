@@ -1,3 +1,12 @@
+if (typeof globalThis.CustomEvent === 'undefined') {
+  globalThis.CustomEvent = class CustomEvent extends Event {
+    constructor(type, eventInitDict = {}) {
+      super(type, eventInitDict);
+      this.detail = eventInitDict?.detail;
+    }
+  };
+}
+
 export class GameEventBus extends EventTarget {
   #sequence = 0;
   #tick = 0;

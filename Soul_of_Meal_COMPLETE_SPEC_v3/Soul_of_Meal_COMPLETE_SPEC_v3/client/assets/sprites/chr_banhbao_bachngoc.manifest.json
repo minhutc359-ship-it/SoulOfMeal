@@ -1,0 +1,645 @@
+{
+  "schema_version": 1,
+  "character_id": "chr_banhbao_bachngoc",
+  "skin_id": "default",
+  "asset_version": "1.0.0",
+  "atlas": "./chr_banhbao_bachngoc.png",
+  "frame_width": 64,
+  "frame_height": 64,
+  "clips": {
+    "idle": {
+      "loop": true,
+      "fps": 4,
+      "directions": {
+        "S": {
+          "frames": [
+            "chr_banhbao_bachngoc_idle_0",
+            "chr_banhbao_bachngoc_idle_1",
+            "chr_banhbao_bachngoc_idle_2",
+            "chr_banhbao_bachngoc_idle_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "N": {
+          "frames": [
+            "chr_banhbao_bachngoc_idle_0",
+            "chr_banhbao_bachngoc_idle_1",
+            "chr_banhbao_bachngoc_idle_2",
+            "chr_banhbao_bachngoc_idle_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "chr_banhbao_bachngoc_idle_0",
+            "chr_banhbao_bachngoc_idle_1",
+            "chr_banhbao_bachngoc_idle_2",
+            "chr_banhbao_bachngoc_idle_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "chr_banhbao_bachngoc_idle_0",
+            "chr_banhbao_bachngoc_idle_1",
+            "chr_banhbao_bachngoc_idle_2",
+            "chr_banhbao_bachngoc_idle_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "walk": {
+      "loop": true,
+      "fps": 8,
+      "directions": {
+        "S": {
+          "frames": [
+            "chr_banhbao_bachngoc_walk_0",
+            "chr_banhbao_bachngoc_walk_1",
+            "chr_banhbao_bachngoc_walk_2",
+            "chr_banhbao_bachngoc_walk_3",
+            "chr_banhbao_bachngoc_walk_4",
+            "chr_banhbao_bachngoc_walk_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 1,
+              "name": "footstep"
+            },
+            {
+              "frame": 4,
+              "name": "footstep"
+            }
+          ]
+        },
+        "N": {
+          "frames": [
+            "chr_banhbao_bachngoc_walk_0",
+            "chr_banhbao_bachngoc_walk_1",
+            "chr_banhbao_bachngoc_walk_2",
+            "chr_banhbao_bachngoc_walk_3",
+            "chr_banhbao_bachngoc_walk_4",
+            "chr_banhbao_bachngoc_walk_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "chr_banhbao_bachngoc_walk_0",
+            "chr_banhbao_bachngoc_walk_1",
+            "chr_banhbao_bachngoc_walk_2",
+            "chr_banhbao_bachngoc_walk_3",
+            "chr_banhbao_bachngoc_walk_4",
+            "chr_banhbao_bachngoc_walk_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "chr_banhbao_bachngoc_walk_0",
+            "chr_banhbao_bachngoc_walk_1",
+            "chr_banhbao_bachngoc_walk_2",
+            "chr_banhbao_bachngoc_walk_3",
+            "chr_banhbao_bachngoc_walk_4",
+            "chr_banhbao_bachngoc_walk_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "run": {
+      "loop": true,
+      "fps": 10,
+      "directions": {
+        "S": {
+          "frames": [
+            "chr_banhbao_bachngoc_run_0",
+            "chr_banhbao_bachngoc_run_1",
+            "chr_banhbao_bachngoc_run_2",
+            "chr_banhbao_bachngoc_run_3",
+            "chr_banhbao_bachngoc_run_4",
+            "chr_banhbao_bachngoc_run_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 1,
+              "name": "footstep"
+            },
+            {
+              "frame": 4,
+              "name": "footstep"
+            }
+          ]
+        },
+        "N": {
+          "frames": [
+            "chr_banhbao_bachngoc_run_0",
+            "chr_banhbao_bachngoc_run_1",
+            "chr_banhbao_bachngoc_run_2",
+            "chr_banhbao_bachngoc_run_3",
+            "chr_banhbao_bachngoc_run_4",
+            "chr_banhbao_bachngoc_run_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "chr_banhbao_bachngoc_run_0",
+            "chr_banhbao_bachngoc_run_1",
+            "chr_banhbao_bachngoc_run_2",
+            "chr_banhbao_bachngoc_run_3",
+            "chr_banhbao_bachngoc_run_4",
+            "chr_banhbao_bachngoc_run_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "chr_banhbao_bachngoc_run_0",
+            "chr_banhbao_bachngoc_run_1",
+            "chr_banhbao_bachngoc_run_2",
+            "chr_banhbao_bachngoc_run_3",
+            "chr_banhbao_bachngoc_run_4",
+            "chr_banhbao_bachngoc_run_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "attack_a": {
+      "loop": false,
+      "fps": 8,
+      "directions": {
+        "S": {
+          "frames": [
+            "chr_banhbao_bachngoc_attack_a_0",
+            "chr_banhbao_bachngoc_attack_a_1",
+            "chr_banhbao_bachngoc_attack_a_2",
+            "chr_banhbao_bachngoc_attack_a_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 2,
+              "name": "hit_connect"
+            }
+          ]
+        },
+        "N": {
+          "frames": [
+            "chr_banhbao_bachngoc_attack_a_0",
+            "chr_banhbao_bachngoc_attack_a_1",
+            "chr_banhbao_bachngoc_attack_a_2",
+            "chr_banhbao_bachngoc_attack_a_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "chr_banhbao_bachngoc_attack_a_0",
+            "chr_banhbao_bachngoc_attack_a_1",
+            "chr_banhbao_bachngoc_attack_a_2",
+            "chr_banhbao_bachngoc_attack_a_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "chr_banhbao_bachngoc_attack_a_0",
+            "chr_banhbao_bachngoc_attack_a_1",
+            "chr_banhbao_bachngoc_attack_a_2",
+            "chr_banhbao_bachngoc_attack_a_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "attack_b": {
+      "loop": false,
+      "fps": 8,
+      "directions": {
+        "S": {
+          "frames": [
+            "chr_banhbao_bachngoc_attack_b_0",
+            "chr_banhbao_bachngoc_attack_b_1",
+            "chr_banhbao_bachngoc_attack_b_2",
+            "chr_banhbao_bachngoc_attack_b_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 2,
+              "name": "hit_connect"
+            }
+          ]
+        },
+        "N": {
+          "frames": [
+            "chr_banhbao_bachngoc_attack_b_0",
+            "chr_banhbao_bachngoc_attack_b_1",
+            "chr_banhbao_bachngoc_attack_b_2",
+            "chr_banhbao_bachngoc_attack_b_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "chr_banhbao_bachngoc_attack_b_0",
+            "chr_banhbao_bachngoc_attack_b_1",
+            "chr_banhbao_bachngoc_attack_b_2",
+            "chr_banhbao_bachngoc_attack_b_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "chr_banhbao_bachngoc_attack_b_0",
+            "chr_banhbao_bachngoc_attack_b_1",
+            "chr_banhbao_bachngoc_attack_b_2",
+            "chr_banhbao_bachngoc_attack_b_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "hit": {
+      "loop": false,
+      "fps": 6,
+      "directions": {
+        "S": {
+          "frames": [
+            "chr_banhbao_bachngoc_hit_0",
+            "chr_banhbao_bachngoc_hit_1"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "N": {
+          "frames": [
+            "chr_banhbao_bachngoc_hit_0",
+            "chr_banhbao_bachngoc_hit_1"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "chr_banhbao_bachngoc_hit_0",
+            "chr_banhbao_bachngoc_hit_1"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "chr_banhbao_bachngoc_hit_0",
+            "chr_banhbao_bachngoc_hit_1"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "skill_01": {
+      "loop": false,
+      "fps": 6,
+      "directions": {
+        "S": {
+          "frames": [
+            "chr_banhbao_bachngoc_skill_01_0",
+            "chr_banhbao_bachngoc_skill_01_1",
+            "chr_banhbao_bachngoc_skill_01_2",
+            "chr_banhbao_bachngoc_skill_01_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 2,
+              "name": "effect_trigger"
+            }
+          ]
+        },
+        "N": {
+          "frames": [
+            "chr_banhbao_bachngoc_skill_01_0",
+            "chr_banhbao_bachngoc_skill_01_1",
+            "chr_banhbao_bachngoc_skill_01_2",
+            "chr_banhbao_bachngoc_skill_01_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "chr_banhbao_bachngoc_skill_01_0",
+            "chr_banhbao_bachngoc_skill_01_1",
+            "chr_banhbao_bachngoc_skill_01_2",
+            "chr_banhbao_bachngoc_skill_01_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "chr_banhbao_bachngoc_skill_01_0",
+            "chr_banhbao_bachngoc_skill_01_1",
+            "chr_banhbao_bachngoc_skill_01_2",
+            "chr_banhbao_bachngoc_skill_01_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "ultimate_01": {
+      "loop": false,
+      "fps": 5,
+      "directions": {
+        "S": {
+          "frames": [
+            "chr_banhbao_bachngoc_ultimate_01_0",
+            "chr_banhbao_bachngoc_ultimate_01_1",
+            "chr_banhbao_bachngoc_ultimate_01_2",
+            "chr_banhbao_bachngoc_ultimate_01_3",
+            "chr_banhbao_bachngoc_ultimate_01_4",
+            "chr_banhbao_bachngoc_ultimate_01_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 3,
+              "name": "effect_trigger"
+            }
+          ]
+        },
+        "N": {
+          "frames": [
+            "chr_banhbao_bachngoc_ultimate_01_0",
+            "chr_banhbao_bachngoc_ultimate_01_1",
+            "chr_banhbao_bachngoc_ultimate_01_2",
+            "chr_banhbao_bachngoc_ultimate_01_3",
+            "chr_banhbao_bachngoc_ultimate_01_4",
+            "chr_banhbao_bachngoc_ultimate_01_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "chr_banhbao_bachngoc_ultimate_01_0",
+            "chr_banhbao_bachngoc_ultimate_01_1",
+            "chr_banhbao_bachngoc_ultimate_01_2",
+            "chr_banhbao_bachngoc_ultimate_01_3",
+            "chr_banhbao_bachngoc_ultimate_01_4",
+            "chr_banhbao_bachngoc_ultimate_01_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "chr_banhbao_bachngoc_ultimate_01_0",
+            "chr_banhbao_bachngoc_ultimate_01_1",
+            "chr_banhbao_bachngoc_ultimate_01_2",
+            "chr_banhbao_bachngoc_ultimate_01_3",
+            "chr_banhbao_bachngoc_ultimate_01_4",
+            "chr_banhbao_bachngoc_ultimate_01_5"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "defeat": {
+      "loop": false,
+      "fps": 4,
+      "directions": {
+        "S": {
+          "frames": [
+            "chr_banhbao_bachngoc_defeat_0",
+            "chr_banhbao_bachngoc_defeat_1",
+            "chr_banhbao_bachngoc_defeat_2",
+            "chr_banhbao_bachngoc_defeat_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "N": {
+          "frames": [
+            "chr_banhbao_bachngoc_defeat_0",
+            "chr_banhbao_bachngoc_defeat_1",
+            "chr_banhbao_bachngoc_defeat_2",
+            "chr_banhbao_bachngoc_defeat_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "chr_banhbao_bachngoc_defeat_0",
+            "chr_banhbao_bachngoc_defeat_1",
+            "chr_banhbao_bachngoc_defeat_2",
+            "chr_banhbao_bachngoc_defeat_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "chr_banhbao_bachngoc_defeat_0",
+            "chr_banhbao_bachngoc_defeat_1",
+            "chr_banhbao_bachngoc_defeat_2",
+            "chr_banhbao_bachngoc_defeat_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "victory": {
+      "loop": true,
+      "fps": 4,
+      "directions": {
+        "S": {
+          "frames": [
+            "chr_banhbao_bachngoc_victory_0",
+            "chr_banhbao_bachngoc_victory_1",
+            "chr_banhbao_bachngoc_victory_2",
+            "chr_banhbao_bachngoc_victory_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "N": {
+          "frames": [
+            "chr_banhbao_bachngoc_victory_0",
+            "chr_banhbao_bachngoc_victory_1",
+            "chr_banhbao_bachngoc_victory_2",
+            "chr_banhbao_bachngoc_victory_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "chr_banhbao_bachngoc_victory_0",
+            "chr_banhbao_bachngoc_victory_1",
+            "chr_banhbao_bachngoc_victory_2",
+            "chr_banhbao_bachngoc_victory_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "chr_banhbao_bachngoc_victory_0",
+            "chr_banhbao_bachngoc_victory_1",
+            "chr_banhbao_bachngoc_victory_2",
+            "chr_banhbao_bachngoc_victory_3"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    }
+  }
+}

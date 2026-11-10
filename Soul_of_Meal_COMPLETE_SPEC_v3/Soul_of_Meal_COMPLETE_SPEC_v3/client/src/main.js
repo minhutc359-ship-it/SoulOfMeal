@@ -6,6 +6,8 @@ import { loadSave, persistSave } from './core/save.js?v=3';
 import { AnimationAdapter } from './render/animationAdapter.js?v=4';
 import { findAdventurePath } from './modes/adventureNavigation.js?v=3';
 import { createAdventureMapRegistry, getAdventureMap } from './modes/mapCatalog.js?v=1';
+import { spriteRenderer } from './render/spriteRenderer.js';
+import { preloadGameAssets } from './render/spriteAssets.js';
 
 const app = document.querySelector('#app');
 const runtime = {
@@ -50,6 +52,7 @@ async function loadContent() {
   runtime.units = unitsData.units;
   runtime.shopConfig = shopConfig;
   runtime.maps = createAdventureMapRegistry([villageMap, forestMap]);
+  preloadGameAssets(spriteRenderer).catch((err) => console.warn('Sprite preload error:', err));
 }
 
 function checkResponse(response) {
@@ -104,13 +107,13 @@ function renderHome() {
   const headline = quest === 'not_started' ? 'Lilia cần bạn ở quảng trường' : quest === 'completed' ? 'Hương vị đã trở về' : 'Dấu vết dẫn vào rừng';
   shell(`
     ${pageHeader('Bản thử nghiệm kỹ thuật · 0.1.0', 'Chào mừng trở lại', 'Làng Ẩm Thực đang chờ Người Kết Vị. Tiến trình lưu tự động trên thiết bị này.')}
-    <section class="home-hero"><div class="hero-copy"><div class="eyebrow">${quest === 'completed' ? 'Khu rừng đã yên bình' : 'Một hương vị đang thất lạc'}</div><h2>${headline}</h2><p>Khám phá làng, nhận lời nhắn của Lilia và tìm lại hương vị bị đánh cắp. Luật chơi xử lý độc lập với phần hình ảnh.</p><div class="button-row"><button class="button" data-page="adventure">Tiếp tục hành trình →</button><button class="button secondary" data-page="roster">Đội hình · ${runtime.save.roster.length}</button></div></div><div class="hero-figure" role="img" aria-label="Placeholder Bún Bò Hỏa Linh"><div class="hero-orbit"></div><div class="hero-shadow"></div><div class="hero-mascot"><div class="mascot-scarf"></div></div><div class="mascot-flame"></div></div></section>
+    <section class="home-hero"><div class="hero-copy"><div class="eyebrow">${quest === 'completed' ? 'Khu rừng đã yên bình' : 'Một hương vị đang thất lạc'}</div><h2>${headline}</h2><p>Khám phá làng, nhận lời nhắn của Lilia và tìm lại hương vị bị đánh cắp. Luật chơi xử lý độc lập với phần hình ảnh.</p><div class="button-row"><button class="button" data-page="adventure">Tiếp tục hành trình →</button><button class="button secondary" data-page="roster">Đội hình · ${runtime.save.roster.length}</button></div></div><div class="hero-figure" role="img" aria-label="Bún Bò Hỏa Linh"><img src="./assets/portraits/chr_bunbo_holinh.png" alt="Bún Bò Hỏa Linh" style="width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 18px rgba(0,0,0,0.45));" onerror="this.style.display='none'"><div class="hero-orbit"></div><div class="hero-shadow"></div><div class="hero-mascot"><div class="mascot-scarf"></div></div><div class="mascot-flame"></div></div></section>
     <div class="section-head"><div><div class="eyebrow">Ba lối chơi · chung thế giới</div><h2>Chọn hành trình</h2></div><p>Thành tích và tiến trình lưu trên thiết bị.</p></div>
     <section class="mode-grid">
       <button class="mode-card" data-page="adventure"><div class="mode-mark adventure">⌖</div><h3>Phiêu lưu</h3><p>Khám phá làng và rừng, hoàn thành nhiệm vụ, chiến đấu theo simulation 30Hz.</p><div class="mode-meta"><span>${quest === 'completed' ? 'Nhiệm vụ hoàn thành' : 'Nhiệm vụ P0'}</span><span>Vào khu vực →</span></div></button>
       <button class="mode-card" data-page="tcg"><div class="mode-mark tcg">▤</div><h3>Thẻ chiến thuật</h3><p>Xây dựng bộ bài, triệu hồi Vị Linh, quản lý ưu tiên, phản ứng và bẫy úp.</p><div class="mode-meta"><span>Đấu bot · PVE</span><span>Vào trận →</span></div></button>
       <button class="mode-card" data-page="chess"><div class="mode-mark chess">▦</div><h3>Đấu trường linh thú</h3><p>Mua quân, xếp đội hình, hợp thể ba bản sao và mô phỏng giao tranh tự động.</p><div class="mode-meta"><span>Chuẩn bị & chiến đấu</span><span>Vào trận →</span></div></button>
-    </section><p class="status-line">Placeholder art · Client chưa chứa sprite/animation · Game events sẵn sàng cho adapter hình ảnh</p>
+    </section><p class="status-line">🎨 Đồ họa Soul of Meal · Đã tích hợp Sprite Sheets, Animation Manifests, Card Art & Map Assets</p>
   `);
 }
 
@@ -322,16 +325,16 @@ function drawMapVisuals(context, map, save) {
     if (visual.kind === 'house') {
       const palette = { coral: '#c96b50', sage: '#7b8d72', gold: '#d4a84e' };
       const labels = { building_kitchen: 'NHÀ BẾP', building_guild: 'HỘI QUÁN', building_merchant: 'TIỆM' };
-      drawHouse(context, visual.x, visual.y, palette[visual.palette] ?? '#b87855', labels[visual.id] ?? 'NHÀ', visual.width, visual.height);
+      drawHouse(context, visual.x, visual.y, palette[visual.palette] ?? '#b87855', labels[visual.id] ?? 'NHÀ', visual.width, visual.height, visual.id);
     } else if (visual.kind === 'table') {
       drawTable(context, visual.x, visual.y, visual.width, visual.height);
     } else if (visual.kind === 'tree') {
-      drawTree(context, visual.x, visual.y, visual.palette === 'forest_dark' ? '#356c50' : '#437a51');
+      drawTree(context, visual.x, visual.y, visual.palette === 'forest_dark' ? '#356c50' : '#437a51', visual.palette);
     } else if (visual.kind === 'marker') {
       const color = visual.palette === 'wood' ? '#4b7f62' : visual.palette === 'coral' ? '#e87552' : '#efbd54';
       drawMarker(context, visual.x, visual.y, visual.label, color);
     } else if (visual.kind === 'chest' && !save.adventure.chestOpened) {
-      drawChest(context, visual.x, visual.y);
+      drawChest(context, visual.x, visual.y, false);
     } else if (visual.kind === 'portal') {
       const open = save.adventure.chestOpened;
       drawMarker(context, visual.x, visual.y, open ? visual.label : 'KHÓA', open ? '#e87552' : '#68786e');
@@ -359,35 +362,61 @@ function drawBattleScene(context, adventure) {
 
 function drawActor(context, actor, x, y, color, animation) {
   if (!actor) return;
-  const pose = placeholderPose(animation);
-  context.save();
-  context.translate(x, y + pose.offsetY);
-  context.scale(pose.scaleX, pose.scaleY);
-  context.translate(-x, -y);
-  context.globalAlpha = actor.alive ? 1 : .28;
   const size = actor.boss ? 55 : 31;
-  context.fillStyle = '#1f3027a0'; context.beginPath(); context.ellipse(x, y + size, size * .85, 10, 0, 0, Math.PI * 2); context.fill();
-  context.fillStyle = color; context.beginPath(); context.ellipse(x, y, size * .65, size, 0, 0, Math.PI * 2); context.fill();
-  context.fillStyle = '#fff5db'; context.beginPath(); context.arc(x, y - size * .62, size * .4, 0, Math.PI * 2); context.fill();
-  context.fillStyle = '#283831'; context.font = '700 12px DM Sans, sans-serif'; context.textAlign = 'center'; context.fillText((actor.name ?? characterNames[actor.id] ?? 'V').slice(0, 12), x, y + size + 22); context.textAlign = 'left';
+  const charId = actor.boss ? 'boss_thief' : (actor.id ?? 'chr_bunbo_holinh');
+
+  // Thử vẽ Sprite đồ họa
+  const spriteDrawn = spriteRenderer.drawSprite(context, charId, animation, x, y, {
+    scale: actor.boss ? 1.3 : 1.0,
+    flipX: actor.team === 'enemy',
+    opacity: actor.alive ? 1.0 : 0.28,
+  });
+
+  if (!spriteDrawn) {
+    const pose = placeholderPose(animation);
+    context.save();
+    context.translate(x, y + pose.offsetY);
+    context.scale(pose.scaleX, pose.scaleY);
+    context.translate(-x, -y);
+    context.globalAlpha = actor.alive ? 1 : .28;
+    context.fillStyle = '#1f3027a0'; context.beginPath(); context.ellipse(x, y + size, size * .85, 10, 0, 0, Math.PI * 2); context.fill();
+    context.fillStyle = color; context.beginPath(); context.ellipse(x, y, size * .65, size, 0, 0, Math.PI * 2); context.fill();
+    context.fillStyle = '#fff5db'; context.beginPath(); context.arc(x, y - size * .62, size * .4, 0, Math.PI * 2); context.fill();
+    context.globalAlpha = 1;
+    context.restore();
+  }
+
+  // Tên & Thanh máu
+  context.save();
+  context.globalAlpha = actor.alive ? 1 : .28;
+  context.fillStyle = '#283831'; context.font = '700 12px DM Sans, sans-serif'; context.textAlign = 'center';
+  context.fillText((actor.name ?? characterNames[actor.id] ?? 'V').slice(0, 12), x, y + size + 22);
+  context.textAlign = 'left';
   context.fillStyle = '#24443a'; context.fillRect(x - size, y - size - 13, size * 2, 5);
   context.fillStyle = '#e98157'; context.fillRect(x - size, y - size - 13, size * 2 * Math.max(0, actor.hp / actor.maxHp), 5);
-  context.globalAlpha = 1;
   context.restore();
 }
 
-function drawHouse(context, x, y, color, label, width = 176, height = 118) {
-  context.fillStyle = '#425b45'; context.fillRect(x + 10, y + 38, width - 20, height - 38);
-  context.fillStyle = color; context.beginPath(); context.moveTo(x, y + 47); context.lineTo(x + width / 2, y); context.lineTo(x + width, y + 47); context.fill();
-  context.fillStyle = '#ead9ad'; context.fillRect(x + 27, y + 48, width - 34, height - 48);
-  context.fillStyle = '#745840'; context.fillRect(x + width / 2 - 14, y + height - 40, 28, 40);
+function drawHouse(context, x, y, color, label, width = 176, height = 118, houseId = '') {
+  const houseKey = `./assets/sprites/maps/${houseId.replace('building_', 'house_')}.png`;
+  const drawn = spriteRenderer.drawImage(context, houseKey, x, y, width, height);
+  if (!drawn) {
+    context.fillStyle = '#425b45'; context.fillRect(x + 10, y + 38, width - 20, height - 38);
+    context.fillStyle = color; context.beginPath(); context.moveTo(x, y + 47); context.lineTo(x + width / 2, y); context.lineTo(x + width, y + 47); context.fill();
+    context.fillStyle = '#ead9ad'; context.fillRect(x + 27, y + 48, width - 34, height - 48);
+    context.fillStyle = '#745840'; context.fillRect(x + width / 2 - 14, y + height - 40, 28, 40);
+  }
   context.fillStyle = '#304e40'; context.font = '700 11px DM Sans, sans-serif'; context.fillText(label, x + 47, y + height + 18);
 }
 
-function drawTree(context, x, y, color) {
-  context.fillStyle = '#664c38'; context.fillRect(x - 7, y + 7, 14, 43);
-  context.fillStyle = color; context.beginPath(); context.moveTo(x, y - 45); context.lineTo(x - 36, y + 20); context.lineTo(x + 36, y + 20); context.closePath(); context.fill();
-  context.beginPath(); context.moveTo(x, y - 21); context.lineTo(x - 31, y + 40); context.lineTo(x + 31, y + 40); context.closePath(); context.fill();
+function drawTree(context, x, y, color, palette = 'forest_light') {
+  const treeKey = palette === 'forest_dark' ? './assets/sprites/maps/tree_02.png' : './assets/sprites/maps/tree_01.png';
+  const drawn = spriteRenderer.drawImage(context, treeKey, x - 24, y - 48, 48, 96);
+  if (!drawn) {
+    context.fillStyle = '#664c38'; context.fillRect(x - 7, y + 7, 14, 43);
+    context.fillStyle = color; context.beginPath(); context.moveTo(x, y - 45); context.lineTo(x - 36, y + 20); context.lineTo(x + 36, y + 20); context.closePath(); context.fill();
+    context.beginPath(); context.moveTo(x, y - 21); context.lineTo(x - 31, y + 40); context.lineTo(x + 31, y + 40); context.closePath(); context.fill();
+  }
 }
 
 function drawMarker(context, x, y, label, color) {
@@ -396,10 +425,14 @@ function drawMarker(context, x, y, label, color) {
   context.fillStyle = '#fff6e3'; context.font = '700 10px DM Sans, sans-serif'; context.textAlign = 'center'; context.fillText(label, x, y + 4); context.textAlign = 'left';
 }
 
-function drawChest(context, x, y) {
-  context.fillStyle = '#563f29'; context.fillRect(x - 25, y - 17, 50, 36);
-  context.fillStyle = '#dba94f'; context.fillRect(x - 25, y - 19, 50, 12);
-  context.fillStyle = '#f1d77d'; context.fillRect(x - 4, y - 11, 8, 25);
+function drawChest(context, x, y, opened = false) {
+  const chestKey = opened ? './assets/sprites/maps/chest_open.png' : './assets/sprites/maps/chest_closed.png';
+  const drawn = spriteRenderer.drawImage(context, chestKey, x - 20, y - 20, 40, 40);
+  if (!drawn) {
+    context.fillStyle = '#563f29'; context.fillRect(x - 25, y - 17, 50, 36);
+    context.fillStyle = '#dba94f'; context.fillRect(x - 25, y - 19, 50, 12);
+    context.fillStyle = '#f1d77d'; context.fillRect(x - 4, y - 11, 8, 25);
+  }
   context.fillStyle = '#fff4cf'; context.font = '700 11px DM Sans, sans-serif'; context.textAlign = 'center'; context.fillText('RƯƠNG', x, y + 37); context.textAlign = 'left';
 }
 
@@ -410,16 +443,23 @@ function drawTable(context, x, y, width = 85, height = 52) {
 }
 
 function drawPlayer(context, x, y, animation) {
-  const pose = placeholderPose(animation);
-  context.save();
-  context.translate(x, y + pose.offsetY);
-  context.scale(pose.scaleX, pose.scaleY);
-  context.translate(-x, -y);
-  context.fillStyle = '#193b32'; context.beginPath(); context.ellipse(x, y + 22, 19, 6, 0, 0, Math.PI * 2); context.fill();
-  context.fillStyle = '#df7051'; context.beginPath(); context.ellipse(x, y, 14, 20, 0, 0, Math.PI * 2); context.fill();
-  context.fillStyle = '#f2d5a5'; context.beginPath(); context.arc(x, y - 16, 10, 0, Math.PI * 2); context.fill();
-  context.fillStyle = '#39433a'; context.fillRect(x - 12, y - 26, 24, 6);
-  context.restore();
+  const facingLeft = runtime.adventure?.facing === 'left';
+  const drawn = spriteRenderer.drawSprite(context, 'chr_bunbo_holinh', animation, x, y, {
+    scale: 1.0,
+    flipX: facingLeft,
+  });
+  if (!drawn) {
+    const pose = placeholderPose(animation);
+    context.save();
+    context.translate(x, y + pose.offsetY);
+    context.scale(pose.scaleX, pose.scaleY);
+    context.translate(-x, -y);
+    context.fillStyle = '#193b32'; context.beginPath(); context.ellipse(x, y + 22, 19, 6, 0, 0, Math.PI * 2); context.fill();
+    context.fillStyle = '#df7051'; context.beginPath(); context.ellipse(x, y, 14, 20, 0, 0, Math.PI * 2); context.fill();
+    context.fillStyle = '#f2d5a5'; context.beginPath(); context.arc(x, y - 16, 10, 0, Math.PI * 2); context.fill();
+    context.fillStyle = '#39433a'; context.fillRect(x - 12, y - 26, 24, 6);
+    context.restore();
+  }
 }
 
 function placeholderPose(animation) {
@@ -437,7 +477,7 @@ function renderTcg() {
   if (!runtime.tcg) runtime.tcg = createTcgMatch(runtime.cards, runtime.deck, 41);
   const match = runtime.tcg;
   const user = match.players[0]; const bot = match.players[1];
-  const hand = user.hand.map((card) => `<button class="playing-card element-${card.element}" data-card="${escapeAttr(card.instance_id)}"><span class="card-cost">${card.cost}</span><span class="card-element">${escapeHtml(card.element)}</span><strong>${escapeHtml(cardName(card))}</strong><small>${escapeHtml(card.type.replaceAll('_', ' '))}${card.type === 'unit' ? `<br>${card.atk} ATK · ${card.max_def} DEF` : card.effect ? `<br>${card.effect.value} damage` : ''}</small></button>`).join('');
+  const hand = user.hand.map((card) => `<button class="playing-card element-${card.element}" data-card="${escapeAttr(card.instance_id)}"><span class="card-cost">${card.cost}</span><span class="card-element">${escapeHtml(card.element)}</span><div class="card-thumb"><img src="./assets/cards/${escapeAttr(card.card_id)}.png" alt="${escapeAttr(cardName(card))}" loading="lazy" onerror="this.parentElement.style.display='none'"></div><strong>${escapeHtml(cardName(card))}</strong><small>${escapeHtml(card.type.replaceAll('_', ' '))}${card.type === 'unit' ? `<br>${card.atk} ATK · ${card.max_def} DEF` : card.effect ? `<br>${card.effect.value} damage` : ''}</small></button>`).join('');
   const friendlyUnits = user.units.map((unit) => unitTile(unit, true)).join('') || '<div class="empty-slot">Unit slot</div>'.repeat(5);
   const enemyUnits = bot.units.map((unit) => unitTile(unit, false)).join('') || '<div class="empty-slot">Unit slot</div>'.repeat(5);
   const phaseLabel = match.result ? match.winner === 0 ? 'Chiến thắng' : match.winner === null ? 'Hòa trận' : 'Thất bại' : `${match.phase} · Vòng ${match.round}`;
@@ -479,7 +519,7 @@ function actTcg(action) {
 }
 
 function unitTile(unit, friendly) {
-  return `<div class="tcg-unit ${friendly ? 'friendly' : ''}"><b>${escapeHtml(cardName(unit))}</b><span>${unit.atk} ATK</span><strong>${unit.current_def} DEF</strong><small>${unit.ready ? 'Sẵn sàng' : 'Nghỉ'}</small></div>`;
+  return `<div class="tcg-unit ${friendly ? 'friendly' : ''}"><div class="tcg-unit-avatar"><img src="./assets/cards/${escapeAttr(unit.card_id)}.png" alt="${escapeAttr(cardName(unit))}" onerror="this.parentElement.style.display='none'"></div><b>${escapeHtml(cardName(unit))}</b><span>${unit.atk} ATK</span><strong>${unit.current_def} DEF</strong><small>${unit.ready ? 'Sẵn sàng' : 'Nghỉ'}</small></div>`;
 }
 
 function renderTextLog(items) {
@@ -567,7 +607,7 @@ function renderSynergies(board) {
 }
 
 function renderRoster() {
-  shell(`${pageHeader('Hồ sơ · Adventure stat scale', 'Đội hình Vị Linh', 'Cùng nhận diện nhân vật; chỉ số tách biệt theo mode. Các hình đại diện hiện là placeholder.', 'home')}<section class="roster-grid">${runtime.save.roster.map((actor) => `<article class="roster-card"><div class="roster-avatar" style="--unit-color:${elementColors[actor.element]}">${escapeHtml(shortName(characterNames[actor.id]))}</div><div><div class="eyebrow">${actor.element} · ${actor.role}</div><h2>${escapeHtml(characterNames[actor.id])}</h2><div class="data-list"><div class="data-row"><span>HP</span><b>${actor.hp}/${actor.maxHp}</b></div><div class="data-row"><span>ATK</span><b>${actor.atk}</b></div><div class="data-row"><span>DEF</span><b>${actor.def}</b></div></div></div></article>`).join('')}</section>`);
+  shell(`${pageHeader('Hồ sơ · Adventure stat scale', 'Đội hình Vị Linh', 'Cùng nhận diện nhân vật; đồ họa chính thức đã được tích hợp.', 'home')}<section class="roster-grid">${runtime.save.roster.map((actor) => `<article class="roster-card"><div class="roster-avatar" style="--unit-color:${elementColors[actor.element]}"><img src="./assets/avatars/avatar_${actor.id.replace('chr_', '')}.png" alt="${escapeAttr(characterNames[actor.id])}" style="width:100%;height:100%;border-radius:inherit;object-fit:cover;" onerror="this.style.display='none'"><span>${escapeHtml(shortName(characterNames[actor.id]))}</span></div><div><div class="eyebrow">${actor.element} · ${actor.role}</div><h2>${escapeHtml(characterNames[actor.id])}</h2><div class="data-list"><div class="data-row"><span>HP</span><b>${actor.hp}/${actor.maxHp}</b></div><div class="data-row"><span>ATK</span><b>${actor.atk}</b></div><div class="data-row"><span>DEF</span><b>${actor.def}</b></div></div></div></article>`).join('')}</section>`);
 }
 
 function renderSettings() {
