@@ -97,6 +97,7 @@ export class ClipPlayer {
     if (!force && this.current?.requestedClipId === requestedClipId && !this.completed && !restart) return true;
 
     this.current = { ...resolved, requestedClipId };
+    this.frameIndex = 0;
     this.elapsedMs = 0;
     this.completed = false;
     this.missingClip = resolved.missing;
@@ -106,7 +107,6 @@ export class ClipPlayer {
   advance(deltaMs) {
     if (!this.current || !Number.isFinite(deltaMs) || deltaMs <= 0) return this.snapshot();
     const frameCount = this.current.frames.length;
-    if (this.reducedMotion) return this.snapshot();
     this.elapsedMs += deltaMs;
     const frameDuration = 1000 / this.current.fps;
     const totalFramesElapsed = Math.floor(this.elapsedMs / frameDuration);
@@ -129,8 +129,8 @@ export class ClipPlayer {
     return {
       clipId: this.current.clipId,
       requestedClipId: this.current.requestedClipId,
-      frameIndex,
-      frameId: this.current.frames[frameIndex],
+      frameIndex: this.reducedMotion ? 0 : frameIndex,
+      frameId: this.current.frames[this.reducedMotion ? 0 : frameIndex],
       loop: this.current.loop,
       fps: this.current.fps,
       anchor: this.current.anchor,

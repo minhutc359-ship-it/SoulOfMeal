@@ -50,8 +50,6 @@ python .agents/skills/soul-of-meal-sprite/scripts/make_preview.py --help
 ```
 
 ## Chạy browser runtime
-Client kỹ thuật placeholder hiện nằm trong [`client/README.md`](client/README.md). Chạy server từ package root bằng `python3 -m http.server 4173 --directory .`, rồi mở `http://localhost:4173/client/`. Test runtime client: `node --test client/tests/runtime.test.js`.
+Client web nằm trong [`client/`](client/README.md). Từ thư mục chứa tài liệu này, chạy `python3 -m http.server 4173` rồi mở `http://localhost:4173/client/`. Kiểm tra bằng `node --test client/tests/*.test.js`.
 
-**Không có sprite/animation/runtime phát hành hoàn thiện trong gói này.** Có browser technical vertical slice ở `client/` dùng Canvas 2D placeholder; xem giới hạn triển khai trong `client/README.md`. Ảnh concept là đầu vào mỹ thuật; AI skill là quy trình và công cụ để sinh/kiểm chứng sprite. Tệp `examples` là fixture và thiết lập đề xuất, không phải asset đã được cấp phép phát hành.
-
-Hiện có **browser technical vertical slice** gồm Adventure quest/combat/reward, TCG bot-match slice và Auto Chess preparation/combat slice, cùng Python rules prototypes riêng. Đây chưa phải game hoàn chỉnh hoặc production runtime; các giới hạn cụ thể, gồm art/rendering, pathfinding, full card effects, eight-player tournament, offline PWA và device benchmark, xem `client/README.md` và engineering references.
+Bản chơi thử cục bộ gồm tuyến nhiệm vụ Adventure, TCG đấu bot và Auto Chess đấu bot. Adventure dùng sprite anime chibi cho Bún Bò Hỏa Linh, atlas hiệu ứng Hỏa, năm tuyệt kỹ khác nhau và nhạc/âm thanh theo cảnh. Xem [hướng dẫn client](client/README.md) để biết phạm vi kiểm thử và các bước nghiệm thu còn lại.

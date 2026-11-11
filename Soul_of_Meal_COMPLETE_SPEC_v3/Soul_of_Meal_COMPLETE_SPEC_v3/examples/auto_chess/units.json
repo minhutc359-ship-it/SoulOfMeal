@@ -60,6 +60,42 @@
         2,
         3
       ]
+    },
+    {
+      "id": "mob_pepper_01",
+      "display_name": "Tiêu Tinh",
+      "element": "fire",
+      "job": "ranged",
+      "cost": 1,
+      "stars": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "mob_mushroom_01",
+      "display_name": "Nấm Lạc Vị",
+      "element": "wood",
+      "job": "guardian",
+      "cost": 2,
+      "stars": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "npc_lilia",
+      "display_name": "Lilia Giữ Vị",
+      "element": "light",
+      "job": "support",
+      "cost": 3,
+      "stars": [
+        1,
+        2,
+        3
+      ]
     }
   ]
 }

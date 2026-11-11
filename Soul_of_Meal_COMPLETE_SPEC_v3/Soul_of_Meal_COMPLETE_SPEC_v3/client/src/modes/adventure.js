@@ -1,9 +1,9 @@
 import { gameEvents } from '../core/events.js';
 import { moveWithCollision } from './adventureNavigation.js';
 import { getAdventureMap } from './mapCatalog.js';
+import { adventureBalance as balance } from './adventureBalance.js';
 
 export const WORLD = { width: 960, height: 540 };
-const INTERACT_RADIUS = 62;
 const PLAYER_SPEED = 190;
 const TICK_RATE = 30;
 
@@ -26,7 +26,9 @@ export function createAdventureState(save) {
     tick: 0,
     input: { x: 0, y: 0 },
     battle: save.adventure.battle,
-    lastMessage: 'Tìm Lilia ở quảng trường để bắt đầu.',
+    lastMessage: save.adventure.quest === 'completed' ? 'Làng Ẩm Thực đã tìm lại hương vị.' :
+      save.adventure.forestCleared ? 'Trở về làng để báo tin cho Lilia.' :
+        save.adventure.map === 'forest' ? 'Theo dấu chân trong rừng.' : 'Tìm Lilia ở quảng trường để bắt đầu.',
     result: null,
   };
 }
@@ -79,9 +81,7 @@ export function setAdventureInput(state, x, y) {
 }
 
 export function nearestInteraction(state, save, maps) {
-  if (state.battle || state.map === 'forest') {
-    if (state.battle) return null;
-  }
+  if (state.battle) return null;
   const map = getAdventureMap(maps, state.map);
   if (!map) return null;
   const candidates = map.interactables
@@ -113,6 +113,8 @@ export function interactAdventure(state, save, maps) {
       updated.adventure.quest = 'completed';
       updated.player.gold += 80;
       updated.player.experience += 100;
+      updated.player.level = 1 + Math.floor(updated.player.experience / 100);
+      updated.roster = updated.roster.map((actor) => ({ ...actor, hp: actor.maxHp }));
       state.lastMessage = 'Nhiệm vụ hoàn thành. Lilia trao 80 vàng và 100 kinh nghiệm.';
       gameEvents.emit('quest_completed', { quest_id: 'quest_missing_flavor', gold: 80, experience: 100 });
     } else {
@@ -160,32 +162,43 @@ export function beginBattle(state, save) {
     tick: 0,
     wave: 0,
     actors: [
-      ...save.roster.map((actor, index) => ({ ...structuredClone(actor), actor_id: actor.id, team: 'player', cooldown: index * 6, alive: actor.hp > 0 })),
-      ...structuredClone(ENEMIES.forest_wave).map((enemy, index) => ({ ...enemy, actor_id: enemy.id, team: 'enemy', cooldown: 12 + index * 8, alive: true })),
+      ...save.roster.map((actor, index) => spawnActor(actor, 'player', index)),
+      ...ENEMIES.forest_wave.map((enemy, index) => spawnActor(enemy, 'enemy', index)),
     ],
     bossPhase: 1,
     bossTelegraph: null,
     events: [],
   };
-  state.lastMessage = 'Giao chiến! Các Vị Linh tự động đánh; chọn tuyệt kỹ khi đủ năng lượng.';
-  gameEvents.emit('battle_started', { battle_id: state.battle.id, wave: 1 }, { battle_id: state.battle.id, rules_version: 'client-p0-v1', tick: 0 });
+  state.lastMessage = 'Các Vị Linh tự áp sát và tấn công. Hãy tung tuyệt kỹ khi đủ năng lượng.';
+  gameEvents.emit('battle_started', { battle_id: state.battle.id, wave: 1 }, battleContext(state.battle));
+}
+
+function spawnActor(template, team, index) {
+  const player = team === 'player';
+  const formation = balance.formations[team];
+  const [x, y] = template.boss ? balance.formations.boss : formation[index % formation.length];
+  return {
+    ...template, actor_id: template.id, team, x, y, homeX: x, homeY: y,
+    alive: template.hp > 0, cooldown: player ? index * 4 : 12 + index * 8,
+    energy: player ? Math.max(template.energy ?? 0, balance.openingEnergy) : 0,
+    direction: player ? 'E' : 'W', moving: false, action: null, attackCount: 0,
+  };
 }
 
 export function activateUltimate(state, save, actorId) {
   const battle = state.battle;
   if (!battle || battle.phase !== 'battle_running') return { ok: false, reason: 'Trận đấu chưa sẵn sàng.' };
   const actor = battle.actors.find((item) => item.actor_id === actorId && item.team === 'player');
-  const target = battle.actors.find((item) => item.team === 'enemy' && item.alive);
-  if (!actor || !actor.alive) return { ok: false, reason: 'Vị Linh đã gục.' };
+  if (!actor?.alive) return { ok: false, reason: 'Vị Linh đã gục.' };
   if (actor.energy < 100) return { ok: false, reason: 'Chưa đủ năng lượng.' };
-  if (actor.ultimateReadyTick > battle.tick) return { ok: false, reason: 'Tuyệt kỹ đang hồi.' };
+  if (actor.ultimateReadyTick > battle.tick || actor.action) return { ok: false, reason: 'Chờ Vị Linh kết thúc đòn hiện tại.' };
+  const ability = balance.ultimates[actor.id];
+  const target = selectTarget(battle, actor, ability.kind === 'execute');
   if (!target) return { ok: false, reason: 'Không còn mục tiêu.' };
   actor.energy -= 100;
-  actor.ultimateReadyTick = battle.tick + 90;
-  const displayName = actor.id.replace(/^chr_/, '').replaceAll('_', ' ');
-  state.lastMessage = `${displayName}: tuyệt kỹ gây sát thương lên ${target.name}.`;
-  gameEvents.emit('cast_started', { ability_id: `${actor.id}_ultimate`, energy_cost: 100, target_id: target.id }, battleContext(battle));
-  applyBattleHit(battle, actor, target, 15000, 'ultimate');
+  actor.ultimateReadyTick = battle.tick + balance.ultimateCooldown;
+  state.lastMessage = ability.name + '!';
+  startAction(battle, actor, target, ability, 'ultimate');
   return { ok: true, save };
 }
 
@@ -221,60 +234,157 @@ function stepBattle(state, save) {
   const battle = state.battle;
   battle.tick += 1;
   gameEvents.setTick(battle.tick);
-  for (const actor of battle.actors.filter((item) => item.alive)) {
-    actor.cooldown -= 1;
-    if (actor.cooldown > 0) continue;
-    const opposing = battle.actors.filter((item) => item.alive && item.team !== actor.team).sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp) || a.actor_id.localeCompare(b.actor_id));
-    const target = opposing[0];
-    if (!target) break;
-    if (actor.team === 'player') {
-      const coefficient = actor.role === 'assassin' ? 11000 : actor.role === 'mage' ? 10500 : 10000;
-      applyBattleHit(battle, actor, target, coefficient, 'basic');
-      actor.energy = Math.min(100, actor.energy + 8);
-    } else {
-      const playerTarget = opposing.find((item) => item.role === 'guardian') ?? opposing[0];
-      applyBattleHit(battle, actor, playerTarget, 10000, 'enemy_attack');
-    }
-    actor.cooldown = actor.team === 'player' ? 45 : (actor.interval ?? 60);
+  for (const actor of battle.actors) {
+    if (!actor.alive) continue;
+    stepActor(battle, actor);
   }
-  const alivePlayers = battle.actors.some((item) => item.team === 'player' && item.alive);
-  const aliveEnemies = battle.actors.some((item) => item.team === 'enemy' && item.alive);
-  if (!alivePlayers) finishBattle(state, save, false);
-  else if (!aliveEnemies && battle.wave === 0) {
+  const alivePlayers = battle.actors.some((actor) => actor.team === 'player' && actor.alive);
+  const aliveEnemies = battle.actors.some((actor) => actor.team === 'enemy' && actor.alive);
+  if (!alivePlayers) return finishBattle(state, save, false);
+  if (!aliveEnemies) {
+    if (battle.wave === 1) return finishBattle(state, save, true);
     battle.wave = 1;
-    battle.actors.push(...structuredClone(ENEMIES.forest_boss).map((enemy) => ({ ...enemy, actor_id: enemy.id, team: 'enemy', cooldown: 45, alive: true })));
-    gameEvents.emit('wave_completed', { wave: 1 }, battleContext(battle));
-    gameEvents.emit('actor_spawned', { actor_id: 'boss_bep_truong', boss: true }, battleContext(battle));
-    state.lastMessage = 'Đợt 1 hoàn tất. Bếp Trưởng Hỏa Diệm xuất hiện!';
-  } else if (!aliveEnemies) finishBattle(state, save, true);
-
-  const boss = battle.actors.find((item) => item.boss && item.alive);
-  if (boss) {
-    const ratio = boss.hp / boss.maxHp;
-    const phase = ratio <= 0.3 ? 3 : ratio <= 0.7 ? 2 : 1;
-    if (phase > battle.bossPhase) {
-      battle.bossPhase = phase;
-      battle.bossTelegraph = { ticks: phase === 3 ? 36 : 24, attack: phase === 3 ? 'fire_arc' : 'stove_surge' };
-      gameEvents.emit('boss_phase_changed', { phase }, battleContext(battle));
+    battle.actors = battle.actors.filter((actor) => actor.team === 'player');
+    for (const actor of battle.actors) {
+      actor.action = null;
+      actor.x = actor.homeX;
+      actor.y = actor.homeY;
+      actor.moving = false;
+      actor.cooldown = Math.max(actor.cooldown, 10);
     }
-    if (battle.bossTelegraph) {
-      battle.bossTelegraph.ticks -= 1;
-      if (battle.bossTelegraph.ticks <= 0) {
-        const victims = battle.actors.filter((item) => item.team === 'player' && item.alive).sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
-        if (victims[0]) applyBattleHit(battle, boss, victims[0], phase === 3 ? 18000 : 14000, 'boss_telegraph');
-        battle.bossTelegraph = null;
+    battle.actors.push(...ENEMIES.forest_boss.map((enemy, index) => spawnActor(enemy, 'enemy', index)));
+    gameEvents.emit('wave_completed', { wave: 1 }, battleContext(battle));
+    gameEvents.emit('actor_spawned', { actor_id: 'boss_bep_truong', character_id: 'boss_thief', boss: true }, battleContext(battle));
+    state.lastMessage = 'Bếp Trưởng Hỏa Diệm xuất hiện!';
+  }
+  updateBoss(battle);
+}
+
+function stepActor(battle, actor) {
+  actor.moving = false;
+  if (actor.shieldUntil <= battle.tick) actor.shield = 0;
+  actor.cooldown = Math.max(0, actor.cooldown - 1);
+  if (actor.action) {
+    const action = actor.action;
+    if (action.travel && battle.tick === action.launchTick) {
+      const target = battle.actors.find((item) => item.actor_id === action.targetId);
+      if (target?.alive) {
+        gameEvents.emit('projectile_spawned', {
+          element: actor.element, travel_ticks: action.travel,
+          source: { x: actor.x, y: actor.y }, target: { x: target.x, y: target.y },
+        }, battleContext(battle, actor.actor_id, target.actor_id));
       }
     }
+    if (battle.tick >= action.hitTick) {
+      actor.action = null;
+      resolveAction(battle, actor, action);
+    }
+    return;
+  }
+  const target = selectTarget(battle, actor);
+  if (!target || (actor.boss && battle.bossTelegraph)) return;
+  const profile = actor.team === 'player' ? balance.roles[actor.role] ?? balance.roles.fighter : balance.enemyRoles[actor.id];
+  const dx = target.x - actor.x;
+  const dy = target.y - actor.y;
+  const distance = Math.hypot(dx, dy);
+  actor.direction = dx < 0 ? 'W' : 'E';
+  if (distance > profile.range) {
+    const speed = balance.approachSpeed * (actor.slowUntil > battle.tick ? .55 : 1);
+    const step = Math.min(speed, distance - profile.range);
+    actor.x += dx * step / distance;
+    actor.y += dy * step / distance;
+    actor.moving = true;
+  } else if (actor.cooldown === 0) {
+    const sourceKind = actor.team === 'player' ? 'basic' : 'enemy_attack';
+    const clip = actor.attackCount++ % 2 === 0 ? 'attack_a' : 'attack_b';
+    const windup = actor.id === 'chr_bunbo_holinh' && clip === 'attack_b' ? 8 : profile.windup;
+    startAction(battle, actor, target, { ...profile, windup, clip }, sourceKind);
+    actor.cooldown = (profile.interval ?? actor.interval) + (actor.slowUntil > battle.tick ? 14 : 0);
   }
 }
 
+function selectTarget(battle, actor, weakest = false) {
+  const targets = battle.actors.filter((item) => item.alive && item.team !== actor.team);
+  if (actor.team === 'enemy') {
+    const guardian = targets.find((item) => item.role === 'guardian');
+    if (guardian) return guardian;
+  }
+  const score = (item) => weakest || actor.role === 'assassin' ? item.hp / item.maxHp : Math.hypot(item.x - actor.x, item.y - actor.y);
+  return targets.sort((a, b) => score(a) - score(b) || a.actor_id.localeCompare(b.actor_id))[0];
+}
+
+function startAction(battle, actor, target, profile, sourceKind) {
+  actor.moving = false;
+  actor.action = {
+    ...profile, targetId: target.actor_id, sourceKind,
+    launchTick: battle.tick + profile.windup,
+    hitTick: battle.tick + profile.windup + (profile.travel ?? 0),
+  };
+  gameEvents.emit(sourceKind === 'ultimate' ? 'cast_started' : 'attack_started', {
+    ability_id: `${actor.id}_${sourceKind}`, name: profile.name, element: actor.element,
+    clip_id: profile.clip ?? 'ultimate_01', kind: profile.kind, windup_ticks: profile.windup,
+  }, battleContext(battle, actor.actor_id, target.actor_id));
+}
+
+function resolveAction(battle, actor, action) {
+  if (action.kind === 'heal' || action.kind === 'shield') {
+    for (const ally of battle.actors.filter((item) => item.alive && item.team === actor.team)) {
+      const amount = Math.floor(ally.maxHp * action.ratio);
+      if (action.kind === 'heal') {
+        const healed = Math.min(amount, ally.maxHp - ally.hp);
+        ally.hp += healed;
+        if (healed) gameEvents.emit('heal_resolved', { amount: healed, element: actor.element }, battleContext(battle, actor.actor_id, ally.actor_id));
+      } else {
+        ally.shield = Math.max(ally.shield ?? 0, amount);
+        ally.shieldUntil = battle.tick + action.duration;
+        gameEvents.emit('shield_applied', { amount, element: actor.element }, battleContext(battle, actor.actor_id, ally.actor_id));
+      }
+    }
+    return;
+  }
+  const originalTarget = battle.actors.find((item) => item.actor_id === action.targetId && item.alive);
+  const target = originalTarget ?? (action.sourceKind === 'ultimate' && !action.travel ? selectTarget(battle, actor, action.kind === 'execute') : null);
+  const targets = action.kind === 'area' ? battle.actors.filter((item) => item.alive && item.team !== actor.team) : target ? [target] : [];
+  for (const victim of targets) {
+    const coefficient = action.kind === 'execute' && victim.hp <= victim.maxHp * .35 ? action.executeCoefficient : action.coefficient;
+    applyBattleHit(battle, actor, victim, coefficient ?? 10000, action.sourceKind);
+    if (action.kind === 'slow') victim.slowUntil = battle.tick + action.duration;
+  }
+  if (actor.team === 'player' && action.sourceKind === 'basic') actor.energy = Math.min(100, actor.energy + balance.basicEnergy);
+}
+
+function updateBoss(battle) {
+  const boss = battle.actors.find((item) => item.boss && item.alive);
+  if (!boss) return;
+  const ratio = boss.hp / boss.maxHp;
+  const phase = ratio <= .3 ? 3 : ratio <= .7 ? 2 : 1;
+  if (phase > battle.bossPhase && !battle.bossTelegraph) {
+    battle.bossPhase = phase;
+    battle.bossTelegraph = { phase, ticks: phase === 3 ? 36 : 27, attack: phase === 3 ? 'Vòng Lửa' : 'Bếp Bùng Cháy' };
+    gameEvents.emit('boss_phase_changed', { phase, attack: battle.bossTelegraph.attack }, battleContext(battle, boss.actor_id));
+  }
+  if (!battle.bossTelegraph || --battle.bossTelegraph.ticks > 0) return;
+  const attackPhase = battle.bossTelegraph.phase;
+  battle.bossTelegraph = null;
+  const victims = battle.actors.filter((item) => item.team === 'player' && item.alive);
+  victims.sort((a, b) => Math.hypot(a.x - boss.x, a.y - boss.y) - Math.hypot(b.x - boss.x, b.y - boss.y));
+  for (const victim of victims.slice(0, attackPhase === 3 ? 3 : 2)) applyBattleHit(battle, boss, victim, attackPhase === 3 ? 25000 : 18000, 'boss_telegraph');
+}
+
 function applyBattleHit(battle, source, target, coefficientBp, sourceKind) {
-  if (!source?.alive || !target?.alive) return;
-  const damage = Math.max(1, Math.floor(Math.max(1, Math.floor(source.atk * coefficientBp / 10000)) * 100 / (100 + target.def)));
-  target.hp = Math.max(0, target.hp - damage);
+  const damage = Math.max(1, Math.floor(source.atk * coefficientBp / 10000 * 100 / (100 + target.def)));
+  const absorbed = Math.min(damage, target.shield ?? 0);
+  target.shield = (target.shield ?? 0) - absorbed;
+  const hpDamage = Math.min(target.hp, damage - absorbed);
+  target.hp -= hpDamage;
   target.alive = target.hp > 0;
-  if (target.team === 'player' && source.team === 'enemy') target.energy = Math.min(100, target.energy + 3);
-  gameEvents.emit('hit_resolved', { hit_id: `${battle.tick}:${source.actor_id}:${target.actor_id}`, damage, hp_damage: damage, source_kind: sourceKind, element: source.element }, battleContext(battle, source.actor_id, target.actor_id));
+  if (target.team === 'player') target.energy = Math.min(100, target.energy + balance.hurtEnergy);
+  const payload = {
+    hit_id: `${battle.tick}:${source.actor_id}:${target.actor_id}`, damage, hp_damage: hpDamage, absorbed,
+    source_kind: sourceKind, element: source.element, timed: sourceKind !== 'boss_telegraph',
+  };
+  const hit = gameEvents.emit('hit_resolved', payload, battleContext(battle, source.actor_id, target.actor_id));
+  battle.events.push(hit);
   if (!target.alive) gameEvents.emit('actor_died', { actor_id: target.actor_id }, battleContext(battle, source.actor_id, target.actor_id));
 }
 
@@ -291,7 +401,10 @@ function finishBattle(state, save, won) {
       updated.player.essence += 10;
       updated.completedBattles += 1;
     }
-    updated.roster = battle.actors.filter((item) => item.team === 'player').map((item) => ({ ...item, hp: item.alive ? item.hp : 1, energy: 0 }));
+    updated.roster = updated.roster.map((member) => {
+      const actor = battle.actors.find((item) => item.actor_id === member.id);
+      return { ...member, hp: Math.max(1, actor.hp), energy: 0 };
+    });
     updated.adventure.forestCleared = true;
     updated.adventure.quest = 'ready_to_claim';
     state.result = { won: true, gold: 60, essence: 10 };

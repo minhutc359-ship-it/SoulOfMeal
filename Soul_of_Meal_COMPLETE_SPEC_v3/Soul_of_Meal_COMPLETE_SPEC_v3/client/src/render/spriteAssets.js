@@ -2,6 +2,10 @@
  * Danh mục tải toàn bộ assets cho game Soul of Meal
  */
 
+export const CINEMATIC = './assets/cinematic/';
+export const GOLDEN_HERO = 'chr_bunbo_holinh';
+export const BATTLE_HERO = 'chr_bunbo_holinh_battle';
+
 export const ASSET_PATHS = Object.freeze({
   sprites: './assets/sprites',
   icons: './assets/sprites/icons',
@@ -24,16 +28,22 @@ export const CHARACTERS = Object.freeze([
 
 export async function preloadGameAssets(renderer) {
   const promises = [];
+  const manifests = {};
 
-  // 1. Tải sprite sheets nhân vật
   for (const charId of CHARACTERS) {
-    promises.push(
-      renderer.loadCharacter(
-        charId,
-        `${ASSET_PATHS.sprites}/${charId}.png`,
-        `${ASSET_PATHS.sprites}/${charId}.manifest.json`
-      )
-    );
+    const path = charId === GOLDEN_HERO ? './assets/golden/bunbo' : `${ASSET_PATHS.sprites}/${charId}`;
+    const image = charId === GOLDEN_HERO ? path + '.webp' : path + '.png';
+    const manifest = charId === GOLDEN_HERO ? path + '.json' : path + '.manifest.json';
+    promises.push(renderer.loadCharacter(charId, image, manifest).then((entry) => {
+      if (entry.loaded && entry.manifest) manifests[charId] = entry.manifest;
+    }));
+  }
+  promises.push(renderer.loadCharacter(BATTLE_HERO, './assets/golden/bunbo_battle.webp', './assets/golden/bunbo_battle.json').then((entry) => {
+    if (entry.loaded && entry.manifest) manifests[BATTLE_HERO] = entry.manifest;
+  }));
+  promises.push(renderer.loadCharacter('vfx_fire', './assets/golden/fire.webp', './assets/golden/fire.json'));
+  for (const id of ['village', 'arena', 'cutin', 'mushroom', 'pepper']) {
+    promises.push(renderer.loadImage(CINEMATIC + id + '.webp'));
   }
 
   // 2. Tải map tiles và objects
@@ -46,42 +56,11 @@ export async function preloadGameAssets(renderer) {
     promises.push(renderer.loadImage(`${ASSET_PATHS.maps}/${asset}.png`));
   }
 
-  // 3. Tải element icons
-  const elements = ['fire', 'water', 'wood', 'light', 'shadow'];
-  for (const el of elements) {
-    promises.push(renderer.loadImage(`${ASSET_PATHS.icons}/icon_${el}.png`));
-  }
-
-  // 4. Tải UI frames & badges
-  const uiAssets = [
-    'logo_mark', 'gold_coin', 'mana_gem', 'star_filled', 'star_empty',
-    'hp_bar_frame', 'energy_bar_frame', 'card_frame_R', 'card_frame_SR', 'card_frame_SSR'
-  ];
-  for (const asset of uiAssets) {
-    promises.push(renderer.loadImage(`${ASSET_PATHS.ui}/${asset}.png`));
-  }
-
-  // 5. Tải visual effects
-  const effectAssets = [
-    'hit_spark', 'fire_burst', 'water_splash', 'leaf_swirl',
-    'light_flash', 'shadow_fade', 'heal_glow'
-  ];
-  for (const asset of effectAssets) {
+  for (const asset of ['hit_spark', 'fire_burst', 'water_splash', 'leaf_swirl', 'light_flash', 'shadow_fade', 'heal_glow']) {
     promises.push(renderer.loadImage(`${ASSET_PATHS.effects}/${asset}.png`));
   }
+  promises.push(renderer.loadImage(ASSET_PATHS.avatars + '/avatar_lilia.png'));
 
-  // 6. Tải card arts cho 18 cards demo
-  for (let i = 1; i <= 18; i++) {
-    const num = String(i).padStart(2, '0');
-    promises.push(renderer.loadImage(`${ASSET_PATHS.cards}/card_demo_${num}.png`));
-  }
-
-  // 7. Tải portraits và avatars
-  for (const charId of CHARACTERS) {
-    promises.push(renderer.loadImage(`${ASSET_PATHS.portraits}/${charId}.png`));
-    promises.push(renderer.loadImage(`${ASSET_PATHS.avatars}/avatar_${charId.replace('chr_', '')}.png`));
-  }
-
-  const results = await Promise.allSettled(promises);
-  return results;
+  await Promise.allSettled(promises);
+  return manifests;
 }

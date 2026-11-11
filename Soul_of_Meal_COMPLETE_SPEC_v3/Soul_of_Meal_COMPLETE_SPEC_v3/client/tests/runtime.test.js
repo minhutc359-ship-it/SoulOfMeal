@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { createAdventureState, interactAdventure, nearestInteraction, beginBattle, setAdventureInput, stepAdventure, claimBattleResult, activateUltimate, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
-import { advanceChessRound, buyChessOffer, createChessRun, placeChessUnit, startChessCombat } from '../src/modes/autoChess.js';
-import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard } from '../src/modes/tcg.js';
+import { advanceChessRound, buyChessOffer, createChessRun, placeChessUnit, startChessCombat, chessTraits } from '../src/modes/autoChess.js';
+import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard, mulliganTcg } from '../src/modes/tcg.js';
 import { createDefaultSave, migrateSave, SAVE_VERSION } from '../src/core/save.js';
 import { gameEvents } from '../src/core/events.js';
 import { collidesWithWorld, findAdventurePath, moveWithCollision } from '../src/modes/adventureNavigation.js';
@@ -47,19 +47,54 @@ test('Adventure fixed-step battle advances simulation and emits an authoritative
   assert.ok(['battle_running', 'battle_end'].includes(state.battle.phase));
 });
 
-test('Adventure ultimate emits cast cue before its resolved impact', () => {
+test('Adventure ultimate announces the cast and applies an area hit on its simulation tick', () => {
   const save = createDefaultSave();
   save.roster[0].energy = 100;
   const state = createAdventureState(save);
   beginBattle(state, save);
-  const battleId = state.battle.id;
-  const eventTypes = [];
-  const listener = ({ detail }) => { if (detail.battle_id === battleId) eventTypes.push(detail.type); };
+  const caster = state.battle.actors[0];
+  const opponents = state.battle.actors.filter((actor) => actor.team === 'enemy');
+  const events = [];
+  const listener = ({ detail }) => { if (detail.source_id === caster.actor_id) events.push(detail); };
   gameEvents.addEventListener('game-event', listener);
-  const actorId = state.battle.actors.find((actor) => actor.team === 'player').actor_id;
-  activateUltimate(state, save, actorId);
-  gameEvents.removeEventListener('game-event', listener);
-  assert.ok(eventTypes.indexOf('cast_started') < eventTypes.indexOf('hit_resolved'));
+  try {
+    assert.equal(activateUltimate(state, save, caster.actor_id).ok, true);
+    assert.equal(caster.energy, 0);
+    assert.equal(events[0].type, 'cast_started');
+    assert.ok(opponents.every((actor) => actor.hp === actor.maxHp));
+    const hitTick = caster.action.hitTick;
+    while (state.battle.tick < hitTick - 1) stepAdventure(state, save, 1 / 30);
+    assert.equal(events.filter((event) => event.type === 'hit_resolved').length, 0);
+    stepAdventure(state, save, 1 / 30);
+    assert.deepEqual(events.filter((event) => event.type === 'hit_resolved').map((event) => event.tick), [hitTick, hitTick]);
+    assert.ok(opponents.every((actor) => actor.hp < actor.maxHp));
+  } finally {
+    gameEvents.removeEventListener('game-event', listener);
+  }
+});
+
+test('Adventure projectiles take time to hit and defensive ultimates affect the team', () => {
+  const save = createDefaultSave();
+  for (const actor of save.roster) actor.energy = 100;
+  const state = createAdventureState(save);
+  beginBattle(state, save);
+  const [, mage, support, guardian] = state.battle.actors;
+  const ally = state.battle.actors[0];
+  ally.hp -= 1000;
+  const events = [];
+  const listener = ({ detail }) => events.push(detail);
+  gameEvents.addEventListener('game-event', listener);
+  try {
+    for (const actor of [mage, support, guardian]) assert.equal(activateUltimate(state, save, actor.actor_id).ok, true);
+    for (let i = 0; i < 25; i += 1) stepAdventure(state, save, 1 / 30);
+    const launch = events.find((event) => event.type === 'projectile_spawned' && event.source_id === mage.actor_id);
+    const impact = events.find((event) => event.type === 'hit_resolved' && event.source_id === mage.actor_id);
+    assert.equal(impact.tick - launch.tick, launch.payload.travel_ticks);
+    assert.ok(ally.shield > 0 && ally.hp > ally.maxHp - 1000);
+    assert.ok(events.some((event) => event.type === 'heal_resolved' && event.target_id === ally.actor_id));
+  } finally {
+    gameEvents.removeEventListener('game-event', listener);
+  }
 });
 
 test('Adventure movement advances in world units on simulation time', () => {
@@ -182,6 +217,19 @@ test('TCG starts with a valid 36-card deck and passes priority into combat', asy
   assert.equal(returnedToPlayer.round, 2);
 });
 
+test('TCG mulligan replaces selected cards once and preserves the deck size', async () => {
+  const catalog = await readJson('examples/cards/cards.catalog.json');
+  const deck = await readJson('examples/cards/starter_deck.json');
+  const match = createTcgMatch(catalog, deck, 41);
+  const selected = match.players[0].hand[0].instance_id;
+  const updated = mulliganTcg(match, [selected]);
+  assert.equal(updated.players[0].hand.length, 4);
+  assert.equal(updated.players[0].deck.length, 32);
+  assert.ok(!updated.players[0].hand.some((card) => card.instance_id === selected));
+  assert.ok(updated.players[0].deck.some((card) => card.instance_id === selected));
+  assert.throws(() => mulliganTcg(updated, []));
+});
+
 test('TCG summons units and an armed trap counters a fast spell without damage', async () => {
   const catalog = await readJson('examples/cards/cards.catalog.json');
   const deck = await readJson('examples/cards/starter_deck.json');
@@ -286,4 +334,20 @@ test('Auto Chess run reaches a terminal result at the round cap', async () => {
   }
   assert.equal(run.phase, 'finished');
   assert.ok(['victory', 'complete'].includes(run.result));
+});
+test('Auto Chess applies synergy to unique allies and records an ordered replay', async () => {
+  const { units } = await readJson('examples/auto_chess/units.json');
+  const shop = await readJson('examples/auto_chess/shop_odds.json');
+  let run = createChessRun(units, shop, 2077);
+  const fire = units.filter((unit) => unit.element === 'fire');
+  assert.equal(chessTraits([fire[0], fire[0]]).get('fire'), 1);
+  run.shop[0] = fire[0];
+  run.shop[1] = fire[1];
+  run = placeChessUnit(buyChessOffer(run, 0), 0, 1, 2);
+  run = placeChessUnit(buyChessOffer(run, 1), 0, 2, 2);
+  const result = startChessCombat(run);
+  assert.equal(result.combat.startActors[0].atk, Math.floor(run.board[0].atk * 1.15));
+  assert.ok(result.combat.events.some((event) => event.type === 'move'));
+  assert.ok(result.combat.events.some((event) => event.type === 'hit_resolved'));
+  assert.ok(result.combat.events.every((event, index, events) => !index || events[index - 1].tick <= event.tick));
 });

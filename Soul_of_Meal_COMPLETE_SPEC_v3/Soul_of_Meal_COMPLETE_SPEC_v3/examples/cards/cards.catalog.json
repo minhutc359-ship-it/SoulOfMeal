@@ -3,73 +3,79 @@
   "cards": [
     {
       "card_id": "card_demo_01",
-      "display_name": "Soul of Meal Sample 01",
+      "display_name": "Bún Bò Hỏa Linh",
       "type": "unit",
       "element": "fire",
       "cost": 1,
       "rarity": "R",
       "version": "0.3-proposed",
       "atk": 300,
-      "max_def": 500
+      "max_def": 500,
+      "character_id": "chr_bunbo_holinh"
     },
     {
       "card_id": "card_demo_02",
-      "display_name": "Soul of Meal Sample 02",
+      "display_name": "Phở Lam Vũ",
       "type": "unit",
       "element": "water",
       "cost": 2,
       "rarity": "R",
       "version": "0.3-proposed",
       "atk": 500,
-      "max_def": 750
+      "max_def": 750,
+      "character_id": "chr_pho_lamvu"
     },
     {
       "card_id": "card_demo_03",
-      "display_name": "Soul of Meal Sample 03",
+      "display_name": "Gỏi Cuốn Diệp Nhi",
       "type": "unit",
       "element": "wood",
       "cost": 3,
       "rarity": "R",
       "version": "0.3-proposed",
       "atk": 700,
-      "max_def": 1000
+      "max_def": 1000,
+      "character_id": "chr_goicuon_diepnhi"
     },
     {
       "card_id": "card_demo_04",
-      "display_name": "Soul of Meal Sample 04",
+      "display_name": "Bánh Bao Bạch Ngọc",
       "type": "unit",
       "element": "light",
       "cost": 4,
       "rarity": "R",
       "version": "0.3-proposed",
       "atk": 900,
-      "max_def": 1250
+      "max_def": 1250,
+      "character_id": "chr_banhbao_bachngoc"
     },
     {
       "card_id": "card_demo_05",
-      "display_name": "Soul of Meal Sample 05",
+      "display_name": "Cà Phê Dạ Vũ",
       "type": "unit",
       "element": "shadow",
       "cost": 5,
       "rarity": "R",
       "version": "0.3-proposed",
       "atk": 1100,
-      "max_def": 500
+      "max_def": 500,
+      "character_id": "chr_caphe_davu"
     },
     {
       "card_id": "card_demo_06",
-      "display_name": "Soul of Meal Sample 06",
+      "display_name": "Tiêu Tinh",
       "type": "unit",
       "element": "fire",
       "cost": 1,
       "rarity": "R",
       "version": "0.3-proposed",
       "atk": 300,
-      "max_def": 750
+      "max_def": 750,
+      "character_id": "mob_pepper_01"
     },
     {
       "card_id": "card_demo_07",
-      "display_name": "Soul of Meal Sample 07",
+      "display_name": "Thủy Linh Suối Mơ",
       "type": "unit",
       "element": "water",
       "cost": 2,
@@ -80,29 +86,31 @@
     },
     {
       "card_id": "card_demo_08",
-      "display_name": "Soul of Meal Sample 08",
+      "display_name": "Nấm Lạc Vị",
       "type": "unit",
       "element": "wood",
       "cost": 3,
       "rarity": "R",
       "version": "0.3-proposed",
       "atk": 700,
-      "max_def": 1250
+      "max_def": 1250,
+      "character_id": "mob_mushroom_01"
     },
     {
       "card_id": "card_demo_09",
-      "display_name": "Soul of Meal Sample 09",
+      "display_name": "Lilia Giữ Vị",
       "type": "unit",
       "element": "light",
       "cost": 4,
       "rarity": "R",
       "version": "0.3-proposed",
       "atk": 900,
-      "max_def": 500
+      "max_def": 500,
+      "character_id": "npc_lilia"
     },
     {
       "card_id": "card_demo_10",
-      "display_name": "Soul of Meal Sample 10",
+      "display_name": "Hỏa Đao Xẹt Lửa",
       "type": "fast_spell",
       "element": "shadow",
       "cost": 5,
@@ -115,7 +123,7 @@
     },
     {
       "card_id": "card_demo_11",
-      "display_name": "Soul of Meal Sample 11",
+      "display_name": "Lam Vũ Đột Kích",
       "type": "fast_spell",
       "element": "fire",
       "cost": 1,
@@ -128,7 +136,7 @@
     },
     {
       "card_id": "card_demo_12",
-      "display_name": "Soul of Meal Sample 12",
+      "display_name": "Diệp Vũ Cuộn Gió",
       "type": "fast_spell",
       "element": "water",
       "cost": 2,
@@ -141,7 +149,7 @@
     },
     {
       "card_id": "card_demo_13",
-      "display_name": "Soul of Meal Sample 13",
+      "display_name": "Ánh Bếp Soi Rừng",
       "type": "fast_spell",
       "element": "wood",
       "cost": 3,
@@ -154,7 +162,7 @@
     },
     {
       "card_id": "card_demo_14",
-      "display_name": "Soul of Meal Sample 14",
+      "display_name": "Bẫy Bếp Đảo Chiều",
       "type": "trap",
       "element": "light",
       "cost": 4,
@@ -173,7 +181,7 @@
     },
     {
       "card_id": "card_demo_15",
-      "display_name": "Soul of Meal Sample 15",
+      "display_name": "Ấn Dập Chú",
       "type": "trap",
       "element": "shadow",
       "cost": 5,
@@ -192,7 +200,7 @@
     },
     {
       "card_id": "card_demo_16",
-      "display_name": "Soul of Meal Sample 16",
+      "display_name": "Màn Tro Lạc Lối",
       "type": "trap",
       "element": "fire",
       "cost": 1,
@@ -211,7 +219,7 @@
     },
     {
       "card_id": "card_demo_17",
-      "display_name": "Soul of Meal Sample 17",
+      "display_name": "Đốm Lửa Tức Thì",
       "type": "slow_spell",
       "element": "water",
       "cost": 2,
@@ -224,7 +232,7 @@
     },
     {
       "card_id": "card_demo_18",
-      "display_name": "Soul of Meal Sample 18",
+      "display_name": "Giọt Sương Lấp Lánh",
       "type": "slow_spell",
       "element": "wood",
       "cost": 3,
@@ -234,6 +242,58 @@
         "kind": "deal_damage",
         "value": 710
       }
+    },
+    {
+      "card_id": "card_fire_guard",
+      "display_name": "Bún Bò · Hỏa Vệ",
+      "type": "unit",
+      "element": "fire",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "atk": 480,
+      "max_def": 880,
+      "art_id": "card_demo_01",
+      "character_id": "chr_bunbo_holinh"
+    },
+    {
+      "card_id": "card_tide_mage",
+      "display_name": "Phở · Triều Sương",
+      "type": "unit",
+      "element": "water",
+      "cost": 3,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "atk": 850,
+      "max_def": 790,
+      "art_id": "card_demo_02",
+      "character_id": "chr_pho_lamvu"
+    },
+    {
+      "card_id": "card_wood_scout",
+      "display_name": "Gỏi Cuốn · Dẫn Đường",
+      "type": "unit",
+      "element": "wood",
+      "cost": 1,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "atk": 360,
+      "max_def": 450,
+      "art_id": "card_demo_03",
+      "character_id": "chr_goicuon_diepnhi"
+    },
+    {
+      "card_id": "card_shadow_duelist",
+      "display_name": "Cà Phê · Lưỡi Hái",
+      "type": "unit",
+      "element": "shadow",
+      "cost": 4,
+      "rarity": "R",
+      "version": "0.3-proposed",
+      "atk": 1050,
+      "max_def": 880,
+      "art_id": "card_demo_05",
+      "character_id": "chr_caphe_davu"
     }
   ]
 }

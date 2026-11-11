@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "character_id": "chr_bunbo_holinh_battle",
+  "skin_id": "default",
+  "asset_version": "anime-chibi-draft-1",
+  "atlas": "bunbo_battle.webp",
+  "frames": {
+    "chr_bunbo_holinh_battle_pose_00": {
+      "x": 2,
+      "y": 2,
+      "w": 256,
+      "h": 256
+    },
+    "chr_bunbo_holinh_battle_pose_01": {
+      "x": 262,
+      "y": 2,
+      "w": 256,
+      "h": 256
+    },
+    "chr_bunbo_holinh_battle_pose_02": {
+      "x": 522,
+      "y": 2,
+      "w": 256,
+      "h": 256
+    },
+    "chr_bunbo_holinh_battle_pose_03": {
+      "x": 782,
+      "y": 2,
+      "w": 256,
+      "h": 256
+    },
+    "chr_bunbo_holinh_battle_pose_04": {
+      "x": 2,
+      "y": 262,
+      "w": 256,
+      "h": 256
+    },
+    "chr_bunbo_holinh_battle_pose_05": {
+      "x": 262,
+      "y": 262,
+      "w": 256,
+      "h": 256
+    },
+    "chr_bunbo_holinh_battle_pose_06": {
+      "x": 522,
+      "y": 262,
+      "w": 256,
+      "h": 256
+    },
+    "chr_bunbo_holinh_battle_pose_07": {
+      "x": 782,
+      "y": 262,
+      "w": 256,
+      "h": 256
+    }
+  },
+  "clips": {
+    "idle": {
+      "fps": 3,
+      "loop": true,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_battle_pose_00",
+            "chr_bunbo_holinh_battle_pose_01",
+            "chr_bunbo_holinh_battle_pose_07"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ]
+        }
+      }
+    },
+    "walk": {
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_battle_pose_00",
+            "chr_bunbo_holinh_battle_pose_07"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ]
+        }
+      }
+    },
+    "run": {
+      "fps": 10,
+      "loop": true,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_battle_pose_00",
+            "chr_bunbo_holinh_battle_pose_04",
+            "chr_bunbo_holinh_battle_pose_07"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ]
+        }
+      }
+    },
+    "attack_a": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_battle_pose_02",
+            "chr_bunbo_holinh_battle_pose_03",
+            "chr_bunbo_holinh_battle_pose_04",
+            "chr_bunbo_holinh_battle_pose_07"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ]
+        }
+      }
+    },
+    "attack_b": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_battle_pose_05",
+            "chr_bunbo_holinh_battle_pose_03",
+            "chr_bunbo_holinh_battle_pose_04",
+            "chr_bunbo_holinh_battle_pose_01"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ]
+        }
+      }
+    },
+    "skill_01": {
+      "fps": 6,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_battle_pose_02",
+            "chr_bunbo_holinh_battle_pose_05",
+            "chr_bunbo_holinh_battle_pose_06",
+            "chr_bunbo_holinh_battle_pose_07"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ]
+        }
+      }
+    },
+    "ultimate_01": {
+      "fps": 4.5,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_battle_pose_02",
+            "chr_bunbo_holinh_battle_pose_05",
+            "chr_bunbo_holinh_battle_pose_00",
+            "chr_bunbo_holinh_battle_pose_06",
+            "chr_bunbo_holinh_battle_pose_07"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ]
+        }
+      }
+    },
+    "hit": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_battle_pose_04",
+            "chr_bunbo_holinh_battle_pose_07"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ]
+        }
+      }
+    },
+    "defeat": {
+      "fps": 2,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_battle_pose_05"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ]
+        }
+      }
+    },
+    "victory": {
+      "fps": 4,
+      "loop": true,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_battle_pose_06",
+            "chr_bunbo_holinh_battle_pose_01"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ]
+        }
+      }
+    }
+  }
+}

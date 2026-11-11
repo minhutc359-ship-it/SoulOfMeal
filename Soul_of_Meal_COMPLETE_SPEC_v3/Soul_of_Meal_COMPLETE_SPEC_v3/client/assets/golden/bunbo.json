@@ -1,0 +1,1711 @@
+{
+  "schema_version": 1,
+  "character_id": "chr_bunbo_holinh",
+  "skin_id": "default",
+  "asset_version": "golden-1.0",
+  "atlas": "bunbo.webp",
+  "render_scale": 1.984,
+  "frames": {
+    "chr_bunbo_holinh_default_idle_s_f000": {
+      "x": 2,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_s_f001": {
+      "x": 106,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_s_f002": {
+      "x": 210,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_s_f003": {
+      "x": 314,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_s_f004": {
+      "x": 418,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_s_f005": {
+      "x": 522,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_s_f006": {
+      "x": 626,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_s_f007": {
+      "x": 730,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_n_f000": {
+      "x": 834,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_n_f001": {
+      "x": 938,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_n_f002": {
+      "x": 1042,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_n_f003": {
+      "x": 1146,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_n_f004": {
+      "x": 1250,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_n_f005": {
+      "x": 1354,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_n_f006": {
+      "x": 1458,
+      "y": 2,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_n_f007": {
+      "x": 2,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_e_f000": {
+      "x": 106,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_e_f001": {
+      "x": 210,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_e_f002": {
+      "x": 314,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_e_f003": {
+      "x": 418,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_e_f004": {
+      "x": 522,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_e_f005": {
+      "x": 626,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_e_f006": {
+      "x": 730,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_e_f007": {
+      "x": 834,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_w_f000": {
+      "x": 938,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_w_f001": {
+      "x": 1042,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_w_f002": {
+      "x": 1146,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_w_f003": {
+      "x": 1250,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_w_f004": {
+      "x": 1354,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_w_f005": {
+      "x": 1458,
+      "y": 106,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_w_f006": {
+      "x": 2,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_idle_w_f007": {
+      "x": 106,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_s_f000": {
+      "x": 210,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_s_f001": {
+      "x": 314,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_s_f002": {
+      "x": 418,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_s_f003": {
+      "x": 522,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_s_f004": {
+      "x": 626,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_s_f005": {
+      "x": 730,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_s_f006": {
+      "x": 834,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_s_f007": {
+      "x": 938,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_n_f000": {
+      "x": 1042,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_n_f001": {
+      "x": 1146,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_n_f002": {
+      "x": 1250,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_n_f003": {
+      "x": 1354,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_n_f004": {
+      "x": 1458,
+      "y": 210,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_n_f005": {
+      "x": 2,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_n_f006": {
+      "x": 106,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_n_f007": {
+      "x": 210,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_e_f000": {
+      "x": 314,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_e_f001": {
+      "x": 418,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_e_f002": {
+      "x": 522,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_e_f003": {
+      "x": 626,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_e_f004": {
+      "x": 730,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_e_f005": {
+      "x": 834,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_e_f006": {
+      "x": 938,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_e_f007": {
+      "x": 1042,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_w_f000": {
+      "x": 1146,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_w_f001": {
+      "x": 1250,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_w_f002": {
+      "x": 1354,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_w_f003": {
+      "x": 1458,
+      "y": 314,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_w_f004": {
+      "x": 2,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_w_f005": {
+      "x": 106,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_w_f006": {
+      "x": 210,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_walk_w_f007": {
+      "x": 314,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_s_f000": {
+      "x": 418,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_s_f001": {
+      "x": 522,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_s_f002": {
+      "x": 626,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_s_f003": {
+      "x": 730,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_s_f004": {
+      "x": 834,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_s_f005": {
+      "x": 938,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_s_f006": {
+      "x": 1042,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_s_f007": {
+      "x": 1146,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_n_f000": {
+      "x": 1250,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_n_f001": {
+      "x": 1354,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_n_f002": {
+      "x": 1458,
+      "y": 418,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_n_f003": {
+      "x": 2,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_n_f004": {
+      "x": 106,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_n_f005": {
+      "x": 210,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_n_f006": {
+      "x": 314,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_n_f007": {
+      "x": 418,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_e_f000": {
+      "x": 522,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_e_f001": {
+      "x": 626,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_e_f002": {
+      "x": 730,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_e_f003": {
+      "x": 834,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_e_f004": {
+      "x": 938,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_e_f005": {
+      "x": 1042,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_e_f006": {
+      "x": 1146,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_e_f007": {
+      "x": 1250,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_w_f000": {
+      "x": 1354,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_w_f001": {
+      "x": 1458,
+      "y": 522,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_w_f002": {
+      "x": 2,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_w_f003": {
+      "x": 106,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_w_f004": {
+      "x": 210,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_w_f005": {
+      "x": 314,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_w_f006": {
+      "x": 418,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_run_w_f007": {
+      "x": 522,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_a_e_f000": {
+      "x": 626,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_a_e_f001": {
+      "x": 730,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_a_e_f002": {
+      "x": 834,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_a_e_f003": {
+      "x": 938,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_a_e_f004": {
+      "x": 1042,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_a_e_f005": {
+      "x": 1146,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_a_e_f006": {
+      "x": 1250,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_a_e_f007": {
+      "x": 1354,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_a_e_f008": {
+      "x": 1458,
+      "y": 626,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_a_e_f009": {
+      "x": 2,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_a_e_f010": {
+      "x": 106,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_a_e_f011": {
+      "x": 210,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_b_e_f000": {
+      "x": 314,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_b_e_f001": {
+      "x": 418,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_b_e_f002": {
+      "x": 522,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_b_e_f003": {
+      "x": 626,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_b_e_f004": {
+      "x": 730,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_b_e_f005": {
+      "x": 834,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_b_e_f006": {
+      "x": 938,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_b_e_f007": {
+      "x": 1042,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_b_e_f008": {
+      "x": 1146,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_b_e_f009": {
+      "x": 1250,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_b_e_f010": {
+      "x": 1354,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_b_e_f011": {
+      "x": 1458,
+      "y": 730,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_b_e_f012": {
+      "x": 2,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_attack_b_e_f013": {
+      "x": 106,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f000": {
+      "x": 210,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f001": {
+      "x": 314,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f002": {
+      "x": 418,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f003": {
+      "x": 522,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f004": {
+      "x": 626,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f005": {
+      "x": 730,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f006": {
+      "x": 834,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f007": {
+      "x": 938,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f008": {
+      "x": 1042,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f009": {
+      "x": 1146,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f010": {
+      "x": 1250,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f011": {
+      "x": 1354,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f012": {
+      "x": 1458,
+      "y": 834,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f013": {
+      "x": 2,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f014": {
+      "x": 106,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_skill_01_e_f015": {
+      "x": 210,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f000": {
+      "x": 314,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f001": {
+      "x": 418,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f002": {
+      "x": 522,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f003": {
+      "x": 626,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f004": {
+      "x": 730,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f005": {
+      "x": 834,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f006": {
+      "x": 938,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f007": {
+      "x": 1042,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f008": {
+      "x": 1146,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f009": {
+      "x": 1250,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f010": {
+      "x": 1354,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f011": {
+      "x": 1458,
+      "y": 938,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f012": {
+      "x": 2,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f013": {
+      "x": 106,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f014": {
+      "x": 210,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f015": {
+      "x": 314,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f016": {
+      "x": 418,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f017": {
+      "x": 522,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f018": {
+      "x": 626,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f019": {
+      "x": 730,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f020": {
+      "x": 834,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f021": {
+      "x": 938,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f022": {
+      "x": 1042,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ultimate_01_e_f023": {
+      "x": 1146,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_hit_e_f000": {
+      "x": 1250,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_hit_e_f001": {
+      "x": 1354,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_hit_e_f002": {
+      "x": 1458,
+      "y": 1042,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_hit_e_f003": {
+      "x": 2,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_hit_e_f004": {
+      "x": 106,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_hit_e_f005": {
+      "x": 210,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ko_e_f000": {
+      "x": 314,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ko_e_f001": {
+      "x": 418,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ko_e_f002": {
+      "x": 522,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ko_e_f003": {
+      "x": 626,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ko_e_f004": {
+      "x": 730,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ko_e_f005": {
+      "x": 834,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ko_e_f006": {
+      "x": 938,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ko_e_f007": {
+      "x": 1042,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ko_e_f008": {
+      "x": 1146,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_ko_e_f009": {
+      "x": 1250,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_victory_e_f000": {
+      "x": 1354,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_victory_e_f001": {
+      "x": 1458,
+      "y": 1146,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_victory_e_f002": {
+      "x": 2,
+      "y": 1250,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_victory_e_f003": {
+      "x": 106,
+      "y": 1250,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_victory_e_f004": {
+      "x": 210,
+      "y": 1250,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_victory_e_f005": {
+      "x": 314,
+      "y": 1250,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_victory_e_f006": {
+      "x": 418,
+      "y": 1250,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_victory_e_f007": {
+      "x": 522,
+      "y": 1250,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_victory_e_f008": {
+      "x": 626,
+      "y": 1250,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_victory_e_f009": {
+      "x": 730,
+      "y": 1250,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_victory_e_f010": {
+      "x": 834,
+      "y": 1250,
+      "w": 100,
+      "h": 100
+    },
+    "chr_bunbo_holinh_default_victory_e_f011": {
+      "x": 938,
+      "y": 1250,
+      "w": 100,
+      "h": 100
+    }
+  },
+  "clips": {
+    "idle": {
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "S": {
+          "frames": [
+            "chr_bunbo_holinh_default_idle_s_f000",
+            "chr_bunbo_holinh_default_idle_s_f001",
+            "chr_bunbo_holinh_default_idle_s_f002",
+            "chr_bunbo_holinh_default_idle_s_f003",
+            "chr_bunbo_holinh_default_idle_s_f004",
+            "chr_bunbo_holinh_default_idle_s_f005",
+            "chr_bunbo_holinh_default_idle_s_f006",
+            "chr_bunbo_holinh_default_idle_s_f007"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "N": {
+          "frames": [
+            "chr_bunbo_holinh_default_idle_n_f000",
+            "chr_bunbo_holinh_default_idle_n_f001",
+            "chr_bunbo_holinh_default_idle_n_f002",
+            "chr_bunbo_holinh_default_idle_n_f003",
+            "chr_bunbo_holinh_default_idle_n_f004",
+            "chr_bunbo_holinh_default_idle_n_f005",
+            "chr_bunbo_holinh_default_idle_n_f006",
+            "chr_bunbo_holinh_default_idle_n_f007"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_default_idle_e_f000",
+            "chr_bunbo_holinh_default_idle_e_f001",
+            "chr_bunbo_holinh_default_idle_e_f002",
+            "chr_bunbo_holinh_default_idle_e_f003",
+            "chr_bunbo_holinh_default_idle_e_f004",
+            "chr_bunbo_holinh_default_idle_e_f005",
+            "chr_bunbo_holinh_default_idle_e_f006",
+            "chr_bunbo_holinh_default_idle_e_f007"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        },
+        "W": {
+          "frames": [
+            "chr_bunbo_holinh_default_idle_w_f000",
+            "chr_bunbo_holinh_default_idle_w_f001",
+            "chr_bunbo_holinh_default_idle_w_f002",
+            "chr_bunbo_holinh_default_idle_w_f003",
+            "chr_bunbo_holinh_default_idle_w_f004",
+            "chr_bunbo_holinh_default_idle_w_f005",
+            "chr_bunbo_holinh_default_idle_w_f006",
+            "chr_bunbo_holinh_default_idle_w_f007"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "walk": {
+      "fps": 12,
+      "loop": true,
+      "directions": {
+        "S": {
+          "frames": [
+            "chr_bunbo_holinh_default_walk_s_f000",
+            "chr_bunbo_holinh_default_walk_s_f001",
+            "chr_bunbo_holinh_default_walk_s_f002",
+            "chr_bunbo_holinh_default_walk_s_f003",
+            "chr_bunbo_holinh_default_walk_s_f004",
+            "chr_bunbo_holinh_default_walk_s_f005",
+            "chr_bunbo_holinh_default_walk_s_f006",
+            "chr_bunbo_holinh_default_walk_s_f007"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 1,
+              "name": "footstep"
+            },
+            {
+              "frame": 5,
+              "name": "footstep"
+            }
+          ]
+        },
+        "N": {
+          "frames": [
+            "chr_bunbo_holinh_default_walk_n_f000",
+            "chr_bunbo_holinh_default_walk_n_f001",
+            "chr_bunbo_holinh_default_walk_n_f002",
+            "chr_bunbo_holinh_default_walk_n_f003",
+            "chr_bunbo_holinh_default_walk_n_f004",
+            "chr_bunbo_holinh_default_walk_n_f005",
+            "chr_bunbo_holinh_default_walk_n_f006",
+            "chr_bunbo_holinh_default_walk_n_f007"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 1,
+              "name": "footstep"
+            },
+            {
+              "frame": 5,
+              "name": "footstep"
+            }
+          ]
+        },
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_default_walk_e_f000",
+            "chr_bunbo_holinh_default_walk_e_f001",
+            "chr_bunbo_holinh_default_walk_e_f002",
+            "chr_bunbo_holinh_default_walk_e_f003",
+            "chr_bunbo_holinh_default_walk_e_f004",
+            "chr_bunbo_holinh_default_walk_e_f005",
+            "chr_bunbo_holinh_default_walk_e_f006",
+            "chr_bunbo_holinh_default_walk_e_f007"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 1,
+              "name": "footstep"
+            },
+            {
+              "frame": 5,
+              "name": "footstep"
+            }
+          ]
+        },
+        "W": {
+          "frames": [
+            "chr_bunbo_holinh_default_walk_w_f000",
+            "chr_bunbo_holinh_default_walk_w_f001",
+            "chr_bunbo_holinh_default_walk_w_f002",
+            "chr_bunbo_holinh_default_walk_w_f003",
+            "chr_bunbo_holinh_default_walk_w_f004",
+            "chr_bunbo_holinh_default_walk_w_f005",
+            "chr_bunbo_holinh_default_walk_w_f006",
+            "chr_bunbo_holinh_default_walk_w_f007"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 1,
+              "name": "footstep"
+            },
+            {
+              "frame": 5,
+              "name": "footstep"
+            }
+          ]
+        }
+      }
+    },
+    "run": {
+      "fps": 16,
+      "loop": true,
+      "directions": {
+        "S": {
+          "frames": [
+            "chr_bunbo_holinh_default_run_s_f000",
+            "chr_bunbo_holinh_default_run_s_f001",
+            "chr_bunbo_holinh_default_run_s_f002",
+            "chr_bunbo_holinh_default_run_s_f003",
+            "chr_bunbo_holinh_default_run_s_f004",
+            "chr_bunbo_holinh_default_run_s_f005",
+            "chr_bunbo_holinh_default_run_s_f006",
+            "chr_bunbo_holinh_default_run_s_f007"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 1,
+              "name": "footstep"
+            },
+            {
+              "frame": 5,
+              "name": "footstep"
+            }
+          ]
+        },
+        "N": {
+          "frames": [
+            "chr_bunbo_holinh_default_run_n_f000",
+            "chr_bunbo_holinh_default_run_n_f001",
+            "chr_bunbo_holinh_default_run_n_f002",
+            "chr_bunbo_holinh_default_run_n_f003",
+            "chr_bunbo_holinh_default_run_n_f004",
+            "chr_bunbo_holinh_default_run_n_f005",
+            "chr_bunbo_holinh_default_run_n_f006",
+            "chr_bunbo_holinh_default_run_n_f007"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 1,
+              "name": "footstep"
+            },
+            {
+              "frame": 5,
+              "name": "footstep"
+            }
+          ]
+        },
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_default_run_e_f000",
+            "chr_bunbo_holinh_default_run_e_f001",
+            "chr_bunbo_holinh_default_run_e_f002",
+            "chr_bunbo_holinh_default_run_e_f003",
+            "chr_bunbo_holinh_default_run_e_f004",
+            "chr_bunbo_holinh_default_run_e_f005",
+            "chr_bunbo_holinh_default_run_e_f006",
+            "chr_bunbo_holinh_default_run_e_f007"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 1,
+              "name": "footstep"
+            },
+            {
+              "frame": 5,
+              "name": "footstep"
+            }
+          ]
+        },
+        "W": {
+          "frames": [
+            "chr_bunbo_holinh_default_run_w_f000",
+            "chr_bunbo_holinh_default_run_w_f001",
+            "chr_bunbo_holinh_default_run_w_f002",
+            "chr_bunbo_holinh_default_run_w_f003",
+            "chr_bunbo_holinh_default_run_w_f004",
+            "chr_bunbo_holinh_default_run_w_f005",
+            "chr_bunbo_holinh_default_run_w_f006",
+            "chr_bunbo_holinh_default_run_w_f007"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 1,
+              "name": "footstep"
+            },
+            {
+              "frame": 5,
+              "name": "footstep"
+            }
+          ]
+        }
+      }
+    },
+    "attack_a": {
+      "fps": 16,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_default_attack_a_e_f000",
+            "chr_bunbo_holinh_default_attack_a_e_f001",
+            "chr_bunbo_holinh_default_attack_a_e_f002",
+            "chr_bunbo_holinh_default_attack_a_e_f003",
+            "chr_bunbo_holinh_default_attack_a_e_f004",
+            "chr_bunbo_holinh_default_attack_a_e_f005",
+            "chr_bunbo_holinh_default_attack_a_e_f006",
+            "chr_bunbo_holinh_default_attack_a_e_f007",
+            "chr_bunbo_holinh_default_attack_a_e_f008",
+            "chr_bunbo_holinh_default_attack_a_e_f009",
+            "chr_bunbo_holinh_default_attack_a_e_f010",
+            "chr_bunbo_holinh_default_attack_a_e_f011"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 2,
+              "name": "sfx"
+            },
+            {
+              "frame": 5,
+              "name": "hit_check"
+            },
+            {
+              "frame": 5,
+              "name": "sfx"
+            }
+          ]
+        }
+      }
+    },
+    "attack_b": {
+      "fps": 18,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_default_attack_b_e_f000",
+            "chr_bunbo_holinh_default_attack_b_e_f001",
+            "chr_bunbo_holinh_default_attack_b_e_f002",
+            "chr_bunbo_holinh_default_attack_b_e_f003",
+            "chr_bunbo_holinh_default_attack_b_e_f004",
+            "chr_bunbo_holinh_default_attack_b_e_f005",
+            "chr_bunbo_holinh_default_attack_b_e_f006",
+            "chr_bunbo_holinh_default_attack_b_e_f007",
+            "chr_bunbo_holinh_default_attack_b_e_f008",
+            "chr_bunbo_holinh_default_attack_b_e_f009",
+            "chr_bunbo_holinh_default_attack_b_e_f010",
+            "chr_bunbo_holinh_default_attack_b_e_f011",
+            "chr_bunbo_holinh_default_attack_b_e_f012",
+            "chr_bunbo_holinh_default_attack_b_e_f013"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 3,
+              "name": "sfx"
+            },
+            {
+              "frame": 4,
+              "name": "hit_check"
+            },
+            {
+              "frame": 8,
+              "name": "hit_check"
+            }
+          ]
+        }
+      }
+    },
+    "skill_01": {
+      "fps": 16,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_default_skill_01_e_f000",
+            "chr_bunbo_holinh_default_skill_01_e_f001",
+            "chr_bunbo_holinh_default_skill_01_e_f002",
+            "chr_bunbo_holinh_default_skill_01_e_f003",
+            "chr_bunbo_holinh_default_skill_01_e_f004",
+            "chr_bunbo_holinh_default_skill_01_e_f005",
+            "chr_bunbo_holinh_default_skill_01_e_f006",
+            "chr_bunbo_holinh_default_skill_01_e_f007",
+            "chr_bunbo_holinh_default_skill_01_e_f008",
+            "chr_bunbo_holinh_default_skill_01_e_f009",
+            "chr_bunbo_holinh_default_skill_01_e_f010",
+            "chr_bunbo_holinh_default_skill_01_e_f011",
+            "chr_bunbo_holinh_default_skill_01_e_f012",
+            "chr_bunbo_holinh_default_skill_01_e_f013",
+            "chr_bunbo_holinh_default_skill_01_e_f014",
+            "chr_bunbo_holinh_default_skill_01_e_f015"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 0,
+              "name": "sfx"
+            },
+            {
+              "frame": 11,
+              "name": "hit_check"
+            },
+            {
+              "frame": 11,
+              "name": "vfx"
+            }
+          ]
+        }
+      }
+    },
+    "ultimate_01": {
+      "fps": 16,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_default_ultimate_01_e_f000",
+            "chr_bunbo_holinh_default_ultimate_01_e_f001",
+            "chr_bunbo_holinh_default_ultimate_01_e_f002",
+            "chr_bunbo_holinh_default_ultimate_01_e_f003",
+            "chr_bunbo_holinh_default_ultimate_01_e_f004",
+            "chr_bunbo_holinh_default_ultimate_01_e_f005",
+            "chr_bunbo_holinh_default_ultimate_01_e_f006",
+            "chr_bunbo_holinh_default_ultimate_01_e_f007",
+            "chr_bunbo_holinh_default_ultimate_01_e_f008",
+            "chr_bunbo_holinh_default_ultimate_01_e_f009",
+            "chr_bunbo_holinh_default_ultimate_01_e_f010",
+            "chr_bunbo_holinh_default_ultimate_01_e_f011",
+            "chr_bunbo_holinh_default_ultimate_01_e_f012",
+            "chr_bunbo_holinh_default_ultimate_01_e_f013",
+            "chr_bunbo_holinh_default_ultimate_01_e_f014",
+            "chr_bunbo_holinh_default_ultimate_01_e_f015",
+            "chr_bunbo_holinh_default_ultimate_01_e_f016",
+            "chr_bunbo_holinh_default_ultimate_01_e_f017",
+            "chr_bunbo_holinh_default_ultimate_01_e_f018",
+            "chr_bunbo_holinh_default_ultimate_01_e_f019",
+            "chr_bunbo_holinh_default_ultimate_01_e_f020",
+            "chr_bunbo_holinh_default_ultimate_01_e_f021",
+            "chr_bunbo_holinh_default_ultimate_01_e_f022",
+            "chr_bunbo_holinh_default_ultimate_01_e_f023"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 0,
+              "name": "sfx"
+            },
+            {
+              "frame": 10,
+              "name": "vfx"
+            },
+            {
+              "frame": 18,
+              "name": "hit_check"
+            },
+            {
+              "frame": 18,
+              "name": "vfx"
+            }
+          ]
+        }
+      }
+    },
+    "hit": {
+      "fps": 12,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_default_hit_e_f000",
+            "chr_bunbo_holinh_default_hit_e_f001",
+            "chr_bunbo_holinh_default_hit_e_f002",
+            "chr_bunbo_holinh_default_hit_e_f003",
+            "chr_bunbo_holinh_default_hit_e_f004",
+            "chr_bunbo_holinh_default_hit_e_f005"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 0,
+              "name": "sfx"
+            }
+          ]
+        }
+      }
+    },
+    "defeat": {
+      "fps": 12,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_default_ko_e_f000",
+            "chr_bunbo_holinh_default_ko_e_f001",
+            "chr_bunbo_holinh_default_ko_e_f002",
+            "chr_bunbo_holinh_default_ko_e_f003",
+            "chr_bunbo_holinh_default_ko_e_f004",
+            "chr_bunbo_holinh_default_ko_e_f005",
+            "chr_bunbo_holinh_default_ko_e_f006",
+            "chr_bunbo_holinh_default_ko_e_f007",
+            "chr_bunbo_holinh_default_ko_e_f008",
+            "chr_bunbo_holinh_default_ko_e_f009"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": []
+        }
+      }
+    },
+    "victory": {
+      "fps": 12,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_default_victory_e_f000",
+            "chr_bunbo_holinh_default_victory_e_f001",
+            "chr_bunbo_holinh_default_victory_e_f002",
+            "chr_bunbo_holinh_default_victory_e_f003",
+            "chr_bunbo_holinh_default_victory_e_f004",
+            "chr_bunbo_holinh_default_victory_e_f005",
+            "chr_bunbo_holinh_default_victory_e_f006",
+            "chr_bunbo_holinh_default_victory_e_f007",
+            "chr_bunbo_holinh_default_victory_e_f008",
+            "chr_bunbo_holinh_default_victory_e_f009",
+            "chr_bunbo_holinh_default_victory_e_f010",
+            "chr_bunbo_holinh_default_victory_e_f011"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.9
+          ],
+          "events": [
+            {
+              "frame": 2,
+              "name": "sfx"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

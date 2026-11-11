@@ -125,17 +125,17 @@ export class AnimationAdapter extends EventTarget {
         this.registerActor({ actorId, characterId: payload.character_id ?? actorId, alive: true });
         actions.push({ actorId, clipId: 'idle', reason: 'actor_spawned' });
       }
-    } else if (event.type === 'cast_started') {
+    } else if (event.type === 'cast_started' || event.type === 'attack_started') {
       const actorId = event.source_id ?? payload.actor_id;
       const abilityId = payload.ability_id ?? '';
-      const clipId = /ultimate|ult/i.test(abilityId) ? 'ultimate_01' : 'skill_01';
-      if (actorId && this.#play(actorId, clipId)) actions.push({ actorId, clipId, reason: event.type });
+      const clipId = payload.clip_id ?? (/ultimate|ult/i.test(abilityId) ? 'ultimate_01' : 'skill_01');
+      if (actorId && this.#play(actorId, clipId, event.type === 'attack_started')) actions.push({ actorId, clipId, reason: event.type });
     } else if (event.type === 'hit_resolved') {
       const sourceId = event.source_id;
       const targetId = event.target_id;
       const sourceKind = payload.source_kind ?? payload.effect_kind;
       const sourceClip = sourceKind === 'ultimate' ? 'ultimate_01' : 'attack_a';
-      if (sourceId && this.#play(sourceId, sourceClip, false, sourceKind !== 'ultimate')) {
+      if (sourceId && !payload.timed && this.#play(sourceId, sourceClip, false, sourceKind !== 'ultimate')) {
         actions.push({ actorId: sourceId, clipId: sourceClip, reason: event.type });
       }
       if (targetId && targetId !== sourceId && this.#play(targetId, 'hit')) actions.push({ actorId: targetId, clipId: 'hit', reason: event.type });

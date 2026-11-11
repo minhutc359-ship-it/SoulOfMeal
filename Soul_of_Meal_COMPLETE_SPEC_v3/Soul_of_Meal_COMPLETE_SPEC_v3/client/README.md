@@ -1,62 +1,33 @@
-# Soul of Meal Browser Runtime
+# Soul of Meal · Bản chơi thử trên trình duyệt
 
-This is the local, dependency-free technical vertical slice. It uses placeholder Canvas 2D scene rendering; no production sprite, animation, audio, WebGL renderer, server or art asset is included. The rules runtime emits events so an animation/render adapter can be attached without changing gameplay outcomes.
-
-## Run
-
-From the package root:
+Từ thư mục chứa `client/` và `examples/`, chạy:
 
 ```bash
-python3 -m http.server 4173 --directory .
+python3 -m http.server 4173
 ```
 
-Open `http://localhost:4173/client/`. The JSON catalogs are loaded from `examples/`. Progress is stored in this browser's local storage under a versioned save key.
+Mở `http://localhost:4173/client/`. Trên máy tính, dùng WASD hoặc phím mũi tên để di chuyển, E để tương tác và phím 1–5 để dùng tuyệt kỹ. Trên màn hình cảm ứng, chạm điểm đến, NPC, rương hoặc cổng. Nhạc và hiệu ứng bắt đầu sau thao tác đầu tiên. Tiến trình và bộ bài lưu trên thiết bị.
 
-Run the client tests from the package root:
+## Lối chơi
+
+- **Adventure** · Nhận nhiệm vụ từ Lilia, mở rương, vào rừng, đánh hai đợt quái, nhận thưởng và trở lại làng. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
+- **TCG** · Đấu bot với bộ 36 lá, đổi bài mở màn một lần, xây bộ bài trong danh mục 22 lá, triệu hồi Vị Linh, đặt bẫy úp và phản ứng theo lượt ưu tiên. Bộ bài đã lưu dùng khi bắt đầu ván mới.
+- **Auto Chess** · Mua quân, hợp thể ba bản sao, xếp đội hình, nâng cấp cửa hàng và chơi tối đa mười vòng. Hai nhân vật khác nhau cùng hệ Hỏa, Mộc hoặc Quang kích hoạt hiệp lực tương ứng. Phát lại giao tranh dùng vị trí, đòn đánh và HP do mô phỏng ghi lại.
+
+## Tích hợp và tài nguyên
+
+Adventure chạy mô phỏng ở 30 Hz. Chuỗi `attack_started` / `cast_started` → `projectile_spawned` (nếu có) → `hit_resolved` đồng bộ clip, hiệu ứng và âm thanh. Các sự kiện `heal_resolved` và `shield_applied` dùng cùng đồng hồ mô phỏng. Dữ liệu thử nghiệm nằm trong `src/modes/adventureBalance.js` và `examples/`. Renderer và playback chỉ đọc sự kiện.
+
+- Sprite đi map bốn hướng lấy từ Golden Sample, đã được kiểm tra 190 frame. Model chiến đấu anime chibi Bún Bò dùng tám pose RGBA gốc ở [thư mục nhân vật](assets/characters/chr_bunbo_holinh/battle/), phát qua [atlas và clip manifest](assets/golden/bunbo_battle.json). Bốn Vị Linh đồng đội dùng sprite đã có trong repo.
+- Atlas Golden Sample, atlas Hỏa và SFX OGG có thể tái tạo từ ZIP Golden Sample bằng `python3 scripts/import_golden_sample.py <golden-sample.zip>`. Nhạc và ambience có thể tái tạo bằng `python3 scripts/build_music.py` với FFmpeg.
+- Hình tiêu đề, nền làng, nền chiến đấu, cut-in và hai quái được tạo cho Soul of Meal. Xem [nguồn tài nguyên](../docs/02_art/LICENSE_AND_PROVENANCE.md#browser-playtest-assets) và [QA frame anime chibi](assets/characters/chr_bunbo_holinh/battle/qa.json).
+
+## Kiểm thử và phạm vi
 
 ```bash
 node --test client/tests/*.test.js
+python3 -m unittest discover -s tests -v
+python3 scripts/validate_package.py .
 ```
 
-## Implemented Slices
-
-- **Adventure:** WASD/arrow keys with collision/axis sliding around static village buildings and props; tap-to-move with 24-world-unit grid A* around static obstacles; Lilia quest; one-time chest claim; village/forest route; two encounter waves including a phased boss; 30 Hz combat; auto attacks; manual ultimates; win/loss results; quest and reward persistence.
-- **TCG:** seeded 36-card setup; units, traps, sample fast/slow damage spells, mana/turn flow, sequential priority, trap reaction and LIFO counter resolution, lane attacks/blocks, bot turns, commander defeat, deck-out and round limit.
-- **Auto Chess:** seeded five-slot shop, buy/refresh/lock/sell, bench, 7×4 player board, placement/move, cross-zone three-copy merge, deterministic bot squads, fixed-tick combat, payouts and ten-round run state.
-- **Profile:** five shared identities, local versioned save migration, audio/accessibility setting state and navigation between modes.
-
-## Animation Adapter
-
-Agent implementation contract, current event coverage, manifest shape and acceptance checklist are in [`docs/02_art/ANIMATION_INTEGRATION_SPEC.md`](../docs/02_art/ANIMATION_INTEGRATION_SPEC.md). Read that spec before adding an adapter or changing event payloads.
-
-The first runtime adapter now exists in `client/src/render/`: `clipPlayer.js` validates clip manifests and advances frame IDs; `actorViewRegistry.js` holds render-only transforms; `animationAdapter.js` maps actor events to clip state and non-actor events to named presentation cues. Adventure reads authoritative movement/battle state and applies simple procedural pose changes to its existing placeholder shapes. With no approved frame assets supplied, this proves event wiring, priority and fallback behavior only; it is not production animation playback or an art approval.
-
-Listen for events on `window`:
-
-```js
-window.addEventListener('soul:game-event', ({ detail }) => {
-  if (detail.type === 'hit_resolved') {
-    // Render the event; never apply gameplay damage here.
-  }
-});
-```
-
-Events include `type`, `seq`, `tick`, `payload` and optional mode context such as `battle_id`, `rules_version`, `source_id`, `target_id` or TCG `action_seq`. The adapter publishes `presentation-event` actions including `scene_transition`, `wave_transition`, `boss_phase`, `trap_reveal`, `unit_summon`, `chess_merge` and result cues. The simulation owns damage, phase transitions and rewards. Animation can be delayed, skipped for reduced motion or replaced without affecting state. The adapter listens to the internal event bus once; do not attach a second adapter listener to the mirrored window event or the same cue may be presented twice.
-
-Presentation-only consumers can listen to the browser singleton:
-
-```js
-window.soulOfMealAnimation.addEventListener('presentation-event', ({ detail }) => {
-  for (const action of detail.actions) {
-    // Route visual/audio cues only; never mutate simulation state.
-  }
-});
-```
-
-## Known Technical Gaps
-
-- Canvas 2D is placeholder presentation only; the approved WebGL renderer baseline still needs a named-engine/device benchmark.
-- Adventure currently has simple grid A* over hard-coded placeholder map obstacles, not tile-authored collision, navmesh/chunk streaming, dynamic doors or authored interactable bounds; full boss mechanics, healing/status grammar and mid-battle recovery remain incomplete.
-- TCG implements only the sample effect grammar; mulligan UI, deck builder, full effect grammar, surrender, timers and opponent-private network projections are absent.
-- Auto Chess is a local round-vs-bot prototype, not a complete eight-player tournament. Opponent planning, finite pool, complete economy progression, combat replay and active synergy effects remain incomplete.
-- No production sprites/animations/audio, PWA offline/update flow, cloud save, online service, telemetry backend, device benchmark or release/legal gate is delivered.
+Bản này chạy Canvas 2D và bot cục bộ. Các phần còn cần hoàn thiện trước phát hành gồm rig/animation đầy đủ cho cả đội, duyệt mỹ thuật và quyền sử dụng, voice, benchmark renderer WebGL trên thiết bị thật, cân bằng dài hạn và nội dung các chương sau. Bản chơi thử lưu mốc nhiệm vụ/phần thưởng, ván TCG và vòng Auto Chess. Adventure bắt đầu lại cuộc chạm trán nếu tải lại giữa trận.

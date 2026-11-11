@@ -71,8 +71,9 @@ export class SpriteRenderer {
     }
 
     let frames = normalizeAtlasFrames(manifest?.frames);
-    const metadataPath = manifest?.atlas_metadata ?? fullImgPath.replace(/\.png([?#].*)?$/i, '.json$1');
-    if (!frames && metadataPath !== fullImgPath && typeof fetch !== 'undefined') {
+    const metadataPath = manifest?.atlas_metadata
+      ?? (manifest?.frame_width ? null : fullImgPath.replace(/\.png([?#].*)?$/i, '.json$1'));
+    if (!frames && metadataPath && metadataPath !== fullImgPath && typeof fetch !== 'undefined') {
       try {
         const res = await fetch(metadataPath);
         if (res.ok) frames = normalizeAtlasFrames((await res.json())?.frames);
@@ -108,14 +109,14 @@ export class SpriteRenderer {
     scale = 1.0,
     flipX = false,
     opacity = 1.0,
-    tint = null,
   } = {}) {
     const entry = this.sheets.get(characterId);
     if (!entry || !entry.image || !entry.image.complete || entry.image.naturalWidth === 0) {
       return false; // Trả về false để caller vẽ fallback
     }
 
-    const frameId = animation?.frameId;
+    scale *= entry.manifest?.render_scale ?? 1;
+    const frameId = animation?.frameId ?? entry.manifest?.clips?.idle?.directions?.S?.frames?.[0];
     const frame = entry.frames?.[frameId];
     if (entry.frames) {
       if (!frame || frame.x < 0 || frame.y < 0 || frame.width <= 0 || frame.height <= 0
