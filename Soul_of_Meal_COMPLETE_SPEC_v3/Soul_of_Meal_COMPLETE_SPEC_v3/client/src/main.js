@@ -13,10 +13,14 @@ import { adventureBalance } from './modes/adventureBalance.js';
 import { BattleEffects } from './render/battleEffects.js';
 import { GameAudio } from './core/audio.js';
 import { ChessReplay } from './render/chessReplay.js';
+import { renderEntry } from './shell/entry.js';
 
 const app = document.querySelector('#app');
+const stageHost = document.querySelector('#web-stage');
+const systemMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let webStage;
 const runtime = {
-  page: 'home', save: loadSave(), adventure: null, cards: null, deck: null, units: null, maps: null,
+  page: 'title', save: loadSave(), adventure: null, cards: null, deck: null, units: null, maps: null,
   shopConfig: null, tcg: null, chess: null, selectedTarget: 'commander', selectedBench: null, mulligan: new Set(), deckDraft: null,
   selectedBoard: null, notice: '', lastSavedLocation: 0, heldKeys: new Set(), tcgImpacts: new Map(),
 };
@@ -38,18 +42,30 @@ gameEvents.addEventListener('game-event', ({ detail }) => {
   }
 });
 
-const iconMap = { home: '⌂', adventure: '⌖', tcg: '▤', chess: '▦', settings: '⚙' };
+const iconMap = { home: '⌂', adventure: '⌖', tcg: '▤', chess: '▦', roster: '✿', settings: '⚙' };
 const elementColors = { fire: '#dd684a', water: '#428eac', wood: '#548d56', light: '#b8923c', shadow: '#75627e' };
 
-async function loadContent() {
-  const [cards, deck, unitsData, shopConfig, villageMap, forestMap] = await Promise.all([
-    fetch('../examples/cards/cards.catalog.json').then(checkResponse).then((response) => response.json()),
-    fetch('../examples/cards/starter_deck.json').then(checkResponse).then((response) => response.json()),
-    fetch('../examples/auto_chess/units.json').then(checkResponse).then((response) => response.json()),
-    fetch('../examples/auto_chess/shop_odds.json').then(checkResponse).then((response) => response.json()),
-    fetch('../examples/maps/village.json').then(checkResponse).then((response) => response.json()),
-    fetch('../examples/maps/forest.json').then(checkResponse).then((response) => response.json()),
-  ]);
+const contentFiles = [
+  'cards/cards.catalog.json', 'cards/starter_deck.json',
+  'auto_chess/units.json', 'auto_chess/shop_odds.json',
+  'maps/village.json', 'maps/forest.json',
+];
+
+async function loadContent(report) {
+  let loaded = 0;
+  const signal = AbortSignal.timeout(15000);
+  const message = 'Đang tải dữ liệu hành trình…';
+  report(0, message);
+  const [cards, deck, unitsData, shopConfig, villageMap, forestMap] = await Promise.all(
+    contentFiles.map(async (file) => {
+      const response = await fetch('../examples/' + file, { signal });
+      const data = await checkResponse(response).json();
+      loaded += 1;
+      report(Math.round(loaded / contentFiles.length * 70), message);
+      return data;
+    })
+  );
+  report(75, 'Đang chuẩn bị Vị Linh và bản đồ…');
   runtime.cards = cards;
   runtime.deck = deck;
   runtime.units = unitsData.units;
@@ -60,6 +76,7 @@ async function loadContent() {
     eventTarget: gameEvents, manifests, reducedMotion: runtime.save.settings.reducedMotion,
   });
   window.soulOfMealAnimation = runtime.animations;
+  report(100, 'Sẵn sàng');
 }
 
 function checkResponse(response) {
@@ -76,17 +93,54 @@ function saveNow() {
   persistSave(runtime.save);
 }
 
+function syncStage() {
+  stageHost.dataset.scene = runtime.page;
+  webStage?.show(runtime.page);
+}
+
+function syncMotion() {
+  webStage?.setReducedMotion(runtime.save.settings.reducedMotion || systemMotion.matches);
+}
+
+async function enterGame(report) {
+  runtime.audio.unlock();
+  if (!runtime.animations) await loadContent(report);
+  navigate('home');
+}
+
 function navigate(page) {
   runtime.heldKeys.clear();
   setAdventureInput(runtime.adventure, 0, 0);
   runtime.page = page;
   runtime.notice = '';
+  syncStage();
   render();
+  app.querySelector('main h1')?.focus({ preventScroll: true });
 }
 
 function navButton(page, label) {
-  return `<button class="nav-button" data-page="${page}" aria-current="${runtime.page === page ? 'page' : 'false'}"><span class="nav-icon" aria-hidden="true">${iconMap[page] ?? '•'}</span><span>${label}</span></button>`;
+  return `<button class="nav-button" data-page="${page}" ${runtime.page === page ? 'aria-current="page"' : ''}><span class="nav-icon" aria-hidden="true">${iconMap[page]}</span><span>${label}</span></button>`;
 }
+
+async function toggleFullscreen() {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await document.documentElement.requestFullscreen();
+  } catch {
+    app.querySelector('[data-shell-status]')?.replaceChildren('Trình duyệt chưa cho phép mở toàn màn hình.');
+  }
+}
+
+function syncFullscreenButton() {
+  const button = app.querySelector('[data-fullscreen]');
+  if (!button) return;
+  const label = document.fullscreenElement ? 'Thoát toàn màn hình' : 'Toàn màn hình';
+  button.setAttribute('aria-label', label);
+  button.title = label;
+  button.setAttribute('aria-pressed', String(Boolean(document.fullscreenElement)));
+}
+
+document.addEventListener('fullscreenchange', syncFullscreenButton);
 
 function shell(content) {
   const adventureScene = runtime.adventure.battle ? 'battle' : runtime.adventure.map;
@@ -95,43 +149,60 @@ function shell(content) {
     runtime.audio.setScene(scene);
   }
   const player = runtime.save.player;
+  const sameScreen = app.querySelector('.shell')?.dataset.screen === runtime.page;
+  const scrollTop = sameScreen ? app.querySelector('.main').scrollTop : 0;
+  const gold = escapeHtml(player.gold);
+  const essence = escapeHtml(player.essence);
   app.innerHTML = `
-    <div class="shell">
-      <aside class="sidebar">
-        <div class="brand"><div class="brand-mark">味</div><div class="brand-name">SOUL OF MEAL<small>HÀNH TRÌNH VỊ LINH</small></div></div>
-        <nav class="nav-group" aria-label="Điều hướng chính">
-          ${navButton('home', 'Tổng quan')}${navButton('adventure', 'Phiêu lưu')}${navButton('tcg', 'Thẻ chiến thuật')}${navButton('chess', 'Đấu trường linh thú')}
-        </nav>
-        <div class="sidebar-spacer"></div>
-        <nav class="nav-group" aria-label="Tài khoản">${navButton('settings', 'Cài đặt')}</nav>
-        <div class="profile-chip"><div class="profile-avatar">味</div><div class="profile-copy">${escapeHtml(player.name)}<small>Cấp ${player.level} · Lữ khách</small></div></div>
-      </aside>
+    <div class="shell" data-screen="${runtime.page}">
+      <header class="game-bar">
+        <button class="brand" data-page="home" aria-label="Về sảnh Soul of Meal">SOUL <em>OF</em> MEAL</button>
+        <div class="profile-chip"><img class="profile-avatar" src="${actorArt(HERO_ID)}" alt=""><div class="profile-copy">${escapeHtml(player.name)}<small>Cấp ${escapeHtml(player.level)}</small></div></div>
+        <div class="game-resources">
+          <span title="Vàng" aria-label="${gold} vàng"><i aria-hidden="true">◈</i> ${gold}</span>
+          <span title="Tinh hoa" aria-label="${essence} tinh hoa"><i aria-hidden="true">✦</i> ${essence}</span>
+        </div>
+        ${document.fullscreenEnabled ? '<button class="shell-icon" type="button" data-fullscreen>⛶</button>' : ''}
+      </header>
       <main class="main">${content}</main>
-      <nav class="mobile-nav" aria-label="Điều hướng nhanh">${navButton('home', 'Nhà')}${navButton('adventure', 'Khám phá')}${navButton('tcg', 'Thẻ')}${navButton('chess', 'Đấu cờ')}${navButton('settings', 'Cài đặt')}</nav>
+      <nav class="game-dock" aria-label="Chế độ chơi">
+        ${navButton('home', 'Sảnh')}${navButton('adventure', 'Phiêu lưu')}${navButton('tcg', 'Đấu thẻ')}${navButton('chess', 'Đấu cờ')}${navButton('roster', 'Vị Linh')}${navButton('settings', 'Cài đặt')}
+      </nav>
+      <p class="shell-status" data-shell-status role="status"></p>
     </div>`;
+  const viewport = app.querySelector('main');
+  viewport.scrollTop = scrollTop;
+  const heading = viewport.querySelector('h1');
+  if (heading) heading.tabIndex = -1;
   app.querySelectorAll('[data-page]').forEach((button) => button.addEventListener('click', () => navigate(button.dataset.page)));
+  app.querySelector('[data-fullscreen]')?.addEventListener('click', toggleFullscreen);
+  syncFullscreenButton();
 }
 
 function pageHeader(kicker, title, description, back = 'home') {
-  return `<div class="topline"><div><div class="eyebrow">${kicker}</div><h1>${title}</h1>${description ? `<p class="subtitle">${description}</p>` : ''}</div><div class="resource-row"><div class="resource">◈ ${runtime.save.player.gold}</div><div class="resource">✦ ${runtime.save.player.essence}</div><button class="button light compact" data-page="${back}" aria-label="Quay lại">←</button></div></div>`;
+  return `<div class="topline"><div><div class="eyebrow">${kicker}</div><h1>${title}</h1>${description ? `<p class="subtitle">${description}</p>` : ''}</div><button class="button light compact" data-page="${back}" aria-label="Quay lại">←</button></div>`;
 }
 
 function renderHome() {
   const quest = runtime.save.adventure.quest;
-  const headline = quest === 'not_started' ? 'Lilia cần bạn ở quảng trường' : quest === 'completed' ? 'Hương vị đã trở về' : 'Dấu vết dẫn vào rừng';
+  const headline = ({
+    not_started: 'Gặp Lilia ở quảng trường',
+    accepted: 'Theo dấu Thất Vị vào rừng',
+    ready_to_claim: 'Trở về báo tin cho Lilia',
+    completed: 'Trở lại Làng Ẩm Thực',
+  })[quest];
   shell(`
-    <section class="home-hero"><div class="hero-copy">
-      <div class="eyebrow">Soul of Meal</div><h1>Hành Trình<br>Vị Linh</h1>
-      <h2>${headline}</h2><p>Khám phá Làng Ẩm Thực và cùng các Vị Linh tìm lại hương vị thất lạc.</p>
-      <div class="button-row"><button class="button" data-page="adventure">Tiếp tục hành trình →</button><button class="button secondary" data-page="roster">Đội hình Vị Linh</button></div>
-    </div></section>
-    <div class="section-head"><h2>Chọn lối chơi</h2></div>
-    <section class="mode-grid">
-      <button class="mode-card" data-page="adventure"><div class="mode-mark adventure">⌖</div><h3>Phiêu lưu</h3><p>Theo dấu Thất Vị, cùng các Vị Linh chiến đấu và tung tuyệt kỹ.</p><span>Khám phá →</span></button>
-      <button class="mode-card" data-page="tcg"><div class="mode-mark tcg">▤</div><h3>Thẻ chiến thuật</h3><p>Triệu hồi đồng đội, gài bẫy và phản công đúng lượt ưu tiên.</p><span>Đấu thẻ →</span></button>
-      <button class="mode-card" data-page="chess"><div class="mode-mark chess">▦</div><h3>Đấu trường linh thú</h3><p>Mua quân, hợp thể và bố trí đội hình trước khi giao tranh.</p><span>Đấu cờ →</span></button>
-    </section>
-  `);
+    <section class="lobby">
+      <div class="lobby-copy">
+        <h1>Hành Trình<br>Vị Linh</h1>
+        <p>${headline ?? 'Trở lại Làng Ẩm Thực'}</p>
+        <button class="entry-action" data-page="adventure">${quest === 'not_started' ? 'Vào làng' : 'Tiếp tục phiêu lưu'} <b aria-hidden="true">›</b></button>
+      </div>
+      <div class="lobby-modes" role="group" aria-label="Chọn lối chơi">
+        <button class="lobby-mode" data-page="tcg"><img src="${originalCardArt('card_demo_10')}" alt=""><span><strong>Thẻ chiến thuật</strong><small>${runtime.tcg && !runtime.tcg.result ? 'Tiếp tục ván đấu' : 'Đấu thẻ với bot'}</small></span><b aria-hidden="true">›</b></button>
+        <button class="lobby-mode" data-page="chess"><img src="${sceneArt('arena')}" alt=""><span><strong>Auto Chess</strong><small>${runtime.chess && runtime.chess.phase !== 'finished' ? 'Tiếp tục vòng ' + runtime.chess.round : 'Đấu cờ với bot'}</small></span><b aria-hidden="true">›</b></button>
+      </div>
+    </section>`);
 }
 
 function renderAdventure() {
@@ -757,13 +828,17 @@ function renderRoster() {
 
 function renderSettings() {
   const settings = runtime.save.settings;
-  shell(`${pageHeader('Thiết bị này · save local', 'Cài đặt', 'Âm lượng và chuyển động lưu riêng trên thiết bị này.', 'home')}<section class="settings-list panel">${[['music', 'Nhạc'], ['sfx', 'Hiệu ứng'], ['ambience', 'Môi trường']].map(([key, label]) => `<label class="setting-row"><span>${label}</span><input type="range" min="0" max="100" value="${settings[key]}" data-setting="${key}"><b>${settings[key]}%</b></label>`).join('')}<label class="setting-row"><span>Giảm chuyển động</span><input type="checkbox" data-setting-motion ${settings.reducedMotion ? 'checked' : ''}><b>${settings.reducedMotion ? 'Bật' : 'Tắt'}</b></label><div class="action-row"><button class="button danger" data-reset-save>Khởi tạo lại tiến trình</button></div></section>`);
+  shell(`${pageHeader('Thiết bị này · save local', 'Cài đặt', 'Âm lượng và chuyển động lưu riêng trên thiết bị này.', 'home')}<section class="settings-list panel">${[['music', 'Nhạc'], ['sfx', 'Hiệu ứng'], ['ambience', 'Môi trường']].map(([key, label]) => `<label class="setting-row"><span>${label}</span><input type="range" min="0" max="100" value="${settings[key]}" data-setting="${key}"><b>${settings[key]}%</b></label>`).join('')}<label class="setting-row"><span>Giảm chuyển động</span><input type="checkbox" data-setting-motion ${settings.reducedMotion ? 'checked' : ''}><b>${settings.reducedMotion ? 'Bật' : 'Tắt'}</b></label><div class="action-row"><button class="button light" data-page="title">Về màn hình bắt đầu</button><button class="button danger" data-reset-save>Khởi tạo lại tiến trình</button></div></section>`);
   app.querySelectorAll('[data-setting]').forEach((input) => input.addEventListener('input', () => { runtime.save.settings[input.dataset.setting] = Number(input.value); input.nextElementSibling.textContent = `${input.value}%`; runtime.audio.setSettings(runtime.save.settings); saveNow(); }));
-  app.querySelector('[data-setting-motion]')?.addEventListener('change', (event) => { runtime.save.settings.reducedMotion = event.target.checked; runtime.animations.setReducedMotion(event.target.checked); saveNow(); renderSettings(); });
+  app.querySelector('[data-setting-motion]')?.addEventListener('change', (event) => { runtime.save.settings.reducedMotion = event.target.checked; runtime.animations.setReducedMotion(event.target.checked); syncMotion(); saveNow(); renderSettings(); });
   app.querySelector('[data-reset-save]')?.addEventListener('click', () => { if (!confirm('Xóa tiến trình đã lưu trên thiết bị này?')) return; localStorage.removeItem('soul-of-meal.save.v2'); localStorage.removeItem('soul-of-meal.save.v1'); window.location.reload(); });
 }
 
 function render() {
+  if (runtime.page === 'title') {
+    runtime.audio.setScene('title');
+    return renderEntry(app, enterGame);
+  }
   if (runtime.page === 'home') return renderHome();
   if (runtime.page === 'adventure') return renderAdventure();
   if (runtime.page === 'tcg') return renderTcg();
@@ -782,10 +857,11 @@ function escapeAttr(value = '') { return escapeHtml(value); }
 
 window.addEventListener('keydown', (event) => {
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+  if (event.target?.matches?.('input, select, textarea')) return;
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'w', 'a', 's', 'd'].includes(key) && runtime.page === 'adventure') {
     runtime.heldKeys.add(key); event.preventDefault();
   }
-  if (event.repeat || runtime.page !== 'adventure' || event.target?.matches?.('input, select, textarea')) return;
+  if (event.repeat || runtime.page !== 'adventure') return;
   if (key === 'e' && !runtime.adventure.battle) doAdventureInteract();
   if (/^[1-5]$/.test(key) && runtime.adventure.battle) {
     const button = app.querySelectorAll('[data-ultimate]')[Number(key) - 1];
@@ -805,10 +881,14 @@ function animate(now) {
 }
 requestAnimationFrame(animate);
 
-try {
-  await loadContent();
-  render();
-  saveNow();
-} catch (error) {
-  app.innerHTML = `<main class="error-screen"><div class="eyebrow">Không thể khởi tạo game</div><h1>Dữ liệu chưa tải được</h1><p>${escapeHtml(error.message)}</p><p>Hãy chạy client từ server ở package root để các catalog trong <code>examples/</code> khả dụng.</p><button class="button" onclick="location.reload()">Thử lại</button></main>`;
+if (import.meta.env?.MODE) {
+  import('./shell/webStage.ts').then(({ mountWebStage }) => {
+    webStage = mountWebStage(stageHost);
+    systemMotion.addEventListener('change', syncMotion);
+    syncMotion();
+    syncStage();
+  }).catch((error) => console.warn('Không mở được cảnh Phaser.', error));
 }
+
+syncStage();
+render();

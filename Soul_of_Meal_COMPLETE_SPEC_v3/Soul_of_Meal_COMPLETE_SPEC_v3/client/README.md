@@ -1,12 +1,17 @@
 # Soul of Meal · Bản chơi thử trên trình duyệt
 
-Từ thư mục chứa `client/` và `examples/`, chạy:
+Từ thư mục chứa `client/` và `examples/`, chạy với Node.js 22.12+:
 
 ```bash
-python3 -m http.server 4173
+npm --prefix client ci
+npm --prefix client run dev
 ```
 
-Mở `http://localhost:4173/client/`. Trên máy tính, dùng WASD hoặc phím mũi tên để di chuyển, E để tương tác và phím 1–5 để dùng tuyệt kỹ. Trên màn hình cảm ứng, chạm điểm đến, NPC, rương hoặc cổng. Nhạc và hiệu ứng bắt đầu sau thao tác đầu tiên. Tiến trình và bộ bài lưu trên thiết bị.
+Mở [http://localhost:4173/client/](http://localhost:4173/client/) và chọn **Bắt đầu**. Màn mở đầu nạp catalog và atlas trước khi vào sảnh. Bản Vite dùng Phaser 4.2.1 cho nền và chuyển động ở màn mở đầu và sảnh. Có thể dùng `python3 -m http.server 4173` từ cùng thư mục để chạy với nền CSS. Hai cách đều dùng cùng luật chơi và định dạng save cục bộ.
+
+Trên máy tính, dùng WASD hoặc phím mũi tên để di chuyển, E để tương tác và phím 1–5 để dùng tuyệt kỹ. Trên màn hình cảm ứng, chạm điểm đến, NPC, rương hoặc cổng. Có nút toàn màn hình ở thanh trên khi trình duyệt hỗ trợ. Nhạc và hiệu ứng bắt đầu sau thao tác đầu tiên.
+
+Để kiểm tra bản build, chạy `npm --prefix client run build` rồi `npm --prefix client run preview`, mở lại đường dẫn trên. Kết quả build nằm trong `client/dist/` với entry `client/index.html` và catalog tương đối trong `examples/`.
 
 Đây là bản chơi thử để đối chiếu gameplay và asset khi chuyển sang [Web Client–Server v3.2](../docs/03_engineering/ENGINE_ARCHITECTURE.md). Xem [đối chiếu concept](../docs/04_qa/PLAYTEST_CONCEPT_GAP.md) để phân biệt phần chạy được và hạng mục nghiệm thu.
 
@@ -32,4 +37,4 @@ python3 -m unittest discover -s tests -v
 python3 scripts/validate_package.py .
 ```
 
-Bản này chạy Canvas 2D và bot cục bộ. Các phần còn cần hoàn thiện trước phát hành gồm rig/animation đầy đủ cho cả đội, duyệt mỹ thuật và quyền sử dụng, voice, benchmark renderer WebGL trên thiết bị thật, cân bằng dài hạn và nội dung các chương sau. Bản chơi thử lưu mốc nhiệm vụ/phần thưởng, ván TCG và vòng Auto Chess. Adventure bắt đầu lại cuộc chạm trán nếu tải lại giữa trận.
+Battle Adventure và Auto Chess vẫn dùng Canvas 2D. Cả ba chế độ dùng bot và lưu tiến trình cục bộ. Xác thực tài khoản và server save thuộc mốc tiếp theo. Các phần còn cần hoàn thiện trước phát hành gồm rig/animation đầy đủ cho cả đội, duyệt mỹ thuật và quyền sử dụng, voice, benchmark renderer WebGL trên thiết bị thật, cân bằng dài hạn và nội dung các chương sau. Bản chơi thử lưu mốc nhiệm vụ/phần thưởng, ván TCG và vòng Auto Chess. Adventure bắt đầu lại cuộc chạm trán nếu tải lại giữa trận.

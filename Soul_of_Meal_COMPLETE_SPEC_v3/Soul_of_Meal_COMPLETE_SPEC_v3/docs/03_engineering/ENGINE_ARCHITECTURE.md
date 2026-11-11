@@ -1,6 +1,6 @@
 # Soul of Meal Web Client–Server · SPEC v3.2
 
-**Ngày** 2026-11-11 · **Trạng thái** Hướng triển khai đã chốt, migration và benchmark đang chờ thực hiện. [D-018](../00_foundation/decisions/D-018.md) quy định phạm vi thay đổi. Xem [đối chiếu concept](../04_qa/PLAYTEST_CONCEPT_GAP.md) để biết trạng thái mã nguồn.
+**Ngày** 2026-11-11 · **Trạng thái** Bản chơi thử đã có vỏ game, màn chơi khách và sảnh với lớp nền Phaser. Migration gameplay/server và benchmark còn mở. [D-018](../00_foundation/decisions/D-018.md) quy định phạm vi thay đổi. Xem [đối chiếu concept](../04_qa/PLAYTEST_CONCEPT_GAP.md) để biết trạng thái mã nguồn.
 
 ## 1. Nền tảng đích
 

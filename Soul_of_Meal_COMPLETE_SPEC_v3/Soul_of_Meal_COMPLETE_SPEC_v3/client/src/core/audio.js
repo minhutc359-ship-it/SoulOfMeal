@@ -34,7 +34,7 @@ export class GameAudio {
   updateLoops() {
     if (!this.unlocked) return;
     const tracks = {
-      music: ({ home: 'village_theme', village: 'village_theme', forest: 'forest_theme', battle: 'battle_theme', tcg: 'forest_theme', chess: 'battle_theme' })[this.scene],
+      music: ({ title: 'village_theme', home: 'village_theme', village: 'village_theme', forest: 'forest_theme', battle: 'battle_theme', tcg: 'forest_theme', chess: 'battle_theme' })[this.scene],
       ambience: this.scene === 'forest' ? 'forest_wind' : null,
     };
     for (const [channel, id] of Object.entries(tracks)) {

@@ -4,7 +4,8 @@ Game anime chibi về các Vị Linh của ẩm thực Việt Nam. Bản web có
 
 ```bash
 cd Soul_of_Meal_COMPLETE_SPEC_v3/Soul_of_Meal_COMPLETE_SPEC_v3
-python3 -m http.server 4173
+npm --prefix client ci
+npm --prefix client run dev
 ```
 
 Mở [http://localhost:4173/client/](http://localhost:4173/client/).

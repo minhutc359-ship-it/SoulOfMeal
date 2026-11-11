@@ -64,8 +64,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 6124,
-      "sha256": "0e28a7e7e7d4302573354386608a61cdb4a98ed2b173634fc280d1c04fb64dda"
+      "bytes": 6153,
+      "sha256": "253b766ebfb631d5c40b4255ca9f331a08dce28ffdd62cd83a635cd9188375ba"
     },
     {
       "path": "agents/SPRITE_TASK_HANDOFF.md",
@@ -319,8 +319,8 @@
     },
     {
       "path": "docs/03_engineering/ENGINE_ARCHITECTURE.md",
-      "bytes": 12731,
-      "sha256": "7d8c43d3436433147f6bceb653373caa5536fd48858538637a6e93bfb26fe26e"
+      "bytes": 12789,
+      "sha256": "7e9bdd18b3b2df37578d5c602fef4037e9b1f123a02f859e3fb861efb2e207dd"
     },
     {
       "path": "docs/04_qa/ACCEPTANCE_TEST_PLAN.md",
@@ -629,8 +629,8 @@
     },
     {
       "path": "scripts/validate_package.py",
-      "bytes": 4565,
-      "sha256": "e5aabbe85852d17f8d81bed59eea83e9f804e57c578c0a9edb4a20500b915cb5"
+      "bytes": 4656,
+      "sha256": "63524c37435e9d8b6de1d22fcec4453027142fb21e05297b421ed87d365d8d0a"
     },
     {
       "path": "game_rules/auto_chess.py",
@@ -649,8 +649,8 @@
     },
     {
       "path": "scripts/update_file_index.py",
-      "bytes": 1372,
-      "sha256": "82c9075f1eb324b586a84a96a9e8b454b53bc95907ec734cd2ec156cccda07ff"
+      "bytes": 1473,
+      "sha256": "ed9ac77fc2953ed188248a930441c30049e64f99f162c76d1f0b7299485e35b6"
     },
     {
       "path": "docs/03_engineering/TCG_RULES_REFERENCE.md",
@@ -769,18 +769,18 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 3527,
-      "sha256": "bf85d18d6d82869b7ff65b10b6a8c8eeec24b070db443b66629af5604dc71c19"
+      "bytes": 4396,
+      "sha256": "3bf8f751e2b5d15b6d6ff8347f0f71887289387d67136a7db76e64edad36fb41"
     },
     {
       "path": "client/index.html",
-      "bytes": 520,
-      "sha256": "19d9fc2151347384e3e6cb5fbd85494df7096379f76047431a45639eafe60ac1"
+      "bytes": 624,
+      "sha256": "b9935402cc8cb0810bad5e8c10ece953a0b3a081d7b5d630d128647a31e11b47"
     },
     {
       "path": "client/package.json",
-      "bytes": 120,
-      "sha256": "aae54800a054f8cf16e4be229934ad5a4b2585affbe592af2768501f05aa091b"
+      "bytes": 411,
+      "sha256": "c4cdc07e5f18b2b993d01e5b5de0c911c0aa95e2d976af1674f0ebffb5ad8638"
     },
     {
       "path": "client/src/core/events.js",
@@ -794,8 +794,8 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 55365,
-      "sha256": "53944d8a12eb7dba4232fa970b9a1bfee5e53d8f95a98eb1417c787297650ee9"
+      "bytes": 57230,
+      "sha256": "d74950781c15175ac433ca8106d77770160d643073f6e384b679be78b5abd846"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -814,8 +814,8 @@
     },
     {
       "path": "client/styles.css",
-      "bytes": 25014,
-      "sha256": "bb499bf8f3dcd3b6a0690aee7b2bd0848d0c72187eac2a9e52a37226e1f53ae2"
+      "bytes": 19052,
+      "sha256": "76b1c9a261f197d8b0610af59f2ddfa6e8db1f9bcb07a36a42df49fb89071282"
     },
     {
       "path": "client/tests/runtime.test.js",
@@ -1474,8 +1474,8 @@
     },
     {
       "path": "client/src/core/audio.js",
-      "bytes": 3379,
-      "sha256": "7a21af90926a84cc5fcfc750fde488a2e0994ce2c528b6051fc7c8fff2c36752"
+      "bytes": 3403,
+      "sha256": "9887c3813963f48c618be1eadf4ecfafeb13e24fed27bbcd1ef3bc31cd73df8a"
     },
     {
       "path": "client/src/modes/adventureBalance.js",
@@ -2179,8 +2179,8 @@
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_PLAYTEST.md",
-      "bytes": 3602,
-      "sha256": "d6b91814257c80b8d8d4b474c70b95c681612df557ad76ee18bd0a48e7fd2a69"
+      "bytes": 5533,
+      "sha256": "d41862baae33c1a662a98166329e338d87e443495ef7ad84b8c4a724666fc404"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_SOURCES.json",
@@ -2209,8 +2209,43 @@
     },
     {
       "path": "docs/04_qa/PLAYTEST_CONCEPT_GAP.md",
-      "bytes": 4162,
-      "sha256": "418c37a323329f30ad9d240739eec8b3e6af4e81446699036ba54d644690909a"
+      "bytes": 4304,
+      "sha256": "5ca32cec9af0719dd03052cc982b26670a87fa3bb1b6326c70040c8cfeb19dc6"
+    },
+    {
+      "path": "client/assets/original/scenes/title.webp",
+      "bytes": 302302,
+      "sha256": "661f17ce40e08fd7fff6559af98dd3fa0b27bcc871a339815d05f0c617ef5194"
+    },
+    {
+      "path": "client/package-lock.json",
+      "bytes": 35864,
+      "sha256": "a8e649e4bdf45f482bf89ea1bb1278c7730e46903d1671cc6e27ce8b75c62e40"
+    },
+    {
+      "path": "client/shell.css",
+      "bytes": 10612,
+      "sha256": "c72a7eaadd5e3d22e87ce9463b54d5b051f1e6b6fa132808cea5516703831834"
+    },
+    {
+      "path": "client/src/shell/entry.js",
+      "bytes": 1589,
+      "sha256": "061da2e5e2dc545583daac6432a2a4f4dab103776301dd82db4d93b2655a1477"
+    },
+    {
+      "path": "client/src/shell/webStage.ts",
+      "bytes": 3096,
+      "sha256": "066cfb03fbc5a9f169e122160dc78f81904f9a8760dcf290573f07adc6dc2b14"
+    },
+    {
+      "path": "client/tsconfig.json",
+      "bytes": 242,
+      "sha256": "042fb48501f3ceefcc0ec8be6ba76e2c4d2463c8e7e9b5558f864afa7d4478fd"
+    },
+    {
+      "path": "client/vite.config.js",
+      "bytes": 948,
+      "sha256": "160f3d87594c930dad19835d25e33f344fabab624a3d68382d8c13957372a09b"
     }
   ]
 }
