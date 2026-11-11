@@ -1,0 +1,35 @@
+{
+  "character_id": "chr_goicuon_diepnhi",
+  "skin_id": "default",
+  "frame_size_px": [
+    256,
+    256
+  ],
+  "source_sheet_sha256": "5090b8af7354a99276949dfba310357c6de912c149a9a50d5f8d287b03249edb",
+  "ground_anchor": [
+    0.5,
+    0.8984375
+  ],
+  "rights_status": "pending_review",
+  "identity_review": "pending",
+  "animations": {
+    "keyposes": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "poses/chr_goicuon_diepnhi_pose_00.png",
+            "poses/chr_goicuon_diepnhi_pose_01.png",
+            "poses/chr_goicuon_diepnhi_pose_02.png",
+            "poses/chr_goicuon_diepnhi_pose_03.png",
+            "poses/chr_goicuon_diepnhi_pose_04.png",
+            "poses/chr_goicuon_diepnhi_pose_05.png",
+            "poses/chr_goicuon_diepnhi_pose_06.png",
+            "poses/chr_goicuon_diepnhi_pose_07.png"
+          ]
+        }
+      }
+    }
+  }
+}

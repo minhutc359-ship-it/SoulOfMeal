@@ -116,15 +116,17 @@ export class SpriteRenderer {
     }
 
     scale *= entry.manifest?.render_scale ?? 1;
-    const frameId = animation?.frameId ?? entry.manifest?.clips?.idle?.directions?.S?.frames?.[0];
+    const idle = entry.manifest?.clips?.idle?.directions;
+    const defaultDirection = idle?.S ?? idle?.E ?? Object.values(idle ?? {})[0];
+    const frameId = animation?.frameId ?? defaultDirection?.frames?.[0];
     const frame = entry.frames?.[frameId];
     if (entry.frames) {
       if (!frame || frame.x < 0 || frame.y < 0 || frame.width <= 0 || frame.height <= 0
         || frame.x + frame.width > entry.image.naturalWidth
         || frame.y + frame.height > entry.image.naturalHeight) return false;
 
-      const anchorX = animation?.anchor?.[0] ?? 0.5;
-      const anchorY = animation?.anchor?.[1] ?? 0.9;
+      const anchorX = animation?.anchor?.[0] ?? defaultDirection?.anchor_normalized?.[0] ?? 0.5;
+      const anchorY = animation?.anchor?.[1] ?? defaultDirection?.anchor_normalized?.[1] ?? 0.9;
       const scaleX = scale;
       const scaleY = scale;
       const logicalWidth = frame.sourceWidth;

@@ -1,8 +1,6 @@
 import { ClipPlayer } from './clipPlayer.js';
-import { ASSET_PATHS, BATTLE_HERO, CINEMATIC, GOLDEN_HERO } from './spriteAssets.js';
-
-const COLORS = { fire: '#ffad7b', water: '#94dcff', wood: '#b8e69c', light: '#fff0ae', shadow: '#d4b8ff' };
-const ELEMENT_TEXTURES = { fire: 'fire_burst', water: 'water_splash', wood: 'leaf_swirl', light: 'light_flash', shadow: 'shadow_fade' };
+import { actorArt, ELEMENT_ART, sceneArt } from './spriteAssets.js';
+import { drawElementEffect } from './elementEffects.js';
 
 export class ChessReplay {
   constructor(combat, renderer, reducedMotion) {
@@ -10,10 +8,9 @@ export class ChessReplay {
     this.renderer = renderer;
     this.reducedMotion = reducedMotion;
     this.actors = new Map(combat.startActors.map((actor) => {
-      const visualId = actor.id === GOLDEN_HERO && actor.team === 'player' && renderer.isLoaded(BATTLE_HERO) ? BATTLE_HERO : actor.id;
       return [actor.actorId, {
-        ...actor, visualId, viewX: actor.x, viewY: actor.y,
-        player: new ClipPlayer(renderer.sheets.get(visualId)?.manifest, { direction: actor.team === 'player' ? 'E' : 'W', reducedMotion }),
+        ...actor, viewX: actor.x, viewY: actor.y,
+        player: new ClipPlayer(renderer.sheets.get(actor.id)?.manifest, { direction: actor.team === 'player' ? 'E' : 'W', reducedMotion }),
       }];
     }));
     this.duration = Math.max(2, Math.min(7, combat.tick / 38));
@@ -31,6 +28,7 @@ export class ChessReplay {
       if (event.type === 'move') {
         source.x = event.x;
         source.y = event.y;
+        source.player.play('walk', { restart: false });
       } else if (event.type === 'hit_resolved') {
         const target = this.actors.get(event.target_id);
         target.hp = event.payload.hp;
@@ -46,6 +44,9 @@ export class ChessReplay {
       actor.viewX += (actor.x - actor.viewX) * fraction;
       actor.viewY += (actor.y - actor.viewY) * fraction;
       actor.player.advance(delta * 1000);
+      if (Math.abs(actor.x - actor.viewX) + Math.abs(actor.y - actor.viewY) < .015) {
+        actor.player.play('idle', { restart: false });
+      }
     }
     return this.elapsed >= this.duration + .42;
   }
@@ -54,7 +55,7 @@ export class ChessReplay {
     const context = canvas.getContext('2d');
     context.fillStyle = '#182d27';
     context.fillRect(0, 0, 760, 480);
-    this.renderer.drawImage(context, CINEMATIC + 'arena.webp', 0, 0, 760, 480);
+    this.renderer.drawImage(context, sceneArt('arena'), 0, 0, 760, 480);
     context.fillStyle = '#0d262577';
     context.fillRect(135, 46, 490, 396);
     for (let column = 0; column < 7; column += 1) {
@@ -67,33 +68,63 @@ export class ChessReplay {
     for (const actor of [...this.actors.values()].sort((a, b) => b.viewY - a.viewY)) {
       if (actor.hp <= 0) continue;
       const { x, y } = boardPoint(actor.viewX, actor.viewY);
-      const scale = actor.visualId === BATTLE_HERO ? .24 : actor.id === GOLDEN_HERO ? .39 : .9;
-      const drawn = this.renderer.drawSprite(context, actor.visualId, actor.player.snapshot(), x, y + 9, { scale, flipX: actor.team === 'enemy' });
+      const drawn = this.renderer.drawSprite(context, actor.id, actor.player.snapshot(), x, y + 9, { scale: .36 });
       if (!drawn) {
-        const asset = ({ mob_mushroom_01: CINEMATIC + 'mushroom.webp', mob_pepper_01: CINEMATIC + 'pepper.webp' })[actor.id] ?? ASSET_PATHS.avatars + '/avatar_lilia.png';
-        this.renderer.drawImage(context, asset, x - 21, y - 36, 42, 42);
+        const asset = actorArt(actor.id);
+        const image = this.renderer.images.get(asset);
+        if (image?.naturalWidth) {
+          const scale = Math.min(45 / image.naturalWidth, 44 / image.naturalHeight);
+          const width = image.naturalWidth * scale;
+          const height = image.naturalHeight * scale;
+          this.renderer.drawImage(context, asset, x - width / 2, y + 9 - height, width, height);
+        }
       }
       context.fillStyle = '#151f1c';
       context.fillRect(x - 23, y - 46, 46, 5);
       context.fillStyle = actor.team === 'player' ? '#a6e3a5' : '#ff977b';
       context.fillRect(x - 22, y - 45, 44 * actor.hp / actor.maxHp, 3);
     }
+    if (!this.reducedMotion) this.drawApproachingAttacks(context);
     for (const effect of this.impacts) {
       const target = this.actors.get(effect.targetId);
       const { x, y } = boardPoint(target.viewX, target.viewY);
       const progress = (effect.end - this.elapsed) / .38;
       context.save();
       context.globalAlpha = Math.min(1, progress * 2);
-      this.renderer.drawImage(context, ASSET_PATHS.effects + '/' + ELEMENT_TEXTURES[effect.element] + '.png', x - 25, y - 46, 50, 50);
+      drawElementEffect(context, this.renderer, effect.element, 'impact', {
+        x, y: y - 23, size: 59 - progress * 12, opacity: Math.min(1, progress * 2),
+      });
       context.textAlign = 'center';
       context.font = '800 18px system-ui';
       context.strokeStyle = '#172321';
       context.lineWidth = 4;
       const textY = y - 36 - (this.reducedMotion ? 0 : (1 - progress) * 16);
       context.strokeText('−' + effect.damage, x, textY);
-      context.fillStyle = COLORS[effect.element];
+      context.fillStyle = ELEMENT_ART[effect.element]?.color ?? '#fff5d7';
       context.fillText('−' + effect.damage, x, textY);
       context.restore();
+    }
+  }
+
+  drawApproachingAttacks(context) {
+    const lead = .20;
+    for (let index = this.eventIndex; index < this.combat.events.length; index += 1) {
+      const event = this.combat.events[index];
+      const contact = event.tick * this.duration / this.combat.tick;
+      if (contact > this.elapsed + lead) break;
+      if (event.type !== 'hit_resolved') continue;
+      const source = this.actors.get(event.source_id);
+      const target = this.actors.get(event.target_id);
+      if (!source || !target || source.hp <= 0 || target.hp <= 0) continue;
+      const from = boardPoint(source.viewX, source.viewY);
+      const to = boardPoint(target.viewX, target.viewY);
+      const dx = to.x - from.x;
+      const dy = to.y - from.y;
+      const progress = Math.max(0, 1 - (contact - this.elapsed) / lead);
+      drawElementEffect(context, this.renderer, source.element, 'trail', {
+        x: from.x + dx * progress, y: from.y + dy * progress - 21,
+        size: 60, angle: Math.atan2(dy, dx), opacity: .86,
+      });
     }
   }
 }

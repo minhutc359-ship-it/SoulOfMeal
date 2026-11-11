@@ -1,0 +1,35 @@
+{
+  "character_id": "chr_banhbao_bachngoc",
+  "skin_id": "default",
+  "frame_size_px": [
+    256,
+    256
+  ],
+  "source_sheet_sha256": "fb73da8843a0d679b78e988793dc7f2fb155768f8682fa9d5a95ff164ba21f63",
+  "ground_anchor": [
+    0.5,
+    0.8984375
+  ],
+  "rights_status": "pending_review",
+  "identity_review": "pending",
+  "animations": {
+    "keyposes": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "poses/chr_banhbao_bachngoc_pose_00.png",
+            "poses/chr_banhbao_bachngoc_pose_01.png",
+            "poses/chr_banhbao_bachngoc_pose_02.png",
+            "poses/chr_banhbao_bachngoc_pose_03.png",
+            "poses/chr_banhbao_bachngoc_pose_04.png",
+            "poses/chr_banhbao_bachngoc_pose_05.png",
+            "poses/chr_banhbao_bachngoc_pose_06.png",
+            "poses/chr_banhbao_bachngoc_pose_07.png"
+          ]
+        }
+      }
+    }
+  }
+}

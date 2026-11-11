@@ -18,9 +18,9 @@ Mở `http://localhost:4173/client/`. Trên máy tính, dùng WASD hoặc phím 
 
 Adventure chạy mô phỏng ở 30 Hz. Chuỗi `attack_started` / `cast_started` → `projectile_spawned` (nếu có) → `hit_resolved` đồng bộ clip, hiệu ứng và âm thanh. Các sự kiện `heal_resolved` và `shield_applied` dùng cùng đồng hồ mô phỏng. Dữ liệu thử nghiệm nằm trong `src/modes/adventureBalance.js` và `examples/`. Renderer và playback chỉ đọc sự kiện.
 
-- Sprite đi map bốn hướng lấy từ Golden Sample, đã được kiểm tra 190 frame. Model chiến đấu anime chibi Bún Bò dùng tám pose RGBA gốc ở [thư mục nhân vật](assets/characters/chr_bunbo_holinh/battle/), phát qua [atlas và clip manifest](assets/golden/bunbo_battle.json). Bốn Vị Linh đồng đội dùng sprite đã có trong repo.
-- Atlas Golden Sample, atlas Hỏa và SFX OGG có thể tái tạo từ ZIP Golden Sample bằng `python3 scripts/import_golden_sample.py <golden-sample.zip>`. Nhạc và ambience có thể tái tạo bằng `python3 scripts/build_music.py` với FFmpeg.
-- Hình tiêu đề, nền làng, nền chiến đấu, cut-in và hai quái được tạo cho Soul of Meal. Xem [nguồn tài nguyên](../docs/02_art/LICENSE_AND_PROVENANCE.md#browser-playtest-assets) và [QA frame anime chibi](assets/characters/chr_bunbo_holinh/battle/qa.json).
+- Cả năm Vị Linh dùng sprite anime chibi mới, với chân dung và cut-in riêng. Bún Bò Hỏa Linh có bộ sprite đi bản đồ bốn hướng. Adventure, TCG và Auto Chess dùng chung nhận diện nhân vật.
+- Tranh làng, rừng, sân đấu, đạo cụ, quái và thẻ phép/bẫy được vẽ riêng cho bản chơi thử. Xem [danh mục, nguồn art và cách tái tạo](../docs/02_art/ORIGINAL_ART_PLAYTEST.md).
+- Nhạc và âm thanh môi trường có thể tái tạo bằng `python3 scripts/build_music.py`. Tái tạo âm thanh năm hệ bằng `python3 scripts/build_element_sfx.py` với FFmpeg.
 
 ## Kiểm thử và phạm vi
 

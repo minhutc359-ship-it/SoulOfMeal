@@ -1,0 +1,51 @@
+{
+  "character_id": "chr_bunbo_holinh",
+  "skin_id": "default",
+  "frame_size_px": [
+    256,
+    256
+  ],
+  "source_sheet_sha256": "942ab627bfead1d95bde21e97b4dcc67fe2251cc879aab9d38c9d488cf88533d",
+  "ground_anchor": [
+    0.5,
+    0.8984375
+  ],
+  "rights_status": "pending_review",
+  "identity_review": "pending",
+  "animations": {
+    "keyposes": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "N": {
+          "frames": [
+            "poses/chr_bunbo_holinh_travel_pose_00.png",
+            "poses/chr_bunbo_holinh_travel_pose_04.png",
+            "poses/chr_bunbo_holinh_travel_pose_08.png"
+          ]
+        },
+        "E": {
+          "frames": [
+            "poses/chr_bunbo_holinh_travel_pose_01.png",
+            "poses/chr_bunbo_holinh_travel_pose_05.png",
+            "poses/chr_bunbo_holinh_travel_pose_09.png"
+          ]
+        },
+        "S": {
+          "frames": [
+            "poses/chr_bunbo_holinh_travel_pose_02.png",
+            "poses/chr_bunbo_holinh_travel_pose_06.png",
+            "poses/chr_bunbo_holinh_travel_pose_10.png"
+          ]
+        },
+        "W": {
+          "frames": [
+            "poses/chr_bunbo_holinh_travel_pose_03.png",
+            "poses/chr_bunbo_holinh_travel_pose_07.png",
+            "poses/chr_bunbo_holinh_travel_pose_11.png"
+          ]
+        }
+      }
+    }
+  }
+}

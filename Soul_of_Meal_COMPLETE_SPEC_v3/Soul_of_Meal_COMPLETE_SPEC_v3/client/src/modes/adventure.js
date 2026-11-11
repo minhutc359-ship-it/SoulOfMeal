@@ -322,7 +322,7 @@ function startAction(battle, actor, target, profile, sourceKind) {
   };
   gameEvents.emit(sourceKind === 'ultimate' ? 'cast_started' : 'attack_started', {
     ability_id: `${actor.id}_${sourceKind}`, name: profile.name, element: actor.element,
-    clip_id: profile.clip ?? 'ultimate_01', kind: profile.kind, windup_ticks: profile.windup,
+    clip_id: profile.clip ?? 'ultimate_01', kind: profile.kind, windup_ticks: profile.windup, travel_ticks: profile.travel ?? 0,
   }, battleContext(battle, actor.actor_id, target.actor_id));
 }
 

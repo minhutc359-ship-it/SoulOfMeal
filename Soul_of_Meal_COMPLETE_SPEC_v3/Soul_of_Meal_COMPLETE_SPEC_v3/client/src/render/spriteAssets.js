@@ -1,66 +1,54 @@
-/**
- * Danh mục tải toàn bộ assets cho game Soul of Meal
- */
+const ORIGINAL = './assets/original';
+export const HERO_ID = 'chr_bunbo_holinh';
+export const TRAVEL_HERO = HERO_ID + '_travel';
 
-export const CINEMATIC = './assets/cinematic/';
-export const GOLDEN_HERO = 'chr_bunbo_holinh';
-export const BATTLE_HERO = 'chr_bunbo_holinh_battle';
-
-export const ASSET_PATHS = Object.freeze({
-  sprites: './assets/sprites',
-  icons: './assets/sprites/icons',
-  maps: './assets/sprites/maps',
-  ui: './assets/sprites/ui',
-  effects: './assets/sprites/effects',
-  cards: './assets/cards',
-  portraits: './assets/portraits',
-  avatars: './assets/avatars',
+export const HERO_NAMES = Object.freeze({
+  [HERO_ID]: 'Bún Bò Hỏa Linh',
+  chr_pho_lamvu: 'Phở Lam Vũ',
+  chr_goicuon_diepnhi: 'Gỏi Cuốn Diệp Nhi',
+  chr_banhbao_bachngoc: 'Bánh Bao Bạch Ngọc',
+  chr_caphe_davu: 'Cà Phê Dạ Vũ',
 });
 
-export const CHARACTERS = Object.freeze([
-  'chr_bunbo_holinh',
-  'chr_pho_lamvu',
-  'chr_goicuon_diepnhi',
-  'chr_banhbao_bachngoc',
-  'chr_caphe_davu',
-  'boss_thief',
-]);
+const ACTORS = [...Object.keys(HERO_NAMES), 'npc_lilia', 'mob_mushroom_01', 'mob_pepper_01', 'boss_bep_truong'];
+const CARD_IDS = new Set([7, 10, 11, 12, 13, 14, 15, 16, 17, 18].map((id) => 'card_demo_' + String(id).padStart(2, '0')));
+const PROPS = ['house_kitchen', 'house_guild', 'house_merchant', 'tree', 'chest_closed', 'chest_open', 'portal', 'table'];
+
+export const ELEMENT_ART = Object.freeze({
+  fire: { color: '#ffae69', dark: '#70241f' },
+  water: { color: '#a5e8ff', dark: '#174d72' },
+  wood: { color: '#b9ef8e', dark: '#2e6044' },
+  light: { color: '#ffedaa', dark: '#755528' },
+  shadow: { color: '#d7b6ff', dark: '#482452' },
+});
+
+export function sceneArt(id) { return `${ORIGINAL}/scenes/${id}.webp`; }
+export function actorArt(id) { return ACTORS.includes(id) ? `${ORIGINAL}/actors/${id}.webp` : null; }
+export function propArt(id) { return `${ORIGINAL}/props/${id}.webp`; }
+export function originalCardArt(id) { return CARD_IDS.has(id) ? `${ORIGINAL}/cards/${id}.webp` : null; }
+export function cutinArt(id) { return `${ORIGINAL}/cutins/${id}.webp`; }
+export function effectArt(element, phase) {
+  const key = Object.hasOwn(ELEMENT_ART, element) ? element : 'light';
+  return `${ORIGINAL}/effects/${key}_${phase}.webp`;
+}
 
 export async function preloadGameAssets(renderer) {
-  const promises = [];
-  const manifests = {};
-
-  for (const charId of CHARACTERS) {
-    const path = charId === GOLDEN_HERO ? './assets/golden/bunbo' : `${ASSET_PATHS.sprites}/${charId}`;
-    const image = charId === GOLDEN_HERO ? path + '.webp' : path + '.png';
-    const manifest = charId === GOLDEN_HERO ? path + '.json' : path + '.manifest.json';
-    promises.push(renderer.loadCharacter(charId, image, manifest).then((entry) => {
-      if (entry.loaded && entry.manifest) manifests[charId] = entry.manifest;
-    }));
-  }
-  promises.push(renderer.loadCharacter(BATTLE_HERO, './assets/golden/bunbo_battle.webp', './assets/golden/bunbo_battle.json').then((entry) => {
-    if (entry.loaded && entry.manifest) manifests[BATTLE_HERO] = entry.manifest;
-  }));
-  promises.push(renderer.loadCharacter('vfx_fire', './assets/golden/fire.webp', './assets/golden/fire.json'));
-  for (const id of ['village', 'arena', 'cutin', 'mushroom', 'pepper']) {
-    promises.push(renderer.loadImage(CINEMATIC + id + '.webp'));
-  }
-
-  // 2. Tải map tiles và objects
-  const mapAssets = [
-    'tile_grass_light', 'tile_grass_dark', 'tile_path', 'tile_water',
-    'tree_01', 'tree_02', 'house_kitchen', 'house_guild', 'house_merchant',
-    'chest_closed', 'chest_open', 'portal'
+  const imagePaths = [
+    ...['village', 'forest', 'arena'].map(sceneArt),
+    ...ACTORS.map(actorArt),
+    ...PROPS.map(propArt),
+    ...Object.keys(HERO_NAMES).map(cutinArt),
+    ...Object.keys(ELEMENT_ART).flatMap((id) => [effectArt(id, 'trail'), effectArt(id, 'impact')]),
   ];
-  for (const asset of mapAssets) {
-    promises.push(renderer.loadImage(`${ASSET_PATHS.maps}/${asset}.png`));
-  }
+  const loadSprites = [TRAVEL_HERO, ...Object.keys(HERO_NAMES)].map(async (id) => {
+    const path = `${ORIGINAL}/atlases/${id}`;
+    const entry = await renderer.loadCharacter(id, path + '.webp', path + '.json');
+    return [id, entry.loaded ? entry.manifest : null];
+  });
 
-  for (const asset of ['hit_spark', 'fire_burst', 'water_splash', 'leaf_swirl', 'light_flash', 'shadow_fade', 'heal_glow']) {
-    promises.push(renderer.loadImage(`${ASSET_PATHS.effects}/${asset}.png`));
-  }
-  promises.push(renderer.loadImage(ASSET_PATHS.avatars + '/avatar_lilia.png'));
-
-  await Promise.allSettled(promises);
-  return manifests;
+  const [sprites] = await Promise.all([
+    Promise.all(loadSprites),
+    Promise.all(imagePaths.map((path) => renderer.loadImage(path))),
+  ]);
+  return Object.fromEntries(sprites.filter(([, manifest]) => manifest));
 }

@@ -16,3 +16,7 @@
 | `client/assets/audio/*_theme.ogg`, `forest_wind.ogg` | Original melodies and synthesized ambience defined in `scripts/build_music.py`. | Playback and loudness on target devices pending. |
 
 The anime chibi art uses the visual direction requested for Soul of Meal. Characters and assets are original to this project. No art or audio from the reference game is included in these additions.
+
+## Original art playtest
+
+The runtime art in `client/assets/original/` was generated for this revision from the written Soul of Meal identity specifications. Source-sheet SHA-256, prompts and review status are tracked in [ORIGINAL_ART_SOURCES.json](ORIGINAL_ART_SOURCES.json). The source frames and atlas metadata are documented in [ORIGINAL_ART_PLAYTEST.md](ORIGINAL_ART_PLAYTEST.md). Elemental cast and impact sounds are synthesized by `scripts/build_element_sfx.py`. Human art and commercial-rights review remain pending.

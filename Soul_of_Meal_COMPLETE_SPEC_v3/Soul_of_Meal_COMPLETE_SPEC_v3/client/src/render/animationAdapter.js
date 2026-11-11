@@ -148,7 +148,7 @@ export class AnimationAdapter extends EventTarget {
       for (const view of this.views.values()) {
         if (view.team === 'player' && view.alive !== false) {
           const clipId = won ? 'victory' : 'defeat';
-          if (this.#play(view.actorId, clipId, !won)) actions.push({ actorId: view.actorId, clipId, reason: event.type });
+          if (this.#play(view.actorId, clipId, true)) actions.push({ actorId: view.actorId, clipId, reason: event.type });
         }
       }
     }

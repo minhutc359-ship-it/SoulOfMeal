@@ -261,7 +261,10 @@ function resolveSpell(match, card, ownerIndex, targetId) {
     victim.hp = Math.max(0, victim.hp - card.effect.value);
     commanderDefeated = victim.hp === 0;
   }
-  gameEvents.emit('hit_resolved', { damage: card.effect.value, effect_kind: 'spell', card_id: card.card_id }, {
+  gameEvents.emit('hit_resolved', {
+    damage: card.effect.value, effect_kind: 'spell', card_id: card.card_id, element: card.element,
+    target_player: victimIndex, target_lane: unit?.lane,
+  }, {
     battle_id: match.battleId,
     rules_version: 'client-tcg-v1',
     tick: 0,
@@ -294,14 +297,14 @@ function resolveCombat(match, attackerIndex, attackers) {
     if (blocker) { blockers.push({ attacker, blocker }); usedBlockers.add(blocker.instance_id); }
     else {
       match.players[defenderIndex].hp = Math.max(0, match.players[defenderIndex].hp - attacker.atk);
-      emitTcgHit(match, attacker.atk, attacker.instance_id, `commander:p${defenderIndex}`);
+      emitTcgHit(match, attacker.atk, attacker, `commander:p${defenderIndex}`);
     }
   }
   for (const { attacker, blocker } of blockers) {
     attacker.current_def -= blocker.atk;
     blocker.current_def -= attacker.atk;
-    emitTcgHit(match, blocker.atk, blocker.instance_id, attacker.instance_id);
-    emitTcgHit(match, attacker.atk, attacker.instance_id, blocker.instance_id);
+    emitTcgHit(match, blocker.atk, blocker, attacker.instance_id, attackerIndex, attacker.lane);
+    emitTcgHit(match, attacker.atk, attacker, blocker.instance_id, defenderIndex, blocker.lane);
   }
   for (let playerIndex = 0; playerIndex < 2; playerIndex += 1) {
     const player = match.players[playerIndex];
@@ -367,13 +370,16 @@ function finishTcg(match, winner) {
   });
 }
 
-function emitTcgHit(match, damage, sourceId, targetId) {
-  gameEvents.emit('hit_resolved', { damage, hp_damage: damage, source_kind: 'tcg_combat' }, {
+function emitTcgHit(match, damage, source, targetId, targetPlayer, targetLane) {
+  gameEvents.emit('hit_resolved', {
+    damage, hp_damage: damage, source_kind: 'tcg_combat', element: source.element,
+    target_player: targetPlayer, target_lane: targetLane,
+  }, {
     battle_id: match.battleId,
     rules_version: 'client-tcg-v1',
     tick: 0,
     action_seq: match.eventSeq,
-    source_id: sourceId,
+    source_id: source.instance_id,
     target_id: targetId,
   });
 }

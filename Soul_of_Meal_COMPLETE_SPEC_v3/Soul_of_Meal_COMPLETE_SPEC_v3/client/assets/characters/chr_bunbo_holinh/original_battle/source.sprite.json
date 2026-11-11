@@ -1,0 +1,35 @@
+{
+  "character_id": "chr_bunbo_holinh",
+  "skin_id": "default",
+  "frame_size_px": [
+    256,
+    256
+  ],
+  "source_sheet_sha256": "f7ab0018ef3318bd6ba9739df335c78fb8afc9d7bac84e9c2a84f36636cc56f1",
+  "ground_anchor": [
+    0.5,
+    0.8984375
+  ],
+  "rights_status": "pending_review",
+  "identity_review": "pending",
+  "animations": {
+    "keyposes": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "poses/chr_bunbo_holinh_pose_00.png",
+            "poses/chr_bunbo_holinh_pose_01.png",
+            "poses/chr_bunbo_holinh_pose_02.png",
+            "poses/chr_bunbo_holinh_pose_03.png",
+            "poses/chr_bunbo_holinh_pose_04.png",
+            "poses/chr_bunbo_holinh_pose_05.png",
+            "poses/chr_bunbo_holinh_pose_06.png",
+            "poses/chr_bunbo_holinh_pose_07.png"
+          ]
+        }
+      }
+    }
+  }
+}

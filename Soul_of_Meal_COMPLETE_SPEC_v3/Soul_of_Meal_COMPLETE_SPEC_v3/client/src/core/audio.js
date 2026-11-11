@@ -7,6 +7,11 @@ const CUES = {
   shield_applied: 'sfx_ui_confirm', boss_phase_changed: 'sfx_cast_fire',
 };
 
+const ELEMENTS = new Set(['fire', 'water', 'wood', 'light', 'shadow']);
+function elementalCue(element, phase, fallback) {
+  return ELEMENTS.has(element) ? `sfx_element_${element}_${phase}` : fallback;
+}
+
 export class GameAudio {
   constructor(settings) {
     this.settings = settings;
@@ -57,9 +62,9 @@ export class GameAudio {
   }
 
   handle({ type, payload }) {
-    if (type === 'hit_resolved') this.play(payload.element === 'fire' ? 'sfx_impact_fire' : 'sfx_hit');
+    if (['hit_resolved', 'heal_resolved', 'shield_applied'].includes(type)) this.play(elementalCue(payload.element, 'impact', CUES[type] ?? 'sfx_hit'));
     else if (type === 'attack_started') this.play(payload.clip_id === 'attack_b' ? 'sfx_slash_b' : 'sfx_slash_a');
-    else if (type === 'cast_started') this.play(payload.element === 'fire' ? 'sfx_ultimate_fire' : 'sfx_cast_fire');
+    else if (type === 'cast_started') this.play(elementalCue(payload.element, 'cast', 'sfx_cast_fire'));
     else if (type === 'battle_finished' && (payload.winner_team === 'player' || payload.winner === 0)) this.play('sfx_victory');
     else if (CUES[type]) this.play(CUES[type]);
   }

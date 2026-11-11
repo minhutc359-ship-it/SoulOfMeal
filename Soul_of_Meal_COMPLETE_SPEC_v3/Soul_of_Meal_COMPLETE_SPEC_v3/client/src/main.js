@@ -7,7 +7,8 @@ import { AnimationAdapter } from './render/animationAdapter.js';
 import { findAdventurePath } from './modes/adventureNavigation.js';
 import { createAdventureMapRegistry, getAdventureMap } from './modes/mapCatalog.js';
 import { spriteRenderer } from './render/spriteRenderer.js';
-import { BATTLE_HERO, CINEMATIC, GOLDEN_HERO, preloadGameAssets } from './render/spriteAssets.js';
+import { actorArt, effectArt, HERO_ID, HERO_NAMES as characterNames, originalCardArt, preloadGameAssets, propArt, sceneArt, TRAVEL_HERO } from './render/spriteAssets.js';
+import { drawElementEffect } from './render/elementEffects.js';
 import { adventureBalance } from './modes/adventureBalance.js';
 import { BattleEffects } from './render/battleEffects.js';
 import { GameAudio } from './core/audio.js';
@@ -17,7 +18,7 @@ const app = document.querySelector('#app');
 const runtime = {
   page: 'home', save: loadSave(), adventure: null, cards: null, deck: null, units: null, maps: null,
   shopConfig: null, tcg: null, chess: null, selectedTarget: 'commander', selectedBench: null, mulligan: new Set(), deckDraft: null,
-  selectedBoard: null, notice: '', lastSavedLocation: 0, heldKeys: new Set(),
+  selectedBoard: null, notice: '', lastSavedLocation: 0, heldKeys: new Set(), tcgImpacts: new Map(),
 };
 runtime.adventure = createAdventureState(runtime.save);
 runtime.tcg = runtime.save.modes.tcg;
@@ -29,14 +30,15 @@ window.addEventListener('keydown', () => runtime.audio.unlock(), { once: true, c
 gameEvents.addEventListener('game-event', ({ detail }) => {
   runtime.effects.handle(detail, runtime.adventure.battle);
   if (detail.payload.source_kind !== 'auto_chess_attack') runtime.audio.handle(detail);
+  if (detail.type === 'hit_resolved' && detail.rules_version === 'client-tcg-v1') {
+    const { element, target_player, target_lane } = detail.payload;
+    const impact = { element, matchId: detail.battle_id, expires: performance.now() + 550 };
+    runtime.tcgImpacts.set(detail.target_id, impact);
+    if (Number.isInteger(target_lane)) runtime.tcgImpacts.set(tcgLaneId(target_player, target_lane), impact);
+  }
 });
 
 const iconMap = { home: '⌂', adventure: '⌖', tcg: '▤', chess: '▦', settings: '⚙' };
-const characterNames = {
-  chr_bunbo_holinh: 'Bún Bò Hỏa Linh', chr_pho_lamvu: 'Phở Lam Vũ',
-  chr_goicuon_diepnhi: 'Gỏi Cuốn Diệp Nhi', chr_banhbao_bachngoc: 'Bánh Bao Bạch Ngọc',
-  chr_caphe_davu: 'Cà Phê Dạ Vũ',
-};
 const elementColors = { fire: '#dd684a', water: '#428eac', wood: '#548d56', light: '#b8923c', shadow: '#75627e' };
 
 async function loadContent() {
@@ -143,12 +145,12 @@ function renderAdventure() {
     const actor = battle?.actors.find((candidate) => candidate.actor_id === member.id) ?? member;
     const skill = adventureBalance.ultimates[actor.id];
     return `<div class="combatant skill-card" data-actor="${actor.id}">
-      <img src="./assets/avatars/avatar_${actor.id.replace('chr_', '')}.png" alt="">
+      <img src="${escapeAttr(actorArt(actor.id))}" alt="">
       <div class="skill-info"><strong>${escapeHtml(characterNames[actor.id])}</strong>
         <div class="meter" aria-label="Sinh lực"><i data-hp style="width:${actor.hp / actor.maxHp * 100}%"></i></div>
         <div class="meter energy" aria-label="Năng lượng"><i data-energy style="width:${actor.energy}%"></i></div>
       </div>
-      ${battle ? `<button class="button skill-button" data-ultimate="${actor.id}" title="${escapeAttr(skill.description)}" disabled><span class="key-tag">${index + 1}</span>${escapeHtml(skill.name)}<small data-charge>${actor.energy}%</small></button>` : `<small>${escapeHtml(skill.name)}</small>`}
+      ${battle ? `<button class="button skill-button" data-ultimate="${actor.id}" title="${escapeAttr(skill.description)}" disabled><span class="key-tag">${index + 1}</span><img class="skill-art" src="${effectArt(actor.element, 'impact')}" alt="">${escapeHtml(skill.name)}<small data-charge>${actor.energy}%</small></button>` : `<small>${escapeHtml(skill.name)}</small>`}
     </div>`;
   }).join('');
   const resultPanel = battle?.phase === 'battle_end' ? `<div class="result-box ${battle.result}"><strong>${battle.result === 'victory' ? 'Chiến thắng' : 'Đội hình đã gục'}</strong><p>${battle.result === 'victory' ? 'Phần thưởng · 60 vàng và 10 tinh hoa' : 'Đội hình có thể vào trận lại.'}</p><button class="button" data-battle-result>${battle.result === 'victory' ? 'Nhận thưởng' : 'Thử lại'}</button></div>` : '';
@@ -313,7 +315,7 @@ function drawAdventureFrame(deltaSeconds) {
   canvas.dataset.worldY = String(Math.round(adventure.y));
   canvas.dataset.simTick = String(adventure.tick);
   canvas.dataset.pathRemaining = String(adventure.walkPath?.length ?? 0);
-  const heroAnimation = runtime.animations.getActorState('chr_bunbo_holinh')?.animation;
+  const heroAnimation = runtime.animations.getActorState(HERO_ID)?.animation;
   canvas.dataset.animationClip = heroAnimation?.requestedClipId ?? 'idle';
   canvas.dataset.animationFallback = String(heroAnimation?.missingClip ?? true);
   if (adventure.battle) drawBattleScene(context, adventure);
@@ -329,16 +331,16 @@ function syncAdventureAnimations(adventure) {
   const views = [];
   if (adventure.battle) {
     for (const actor of adventure.battle.actors) {
-      const characterId = battleVisualId(actor);
-      views.push({ actorId: actor.actor_id, characterId, team: actor.team, x: actor.x, y: actor.y, direction: actor.direction, alive: actor.alive, speed: actor.moving ? 1.5 : 0 });
+      views.push({ actorId: actor.actor_id, characterId: actor.id, team: actor.team, x: actor.x, y: actor.y, direction: actor.direction, alive: actor.alive, speed: actor.moving ? 1.5 : 0 });
     }
   } else {
     const direction = ({ up: 'N', right: 'E', down: 'S', left: 'W' })[adventure.facing] ?? 'S';
-    views.push({ actorId: 'chr_bunbo_holinh', characterId: 'chr_bunbo_holinh', team: 'player', x: adventure.x, y: adventure.y, direction, alive: true });
+    views.push({ actorId: HERO_ID, characterId: TRAVEL_HERO, team: 'player', x: adventure.x, y: adventure.y, direction, alive: true });
   }
 
   for (const view of views) {
     runtime.animations.registerActor(view);
+    if (adventure.battle?.phase === 'battle_end' && view.alive) continue;
     runtime.animations.syncMotion(view.actorId, {
       x: view.x,
       y: view.y,
@@ -355,51 +357,75 @@ function drawWorldScene(context, adventure, save) {
   const map = getAdventureMap(runtime.maps, adventure.map);
   context.fillStyle = forest ? '#466a52' : '#b79864';
   context.fillRect(0, 0, 960, 540);
-  spriteRenderer.drawImage(context, CINEMATIC + (forest ? 'arena' : 'village') + '.webp', 0, 0, 960, 540);
+  spriteRenderer.drawImage(context, sceneArt(forest ? 'forest' : 'village'), 0, 0, 960, 540);
   drawMapVisuals(context, map, save);
-  drawPlayer(context, adventure.x, adventure.y, runtime.animations.getActorState('chr_bunbo_holinh')?.animation);
+  drawPlayer(context, adventure.x, adventure.y, runtime.animations.getActorState(HERO_ID)?.animation);
 }
 
 function drawMapVisuals(context, map, save) {
-  if (!map) return;
-  for (const visual of map.visuals) {
+  for (const visual of map?.visuals ?? []) {
+    const { x, y } = visual;
     if (visual.kind === 'house') {
-      const palette = { coral: '#c96b50', sage: '#7b8d72', gold: '#d4a84e' };
-      const labels = { building_kitchen: 'NHÀ BẾP', building_guild: 'HỘI QUÁN', building_merchant: 'TIỆM' };
-      drawHouse(context, visual.x, visual.y, palette[visual.palette] ?? '#b87855', labels[visual.id] ?? 'NHÀ', visual.width, visual.height, visual.id);
+      const art = propArt(visual.id.replace('building_', 'house_'));
+      drawFitted(context, art, x + visual.width / 2, y + visual.height, visual.width, visual.height);
+      const label = ({ building_kitchen: 'NHÀ BẾP', building_guild: 'HỘI QUÁN', building_merchant: 'TIỆM' })[visual.id];
+      drawMapLabel(context, label, x + visual.width / 2, y + visual.height + 13);
     } else if (visual.kind === 'table') {
-      drawTable(context, visual.x, visual.y, visual.width, visual.height);
+      drawFitted(context, propArt('table'), x + visual.width / 2, y + visual.height, visual.width, visual.height);
     } else if (visual.kind === 'tree') {
-      drawTree(context, visual.x, visual.y, visual.palette === 'forest_dark' ? '#356c50' : '#437a51', visual.palette);
+      drawFitted(context, propArt('tree'), x, y + 26, 66, 93);
+    } else if (visual.kind === 'marker' && visual.id === 'npc_lilia') {
+      drawFitted(context, actorArt('npc_lilia'), x, y + 11, 65, 70);
+      drawMapLabel(context, visual.label, x, y + 24);
     } else if (visual.kind === 'marker') {
-      const color = visual.palette === 'wood' ? '#4b7f62' : visual.palette === 'coral' ? '#e87552' : '#efbd54';
-      drawMarker(context, visual.x, visual.y, visual.label, color);
+      drawFitted(context, actorArt('mob_mushroom_01'), x, y + 10, 59, 62);
+      drawMapLabel(context, visual.label, x, y + 24);
     } else if (visual.kind === 'chest') {
-      drawChest(context, visual.x, visual.y, save.adventure.chestOpened);
+      drawFitted(context, propArt(save.adventure.chestOpened ? 'chest_open' : 'chest_closed'), x, y + 19, 58, 53);
+      drawMapLabel(context, 'RƯƠNG', x, y + 33);
     } else if (visual.kind === 'portal') {
       const open = visual.id === 'forest_return_portal' ? save.adventure.forestCleared : save.adventure.chestOpened;
-      if (open) spriteRenderer.drawImage(context, './assets/sprites/maps/portal.png', visual.x - 35, visual.y - 62, 70, 70);
-      drawMarker(context, visual.x, visual.y, open ? visual.label : 'KHÓA', open ? '#e87552' : '#68786e');
+      context.save();
+      context.globalAlpha = open ? 1 : .48;
+      drawFitted(context, propArt('portal'), x, y + 16, 78, 89);
+      context.restore();
+      drawMapLabel(context, open ? visual.label : 'KHÓA', x, y + 29);
     }
   }
+}
+
+function drawMapLabel(context, label, x, y) {
+  context.save();
+  context.textAlign = 'center';
+  context.font = '700 10px DM Sans, sans-serif';
+  context.lineWidth = 3;
+  context.strokeStyle = '#193d32';
+  context.fillStyle = '#fff6e3';
+  context.strokeText(label, x, y);
+  context.fillText(label, x, y);
+  context.restore();
+}
+
+function drawFitted(context, path, x, baseline, width, height) {
+  const image = spriteRenderer.images.get(path);
+  if (!image?.naturalWidth) return;
+  const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
+  const w = image.naturalWidth * scale;
+  const h = image.naturalHeight * scale;
+  spriteRenderer.drawImage(context, path, x - w / 2, baseline - h, w, h);
 }
 
 function drawBattleScene(context, adventure) {
   const battle = adventure.battle;
   context.fillStyle = '#283f33';
   context.fillRect(0, 0, 960, 540);
-  spriteRenderer.drawImage(context, CINEMATIC + 'arena.webp', 0, 0, 960, 540);
+  spriteRenderer.drawImage(context, sceneArt('arena'), 0, 0, 960, 540);
   const boss = battle.actors.find((actor) => actor.boss && actor.alive);
   if (boss && battle.bossTelegraph) {
-    context.save();
-    context.strokeStyle = '#ffc38e';
-    context.fillStyle = '#ef70292f';
-    context.lineWidth = 3;
-    context.beginPath();
-    context.ellipse(boss.x, boss.y, 185, 47, 0, 0, Math.PI * 2);
-    context.fill();
-    context.stroke();
-    context.restore();
+    drawElementEffect(context, spriteRenderer, 'fire', 'impact', {
+      x: boss.x, y: boss.y + 8, size: 364, height: 108,
+      opacity: .42 + .28 * (1 - battle.bossTelegraph.ticks / 45),
+    });
   }
   for (const actor of [...battle.actors].sort((a, b) => a.y - b.y)) {
     drawActor(context, actor, runtime.animations.getActorState(actor.actor_id)?.animation);
@@ -407,40 +433,24 @@ function drawBattleScene(context, adventure) {
   runtime.effects.draw(context, battle, runtime.save.settings.reducedMotion);
 }
 
-function battleVisualId(actor) {
-  if (actor.boss) return 'boss_thief';
-  if (actor.id === GOLDEN_HERO && spriteRenderer.isLoaded(BATTLE_HERO)) return BATTLE_HERO;
-  return actor.id;
-}
-
 function drawActor(context, actor, animation) {
   const { x, y } = actor;
-  const charId = battleVisualId(actor);
-  const spriteScale = actor.boss ? 1.52 : charId === BATTLE_HERO ? .44 : actor.id === GOLDEN_HERO ? .72 : 1.55;
-  const opacity = actor.alive ? 1 : .32;
   context.save();
-  context.globalAlpha = opacity;
+  context.globalAlpha = actor.alive ? 1 : .32;
   context.fillStyle = '#101e1c8c';
   context.beginPath();
   context.ellipse(x, y + 2, actor.boss ? 33 : 23, 7, 0, 0, Math.PI * 2);
   context.fill();
-  if (actor.shield) {
-    context.strokeStyle = '#ffdda5';
-    context.lineWidth = 2;
-    context.beginPath();
-    context.ellipse(x, y - 36, 38, 42, 0, 0, Math.PI * 2);
-    context.stroke();
-  }
-  const direction = actor.direction ?? 'E';
-  const drawn = spriteRenderer.drawSprite(context, charId, animation, x, y, {
-    scale: spriteScale, flipX: direction === 'W' && charId !== BATTLE_HERO,
-  });
-  if (!drawn && actor.team === 'enemy') {
-    const monster = charId === 'mob_pepper_01' ? 'pepper' : 'mushroom';
+  const drawn = spriteRenderer.drawSprite(context, actor.id, animation, x, y, { scale: .67 });
+  if (!drawn) {
     const pose = placeholderPose(animation);
-    spriteRenderer.drawImage(context, CINEMATIC + monster + '.webp', x - 43, y - 84 + pose.offsetY, 86, 86);
+    drawFitted(context, actorArt(actor.id), x, y + pose.offsetY,
+      (actor.boss ? 150 : 77) * pose.scaleX, (actor.boss ? 128 : 78) * pose.scaleY);
   }
-  const barY = y - (actor.boss ? 125 : actor.id === GOLDEN_HERO ? 105 : 86);
+  if (actor.shield) {
+    drawElementEffect(context, spriteRenderer, 'light', 'impact', { x, y: y - 43, size: 100, opacity: .46 });
+  }
+  const barY = y - (actor.boss ? 140 : drawn ? 104 : 89);
   const barWidth = actor.boss ? 94 : 50;
   context.fillStyle = '#182726';
   context.fillRect(x - barWidth / 2, barY, barWidth, 6);
@@ -449,66 +459,9 @@ function drawActor(context, actor, animation) {
   context.restore();
 }
 
-function drawHouse(context, x, y, color, label, width = 176, height = 118, houseId = '') {
-  const houseKey = `./assets/sprites/maps/${houseId.replace('building_', 'house_')}.png`;
-  const drawn = spriteRenderer.drawImage(context, houseKey, x, y, width, height);
-  if (!drawn) {
-    context.fillStyle = '#425b45'; context.fillRect(x + 10, y + 38, width - 20, height - 38);
-    context.fillStyle = color; context.beginPath(); context.moveTo(x, y + 47); context.lineTo(x + width / 2, y); context.lineTo(x + width, y + 47); context.fill();
-    context.fillStyle = '#ead9ad'; context.fillRect(x + 27, y + 48, width - 34, height - 48);
-    context.fillStyle = '#745840'; context.fillRect(x + width / 2 - 14, y + height - 40, 28, 40);
-  }
-  context.fillStyle = '#304e40'; context.font = '700 11px DM Sans, sans-serif'; context.fillText(label, x + 47, y + height + 18);
-}
-
-function drawTree(context, x, y, color, palette = 'forest_light') {
-  const treeKey = palette === 'forest_dark' ? './assets/sprites/maps/tree_02.png' : './assets/sprites/maps/tree_01.png';
-  const drawn = spriteRenderer.drawImage(context, treeKey, x - 24, y - 48, 48, 96);
-  if (!drawn) {
-    context.fillStyle = '#664c38'; context.fillRect(x - 7, y + 7, 14, 43);
-    context.fillStyle = color; context.beginPath(); context.moveTo(x, y - 45); context.lineTo(x - 36, y + 20); context.lineTo(x + 36, y + 20); context.closePath(); context.fill();
-    context.beginPath(); context.moveTo(x, y - 21); context.lineTo(x - 31, y + 40); context.lineTo(x + 31, y + 40); context.closePath(); context.fill();
-  }
-}
-
-function drawMarker(context, x, y, label, color) {
-  context.fillStyle = '#213d33'; context.beginPath(); context.ellipse(x, y + 34, 30, 8, 0, 0, Math.PI * 2); context.fill();
-  context.fillStyle = color; context.beginPath(); context.arc(x, y, 23, 0, Math.PI * 2); context.fill();
-  context.fillStyle = '#fff6e3'; context.font = '700 10px DM Sans, sans-serif'; context.textAlign = 'center'; context.fillText(label, x, y + 4); context.textAlign = 'left';
-}
-
-function drawChest(context, x, y, opened = false) {
-  const chestKey = opened ? './assets/sprites/maps/chest_open.png' : './assets/sprites/maps/chest_closed.png';
-  const drawn = spriteRenderer.drawImage(context, chestKey, x - 20, y - 20, 40, 40);
-  if (!drawn) {
-    context.fillStyle = '#563f29'; context.fillRect(x - 25, y - 17, 50, 36);
-    context.fillStyle = '#dba94f'; context.fillRect(x - 25, y - 19, 50, 12);
-    context.fillStyle = '#f1d77d'; context.fillRect(x - 4, y - 11, 8, 25);
-  }
-  context.fillStyle = '#fff4cf'; context.font = '700 11px DM Sans, sans-serif'; context.textAlign = 'center'; context.fillText('RƯƠNG', x, y + 37); context.textAlign = 'left';
-}
-
-function drawTable(context, x, y, width = 85, height = 52) {
-  const legHeight = height - 20;
-  context.fillStyle = '#80523c'; context.fillRect(x, y, width, 22); context.fillRect(x + 9, y + 20, 8, legHeight); context.fillRect(x + width - 18, y + 20, 8, legHeight);
-  context.fillStyle = '#f0d7a5'; context.fillRect(x + 11, y + 4, 16, 8); context.fillRect(x + 39, y + 4, 16, 8);
-}
-
 function drawPlayer(context, x, y, animation) {
-  const drawn = spriteRenderer.drawSprite(context, 'chr_bunbo_holinh', animation, x, y, {
-    scale: .58,
-  });
-  if (!drawn) {
-    const pose = placeholderPose(animation);
-    context.save();
-    context.translate(x, y + pose.offsetY);
-    context.scale(pose.scaleX, pose.scaleY);
-    context.translate(-x, -y);
-    context.fillStyle = '#193b32'; context.beginPath(); context.ellipse(x, y + 22, 19, 6, 0, 0, Math.PI * 2); context.fill();
-    context.fillStyle = '#df7051'; context.beginPath(); context.ellipse(x, y, 14, 20, 0, 0, Math.PI * 2); context.fill();
-    context.fillStyle = '#f2d5a5'; context.beginPath(); context.arc(x, y - 16, 10, 0, Math.PI * 2); context.fill();
-    context.fillStyle = '#39433a'; context.fillRect(x - 12, y - 26, 24, 6);
-    context.restore();
+  if (!spriteRenderer.drawSprite(context, TRAVEL_HERO, animation, x, y, { scale: .55 })) {
+    drawFitted(context, actorArt(HERO_ID), x, y, 71, 69);
   }
 }
 
@@ -543,18 +496,28 @@ function startTcg(seed) {
 }
 
 function cardArt(card) {
-  const characterId = card.character_id ?? runtime.cards.cards.find((entry) => entry.card_id === card.card_id)?.character_id;
-  if (characterId === 'mob_mushroom_01') return CINEMATIC + 'mushroom.webp';
-  if (characterId === 'mob_pepper_01') return CINEMATIC + 'pepper.webp';
-  if (characterId?.startsWith('chr_')) return './assets/avatars/avatar_' + characterId.slice(4) + '.png';
-  if (characterId === 'npc_lilia') return './assets/avatars/avatar_lilia.png';
-  return './assets/cards/' + (card.art_id ?? card.card_id) + '.png';
+  const entry = card.card_id && runtime.cards.cards.find((candidate) => candidate.card_id === card.card_id);
+  return actorArt(card.character_id ?? entry?.character_id)
+    ?? originalCardArt(card.card_id)
+    ?? effectArt(card.element ?? entry?.element, card.type === 'fast_spell' ? 'trail' : 'impact');
+}
+
+function tcgLaneId(player, lane) { return `lane:p${player}:${lane}`; }
+
+function tcgImpact(id) {
+  const impact = runtime.tcgImpacts.get(id);
+  if (runtime.save.settings.reducedMotion || !impact || impact.matchId !== runtime.tcg.battleId
+    || impact.expires <= performance.now()) return '';
+  return `<img class="tcg-impact" src="${effectArt(impact.element, 'impact')}" alt="">`;
 }
 
 function renderTcg() {
   if (!runtime.tcg) runtime.tcg = startTcg(41);
   else if (runtime.tcg.priority === 1 && !runtime.tcg.result) runtime.tcg = runTcgBot(runBotPriority(runtime.tcg), { yieldToPlayer: true });
   const match = runtime.tcg;
+  for (const [id, impact] of runtime.tcgImpacts) {
+    if (impact.matchId !== match.battleId || impact.expires <= performance.now()) runtime.tcgImpacts.delete(id);
+  }
   const [user, bot] = match.players;
   const opening = match.mulliganDone === false && match.round === 1 && match.eventSeq === 0;
   const canPlay = !opening && !match.result && ['action', 'reaction'].includes(match.phase) && match.priority === 0;
@@ -574,12 +537,12 @@ function renderTcg() {
   shell(`
     ${pageHeader('Đấu với bot', 'Thẻ chiến thuật', '', 'home')}
     <div class="game-layout tactical-layout"><section class="panel tcg-board">
-      <div class="duel-top"><div><strong>Chủ soái đối thủ</strong><small>${bot.deck.length} lá trong bộ bài · ${bot.hand.length} lá trên tay · ${bot.traps.length} bẫy úp</small></div><div class="commander-hp enemy-hp">${bot.hp}<small> / 8000 HP</small></div></div>
+      <div class="duel-top"><div><strong>Chủ soái đối thủ</strong><small>${bot.deck.length} lá trong bộ bài · ${bot.hand.length} lá trên tay · ${bot.traps.length} bẫy úp</small></div><div class="commander-hp enemy-hp">${bot.hp}<small> / 8000 HP</small>${tcgImpact('commander:p1')}</div></div>
       <div class="unit-row enemy-row">${tcgLanes(bot.units, false)}</div>
       <div class="stack-strip"><span>Vòng ${match.round} · ${phaseLabel}</span><b>${match.priority === 0 ? 'Ưu tiên: bạn' : 'Ưu tiên: đối thủ'}</b><span>Chờ xử lý: ${match.stack.length}</span></div>
-      ${trapReveal ? `<div class="trap-reveal" role="status">✦ Bẫy lật mở · ${escapeHtml(cardName(trapReveal.card))}</div>` : ''}
+      ${trapReveal ? `<div class="trap-reveal" role="status"><img src="${escapeAttr(cardArt(trapReveal.card))}" alt="">Bẫy lật mở · ${escapeHtml(cardName(trapReveal.card))}</div>` : ''}
       <div class="unit-row friendly-row">${tcgLanes(user.units, true)}</div>
-      <div class="duel-bottom"><div><strong>Người Kết Vị</strong><small>${user.units.length}/5 Vị Linh · ${user.traps.length}/2 bẫy úp</small></div><div class="commander-hp">${user.hp}<small> / 8000 HP</small></div></div>
+      <div class="duel-bottom"><div><strong>Người Kết Vị</strong><small>${user.units.length}/5 Vị Linh · ${user.traps.length}/2 bẫy úp</small></div><div class="commander-hp">${user.hp}<small> / 8000 HP</small>${tcgImpact('commander:p0')}</div></div>
       <div class="hand-heading"><strong>${opening ? 'Chọn các lá muốn đổi' : 'Bài trên tay'}</strong><span>${user.mana}/${user.maxMana} mana</span></div>
       <div class="hand-row">${hand || '<p class="empty-message">Không còn bài trên tay.</p>'}</div>
       ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}
@@ -631,8 +594,8 @@ function actTcg(action) {
 function tcgLanes(units, friendly) {
   return Array.from({ length: 5 }, (_, lane) => {
     const unit = units.find((candidate) => candidate.lane === lane);
-    if (!unit) return '<div class="empty-slot" aria-label="Vị trí trống">·</div>';
-    return `<div class="tcg-unit ${friendly ? 'friendly' : ''}"><div class="tcg-unit-avatar"><img src="${escapeAttr(cardArt(unit))}" alt=""></div><b>${escapeHtml(cardName(unit))}</b><span>${unit.atk} / ${unit.current_def}</span><small>${unit.ready ? 'Sẵn sàng' : 'Nghỉ'}</small></div>`;
+    if (!unit) return `<div class="empty-slot" aria-label="Vị trí trống">·${tcgImpact(tcgLaneId(friendly ? 0 : 1, lane))}</div>`;
+    return `<div class="tcg-unit ${friendly ? 'friendly' : ''}"><div class="tcg-unit-avatar"><img src="${escapeAttr(cardArt(unit))}" alt=""></div><b>${escapeHtml(cardName(unit))}</b><span>${unit.atk} / ${unit.current_def}</span><small>${unit.ready ? 'Sẵn sàng' : 'Nghỉ'}</small>${tcgImpact(unit.instance_id)}</div>`;
   }).join('');
 }
 
@@ -789,7 +752,7 @@ function renderSynergies(board) {
 }
 
 function renderRoster() {
-  shell(`${pageHeader('Phiêu lưu', 'Đội hình Vị Linh', 'Chỉ số và tuyệt kỹ của từng Vị Linh.', 'home')}<section class="roster-grid">${runtime.save.roster.map((actor) => `<article class="roster-card"><div class="roster-avatar" style="--unit-color:${elementColors[actor.element]}"><img src="./assets/avatars/avatar_${actor.id.replace('chr_', '')}.png" alt="${escapeAttr(characterNames[actor.id])}" style="width:100%;height:100%;border-radius:inherit;object-fit:cover;" onerror="this.style.display='none'"><span>${escapeHtml(shortName(characterNames[actor.id]))}</span></div><div><div class="eyebrow">${actor.element} · ${actor.role}</div><h2>${escapeHtml(characterNames[actor.id])}</h2><div class="data-list"><div class="data-row"><span>HP</span><b>${actor.hp}/${actor.maxHp}</b></div><div class="data-row"><span>ATK</span><b>${actor.atk}</b></div><div class="data-row"><span>DEF</span><b>${actor.def}</b></div></div></div></article>`).join('')}</section>`);
+  shell(`${pageHeader('Phiêu lưu', 'Đội hình Vị Linh', 'Chỉ số và tuyệt kỹ của từng Vị Linh.', 'home')}<section class="roster-grid">${runtime.save.roster.map((actor) => `<article class="roster-card"><div class="roster-avatar" style="--unit-color:${elementColors[actor.element]}"><img src="${escapeAttr(actorArt(actor.id))}" alt="${escapeAttr(characterNames[actor.id])}" style="width:100%;height:100%;border-radius:inherit;object-fit:cover;" onerror="this.style.display='none'"></div><div><div class="eyebrow">${actor.element} · ${actor.role}</div><h2>${escapeHtml(characterNames[actor.id])}</h2><div class="data-list"><div class="data-row"><span>HP</span><b>${actor.hp}/${actor.maxHp}</b></div><div class="data-row"><span>ATK</span><b>${actor.atk}</b></div><div class="data-row"><span>DEF</span><b>${actor.def}</b></div></div></div></article>`).join('')}</section>`);
 }
 
 function renderSettings() {
@@ -814,7 +777,6 @@ function render() {
 function cardName(card) {
   return runtime.cards.cards.find((entry) => entry.card_id === card.card_id)?.display_name ?? card.display_name ?? card.card_id;
 }
-function shortName(name = '') { return name.split(/\s+/).slice(0, 2).map((word) => word[0]).join(''); }
 function escapeHtml(value = '') { return String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]); }
 function escapeAttr(value = '') { return escapeHtml(value); }
 

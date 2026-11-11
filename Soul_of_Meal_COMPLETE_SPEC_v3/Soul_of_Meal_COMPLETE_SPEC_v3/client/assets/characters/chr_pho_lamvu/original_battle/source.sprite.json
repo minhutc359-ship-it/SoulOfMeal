@@ -1,0 +1,35 @@
+{
+  "character_id": "chr_pho_lamvu",
+  "skin_id": "default",
+  "frame_size_px": [
+    256,
+    256
+  ],
+  "source_sheet_sha256": "bfdd8833df332adcd67014fa69639d28243052382971b79c7b09d7ba10a2e5bf",
+  "ground_anchor": [
+    0.5,
+    0.8984375
+  ],
+  "rights_status": "pending_review",
+  "identity_review": "pending",
+  "animations": {
+    "keyposes": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "poses/chr_pho_lamvu_pose_00.png",
+            "poses/chr_pho_lamvu_pose_01.png",
+            "poses/chr_pho_lamvu_pose_02.png",
+            "poses/chr_pho_lamvu_pose_03.png",
+            "poses/chr_pho_lamvu_pose_04.png",
+            "poses/chr_pho_lamvu_pose_05.png",
+            "poses/chr_pho_lamvu_pose_06.png",
+            "poses/chr_pho_lamvu_pose_07.png"
+          ]
+        }
+      }
+    }
+  }
+}

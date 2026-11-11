@@ -52,4 +52,4 @@ python .agents/skills/soul-of-meal-sprite/scripts/make_preview.py --help
 ## Chạy browser runtime
 Client web nằm trong [`client/`](client/README.md). Từ thư mục chứa tài liệu này, chạy `python3 -m http.server 4173` rồi mở `http://localhost:4173/client/`. Kiểm tra bằng `node --test client/tests/*.test.js`.
 
-Bản chơi thử cục bộ gồm tuyến nhiệm vụ Adventure, TCG đấu bot và Auto Chess đấu bot. Adventure dùng sprite anime chibi cho Bún Bò Hỏa Linh, atlas hiệu ứng Hỏa, năm tuyệt kỹ khác nhau và nhạc/âm thanh theo cảnh. Xem [hướng dẫn client](client/README.md) để biết phạm vi kiểm thử và các bước nghiệm thu còn lại.
+Bản chơi thử cục bộ gồm tuyến nhiệm vụ Adventure, TCG đấu bot và Auto Chess đấu bot. Cả năm Vị Linh có sprite anime chibi mới. Adventure có cut-in và hiệu ứng theo hệ cho năm tuyệt kỹ, cùng nhạc và âm thanh theo cảnh. Xem [hướng dẫn client](client/README.md) để biết phạm vi kiểm thử và các bước nghiệm thu còn lại.
