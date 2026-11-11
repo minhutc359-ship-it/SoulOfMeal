@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { createAdventureState, interactAdventure, nearestInteraction, beginBattle, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, leaveAdventureDefeat, activateUltimate, activateLanternWard, retreatFromTide, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
+import { adventureCheckpoint, activateBossCounter, createAdventureState, interactAdventure, nearestInteraction, beginBattle, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, leaveAdventureDefeat, activateUltimate, activateLanternWard, retreatFromTide, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
 import { advanceChessRound, benchChessUnit, buyChessOffer, createChessRun, nextChessOpponent, placeChessUnit, startChessCombat, chessTraits } from '../src/modes/autoChess.js';
 import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard, mulliganTcg, surrenderTcg } from '../src/modes/tcg.js';
 import { createDefaultSave, migrateSave, SAVE_VERSION } from '../src/core/save.js';
 import { adventureJournal } from '../src/modes/adventureJournal.js';
+import { adventureEncounters } from '../src/modes/adventureBalance.js';
 import { FOREST_CLUE_IDS } from '../src/modes/adventureStory.js';
 import { adventureSpiritStats, changeSpiritProgress, spiritProfile } from '../src/modes/spiritProgress.js';
 import { createAdventureMapRegistry, getAdventureMap } from '../src/modes/mapCatalog.js';
@@ -609,7 +610,7 @@ test('chapter three opens the harbor after chapter two and survives travel, relo
   assert.equal(save.player.gold, 755);
   assert.equal(save.player.level, 4);
   assert.equal(save.adventure.chapterThree.stage, 'completed');
-  assert.equal(adventureJournal(save).action, null);
+  assert.equal(adventureJournal(save).action, 'caldera_route');
 });
 
 test('TCG starts with a valid 36-card deck and passes priority into combat', async () => {
@@ -805,4 +806,143 @@ test('Auto Chess applies synergy to unique allies and records an ordered replay'
   assert.ok(result.combat.events.some((event) => event.type === 'move'));
   assert.ok(result.combat.events.some((event) => event.type === 'hit_resolved'));
   assert.ok(result.combat.events.every((event, index, events) => !index || events[index - 1].tick <= event.tick));
+});
+
+test('the main campaign opens chapters four through six in order and persists the ending', async () => {
+  const keys = ['village', 'forest', 'harbor', 'caldera', 'sanctum'];
+  const maps = createAdventureMapRegistry(await Promise.all(keys.map(key => readJson(`examples/maps/${key}.json`))));
+  const profile = createDefaultSave();
+  Object.assign(profile.adventure, { map: 'harbor', quest: 'completed', chestOpened: true, forestCleared: true,
+    chapterTwo: { stage: 'completed' }, chapterThree: { stage: 'ready_to_claim' } });
+  delete profile.adventure.finale;
+  let save = migrateSave(profile);
+  let state = createAdventureState(save);
+
+  function interact(action) {
+    const item = getAdventureMap(maps, state.map).interactables.find(item => item.action === action);
+    Object.assign(state, { x: item.x, y: item.y });
+    const result = interactAdventure(state, save, maps);
+    save = result.save;
+    return result;
+  }
+
+  function defeatEncounter(encounterId) {
+    const { battle } = state;
+    assert.equal(battle.encounter, encounterId);
+    const config = adventureEncounters[encounterId];
+    const interrupted = [];
+    const listener = ({ detail }) => {
+      if (detail.type === 'boss_cast_interrupted') interrupted.push(detail.payload.attack);
+    };
+    gameEvents.addEventListener('game-event', listener);
+    try {
+      for (let i = 0; i < 4200 && battle.phase === 'battle_running'; i++) {
+        const tell = battle.bossTelegraph;
+        if (tell?.counter === 'sequence') {
+          const input = config.phases[tell.phase].sequence.order[tell.counterStep];
+          if (input) activateBossCounter(state, input);
+        }
+        for (const actor of battle.actors.filter(item => item.team === 'player' && item.energy === 100)) {
+          activateUltimate(state, save, actor.actor_id);
+        }
+        stepAdventure(state, save, 1 / 30, maps);
+      }
+      assert.equal(battle.result, 'victory');
+      assert.deepEqual(interrupted, Object.values(config.phases).map(phase => phase.attack));
+      const goldBefore = save.player.gold;
+      save = claimBattleResult(state, save);
+      assert.equal(save.player.gold, goldBefore + config.reward.gold);
+      assert.equal(claimBattleResult(state, save), save);
+      assert.ok(save.adventure.rewardClaims.includes(config.claimId));
+    } finally {
+      gameEvents.removeEventListener('game-event', listener);
+    }
+  }
+
+  assert.equal(interact('caldera_route').changed, false);
+  assert.equal(interact('harbor_guide').dialogue, 'harborEnding');
+  assert.equal(adventureJournal(save).action, 'caldera_route');
+  assert.equal(interact('caldera_route').save.adventure.map, 'caldera');
+  assert.equal(interact('sanctum_route').changed, false);
+  assert.equal(interact('forge_guide').dialogue, 'forgeOpening');
+  assert.equal(interact('forge_ledger').changed, true);
+  assert.equal(interact('forge_encounter').changed, false);
+  save = migrateSave(JSON.parse(JSON.stringify(save)));
+  state = createAdventureState(save);
+  assert.equal(adventureJournal(save).action, 'forge_valve');
+  assert.equal(interact('forge_valve').changed, true);
+  interact('forge_encounter');
+  defeatEncounter('forge');
+  assert.equal(interact('forge_guide').dialogue, 'forgeEnding');
+  assert.equal(interact('sanctum_route').save.adventure.map, 'sanctum');
+  assert.equal(interact('feast_return').changed, false);
+  assert.equal(interact('sanctum_guide').dialogue, 'feastOpening');
+  interact('sanctum_seal');
+  interact('sanctum_urn');
+  interact('feast_encounter');
+  defeatEncounter('feast');
+  assert.equal(interact('sanctum_guide').dialogue, 'feastEnding');
+  assert.equal(interact('feast_return').save.adventure.map, 'village');
+  assert.equal(adventureJournal(save).action, 'feast_lilia');
+  assert.equal(interact('feast_lilia').dialogue, 'finaleOpening');
+  interact('feast_broth');
+  interact('feast_table');
+  assert.equal(interact('feast_lilia').dialogue, 'finaleEnding');
+  const gold = save.player.gold;
+  save = migrateSave(JSON.parse(JSON.stringify(save)));
+  state = createAdventureState(save);
+  assert.ok(adventureJournal(save).completedCampaign);
+  assert.ok(adventureJournal(save).labels.every(step => step.status === 'done'));
+  assert.equal(interact('feast_lilia').changed, false);
+  assert.equal(save.player.gold, gold);
+  assert.equal(migrateSave({ ...profile, adventure: { ...profile.adventure, map: 'sanctum',
+    finale: { 4: { stage: 'completed' }, 5: { stage: 'completed' } } } }).adventure.map, 'village');
+});
+
+test('the forge counter resets on wrong input and checkpoint recovery keeps the warning at its saved tick', () => {
+  const { advance, save, state, battle } = prepareBossCharge('forge');
+  save.adventure.map = 'caldera';
+  save.adventure.quest = 'completed';
+  save.adventure.chapterTwo.stage = 'completed';
+  save.adventure.chapterThree.stage = 'completed';
+  advance();
+  assert.equal(activateBossCounter(state, 'steam'), true);
+  assert.equal(battle.bossTelegraph.counterStep, 1);
+  assert.equal(activateBossCounter(state, 'steam'), true);
+  assert.equal(battle.bossTelegraph.counterStep, 0);
+  activateBossCounter(state, 'steam');
+  save.adventure.battle = adventureCheckpoint(battle);
+  const resumed = createAdventureState(migrateSave(JSON.parse(JSON.stringify(save))));
+  assert.equal(resumed.battle.paused, true);
+  assert.equal(resumed.battle.tick, battle.tick);
+  assert.equal(resumed.battle.bossTelegraph.counterStep, 1);
+  assert.equal(activateBossCounter(resumed, 'coal'), false);
+  resumed.battle.paused = false;
+  assert.equal(activateBossCounter(resumed, 'coal'), true);
+  assert.equal(activateBossCounter(resumed, 'coal'), false);
+  stepAdventure(resumed, save, 1 / 30);
+  assert.equal(resumed.battle.bossTelegraph, null);
+  assert.match(resumed.lastMessage, /Đã ngắt Áp Hơi/);
+  assert.equal(battle.bossTelegraph.counterStep, 1);
+});
+
+test('the walk to Đèn Mộc clears the tree corner from the forest entrance', async () => {
+  const map = await readJson('examples/maps/forest.json');
+  const maps = createAdventureMapRegistry([map]);
+  const lantern = map.interactables.find(item => item.id === 'forest_lantern_wood');
+  const save = createDefaultSave();
+  Object.assign(save.adventure, map.world.spawn, { map: 'forest', quest: 'completed' });
+  save.adventure.chapterTwo.stage = 'accepted';
+  const state = createAdventureState(save);
+  state.walkPath = findAdventurePath('forest', state, lantern, undefined, maps);
+  for (let i = 0; i < 280 && state.walkPath.length; i++) {
+    const waypoint = state.walkPath[0];
+    if (Math.hypot(waypoint.x - state.x, waypoint.y - state.y) < .01) state.walkPath.shift();
+    if (!state.walkPath.length) break;
+    const next = state.walkPath[0];
+    setAdventureInput(state, next.x - state.x, next.y - state.y);
+    stepAdventure(state, save, 1 / 30, maps);
+  }
+  assert.equal(state.walkPath.length, 0);
+  assert.equal(nearestInteraction(state, save, maps)?.id, lantern.id);
 });

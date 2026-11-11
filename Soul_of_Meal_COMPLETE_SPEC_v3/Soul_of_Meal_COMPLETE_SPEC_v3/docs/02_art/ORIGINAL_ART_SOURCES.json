@@ -130,6 +130,24 @@
       "alpha": true,
       "source_file": "combat_effects.png",
       "source_sha256": "d591bc2c36b4dfecf013cf7b365752d45233434c6adb0094e165d5efa267ea89"
+    },
+    "caldera": {
+      "prompt": "Use case stylized-concept. New original Soul of Meal production asset, 16:9 full-bleed top-down orthographic-ish anime JRPG map background. Núi Lửa Gia Vị, Vietnamese culinary fantasy volcanic spice kiln. Flattened map view with slight looking-down angle, charcoal basalt flagstone courtyard occupying the entire middle and lower 70%, a clear unobstructed flat floor across x 12–90% y 25–87% for chibi sprite movement. Distinct warm terracotta oven buildings and hexagonal Vietnamese red lantern eaves along upper 18% only, a glowing lava seam and jagged basalt at the extreme edges, saffron/ruby and gray palette, gentle ash, wood spice crates near edges only, warm golden painted shadows, premium hand-painted 2D anime landscape. Open entry on left and open red forge exit on right. No sky except hints of orange upper edge, no characters, no signs or typography, no UI, no logos, no borders, no overlaid effects or patterns in open center. Environment only, not a mockup.",
+      "alpha": false,
+      "source_file": "caldera.png",
+      "source_sha256": "85044ff80996922169f705238b78acbf16f7e27ffecbbe8bfc7b22c5a395381a"
+    },
+    "sanctum": {
+      "prompt": "Use case stylized-concept. Original Soul of Meal 16:9 full bleed playable game map background for the Hall of the Hội Vô Vị. Top-down orthographic-ish slightly oblique hand-painted anime fantasy RPG map. Vietnamese communal temple architecture, violet indigo and faded jade mineral palette with lilac lanterns and charcoal, old copper incense kettles, five subtle gold glints, luminous memories held in small decorative ceramic urns at the edges. Upper 20% shows architecture against a shadowed niche. From 20% y downward lay an expansive, nearly unobstructed, broad and flat dark-violet tiled floor with quiet seamless geometric detailing, beginning with visible broad entry on left and ample clear approach to right. No central statue, no boss, no people, no text, no borders, no UI, no logos. Refined ink lines, lightly textured anime background, clear silhouette contrast against golden and fiery chibi characters, dramatic but readable.",
+      "alpha": false,
+      "source_file": "sanctum.png",
+      "source_sha256": "0bd8cd5a690f9c2af738b98ef830f4c9b8ab68d5540bfc267d71b938b4285bd1"
+    },
+    "hollow_cauldron": {
+      "prompt": "Use case stylized-concept. New original Soul of Meal transparent RGBA top-down battle boss prop, single isolated sentient ancient Vietnamese bronze cooking cauldron with two heavy curling handles, compact circular silhouette, repoussé lotus motifs, scorched purple enamel, four leg feet, eerie amethyst empty interior and restrained thin lavender wisps at lip, three quarter angle looking slightly down, classic painterly detailed Japanese anime RPG hand-painted equipment asset but original Vietnamese design. Floating ghostly dark-purple crescent inside the vessel, antique brass edges and beautiful carved relief. Object centered with generous empty transparent margin all around, fully visible, game-readable silhouette. No floor or ground shadows, no surface, no enclosing orbit, no text, no card frame, no characters, no mockup. Actual transparent background, no fake checkerboard.",
+      "alpha": true,
+      "source_file": "hollow_cauldron.png",
+      "source_sha256": "ad8708fcc868a28f6fa7720011bb3f020026d27d7a4bb1563921d63c1f1e5e73"
     }
   },
   "generator": "OpenAI ImageGen, built-in image generation",

@@ -453,3 +453,10 @@ button.tcg-unit { cursor: pointer; color: var(--ink); font: inherit; font-size: 
   .tcg-damage { animation: tcg-damage-static .65s steps(1, end) both; }
 }
 @keyframes tcg-damage-static { from { opacity: 1; } to { opacity: 0; } }
+
+.boss-counter { padding-top: 7px; }
+.boss-counter p { color: var(--ink); font-size: 12px; font-weight: 700; margin: 0 0 6px; }
+.boss-counter .action-row { gap: 5px; }
+@media (pointer: coarse) {
+  .boss-counter .button { min-height: 44px; }
+}

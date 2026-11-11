@@ -3,6 +3,7 @@ import { moveWithCollision } from './adventureNavigation.js';
 import { getAdventureMap } from './mapCatalog.js';
 import { adventureBalance as balance, adventureEncounters, ADVENTURE_TICK_RATE } from './adventureBalance.js';
 import { FOREST_CLUES, FOREST_CLUE_IDS, FOREST_LANTERNS, HARBOR_CLUES, HARBOR_CLUE_IDS } from './adventureStory.js';
+import { FINALE_CHAPTERS, FINALE_ROUTES, finaleChapterComplete } from './adventureFinale.js';
 import { adventureSpiritStats, spiritProfile } from './spiritProgress.js';
 
 export const WORLD = { width: 960, height: 540 };
@@ -13,7 +14,32 @@ const FOREST_QUEST_REWARD = { gold: 110, experience: 100 };
 const HARBOR_QUEST_REWARD = { gold: 140, experience: 100 };
 const ENCOUNTER_ACTIONS = { encounter: 'forest', seal_encounter: 'seal', tide_encounter: 'tide' };
 
+const CHECKPOINT_VERSION = 1;
+
+export function adventureCheckpoint(battle) {
+  if (!battle) return null;
+  const { events, accumulator, ...snapshot } = battle;
+  return structuredClone({ ...snapshot, checkpointVersion: CHECKPOINT_VERSION });
+}
+
+function restoreBattle(save) {
+  const { battle } = save.adventure;
+  if (battle?.checkpointVersion !== CHECKPOINT_VERSION || !Object.hasOwn(adventureEncounters, battle.encounter)) return null;
+  const encounter = adventureEncounters[battle.encounter];
+  const allowedMap = encounter.scene ?? 'forest';
+  if (save.adventure.map !== allowedMap || !Number.isInteger(battle.tick) || battle.tick < 0
+      || !Number.isInteger(battle.wave) || !encounter.waves[battle.wave] || typeof battle.id !== 'string'
+      || !['battle_running', 'battle_end'].includes(battle.phase)
+      || !Array.isArray(battle.actors) || !Array.isArray(battle.stoves)
+      || !save.roster.every(member => battle.actors.some(actor => actor?.actor_id === member.id && actor.team === 'player'))) return null;
+  if (battle.phase === 'battle_end' && !['victory', 'defeat'].includes(battle.result)) return null;
+  const tell = battle.bossTelegraph;
+  if (tell && (!encounter.phases[tell.phase] || !Number.isFinite(tell.ticks))) return null;
+  return { ...structuredClone(battle), events: [], paused: battle.phase === 'battle_running' };
+}
+
 export function createAdventureState(save) {
+  const battle = restoreBattle(save);
   return {
     map: save.adventure.map,
     x: save.adventure.x,
@@ -21,8 +47,9 @@ export function createAdventureState(save) {
     facing: 'down',
     tick: 0,
     input: { x: 0, y: 0 },
-    battle: save.adventure.battle ? { stoves: [], stoveTargetId: null, paused: false, speed: 1, ...save.adventure.battle } : null,
-    lastMessage: save.adventure.map === 'harbor' ? 'Hải Vực Hương Biển. Mở nhật ký để xem bước tiếp theo.' :
+    battle,
+    lastMessage: battle ? (battle.phase === 'battle_running' ? 'Trận đã được khôi phục. Chọn Tiếp tục để chơi.' : 'Kết quả trận đã được khôi phục.') :
+      save.adventure.map === 'harbor' ? 'Hải Vực Hương Biển. Mở nhật ký để xem bước tiếp theo.' :
       save.adventure.quest === 'completed' ? 'Mở nhật ký để tiếp tục hành trình.' :
       save.adventure.forestCleared ? 'Trở về làng để báo tin cho Lilia.' :
         save.adventure.map === 'forest' ? 'Theo dấu Bếp Trưởng Hỏa Diệm trong rừng.' :
@@ -90,7 +117,22 @@ export function availableAdventureInteractions(mapId, save, maps) {
   const { quest, chestOpened, forestCleared, forestClues, chapterTwo, chapterThree } = save.adventure;
   const items = getAdventureMap(maps, mapId)?.interactables ?? [];
   const investigating = quest === 'completed' && chapterTwo.stage === 'accepted';
+  const chapter = FINALE_CHAPTERS.find(item => item.map === mapId);
   return items.filter(({ action, kind }) => {
+    if (Object.hasOwn(FINALE_ROUTES, action)) {
+      const { map, after } = FINALE_ROUTES[action];
+      return (!after || finaleChapterComplete(save.adventure, after)) && Boolean(getAdventureMap(maps, map));
+    }
+    if (['finale_guide', 'finale_objective', 'finale_encounter'].includes(kind)) {
+      if (!chapter || !finaleChapterComplete(save.adventure, chapter.number - 1)) return false;
+      const progress = save.adventure.finale[chapter.number];
+      if (kind === 'finale_guide') return chapter.guide === action && (chapter.number === 6 || progress.stage !== 'completed');
+      if (progress.stage !== 'accepted') return false;
+      if (kind === 'finale_encounter') {
+        return chapter.encounter === action && Object.keys(chapter.objectives).every(id => progress.objectives.includes(id));
+      }
+      return Object.hasOwn(chapter.objectives, action) && !progress.objectives.includes(action);
+    }
     if (kind === 'clue') return Object.hasOwn(FOREST_CLUES, action) && quest === 'accepted' && !forestCleared && !forestClues.includes(action);
     if (kind === 'lantern') return investigating && FOREST_LANTERNS.indexOf(action) >= chapterTwo.lanterns;
     if (kind === 'harbor_clue') return chapterThree.stage === 'accepted' && Object.hasOwn(HARBOR_CLUES, action) && !chapterThree.clues.includes(action);
@@ -218,6 +260,14 @@ export function interactAdventure(state, save, maps) {
     gameEvents.emit('clue_discovered', { clue_id: target.id }, { map_id: 'harbor' });
   } else if (Object.hasOwn(ENCOUNTER_ACTIONS, target.id)) {
     beginBattle(state, updated, ENCOUNTER_ACTIONS[target.id]);
+  } else if (Object.hasOwn(FINALE_ROUTES, target.id)) {
+    const { map } = FINALE_ROUTES[target.id];
+    const result = transitionMap(state, save, map, maps);
+    state.lastMessage = getAdventureMap(maps, map).display_name + '. Mở nhật ký để xem mục tiêu.';
+    gameEvents.emit('route_changed', { map }, { map_id: map });
+    return result;
+  } else if (['finale_guide', 'finale_objective', 'finale_encounter'].includes(target.kind)) {
+    return interactFinale(state, save, updated, target);
   } else if (target.id === 'village_return') {
     const routed = transitionMap(state, updated, 'village', maps);
     Object.assign(updated, routed.save);
@@ -228,6 +278,39 @@ export function interactAdventure(state, save, maps) {
     gameEvents.emit('route_changed', { map: 'village' }, { map_id: 'village' });
   }
   return { state, save: updated, changed: true, dialogue };
+}
+
+function interactFinale(state, save, updated, target) {
+  const chapter = FINALE_CHAPTERS.find(item => item.map === state.map);
+  const progress = updated.adventure.finale[chapter.number];
+  const context = { map_id: state.map };
+  if (target.kind === 'finale_encounter') {
+    beginBattle(state, updated, chapter.boss);
+    return { state, save: updated, changed: true };
+  }
+  if (target.kind === 'finale_objective') {
+    progress.objectives.push(target.id);
+    state.lastMessage = chapter.objectives[target.id].note;
+    gameEvents.emit('clue_discovered', { clue_id: target.id }, context);
+    return { state, save: updated, changed: true };
+  }
+  if (progress.stage === 'not_started') {
+    progress.stage = 'accepted';
+    state.lastMessage = chapter.steps[1] + '.';
+    gameEvents.emit('quest_accepted', { quest_id: chapter.quest }, context);
+    return { state, save: updated, changed: true, dialogue: chapter.opening };
+  }
+  if (progress.stage === 'completed') return { state, save, changed: false, dialogue: chapter.ending };
+  const finishedPreparation = !chapter.encounter && Object.keys(chapter.objectives).every(id => progress.objectives.includes(id));
+  if (progress.stage === 'ready_to_claim' || finishedPreparation) {
+    progress.stage = 'completed';
+    grantAdventureQuestReward(updated, chapter.reward);
+    state.lastMessage = chapter.number === 6 ? 'Đã hoàn thành Hành Trình Vị Linh.' : 'Đã hoàn thành ' + chapter.title + '.';
+    gameEvents.emit('quest_completed', { quest_id: chapter.quest, ...chapter.reward }, context);
+    return { state, save: updated, changed: true, dialogue: chapter.ending };
+  }
+  state.lastMessage = chapter.steps[1] + '.';
+  return { state, save, changed: false, dialogue: chapter.opening };
 }
 
 function grantAdventureQuestReward(save, { gold, experience }) {
@@ -320,6 +403,24 @@ export function retreatFromTide(state) {
   return true;
 }
 
+export function activateBossCounter(state, input) {
+  const battle = state.battle;
+  const telegraph = battle?.bossTelegraph;
+  if (battle?.phase !== 'battle_running' || battle.paused || telegraph?.counter !== 'sequence') return false;
+  const phase = adventureEncounters[battle.encounter].phases[telegraph.phase];
+  const { order, options } = phase.sequence;
+  if (telegraph.counterStep >= order.length || !Object.hasOwn(options, input)) return false;
+  if (order[telegraph.counterStep] !== input) {
+    telegraph.counterStep = 0;
+    state.lastMessage = 'Sai thứ tự. Hãy bắt đầu lại trước khi hết giờ.';
+  } else {
+    telegraph.counterStep += 1;
+    state.lastMessage = telegraph.counterStep === order.length
+      ? 'Đã hoàn thành chuỗi ngắt chiêu.' : options[input] + ' đã kích hoạt.';
+  }
+  return true;
+}
+
 export function findBattleTarget(battle, targetId) {
   return battle.actors.find(actor => actor.actor_id === targetId)
     ?? battle.stoves?.find(stove => stove.actor_id === targetId);
@@ -337,12 +438,15 @@ export function stepAdventure(state, save, deltaSeconds, maps) {
   } else {
     const length = Math.hypot(state.input.x, state.input.y);
     if (length > 0) {
+      const waypoint = state.walkPath?.[0];
+      const distance = waypoint ? Math.min(PLAYER_SPEED * deltaSeconds, Math.hypot(waypoint.x - state.x, waypoint.y - state.y))
+        : PLAYER_SPEED * deltaSeconds;
       const movement = moveWithCollision(
         state.map,
         state.x,
         state.y,
-        state.input.x * PLAYER_SPEED * deltaSeconds,
-        state.input.y * PLAYER_SPEED * deltaSeconds,
+        state.input.x * distance,
+        state.input.y * distance,
         getAdventureMap(maps, state.map)?.world.player_radius,
         maps,
       );
@@ -525,6 +629,9 @@ function updateBoss(state) {
     } else if (next.counter === 'retreat') {
       telegraph.safeX = next.safeX;
       state.lastMessage = next.attack + ' sắp tràn qua. Bấm R hoặc Lùi về vùng khô để tránh sóng.';
+    } else if (next.counter === 'sequence') {
+      telegraph.counterStep = 0;
+      state.lastMessage = next.attack + ' sắp tung ra. Kích hoạt theo đúng thứ tự để ngắt chiêu.';
     } else {
       state.lastMessage = 'Bếp Trưởng sắp tung Vòng Lửa. Hãy bảo vệ các Vị Linh được đánh dấu.';
     }
@@ -532,8 +639,10 @@ function updateBoss(state) {
     return;
   }
   if (!battle.bossTelegraph) return;
-  const { phase: attackPhase, attack, counter, warded } = battle.bossTelegraph;
-  const interrupted = counter === 'stoves' && battle.stoves.every(stove => !stove.alive);
+  const { phase: attackPhase, attack, counter, warded, counterStep } = battle.bossTelegraph;
+  const attackSpec = encounter.phases[attackPhase];
+  const interrupted = (counter === 'stoves' && battle.stoves.every(stove => !stove.alive))
+    || (counter === 'sequence' && counterStep === attackSpec.sequence.order.length);
   if (!interrupted && --battle.bossTelegraph.ticks > 0) return;
   const victims = bossTelegraphTargets(battle, boss);
   clearBossTelegraph(battle);
@@ -541,13 +650,13 @@ function updateBoss(state) {
   gameEvents.emit(cue, { element: boss.element, attack, warded: Boolean(warded) }, battleContext(battle, boss.actor_id));
   if (interrupted) {
     boss.cooldown = Math.max(boss.cooldown, 24);
-    state.lastMessage = 'Đã phá cả hai bếp và ngắt Bếp Bùng Cháy!';
+    state.lastMessage = counter === 'sequence' ? 'Đã ngắt ' + attack + '!' : 'Đã phá cả hai bếp và ngắt Bếp Bùng Cháy!';
     return;
   }
   state.lastMessage = counter === 'retreat'
     ? victims.length ? `Sóng đánh trúng ${victims.length} Vị Linh còn trong vùng nước.` : 'Cả đội đã tránh được sóng!'
     : boss.name + ' đã tung ' + attack + '!';
-  const coefficient = encounter.phases[attackPhase].coefficient;
+  const { coefficient } = attackSpec;
   const adjusted = warded ? Math.floor(coefficient * (10000 - encounter.wardReductionBp) / 10000) : coefficient;
   for (const victim of victims) applyBattleHit(battle, boss, victim, adjusted, 'boss_telegraph');
 }
@@ -575,16 +684,16 @@ function applyBattleHit(battle, source, target, coefficientBp, sourceKind) {
   const damage = Math.max(1, Math.floor(source.atk * coefficientBp / 10000 * 100 / (100 + target.def)));
   const absorbed = Math.min(damage, target.shield ?? 0);
   target.shield = (target.shield ?? 0) - absorbed;
-  const protectedByStoves = target.boss && battle.bossTelegraph?.counter === 'stoves';
+  const guarded = target.boss && ['stoves', 'sequence'].includes(battle.bossTelegraph?.counter);
   const nextPhase = target.boss ? adventureEncounters[battle.encounter ?? 'forest'].phases[battle.bossPhase + 1] : null;
   const hpFloor = nextPhase ? Math.ceil(target.maxHp * nextPhase.threshold) : 0;
-  const hpDamage = protectedByStoves ? 0 : Math.min(Math.max(0, target.hp - hpFloor), damage - absorbed);
+  const hpDamage = guarded ? 0 : Math.min(Math.max(0, target.hp - hpFloor), damage - absorbed);
   target.hp -= hpDamage;
   target.alive = target.hp > 0;
   if (target.team === 'player') target.energy = Math.min(100, target.energy + balance.hurtEnergy);
   const payload = {
     hit_id: `${battle.tick}:${source.actor_id}:${target.actor_id}`, damage, hp_damage: hpDamage, absorbed,
-    source_kind: sourceKind, element: source.element, timed: true, guarded: Boolean(protectedByStoves),
+    source_kind: sourceKind, element: source.element, timed: true, guarded: Boolean(guarded),
   };
   const hit = gameEvents.emit('hit_resolved', payload, battleContext(battle, source.actor_id, target.actor_id));
   battle.events.push(hit);
@@ -613,9 +722,11 @@ export function claimBattleResult(state, save) {
   const battle = state.battle;
   if (battle?.phase !== 'battle_end' || battle.result !== 'victory') return save;
   const updated = structuredClone(save);
+  updated.adventure.battle = null;
   const { encounter } = battle;
+  const finale = FINALE_CHAPTERS.find(chapter => chapter.boss && chapter.boss === encounter);
   const claimId = encounter === 'seal' ? 'forest_empty_bowl_reward'
-    : encounter === 'tide' ? 'harbor_tidal_conch_reward' : `${battle.id}:forest_reward`;
+    : encounter === 'tide' ? 'harbor_tidal_conch_reward' : finale ? adventureEncounters[encounter].claimId : `${battle.id}:forest_reward`;
   if (!updated.adventure.rewardClaims.includes(claimId)) {
     const { gold, essence } = adventureEncounters[battle.encounter ?? 'forest'].reward;
     updated.adventure.rewardClaims.push(claimId);
@@ -628,6 +739,7 @@ export function claimBattleResult(state, save) {
     });
     if (encounter === 'seal') updated.adventure.chapterTwo.stage = 'ready_to_claim';
     else if (encounter === 'tide') updated.adventure.chapterThree.stage = 'ready_to_claim';
+    else if (finale) updated.adventure.finale[finale.number].stage = 'ready_to_claim';
     else {
       updated.adventure.forestCleared = true;
       updated.adventure.quest = 'ready_to_claim';
@@ -637,7 +749,7 @@ export function claimBattleResult(state, save) {
   state.result = null;
   state.lastMessage = encounter === 'seal' ? 'Ấn Bát Rỗng đã vỡ. Hãy mang mảnh men về cho Lilia.'
     : encounter === 'tide' ? 'Thủy triều đã dịu. Hãy trở lại đầu bến báo tin cho Phở Lam Vũ.'
-      : 'Rừng đã yên tĩnh. Hãy trở về làng để báo tin cho Lilia.';
+      : finale ? finale.steps[3] + '.' : 'Rừng đã yên tĩnh. Hãy trở về làng để báo tin cho Lilia.';
   return updated;
 }
 

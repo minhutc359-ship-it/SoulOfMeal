@@ -2,6 +2,8 @@ const ORIGINAL = './assets/original';
 export const HERO_ID = 'chr_bunbo_holinh';
 export const TRAVEL_HERO = HERO_ID + '_travel';
 export const BOSS_ID = 'boss_bep_truong';
+const ADVENTURE_SCENES = ['village', 'forest', 'arena', 'harbor', 'caldera', 'sanctum'];
+const ENCOUNTER_PROPS = ['boss_stove', 'empty_bowl_seal', 'tidal_conch', 'hollow_cauldron'];
 const COMBAT_EFFECTS = ['boss_warning', 'boss_cleave', 'shield_bubble', 'shield_break'];
 
 export const HERO_NAMES = Object.freeze({
@@ -14,7 +16,7 @@ export const HERO_NAMES = Object.freeze({
 
 const ACTORS = [...Object.keys(HERO_NAMES), 'npc_lilia', 'mob_mushroom_01', 'mob_pepper_01', BOSS_ID];
 const CARD_IDS = new Set([7, 10, 11, 12, 13, 14, 15, 16, 17, 18].map((id) => 'card_demo_' + String(id).padStart(2, '0')));
-const PROPS = ['house_kitchen', 'house_guild', 'house_merchant', 'tree', 'chest_closed', 'chest_open', 'portal', 'table', 'boss_stove', 'empty_bowl_seal', 'tidal_conch'];
+const PROPS = ['house_kitchen', 'house_guild', 'house_merchant', 'tree', 'chest_closed', 'chest_open', 'portal', 'table', ...ENCOUNTER_PROPS];
 
 export const ELEMENT_ART = Object.freeze({
   fire: { color: '#ffae69', dark: '#70241f' },
@@ -37,7 +39,7 @@ export function effectArt(element, phase) {
 
 export async function preloadGameAssets(renderer) {
   const imagePaths = [
-    ...['village', 'forest', 'arena', 'harbor'].map(sceneArt),
+    ...ADVENTURE_SCENES.map(sceneArt),
     ...ACTORS.map(actorArt),
     ...PROPS.map(propArt),
     ...Object.keys(HERO_NAMES).map(cutinArt),
@@ -50,9 +52,14 @@ export async function preloadGameAssets(renderer) {
     return [id, entry.loaded ? entry.manifest : null];
   });
 
-  const [sprites] = await Promise.all([
+  const [sprites, images] = await Promise.all([
     Promise.all(loadSprites),
-    Promise.all(imagePaths.map((path) => renderer.loadImage(path))),
+    Promise.all(imagePaths.map(async path => [path, await renderer.loadImage(path)])),
   ]);
-  return Object.fromEntries(sprites.filter(([, manifest]) => manifest));
+  const required = new Set([...ADVENTURE_SCENES.map(sceneArt), ...ENCOUNTER_PROPS.map(propArt)]);
+  if (sprites.some(([, manifest]) => !manifest?.clips?.idle || !Object.keys(manifest.frames ?? {}).length)
+      || images.some(([path, image]) => required.has(path) && !image)) {
+    throw new Error('Không tải được bản đồ hoặc hoạt ảnh bắt buộc. Kiểm tra kết nối rồi thử lại.');
+  }
+  return Object.fromEntries(sprites);
 }

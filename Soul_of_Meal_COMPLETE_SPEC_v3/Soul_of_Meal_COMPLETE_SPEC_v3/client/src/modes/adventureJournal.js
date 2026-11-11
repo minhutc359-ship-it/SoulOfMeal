@@ -1,5 +1,7 @@
 import { FIRST_CHAPTER, SECOND_CHAPTER, THIRD_CHAPTER, FOREST_CLUES, FOREST_CLUE_IDS, FOREST_LANTERNS, HARBOR_CLUES, HARBOR_CLUE_IDS } from './adventureStory.js';
 
+import { FINALE_CHAPTERS, finaleRoute } from './adventureFinale.js';
+
 const STEPS = Object.freeze([
   'Gặp Lilia ở quảng trường',
   'Mở rương tiếp tế',
@@ -12,6 +14,7 @@ export function adventureJournal(save) {
   const { quest, chestOpened, forestCleared, forestClues, map, chapterTwo, chapterThree } = save.adventure;
   const inForest = map === 'forest';
   const clues = FOREST_CLUE_IDS.filter(id => forestClues.includes(id)).map(id => FOREST_CLUES[id]);
+  if (chapterThree.stage === 'completed') return finaleJournal(save.adventure, clues);
   if (chapterTwo.stage === 'completed' && (chapterThree.stage !== 'not_started' || map === 'harbor')) {
     const titles = ['Gặp Phở Lam Vũ ở bến', 'Kiểm tra lưới và vệt triều', 'Dập tiếng Tù Và Hải Triều', 'Báo tin cho Phở Lam Vũ'];
     const nextClue = HARBOR_CLUE_IDS.find(id => !chapterThree.clues.includes(id));
@@ -44,6 +47,24 @@ export function adventureJournal(save) {
   const nextChapterAction = quest === 'completed' ? inForest ? 'village_return' : 'lilia' : null;
   return { title: FIRST_CHAPTER, labels: markSteps(STEPS, step), step, action: actions[step] ?? null, nextChapterAction, clues,
     nextChapterLabel: nextChapterAction && 'Gặp Lilia để mở Chương 2' };
+}
+
+function finaleJournal(adventure, earlierClues) {
+  const { map, finale } = adventure;
+  const chapter = FINALE_CHAPTERS.find(item => finale[item.number].stage !== 'completed') ?? FINALE_CHAPTERS.at(-1);
+  const progress = finale[chapter.number];
+  const nextObjective = Object.keys(chapter.objectives).find(id => !progress.objectives.includes(id));
+  const step = progress.stage === 'completed' ? chapter.steps.length
+    : progress.stage === 'not_started' ? 0 : progress.stage === 'ready_to_claim' ? 3 : nextObjective ? 1 : 2;
+  const actions = [chapter.guide, nextObjective, chapter.encounter ?? chapter.guide, chapter.guide];
+  const action = step >= chapter.steps.length ? null : map === chapter.map ? actions[step] : finaleRoute(map, chapter.map);
+  const clues = [
+    ...earlierClues,
+    ...HARBOR_CLUE_IDS.filter(id => adventure.chapterThree.clues.includes(id)).map(id => HARBOR_CLUES[id]),
+    ...FINALE_CHAPTERS.flatMap(item => finale[item.number].objectives.map(id => item.objectives[id])),
+  ];
+  return { title: chapter.title, labels: markSteps(chapter.steps, step), step, action, clues,
+    completedCampaign: finale[6].stage === 'completed' };
 }
 
 function markSteps(titles, step) {

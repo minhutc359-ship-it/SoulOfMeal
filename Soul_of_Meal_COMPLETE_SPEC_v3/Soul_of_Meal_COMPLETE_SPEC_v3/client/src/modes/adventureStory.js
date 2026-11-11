@@ -1,3 +1,5 @@
+import { FINALE_DIALOGUES } from './adventureFinale.js';
+
 export const FIRST_CHAPTER = 'Hương Vị Đầu Tiên';
 export const SECOND_CHAPTER = 'Bí Mật Rừng Nguyên Liệu';
 export const THIRD_CHAPTER = 'Hải Vực Hương Biển';
@@ -59,6 +61,7 @@ export function restoreForestClues(adventure) {
 }
 
 export const CHAPTER_DIALOGUES = Object.freeze({
+  ...FINALE_DIALOGUES,
   opening: {
     title: 'Nồi nước dùng lặng hương',
     lines: [
@@ -109,7 +112,7 @@ export const CHAPTER_DIALOGUES = Object.freeze({
     lines: [
       { speaker: 'Phở Lam Vũ', art: 'chr_pho_lamvu', text: 'Nước đã rút. Ngửi xem, bếp cá nướng sau chợ lại thơm rồi.' },
       { speaker: 'Bún Bò Hỏa Linh', art: 'chr_bunbo_holinh', text: 'Trong tù và có tro khô, giống thứ bám trên chiếc vá của Bếp Trưởng. Ai đó đã mang Thất Vị theo con đường chở than.' },
-      { speaker: 'Phở Lam Vũ', art: 'chr_pho_lamvu', text: 'Tôi sẽ ghi dấu ấy vào bản đồ. Đêm nay, giúp tôi chia mẻ cá đầu tiên cho những người vừa trở về bến nhé.' },
+      { speaker: 'Phở Lam Vũ', art: 'chr_pho_lamvu', text: 'Đường chở than chạy lên Núi Lửa Gia Vị. Khi sẵn sàng, cứ theo xe than ở cuối bến. Tôi sẽ chia mẻ cá đầu tiên cho những người vừa về.' },
     ],
   },
 });

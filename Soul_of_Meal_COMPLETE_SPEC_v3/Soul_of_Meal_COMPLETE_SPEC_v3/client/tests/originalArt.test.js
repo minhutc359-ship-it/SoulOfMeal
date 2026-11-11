@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { BattleEffects } from '../src/render/battleEffects.js';
 import { validateAnimationManifest } from '../src/render/clipPlayer.js';
-import { actorArt, BOSS_ID, combatArt, cutinArt, ELEMENT_ART, effectArt, HERO_NAMES, originalCardArt, preloadGameAssets, TRAVEL_HERO } from '../src/render/spriteAssets.js';
+import { actorArt, BOSS_ID, combatArt, cutinArt, ELEMENT_ART, effectArt, HERO_ID, HERO_NAMES, originalCardArt, preloadGameAssets, TRAVEL_HERO } from '../src/render/spriteAssets.js';
 
 const assetFile = (path) => new URL('../' + path.slice(2), import.meta.url);
 
@@ -89,4 +89,20 @@ test('Adventure projectile uses its element and disappears at the authoritative 
   battle.tick = 22;
   effects.draw(context, battle, false);
   assert.equal(drawn.length, 1);
+});
+
+test('loading can be retried after required map art is missing', async () => {
+  let missing = true;
+  const renderer = {
+    async loadImage(path) {
+      if (missing && path.endsWith('/sanctum.webp')) return null;
+      return {};
+    },
+    async loadCharacter() {
+      return { loaded: true, manifest: { clips: { idle: {} }, frames: { idle_01: {} } } };
+    },
+  };
+  await assert.rejects(preloadGameAssets(renderer), /Không tải được bản đồ hoặc hoạt ảnh/);
+  missing = false;
+  assert.ok((await preloadGameAssets(renderer))[HERO_ID]);
 });

@@ -1,4 +1,4 @@
-import { createAdventureState, interactAdventure, nearestInteraction, availableAdventureInteractions, setAdventureInput, stepAdventure, activateUltimate, activateLanternWard, retreatFromTide, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, leaveAdventureDefeat, WORLD, resolveCameraViewport } from './modes/adventure.js';
+import { adventureCheckpoint, createAdventureState, interactAdventure, nearestInteraction, availableAdventureInteractions, setAdventureInput, stepAdventure, activateUltimate, activateLanternWard, retreatFromTide, activateBossCounter, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, leaveAdventureDefeat, WORLD, resolveCameraViewport } from './modes/adventure.js';
 import { createTcgMatch, playTcgCard, passTcgPriority, runBotPriority, runTcgBot, attackTcg, assignTcgBlockers, declaredTcgAttackers, endTcgTurn, mulliganTcg, surrenderTcg, validateDeck } from './modes/tcg.js';
 import { advanceChessRound, benchChessUnit, buyChessOffer, createChessRun, moveChessUnit, nextChessOpponent, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat, toggleChessLock, buyChessExperience, chessTraits, CHESS_TRAITS } from './modes/autoChess.js';
 import { gameEvents } from './core/events.js';
@@ -14,6 +14,7 @@ import { adventureSpiritStats, canAffordSpiritCost, changeSpiritProgress, MAX_SP
 import { BattleEffects } from './render/battleEffects.js';
 import { GameAudio } from './core/audio.js';
 import { resolveSoundScene } from './core/soundScenes.js';
+import { FINALE_CHAPTERS } from './modes/adventureFinale.js';
 import { adventureJournal } from './modes/adventureJournal.js';
 import { CHAPTER_DIALOGUES } from './modes/adventureStory.js';
 import { ChessReplay } from './render/chessReplay.js';
@@ -66,7 +67,7 @@ const elementColors = { fire: '#dd684a', water: '#428eac', wood: '#548d56', ligh
 const contentFiles = [
   'cards/cards.catalog.json', 'cards/starter_deck.json',
   'auto_chess/units.json', 'auto_chess/shop_odds.json',
-  'maps/village.json', 'maps/forest.json', 'maps/harbor.json',
+  'maps/village.json', 'maps/forest.json', 'maps/harbor.json', 'maps/caldera.json', 'maps/sanctum.json',
 ];
 
 async function loadContent(report) {
@@ -106,6 +107,7 @@ function saveNow() {
   runtime.save.adventure.map = runtime.adventure.map;
   runtime.save.adventure.x = runtime.adventure.x;
   runtime.save.adventure.y = runtime.adventure.y;
+  runtime.save.adventure.battle = adventureCheckpoint(runtime.adventure.battle);
   runtime.save.modes.tcg = runtime.tcg;
   runtime.save.modes.chess = runtime.chess;
   if (runtime.cloud) runtime.cloud.stage(runtime.save);
@@ -323,12 +325,13 @@ function pageHeader(kicker, title, description, back = 'home') {
 function renderHome() {
   const { quest } = runtime.save.adventure;
   const journal = adventureJournal(runtime.save);
-  const headline = journal.labels[journal.step]?.title ?? journal.nextChapterLabel ?? 'Trở lại Làng Ẩm Thực';
+  const headline = journal.completedCampaign ? 'Đã hoàn thành Hành Trình Vị Linh'
+    : journal.labels[journal.step]?.title ?? journal.nextChapterLabel ?? 'Trở lại Làng Ẩm Thực';
   shell(`
     <section class="lobby">
       <div class="lobby-copy">
         <h1>Hành Trình<br>Vị Linh</h1>
-        <p>${headline ?? 'Trở lại Làng Ẩm Thực'}</p>
+        <p>${headline}</p>
         <button class="entry-action" data-page="adventure">${quest === 'not_started' ? 'Vào làng' : 'Tiếp tục phiêu lưu'} <b aria-hidden="true">›</b></button>
       </div>
       <div class="lobby-modes" role="group" aria-label="Chọn lối chơi">
@@ -369,6 +372,9 @@ function renderAdventure() {
     <button class="button light compact" data-battle-pause></button>
     <button class="button light compact" data-battle-speed aria-label="Tăng tốc trận đấu" aria-pressed="false">2×</button>
     <span class="key-hint">1–5 · Tuyệt kỹ</span>` : '';
+  const sequenceOptions = encounter?.phases[2]?.sequence?.options;
+  const sequenceButtons = Object.entries(sequenceOptions ?? {}).map(([id, label]) =>
+    `<button class="button light compact" type="button" data-boss-counter="${id}">${label}</button>`).join('');
   const stoveControls = adventureBalance.bossStoves.positions.map((_, index) => `
     <button class="button light stove-button" data-stove="boss_stove_${index + 1}" aria-pressed="false">
       <img src="${propArt('boss_stove')}" alt=""><span><b>${index + 6} · Bếp ${index + 1}</b><small data-stove-hp></small></span>
@@ -387,13 +393,16 @@ function renderAdventure() {
         <div class="telegraph" data-telegraph hidden><div class="telegraph-heading"><b data-telegraph-name></b><span data-telegraph-seconds></span></div>
           <progress data-telegraph-time aria-label="Thời gian trước đòn boss"></progress>
           <div class="stove-controls" data-stove-controls hidden><p>Phá 2 bếp để hạ hộ thuẫn và ngắt chiêu.</p><div class="stove-buttons">${stoveControls}</div></div>
+          ${sequenceButtons ? `<div class="boss-counter" data-boss-sequence hidden>
+            <p data-boss-sequence-progress aria-live="polite"></p><div class="action-row">${sequenceButtons}</div>
+          </div>` : ''}
         </div>
         ${battle.encounter === 'seal' && battle.phase === 'battle_running' ? `<div class="ward-controls"><p>Giảm ${encounter.wardReductionBp / 100}% sát thương của một đợt sương.</p>
           <button class="button light" data-lantern-ward type="button" disabled>F · Đèn Giữ Vị</button></div>` : ''}
         ${battle.encounter === 'tide' && battle.phase === 'battle_running' ? `<div class="tide-controls" data-tide-controls hidden>
           <p data-tide-threat></p><button class="button light" data-tide-retreat type="button">R · Lùi về vùng khô</button></div>` : ''}
         </section>` : `<section class="panel"><h2>${journal.title}</h2>
-          <p class="quest-objective">${journal.labels[journal.step]?.title ?? journal.nextChapterLabel ?? 'Chương đã hoàn thành'}</p>
+          <p class="quest-objective">${journal.labels[journal.step]?.title ?? journal.nextChapterLabel ?? (journal.completedCampaign ? 'Hành Trình Vị Linh đã hoàn thành' : 'Chương đã hoàn thành')}</p>
           <div class="action-row">${guideAction ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
             <button class="button light" data-page="journey">Nhật ký hành trình</button></div>
         </section>`}
@@ -413,10 +422,14 @@ function renderAdventure() {
   app.querySelector('[data-tide-retreat]')?.addEventListener('click', () => {
     if (retreatFromTide(adventure)) updateBattleHud(battle);
   });
+  app.querySelectorAll('[data-boss-counter]').forEach(button => button.addEventListener('click', () => {
+    if (activateBossCounter(adventure, button.dataset.bossCounter)) updateBattleHud(battle);
+  }));
   app.querySelectorAll('[data-ultimate]').forEach((button) => button.addEventListener('click', () => useUltimate(button.dataset.ultimate)));
   app.querySelectorAll('[data-stove]').forEach(button => button.addEventListener('click', () => selectBossStove(button.dataset.stove)));
   app.querySelector('[data-battle-pause]')?.addEventListener('click', () => {
     battle.paused = !battle.paused;
+    saveNow();
     updateBattleHud(battle);
   });
   app.querySelector('[data-battle-speed]')?.addEventListener('click', () => {
@@ -444,12 +457,17 @@ function renderAdventureJournal() {
     chapterTwo.stage === 'completed' && 'forestEnding',
     chapterThree.stage !== 'not_started' && 'harborOpening',
     chapterThree.stage === 'completed' && 'harborEnding',
+    ...FINALE_CHAPTERS.flatMap(chapter => [
+      save.adventure.finale[chapter.number].stage !== 'not_started' && chapter.opening,
+      save.adventure.finale[chapter.number].stage === 'completed' && chapter.ending,
+    ]),
   ].filter(Boolean);
   const statusText = { done: 'Hoàn thành', current: 'Mục tiêu hiện tại', upcoming: 'Sắp tới' };
   shell(`
     ${pageHeader('Phiêu lưu', 'Nhật ký hành trình', '', 'adventure')}
     <section class="panel journey-panel">
       <h2>${journal.title}</h2>
+      ${journal.completedCampaign ? '<p class="quest-objective">Hành Trình Vị Linh đã hoàn thành</p>' : ''}
       <ol class="journey-steps">${journal.labels.map(({ title, status }) =>
         `<li data-step-status="${status}" ${status === 'current' ? 'aria-current="step"' : ''}>
           <strong>${title}</strong><small>${statusText[status]}</small>
@@ -517,6 +535,19 @@ function updateBattleHud(battle) {
     const label = remaining.toLocaleString('vi', { minimumFractionDigits: 1 }) + ' s';
     if (seconds.textContent !== label) seconds.textContent = label;
   }
+  const sequenceControls = app.querySelector('[data-boss-sequence]');
+  if (sequenceControls) {
+    const tell = battle.bossTelegraph;
+    sequenceControls.hidden = tell?.counter !== 'sequence';
+    if (!sequenceControls.hidden) {
+      const { options, order } = adventureEncounters[battle.encounter].phases[tell.phase].sequence;
+      const done = tell.counterStep === order.length;
+      const status = sequenceControls.querySelector('[data-boss-sequence-progress]');
+      const text = done ? 'Đã kích hoạt đủ.' : `Thứ tự ${order.map(id => options[id]).join(' → ')} · ${tell.counterStep}/${order.length}`;
+      if (status.textContent !== text) status.textContent = text;
+      for (const button of sequenceControls.querySelectorAll('[data-boss-counter]')) button.disabled = battle.paused || done;
+    }
+  }
   const pause = app.querySelector('[data-battle-pause]');
   const ward = app.querySelector('[data-lantern-ward]');
   if (ward) {
@@ -578,6 +609,7 @@ function useUltimate(actorId) {
 function claimAdventureBattle() {
   if (runtime.adventure.battle?.result === 'defeat') {
     beginBattle(runtime.adventure, runtime.save, runtime.adventure.battle.encounter);
+    saveNow();
     render();
     return;
   }
@@ -629,17 +661,17 @@ function drawAdventureFrame(deltaSeconds) {
   const cameraContext = { ...camera };
   if (adventure.walkPath?.length && !adventure.battle && runtime.heldKeys.size === 0) {
     const waypoint = adventure.walkPath[0];
-    const dx = waypoint.x - adventure.x; const dy = waypoint.y - adventure.y;
-    if (Math.hypot(dx, dy) < 10) {
-      adventure.walkPath.shift();
-      if (!adventure.walkPath.length) {
-        adventure.walkTarget = null;
-        setAdventureInput(adventure, 0, 0);
-        const action = adventure.tapInteraction;
-        adventure.tapInteraction = null;
-        if (action && nearestInteraction(adventure, runtime.save, runtime.maps)?.id === action) return doAdventureInteract();
-      }
-    } else setAdventureInput(adventure, dx, dy);
+    if (Math.hypot(waypoint.x - adventure.x, waypoint.y - adventure.y) < .01) adventure.walkPath.shift();
+    const next = adventure.walkPath[0];
+    if (next) {
+      setAdventureInput(adventure, next.x - adventure.x, next.y - adventure.y);
+    } else {
+      adventure.walkTarget = null;
+      setAdventureInput(adventure, 0, 0);
+      const action = adventure.tapInteraction;
+      adventure.tapInteraction = null;
+      if (action && nearestInteraction(adventure, runtime.save, runtime.maps)?.id === action) return doAdventureInteract();
+    }
   }
   if (adventure.battle) setAdventureInput(adventure, 0, 0);
   else if (runtime.heldKeys.size) {
@@ -654,6 +686,7 @@ function drawAdventureFrame(deltaSeconds) {
   }
   const previousPhase = adventure.battle?.phase;
   const previousWave = adventure.battle?.wave;
+  const previousTelegraph = adventure.battle?.bossTelegraph;
   const oldX = adventure.x;
   const oldY = adventure.y;
   const playbackDelta = adventure.battle?.paused ? 0 : deltaSeconds * (adventure.battle?.speed ?? 1);
@@ -669,7 +702,11 @@ function drawAdventureFrame(deltaSeconds) {
   runtime.animations.advance(playbackDelta * 1000);
   runtime.effects.advance(playbackDelta);
   if (adventure.battle) {
-    if (previousPhase !== adventure.battle.phase || previousWave !== adventure.battle.wave) return renderAdventure();
+    if (previousPhase !== adventure.battle.phase || previousWave !== adventure.battle.wave) {
+      saveNow();
+      return renderAdventure();
+    }
+    if (previousTelegraph !== adventure.battle.bossTelegraph) saveNow();
     updateBattleHud(adventure.battle);
   }
   const message = app.querySelector('[data-adventure-message]');
@@ -729,7 +766,7 @@ function syncAdventureAnimations(adventure) {
 
 function drawWorldScene(context, adventure, save) {
   const map = getAdventureMap(runtime.maps, adventure.map);
-  context.fillStyle = ({ village: '#b79864', forest: '#466a52', harbor: '#52677c' })[adventure.map] ?? '#466a52';
+  context.fillStyle = ({ village: '#b79864', forest: '#466a52', harbor: '#52677c', caldera: '#55423c', sanctum: '#382944' })[adventure.map] ?? '#466a52';
   context.fillRect(0, 0, 960, 540);
   spriteRenderer.drawImage(context, sceneArt(map?.runtime_key ?? 'village'), 0, 0, 960, 540);
   drawMapVisuals(context, map, save);
@@ -749,12 +786,16 @@ function drawMapVisuals(context, map, save) {
       drawFitted(context, propArt('table'), x + visual.width / 2, y + visual.height, visual.width, visual.height);
     } else if (visual.kind === 'tree') {
       drawFitted(context, propArt('tree'), x, y + 26, 66, 93);
-    } else if (visual.kind === 'marker' && visual.id === 'npc_lilia') {
+    } else if (visual.kind === 'marker' && (visual.id === 'feast_lilia' && activeIds.has(visual.id)
+      || visual.id === 'npc_lilia' && save.adventure.finale[5].stage !== 'completed')) {
       drawFitted(context, actorArt('npc_lilia'), x, y + 11, 65, 70);
       drawMapLabel(context, visual.label, x, y + 24);
     } else if (visual.kind === 'guide') {
       drawFitted(context, actorArt(visual.actorId), x, y + 11, 65, 70);
       drawMapLabel(context, visual.label, x, y + 24);
+    } else if (visual.kind === 'feast_guest' && save.adventure.finale[6].stage === 'completed') {
+      drawFitted(context, actorArt(visual.actorId), x, y + 10, 65, 70);
+      drawElementEffect(context, spriteRenderer, visual.element, 'impact', { x, y: y - 56, size: 24, opacity: .7 });
     } else if (visual.kind === 'clue' && activeIds.has(visual.id)) {
       drawElementEffect(context, spriteRenderer, visual.element ?? 'light', 'impact', { x, y: y - 9, size: 48, opacity: .9 });
       drawMapLabel(context, visual.label, x, y + 19);
@@ -836,7 +877,7 @@ function drawBattleScene(context, adventure) {
       if (actor.alive) drawBossStove(context, actor, battle.stoveTargetId === actor.actor_id);
     } else {
       drawActor(context, actor, runtime.animations.getActorState(actor.actor_id)?.animation,
-        actor.boss && battle.bossTelegraph?.counter === 'stoves');
+        actor.boss && ['stoves', 'sequence'].includes(battle.bossTelegraph?.counter));
     }
   }
   runtime.effects.draw(context, battle, runtime.save.settings.reducedMotion);
@@ -881,7 +922,7 @@ function drawBossStove(context, stove, focused) {
   context.restore();
 }
 
-function drawActor(context, actor, animation, protectedByStoves) {
+function drawActor(context, actor, animation, guarded) {
   const { x, y } = actor;
   context.save();
   context.globalAlpha = actor.alive ? 1 : .32;
@@ -891,14 +932,14 @@ function drawActor(context, actor, animation, protectedByStoves) {
   context.fill();
   const drawn = !actor.stationary && spriteRenderer.drawSprite(context, actor.id, animation, x, y, { scale: actor.boss ? 1.04 : .67 });
   if (actor.stationary) {
-    drawFitted(context, propArt(actor.id), x, y, 150, 129);
+    drawFitted(context, propArt(actor.artId ?? actor.id), x, y, 150, 129);
   } else if (!drawn) {
     const pose = placeholderPose(animation);
     drawFitted(context, actorArt(actor.id), x, y + pose.offsetY,
       (actor.boss ? 150 : 77) * pose.scaleX, (actor.boss ? 128 : 78) * pose.scaleY);
   }
-  if (actor.shield || protectedByStoves) {
-    const options = { x, y: y - (protectedByStoves ? 66 : 39), size: protectedByStoves ? 210 : 113, opacity: .72 };
+  if (actor.shield || guarded) {
+    const options = { x, y: y - (guarded ? 66 : 39), size: guarded ? 210 : 113, opacity: .72 };
     if (!drawEffectTexture(context, spriteRenderer, combatArt('shield_bubble'), options)) {
       drawElementEffect(context, spriteRenderer, 'light', 'impact', options);
     }

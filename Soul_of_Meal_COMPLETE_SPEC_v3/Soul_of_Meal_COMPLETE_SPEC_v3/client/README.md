@@ -43,6 +43,13 @@ Khi chạy với [máy chủ ASP.NET Core và PostgreSQL](../server/README.md), 
 - Khi có báo sóng, nhấn **R** hoặc chọn **Lùi về vùng khô**. Vị Linh cần thời gian chạy về phía trái. Đội tạm ngừng đòn thường trong lúc lùi và tự giao tranh tiếp sau khi sóng qua. Tuyệt kỹ và đạn đã tung vẫn xử lý theo lịch cũ.
 - Nhận thưởng giao tranh rồi báo tin cho Phở Lam Vũ. Có thể đi thuyền về làng và quay lại với tiến trình đã lưu.
 
+## Chương 4–6 · Kết thúc Hành Trình Vị Linh
+
+- **Lò Lửa Của Bếp Trưởng.** Báo tin cho Phở Lam Vũ rồi theo xe than ở cuối bến cảng. Đọc sổ chuyến than và bảng dẫn hơi. Khi Lò Than Mất Vị nạp đòn, gạt hai van theo thứ tự trên bảng giao tranh. Thứ tự đảo ở đợt sau.
+- **Đại Tiệc Không Hương Vị.** Qua lối sau lò để vào Điện Hội Vô Vị. Gặp Cà Phê Dạ Vũ và đọc hai dấu vết trước khi đấu Vạc Vô Vị. Kích hoạt ba ấn ở đợt đầu và hai ấn ở đợt cuối để ngắt chiêu.
+- **Bữa Tiệc Tái Sinh.** Mang ký ức về làng, gặp Lilia, nêm nước dùng rồi dọn bàn. Nói chuyện với Lilia để mở cảnh kết. Có thể trở lại các vùng đã mở và xem lại hội thoại trong Nhật ký.
+- **Tiếp tục giao tranh.** Trận được ghi khi vào trận, sang đợt, mở hoặc kết thúc báo đòn, tạm dừng và có kết quả. Khi tải lại, trận đang diễn ra trở về mốc đã ghi và chờ **Tiếp tục**. Kết quả chưa nhận thưởng vẫn xuất hiện. Tài khoản đồng bộ các mốc lên máy chủ khi báo **Đã lưu**.
+
 ## Hồ sơ Vị Linh
 
 Chạm chân dung trong Adventure hoặc mở **Vị Linh** ở thanh điều hướng. **Thông tin** hiển thị HP, ATK, DEF, tốc độ và mức tăng trước khi nâng cấp. **Kỹ năng** hiển thị tuyệt kỹ, năng lượng và thời gian hồi. **Trang bị** có bốn món để chế tác, đeo hoặc tháo về kho. Mỗi món chỉ có một bản, có thể chuyển giữa các Vị Linh. **Quan hệ** dùng tinh hoa để tặng quà và mở ký ức khi đạt mức Tin cậy.

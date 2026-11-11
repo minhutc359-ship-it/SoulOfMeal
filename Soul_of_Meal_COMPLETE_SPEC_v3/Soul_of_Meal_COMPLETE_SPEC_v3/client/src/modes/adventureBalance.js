@@ -36,11 +36,16 @@ export const adventureBalance = {
     boss_bep_truong: { range: 120, windup: 13 },
     empty_bowl_seal: { range: 335, windup: 13, travel: 14 },
     tidal_conch: { range: 340, windup: 13, travel: 12 },
+    spice_forge: { range: 275, windup: 15, travel: 13 },
+    hollow_cauldron: { range: 345, windup: 14, travel: 13 },
   },
 };
 
 const mushroom = { id: 'mob_mushroom_01', name: 'Nấm Lạc Vị', hp: 980, maxHp: 980, atk: 90, def: 20, interval: 54, element: 'wood' };
 const pepper = { id: 'mob_pepper_01', name: 'Tiêu Tinh', hp: 1250, maxHp: 1250, atk: 110, def: 25, interval: 48, element: 'fire' };
+
+const valves = { steam: 'Van Hơi', coal: 'Van Than' };
+const seals = { fire: 'Hỏa', water: 'Thủy', wood: 'Mộc', light: 'Quang', shadow: 'Âm' };
 
 export const adventureEncounters = {
   forest: {
@@ -75,5 +80,33 @@ export const adventureEncounters = {
     retreatSpeed: 7.2,
     scene: 'harbor',
     reward: { gold: 125, essence: 20 },
+  },
+  forge: {
+    waves: [[{ ...pepper, hp: 2350, maxHp: 2350 }, { ...mushroom, hp: 2000, maxHp: 2000 }], [
+      { id: 'spice_forge', artId: 'boss_stove', name: 'Lò Than Mất Vị', hp: 12300, maxHp: 12300, atk: 310, def: 102, interval: 68, element: 'fire', boss: true, stationary: true },
+    ]],
+    phases: {
+      2: { threshold: .73, attack: 'Áp Hơi Bùng Nổ', windup: 210, coefficient: 45000, targets: 3, counter: 'sequence',
+        sequence: { options: valves, order: ['steam', 'coal'] } },
+      3: { threshold: .38, attack: 'Tro Lửa Tràn Lò', windup: 195, coefficient: 57000, targets: 5, counter: 'sequence',
+        sequence: { options: valves, order: ['coal', 'steam'] } },
+    },
+    scene: 'caldera',
+    claimId: 'caldera_spice_forge_reward',
+    reward: { gold: 160, essence: 25 },
+  },
+  feast: {
+    waves: [[{ ...mushroom, hp: 2600, maxHp: 2600 }, { ...pepper, hp: 2880, maxHp: 2880 }], [
+      { id: 'hollow_cauldron', name: 'Vạc Vô Vị', hp: 14800, maxHp: 14800, atk: 365, def: 112, interval: 59, element: 'shadow', boss: true, stationary: true },
+    ]],
+    phases: {
+      2: { threshold: .76, attack: 'Niêm Ký Ức', windup: 240, coefficient: 49000, targets: 3, counter: 'sequence',
+        sequence: { options: seals, order: ['fire', 'water', 'wood'] } },
+      3: { threshold: .38, attack: 'Đại Tiệc Vô Vị', windup: 215, coefficient: 64000, targets: 5, counter: 'sequence',
+        sequence: { options: seals, order: ['light', 'shadow'] } },
+    },
+    scene: 'sanctum',
+    claimId: 'sanctum_hollow_feast_reward',
+    reward: { gold: 225, essence: 35 },
   },
 };

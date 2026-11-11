@@ -2,6 +2,7 @@ import { getAdventureMap } from './mapCatalog.js';
 
 export const PLAYER_COLLISION_RADIUS = 14;
 export const PATH_GRID_SIZE = 24;
+const COLLISION_EPSILON = 1e-6;
 
 export function getAdventureObstacles(mapId, maps) {
   return getAdventureMap(maps, mapId)?.collision?.obstacles ?? [];
@@ -10,7 +11,10 @@ export function getAdventureObstacles(mapId, maps) {
 export function collidesWithWorld(mapId, x, y, radius = PLAYER_COLLISION_RADIUS, maps) {
   const world = getAdventureMap(maps, mapId)?.world;
   if (!world || x - radius < 0 || x + radius > world.width || y - radius < 0 || y + radius > world.height) return true;
-  return getAdventureObstacles(mapId, maps).some((obstacle) => circleIntersectsRect(x, y, radius, obstacle));
+  return getAdventureObstacles(mapId, maps).some(obstacle => {
+    const rect = inflateRect(obstacle, radius);
+    return insideEdge(x, rect.x, rect.width) && insideEdge(y, rect.y, rect.height);
+  });
 }
 
 export function moveWithCollision(mapId, x, y, deltaX, deltaY, radius = PLAYER_COLLISION_RADIUS, maps) {
@@ -86,12 +90,12 @@ function resolveAxis(mapId, x, y, delta, horizontal, radius, maps, world) {
       const crossesObstacle = delta > 0
         ? current <= rect.x && proposed > rect.x
         : current >= rect.x + rect.width && proposed < rect.x + rect.width;
-      return other > rect.y && other < rect.y + rect.height && crossesObstacle;
+      return insideEdge(other, rect.y, rect.height) && crossesObstacle;
     }
     const crossesObstacle = delta > 0
       ? current <= rect.y && proposed > rect.y
       : current >= rect.y + rect.height && proposed < rect.y + rect.height;
-    return other > rect.x && other < rect.x + rect.width && crossesObstacle;
+    return insideEdge(other, rect.x, rect.width) && crossesObstacle;
   });
   if (!blocked.length) return proposed;
   let resolved = proposed;
@@ -128,10 +132,14 @@ function nearestWalkableNode(mapId, position, columns, rows, radius, maps, world
 function reconstructPath(mapId, cameFrom, current, columns, destination, start, radius, maps, world) {
   const ids = [current.id];
   while (cameFrom.has(ids[0])) ids.unshift(cameFrom.get(ids[0]));
-  const points = ids.slice(1).map((id) => nodePoint(id % columns, Math.floor(id / columns), world, radius));
-  if (points.length && !collidesWithWorld(mapId, destination.x, destination.y, radius, maps) && hasClearLine(mapId, points.at(-1), destination, radius, maps)) points.push(destination);
-  if (!points.length && Math.hypot(destination.x - start.x, destination.y - start.y) > 1) points.push(destination);
-  return compressPath(points);
+  const gridPoints = ids.map(id => nodePoint(id % columns, Math.floor(id / columns), world, radius));
+  if (hasClearLine(mapId, start, gridPoints[1], radius, maps)) gridPoints.shift();
+  const points = compressPath(gridPoints);
+  const last = points.at(-1);
+  if (!collidesWithWorld(mapId, destination.x, destination.y, radius, maps) && hasClearLine(mapId, last, destination, radius, maps)) {
+    points.push(destination);
+  }
+  return points;
 }
 
 function hasClearLine(mapId, start, end, radius, maps) {
@@ -175,10 +183,8 @@ function heuristic(first, second) {
   return Math.max(dx, dy) + (Math.SQRT2 - 1) * Math.min(dx, dy);
 }
 
-function circleIntersectsRect(x, y, radius, rect) {
-  const closestX = clamp(x, rect.x, rect.x + rect.width);
-  const closestY = clamp(y, rect.y, rect.y + rect.height);
-  return (x - closestX) ** 2 + (y - closestY) ** 2 < radius ** 2;
+function insideEdge(value, start, length) {
+  return value > start + COLLISION_EPSILON && value < start + length - COLLISION_EPSILON;
 }
 
 function inflateRect(rect, amount) {

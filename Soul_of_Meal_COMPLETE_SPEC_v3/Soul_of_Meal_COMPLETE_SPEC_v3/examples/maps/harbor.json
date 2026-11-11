@@ -20,20 +20,23 @@
     ]
   },
   "transitions": [
-    { "id": "harbor_return_route", "type": "door", "from": "harbor", "to": "village", "spawn": { "x": 860, "y": 422 }, "label": "Về Làng Ẩm Thực" }
+    { "id": "harbor_return_route", "type": "door", "from": "harbor", "to": "village", "spawn": { "x": 860, "y": 422 }, "label": "Về Làng Ẩm Thực" },
+    { "id": "caldera_route", "type": "door", "from": "harbor", "to": "caldera", "spawn": { "x": 100, "y": 327 }, "label": "Núi Lửa Gia Vị" }
   ],
   "interactables": [
     { "id": "harbor_return_route", "kind": "portal", "action": "harbor_return", "label": "Thuyền về làng", "x": 76, "y": 456, "radius": 50 },
     { "id": "harbor_pho_guide", "kind": "npc", "action": "harbor_guide", "label": "Phở Lam Vũ", "x": 208, "y": 344, "radius": 59 },
     { "id": "harbor_net", "kind": "harbor_clue", "action": "harbor_net", "label": "Lưới mắc vỏ ốc", "x": 478, "y": 430, "radius": 52 },
     { "id": "harbor_tide", "kind": "harbor_clue", "action": "harbor_tide", "label": "Vệt triều trên cọc", "x": 708, "y": 264, "radius": 52 },
-    { "id": "harbor_tidal_conch", "kind": "encounter", "action": "tide_encounter", "label": "Tù Và Hải Triều", "x": 818, "y": 389, "radius": 60 }
+    { "id": "harbor_tidal_conch", "kind": "encounter", "action": "tide_encounter", "label": "Tù Và Hải Triều", "x": 818, "y": 389, "radius": 60 },
+    { "id": "caldera_route", "kind": "portal", "action": "caldera_route", "label": "Theo xe than lên núi", "x": 875, "y": 472, "radius": 50 }
   ],
   "visuals": [
     { "id": "harbor_return_route", "kind": "portal", "x": 76, "y": 456, "label": "THUYỀN VỀ LÀNG" },
     { "id": "harbor_pho_guide", "kind": "guide", "actorId": "chr_pho_lamvu", "x": 208, "y": 344, "label": "PHỞ LAM VŨ" },
     { "id": "harbor_net", "kind": "clue", "element": "water", "x": 478, "y": 430, "label": "LƯỚI MẮC VỎ ỐC" },
     { "id": "harbor_tide", "kind": "clue", "element": "water", "x": 708, "y": 264, "label": "VỆT TRIỀU" },
-    { "id": "harbor_tidal_conch", "kind": "seal", "artId": "tidal_conch", "x": 818, "y": 389, "label": "TÙ VÀ HẢI TRIỀU" }
+    { "id": "harbor_tidal_conch", "kind": "seal", "artId": "tidal_conch", "x": 818, "y": 389, "label": "TÙ VÀ HẢI TRIỀU" },
+    { "id": "caldera_route", "kind": "portal", "x": 875, "y": 472, "label": "ĐƯỜNG CHỞ THAN" }
   ]
 }

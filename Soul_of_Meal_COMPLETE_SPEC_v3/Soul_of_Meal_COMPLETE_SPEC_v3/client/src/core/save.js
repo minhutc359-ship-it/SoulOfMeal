@@ -1,4 +1,5 @@
 import { restoreChapterThree, restoreChapterTwo, restoreForestClues } from '../modes/adventureStory.js';
+import { restoreFinale } from '../modes/adventureFinale.js';
 import { restoreSpiritProgress } from '../modes/spiritProgress.js';
 
 export const SAVE_KEY = 'soul-of-meal.save.v2';
@@ -13,6 +14,7 @@ export function createDefaultSave() {
       forestCleared: false, forestClues: [], rewardClaims: [], battle: null,
       chapterTwo: { stage: 'not_started', lanterns: 0 },
       chapterThree: { stage: 'not_started', clues: [] },
+      finale: restoreFinale({ chapterThree: { stage: 'not_started' } }),
       spirits: { ownedGear: [], profiles: {} },
     },
     roster: [
@@ -35,7 +37,15 @@ export function migrateSave(input) {
   adventure.forestClues = restoreForestClues(adventure);
   adventure.chapterTwo = restoreChapterTwo(adventure);
   adventure.chapterThree = restoreChapterThree(adventure);
-  if (adventure.map === 'harbor' && adventure.chapterTwo.stage !== 'completed') {
+  adventure.finale = restoreFinale(adventure);
+  const mapAllowed = {
+    village: true,
+    forest: true,
+    harbor: adventure.chapterTwo.stage === 'completed',
+    caldera: adventure.chapterThree.stage === 'completed',
+    sanctum: adventure.finale[4].stage === 'completed',
+  };
+  if (!Object.hasOwn(mapAllowed, adventure.map) || !mapAllowed[adventure.map]) {
     Object.assign(adventure, { map: fresh.adventure.map, x: fresh.adventure.x, y: fresh.adventure.y });
   }
   if (input.version === SAVE_VERSION) {
