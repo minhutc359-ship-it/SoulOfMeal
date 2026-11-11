@@ -1,5 +1,6 @@
 export const FIRST_CHAPTER = 'Hương Vị Đầu Tiên';
 export const SECOND_CHAPTER = 'Bí Mật Rừng Nguyên Liệu';
+export const THIRD_CHAPTER = 'Hải Vực Hương Biển';
 export const FOREST_LANTERNS = ['forest_lantern_wood', 'forest_lantern_light'];
 
 export function restoreChapterTwo(adventure) {
@@ -26,6 +27,30 @@ export const FOREST_CLUES = Object.freeze({
 });
 
 export const FOREST_CLUE_IDS = Object.keys(FOREST_CLUES);
+
+export const HARBOR_CLUES = Object.freeze({
+  harbor_net: {
+    title: 'Lưới mắc vỏ ốc',
+    note: 'Lưới kéo từ cửa biển dính những mảnh vỏ ốc rung cùng một nhịp. Mùi cá khô trên dây đã biến mất.',
+  },
+  harbor_tide: {
+    title: 'Vệt triều trên cọc',
+    note: 'Nước rút rồi dâng đúng lúc chiếc tù và cất tiếng. Hai bậc đá phía tây vẫn khô, đủ chỗ cho cả đội lùi lên.',
+  },
+});
+export const HARBOR_CLUE_IDS = Object.keys(HARBOR_CLUES);
+
+export function restoreChapterThree(adventure) {
+  const progress = adventure.chapterThree;
+  if (adventure.chapterTwo.stage !== 'completed' || !['accepted', 'ready_to_claim', 'completed'].includes(progress?.stage)) {
+    return { stage: 'not_started', clues: [] };
+  }
+  const clues = Array.isArray(progress.clues) ? progress.clues : [];
+  return {
+    stage: progress.stage,
+    clues: progress.stage === 'accepted' ? HARBOR_CLUE_IDS.filter(id => clues.includes(id)) : [...HARBOR_CLUE_IDS],
+  };
+}
 
 export function restoreForestClues(adventure) {
   if (adventure.forestCleared || ['ready_to_claim', 'completed'].includes(adventure.quest)) return [...FOREST_CLUE_IDS];
@@ -67,6 +92,24 @@ export const CHAPTER_DIALOGUES = Object.freeze({
       { speaker: 'Bún Bò Hỏa Linh', art: 'chr_bunbo_holinh', text: 'Khi sương tan, chúng tôi thấy dưới lớp men có hình các dòng suối. Chúng đều chảy ra một cửa biển.' },
       { speaker: 'Phở Lam Vũ', art: 'chr_pho_lamvu', text: 'Tôi nhận ra nơi ấy. Hải Vực Hương Biển. Nếu sương đã theo dòng nước tới đó, cảng sẽ là nơi đầu tiên mất vị.' },
       { speaker: 'Lilia', art: 'npc_lilia', text: 'Ta đã tìm được đường đi của Thất Vị. Tôi sẽ giữ đèn làng sáng. Khi các bạn trở về, nồi nước dùng vẫn sẽ đợi.' },
+    ],
+  },
+  harborOpening: {
+    chapter: THIRD_CHAPTER,
+    title: 'Bến cá im mùi biển',
+    lines: [
+      { speaker: 'Phở Lam Vũ', art: 'chr_pho_lamvu', text: 'Cảng vẫn đông, nhưng tôi không còn ngửi thấy mùi cá nướng. Vết Thất Vị trên mảnh men dẫn đúng đến bến này.' },
+      { speaker: 'Bún Bò Hỏa Linh', art: 'chr_bunbo_holinh', text: 'Có tiếng tù và ở cuối cầu tàu. Mỗi lần nó ngân, nước lại dâng thêm một bậc.' },
+      { speaker: 'Phở Lam Vũ', art: 'chr_pho_lamvu', text: 'Hãy xem tấm lưới và vạch triều. Nếu sóng tràn lên, ta sẽ lùi về bậc đá khô phía tây.' },
+    ],
+  },
+  harborEnding: {
+    chapter: THIRD_CHAPTER,
+    title: 'Mùi cá nướng trên bến',
+    lines: [
+      { speaker: 'Phở Lam Vũ', art: 'chr_pho_lamvu', text: 'Nước đã rút. Ngửi xem, bếp cá nướng sau chợ lại thơm rồi.' },
+      { speaker: 'Bún Bò Hỏa Linh', art: 'chr_bunbo_holinh', text: 'Trong tù và có tro khô, giống thứ bám trên chiếc vá của Bếp Trưởng. Ai đó đã mang Thất Vị theo con đường chở than.' },
+      { speaker: 'Phở Lam Vũ', art: 'chr_pho_lamvu', text: 'Tôi sẽ ghi dấu ấy vào bản đồ. Đêm nay, giúp tôi chia mẻ cá đầu tiên cho những người vừa trở về bến nhé.' },
     ],
   },
 });

@@ -31,8 +31,8 @@ export class BattleEffects {
         this.effects = this.effects.filter((effect) => effect.type !== 'cutin');
         this.add('cutin', element, .63, { id: source_id, text: payload.name });
       }
-    } else if (type === 'boss_cast_released' && source && element === 'shadow') {
-      this.add('impact', 'shadow', .9, { x: source.x, y: source.y - 64, strong: true });
+    } else if (type === 'boss_cast_released' && source && ['shadow', 'water'].includes(element)) {
+      this.add('impact', element, .9, { x: source.x, y: source.y - 64, strong: true });
     } else if (type === 'boss_cast_released' && source) {
       const flipX = source.direction !== 'E';
       this.add('boss_cleave', element, .48, { x: source.x + (flipX ? -66 : 66), y: source.y - 54, flipX });

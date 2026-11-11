@@ -12,6 +12,7 @@ test('the eight configurable tracks map to reachable scenes and their built-in f
   assert.equal(resolveSoundScene('home'), 'village');
   assert.equal(resolveSoundScene('adventure', { map: 'village' }), 'village');
   assert.equal(resolveSoundScene('adventure', { map: 'forest' }), 'forest');
+  assert.equal(resolveSoundScene('adventure', { map: 'harbor' }), 'adventure');
   assert.equal(resolveSoundScene('tcg'), 'tcg');
   assert.equal(resolveSoundScene('deck'), 'tcg');
   assert.equal(resolveSoundScene('chess'), 'chess');

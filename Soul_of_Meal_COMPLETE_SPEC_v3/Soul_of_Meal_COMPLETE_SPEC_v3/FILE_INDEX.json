@@ -284,8 +284,8 @@
     },
     {
       "path": "docs/01_gameplay/ADVENTURE_RULEBOOK.md",
-      "bytes": 8774,
-      "sha256": "86168b957b24bb837159e006090c8688ad154beaece75888c0024cc952ab8434"
+      "bytes": 9606,
+      "sha256": "fc175e3d538f8d93818f6f3c807685c47624cec3599849d1a4c2583995d2fc44"
     },
     {
       "path": "docs/01_gameplay/AUTO_CHESS_RULEBOOK.md",
@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 10114,
-      "sha256": "31fd29e74d3bca4f1c92e140735c93865cbb05fce64ecb27cf65c7485b70087a"
+      "bytes": 10799,
+      "sha256": "0ba67f72cebb7f31de0feb8e71cb6fda9b315a79e531881e465e64d889308f57"
     },
     {
       "path": "client/index.html",
@@ -789,18 +789,18 @@
     },
     {
       "path": "client/src/core/save.js",
-      "bytes": 3256,
-      "sha256": "86dd4559ddb95d7e4a24f08f5cb54662d243497281b71ab3c22bca0e7f9d6071"
+      "bytes": 3583,
+      "sha256": "bb49547eee2fc76c4b35d56fc2bfccb1c121e3c78f1924bc6d3769455cfd2b92"
     },
     {
       "path": "client/src/main.js",
-      "bytes": 91806,
-      "sha256": "e36b19e1614ebbac2875a103266c669fa011c0a7b3d6614ab91b33680fa78749"
+      "bytes": 94243,
+      "sha256": "ee21a70e33ebfd698cc10b300f09f14242785953c1383429d08a65bcaea67ed9"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 29186,
-      "sha256": "34d81b2c6c1698f983e540433eef3a3b406933006de6fbbf8c78569faa1cb4f0"
+      "bytes": 33645,
+      "sha256": "138adc854c810548fc23e77a04a2c899d5429e690a995e703df1965488668ee1"
     },
     {
       "path": "client/src/modes/autoChess.js",
@@ -819,8 +819,8 @@
     },
     {
       "path": "client/tests/runtime.test.js",
-      "bytes": 35496,
-      "sha256": "0bdd6371d86a02a9b652fecb66e11c49a7cac08d3b891c58ed1ebdbc51a424f6"
+      "bytes": 40304,
+      "sha256": "37e507b174f9e3b54ad1382c8cf12bec83c4021cde22212083a25658884895c8"
     },
     {
       "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
@@ -1259,8 +1259,8 @@
     },
     {
       "path": "client/src/render/spriteAssets.js",
-      "bytes": 2736,
-      "sha256": "3cc5be83e49c4996e46353c88a976d7b978ed1d01059aae780dfaaa1f4b959ce"
+      "bytes": 2761,
+      "sha256": "a723aafbdaef83f8a8e1114508977c44295bfcad831702464ce658f08e0acc6d"
     },
     {
       "path": "client/src/render/spriteRenderer.js",
@@ -1274,8 +1274,8 @@
     },
     {
       "path": "examples/maps/village.json",
-      "bytes": 2136,
-      "sha256": "fa486dcc172685e13aa5372468495498d5fba6569bf27325a5546c42373b5fbd"
+      "bytes": 2554,
+      "sha256": "b17d4c782a817a6b0cc1abd489c9fb1ddf1113bbce9cd1f4d7e593bcb2306282"
     },
     {
       "path": "client/assets/avatars/avatar_lilia.png",
@@ -1474,18 +1474,18 @@
     },
     {
       "path": "client/src/core/audio.js",
-      "bytes": 5513,
-      "sha256": "bec9d4ab6fdcc6f6d599d993619e683b99aee272b9967c3bd3c4945986517d48"
+      "bytes": 5571,
+      "sha256": "0b393dc4ff2f4fdc4f7bdf1c663fc0c0490dca5a69771e08d06edb9b88742fc6"
     },
     {
       "path": "client/src/modes/adventureBalance.js",
-      "bytes": 3509,
-      "sha256": "9a149a3005b54fdaee050cd2f3d85a3b579e912d773af6cd1bfb19847e14aa10"
+      "bytes": 4201,
+      "sha256": "c46e4136874a31ba022210059264bb352db32b7dfd99bf37514025a653f417c5"
     },
     {
       "path": "client/src/render/battleEffects.js",
-      "bytes": 7321,
-      "sha256": "229027e6907b012d1e18218cb139588658c072c983d8822131ea87cbba759db2"
+      "bytes": 7337,
+      "sha256": "22d513d7f5f3d1b3744bc268ee181256a1304e54f764d030618becab95760a34"
     },
     {
       "path": "client/src/render/chessReplay.js",
@@ -2179,13 +2179,13 @@
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_PLAYTEST.md",
-      "bytes": 7701,
-      "sha256": "7e95b87894f3af174b769317a105a4eee8e0eedda1d6ebedb9e57146190f5101"
+      "bytes": 8204,
+      "sha256": "85db1a32b9fa41c9aa4bcee3f7a638cc9db71d2f5debda869a8978056f242052"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_SOURCES.json",
-      "bytes": 27663,
-      "sha256": "781f83b939880b8c06cbbfbb26ab90cab7d4f450dd3ea358a52f6f42e8c9affa"
+      "bytes": 30362,
+      "sha256": "2b79429c91d3857ee301c1e6ac7984ae4311509c23ac7733a4569a647764f7c3"
     },
     {
       "path": "scripts/build_element_sfx.py",
@@ -2194,8 +2194,8 @@
     },
     {
       "path": "scripts/build_original_art.py",
-      "bytes": 11872,
-      "sha256": "877a0a61fa753f19aa10fd0c0b57149caf719485882b21f0e3c9b20bf5629b84"
+      "bytes": 11912,
+      "sha256": "b84b482bc4517892c6b785dd6c9c888d9e0bdb88bd6dfd1292814757f47f01fa"
     },
     {
       "path": "docs/00_foundation/decisions/D-018.md",
@@ -2209,8 +2209,8 @@
     },
     {
       "path": "docs/04_qa/PLAYTEST_CONCEPT_GAP.md",
-      "bytes": 4730,
-      "sha256": "77fea3f0416b3eb6667113026cbdf5af3cf5ba26c2e323479ed13190d51db173"
+      "bytes": 4786,
+      "sha256": "415fc566117197db0df6ce3cd222c11d651765d7f1f5d4107a22ac950373c890"
     },
     {
       "path": "client/assets/original/scenes/title.webp",
@@ -2224,8 +2224,8 @@
     },
     {
       "path": "client/shell.css",
-      "bytes": 21334,
-      "sha256": "b8aeee30c19d4a0c50f015a26cdfb61b88b732295b363403181c1130be10a912"
+      "bytes": 21553,
+      "sha256": "d9e7dc49202afaf3b9ffe6e2b4af29fe86a019900264ce052b502b7b9c3373c1"
     },
     {
       "path": "client/src/shell/entry.js",
@@ -2399,18 +2399,18 @@
     },
     {
       "path": "client/src/core/soundScenes.js",
-      "bytes": 1229,
-      "sha256": "0f6c45681693432534d04f08c3584b4fcb51835c4451003723ebcdf5ec995fcf"
+      "bytes": 1272,
+      "sha256": "6adf6a40f3182f700612771774fd79a7fc5317fd9c275b3b5ec29ede7729a236"
     },
     {
       "path": "client/src/modes/adventureJournal.js",
-      "bytes": 2033,
-      "sha256": "64f0e75e4bc8fe825f7a48c1c69dbbe7dac4a54aa51294e304868c4be86adf4e"
+      "bytes": 3405,
+      "sha256": "280b1f1fc2b480998fa5cea736f682e6c90a309c5b44b6f839bea67f036eed55"
     },
     {
       "path": "client/tests/soundScenes.test.js",
-      "bytes": 3398,
-      "sha256": "8219ca24647ab319ee16a6a926ecc327794c1dff7d40b2380976ae1eb20bf384"
+      "bytes": 3478,
+      "sha256": "55bf33cdbad4685ff0d29a75b05a328d755396c2b5cbf8c503b49c5abc8c11d9"
     },
     {
       "path": "examples/characters/boss_bep_truong/identity.json",
@@ -2429,8 +2429,8 @@
     },
     {
       "path": "client/src/modes/adventureStory.js",
-      "bytes": 4782,
-      "sha256": "84bfd690c5907afc6cb4925759cbf9ac461c88c3204540ff161a25d4c1ac1b03"
+      "bytes": 7251,
+      "sha256": "66f00cef2da853a7b3ae8a1253ef447177e0ca60c0f0a8d4b941035864c862e4"
     },
     {
       "path": "client/src/shell/storyDialog.js",
@@ -2446,6 +2446,21 @@
       "path": "client/src/modes/spiritProgress.js",
       "bytes": 5923,
       "sha256": "6d1a69e028c2aff12c0d8c331bf727c8a1b575962db80bb703e659bc43cc0c6e"
+    },
+    {
+      "path": "client/assets/original/props/tidal_conch.webp",
+      "bytes": 30784,
+      "sha256": "a62b0702d8a92ecc81a0bd90f66bb0677c2fdbbfdd4c43f2744e893e7658e9be"
+    },
+    {
+      "path": "client/assets/original/scenes/harbor.webp",
+      "bytes": 134696,
+      "sha256": "1350d137ee9869b5e7350cc38950501c25da6167c972261bf3edacdbbeccfba5"
+    },
+    {
+      "path": "examples/maps/harbor.json",
+      "bytes": 2382,
+      "sha256": "f6f09da02741e93c1dd06029c554d17a428a2b772d04d943098a2500bf6fb6ef"
     }
   ]
 }

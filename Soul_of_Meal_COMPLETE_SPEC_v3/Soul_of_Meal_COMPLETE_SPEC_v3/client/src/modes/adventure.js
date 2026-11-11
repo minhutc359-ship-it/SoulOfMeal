@@ -2,13 +2,16 @@ import { gameEvents } from '../core/events.js';
 import { moveWithCollision } from './adventureNavigation.js';
 import { getAdventureMap } from './mapCatalog.js';
 import { adventureBalance as balance, adventureEncounters, ADVENTURE_TICK_RATE } from './adventureBalance.js';
-import { FOREST_CLUES, FOREST_CLUE_IDS, FOREST_LANTERNS } from './adventureStory.js';
+import { FOREST_CLUES, FOREST_CLUE_IDS, FOREST_LANTERNS, HARBOR_CLUES, HARBOR_CLUE_IDS } from './adventureStory.js';
 import { adventureSpiritStats, spiritProfile } from './spiritProgress.js';
 
 export const WORLD = { width: 960, height: 540 };
 const PLAYER_SPEED = 190;
 
+const VILLAGE_QUEST_REWARD = { gold: 80, experience: 100 };
 const FOREST_QUEST_REWARD = { gold: 110, experience: 100 };
+const HARBOR_QUEST_REWARD = { gold: 140, experience: 100 };
+const ENCOUNTER_ACTIONS = { encounter: 'forest', seal_encounter: 'seal', tide_encounter: 'tide' };
 
 export function createAdventureState(save) {
   return {
@@ -19,7 +22,8 @@ export function createAdventureState(save) {
     tick: 0,
     input: { x: 0, y: 0 },
     battle: save.adventure.battle ? { stoves: [], stoveTargetId: null, paused: false, speed: 1, ...save.adventure.battle } : null,
-    lastMessage: save.adventure.quest === 'completed' ? 'Làng Ẩm Thực đã tìm lại hương vị.' :
+    lastMessage: save.adventure.map === 'harbor' ? 'Hải Vực Hương Biển. Mở nhật ký để xem bước tiếp theo.' :
+      save.adventure.quest === 'completed' ? 'Mở nhật ký để tiếp tục hành trình.' :
       save.adventure.forestCleared ? 'Trở về làng để báo tin cho Lilia.' :
         save.adventure.map === 'forest' ? 'Theo dấu Bếp Trưởng Hỏa Diệm trong rừng.' :
           save.adventure.quest === 'accepted' ? 'Mở nhật ký để tiếp tục điều tra Thất Vị.' : 'Tìm Lilia ở quảng trường để bắt đầu.',
@@ -83,18 +87,22 @@ export function nearestInteraction(state, save, maps) {
 }
 
 export function availableAdventureInteractions(mapId, save, maps) {
-  const { quest, chestOpened, forestCleared, forestClues, chapterTwo } = save.adventure;
+  const { quest, chestOpened, forestCleared, forestClues, chapterTwo, chapterThree } = save.adventure;
   const items = getAdventureMap(maps, mapId)?.interactables ?? [];
   const investigating = quest === 'completed' && chapterTwo.stage === 'accepted';
   return items.filter(({ action, kind }) => {
     if (kind === 'clue') return Object.hasOwn(FOREST_CLUES, action) && quest === 'accepted' && !forestCleared && !forestClues.includes(action);
     if (kind === 'lantern') return investigating && FOREST_LANTERNS.indexOf(action) >= chapterTwo.lanterns;
+    if (kind === 'harbor_clue') return chapterThree.stage === 'accepted' && Object.hasOwn(HARBOR_CLUES, action) && !chapterThree.clues.includes(action);
     switch (action) {
       case 'chest': return !chestOpened;
       case 'lilia': return chapterTwo.stage !== 'completed';
       case 'portal': return chestOpened;
       case 'encounter': return quest === 'accepted' && !forestCleared && FOREST_CLUE_IDS.every(id => forestClues.includes(id));
       case 'seal_encounter': return investigating && chapterTwo.lanterns === FOREST_LANTERNS.length;
+      case 'harbor_route': return chapterTwo.stage === 'completed' && Boolean(getAdventureMap(maps, 'harbor'));
+      case 'harbor_guide': return chapterTwo.stage === 'completed' && chapterThree.stage !== 'completed';
+      case 'tide_encounter': return chapterThree.stage === 'accepted' && HARBOR_CLUE_IDS.every(id => chapterThree.clues.includes(id));
       default: return true;
     }
   });
@@ -108,6 +116,7 @@ export function interactAdventure(state, save, maps) {
   }
   const updated = structuredClone(save);
   const chapterTwo = updated.adventure.chapterTwo;
+  const chapterThree = updated.adventure.chapterThree;
   let dialogue;
   if (target.id === 'lilia') {
     if (updated.adventure.quest === 'not_started') {
@@ -117,13 +126,10 @@ export function interactAdventure(state, save, maps) {
       gameEvents.emit('quest_accepted', { quest_id: 'quest_missing_flavor' }, { map_id: 'village' });
     } else if (updated.adventure.quest === 'ready_to_claim') {
       updated.adventure.quest = 'completed';
-      updated.player.gold += 80;
-      updated.player.experience += 100;
-      updated.player.level = 1 + Math.floor(updated.player.experience / 100);
-      updated.roster = updated.roster.map((actor) => ({ ...actor, hp: actor.maxHp }));
+      grantAdventureQuestReward(updated, VILLAGE_QUEST_REWARD);
       state.lastMessage = 'Đã hoàn thành Hương Vị Đầu Tiên. Nhận 80 vàng và 100 kinh nghiệm.';
       dialogue = 'ending';
-      gameEvents.emit('quest_completed', { quest_id: 'quest_missing_flavor', gold: 80, experience: 100 });
+      gameEvents.emit('quest_completed', { quest_id: 'quest_missing_flavor', ...VILLAGE_QUEST_REWARD });
     } else if (updated.adventure.quest === 'completed') {
       if (chapterTwo.stage === 'not_started') {
         chapterTwo.stage = 'accepted';
@@ -132,10 +138,7 @@ export function interactAdventure(state, save, maps) {
         gameEvents.emit('quest_accepted', { quest_id: 'quest_empty_bowl' }, { map_id: 'village' });
       } else if (chapterTwo.stage === 'ready_to_claim') {
         chapterTwo.stage = 'completed';
-        updated.player.gold += FOREST_QUEST_REWARD.gold;
-        updated.player.experience += FOREST_QUEST_REWARD.experience;
-        updated.player.level = 1 + Math.floor(updated.player.experience / 100);
-        updated.roster = updated.roster.map(actor => ({ ...actor, hp: actor.maxHp }));
+        grantAdventureQuestReward(updated, FOREST_QUEST_REWARD);
         dialogue = 'forestEnding';
         state.lastMessage = 'Đã hoàn thành Bí Mật Rừng Nguyên Liệu. Manh mối dẫn tới Hải Vực Hương Biển.';
         gameEvents.emit('quest_completed', { quest_id: 'quest_empty_bowl', ...FOREST_QUEST_REWARD });
@@ -185,8 +188,36 @@ export function interactAdventure(state, save, maps) {
       ? 'Cả hai đèn đã sáng. Lối vào đàn đá mở và Đèn Giữ Vị sẵn sàng.'
       : 'Đèn Mộc đã sáng. Hãy thắp đèn Quang.';
     gameEvents.emit('clue_discovered', { clue_id: target.id }, { map_id: 'forest' });
-  } else if (target.kind === 'encounter') {
-    beginBattle(state, updated, target.id === 'seal_encounter' ? 'seal' : 'forest');
+  } else if (target.id === 'harbor_route' || target.id === 'harbor_return') {
+    const map = target.id === 'harbor_route' ? 'harbor' : 'village';
+    const result = transitionMap(state, save, map, maps);
+    state.lastMessage = map === 'harbor' ? 'Đã tới Hải Vực Hương Biển. Mở nhật ký hoặc tìm Phở Lam Vũ ở bến.'
+      : 'Đã về Làng Ẩm Thực. Bến thuyền vẫn mở khi bạn muốn trở lại cảng.';
+    gameEvents.emit('route_changed', { map }, { map_id: map });
+    return result;
+  } else if (target.id === 'harbor_guide') {
+    if (chapterThree.stage === 'not_started') {
+      chapterThree.stage = 'accepted';
+      dialogue = 'harborOpening';
+      state.lastMessage = 'Kiểm tra tấm lưới và vạch triều trên bến.';
+      gameEvents.emit('quest_accepted', { quest_id: 'quest_tidal_conch' }, { map_id: 'harbor' });
+    } else if (chapterThree.stage === 'ready_to_claim') {
+      chapterThree.stage = 'completed';
+      grantAdventureQuestReward(updated, HARBOR_QUEST_REWARD);
+      dialogue = 'harborEnding';
+      state.lastMessage = 'Đã hoàn thành Hải Vực Hương Biển. Nhận 140 vàng và 100 kinh nghiệm.';
+      gameEvents.emit('quest_completed', { quest_id: 'quest_tidal_conch', ...HARBOR_QUEST_REWARD });
+    } else {
+      return { state, save, changed: false, dialogue: 'harborOpening' };
+    }
+  } else if (target.kind === 'harbor_clue') {
+    chapterThree.clues.push(target.id);
+    state.lastMessage = chapterThree.clues.length === HARBOR_CLUE_IDS.length
+      ? 'Đã rõ nguồn cơn thủy triều. Hãy tới Tù Và Hải Triều ở cuối bến.'
+      : HARBOR_CLUES[target.id].note;
+    gameEvents.emit('clue_discovered', { clue_id: target.id }, { map_id: 'harbor' });
+  } else if (Object.hasOwn(ENCOUNTER_ACTIONS, target.id)) {
+    beginBattle(state, updated, ENCOUNTER_ACTIONS[target.id]);
   } else if (target.id === 'village_return') {
     const routed = transitionMap(state, updated, 'village', maps);
     Object.assign(updated, routed.save);
@@ -197,6 +228,13 @@ export function interactAdventure(state, save, maps) {
     gameEvents.emit('route_changed', { map: 'village' }, { map_id: 'village' });
   }
   return { state, save: updated, changed: true, dialogue };
+}
+
+function grantAdventureQuestReward(save, { gold, experience }) {
+  save.player.gold += gold;
+  save.player.experience += experience;
+  save.player.level = 1 + Math.floor(save.player.experience / 100);
+  save.roster = save.roster.map(actor => ({ ...actor, hp: actor.maxHp }));
 }
 
 export function beginBattle(state, save, encounter = 'forest') {
@@ -239,6 +277,7 @@ export function activateUltimate(state, save, actorId) {
   const battle = state.battle;
   if (!battle || battle.phase !== 'battle_running') return { ok: false, reason: 'Trận đấu chưa sẵn sàng.' };
   if (battle.paused) return { ok: false, reason: 'Trận đấu đang tạm dừng.' };
+  if (battle.bossTelegraph?.retreating) return { ok: false, reason: 'Đội hình đang lùi về vùng khô.' };
   const actor = battle.actors.find((item) => item.actor_id === actorId && item.team === 'player');
   if (!actor?.alive) return { ok: false, reason: 'Vị Linh đã gục.' };
   if (actor.energy < 100) return { ok: false, reason: 'Chưa đủ năng lượng.' };
@@ -268,6 +307,16 @@ export function activateLanternWard(state) {
   battle.bossTelegraph.warded = true;
   state.lastMessage = 'Đèn Giữ Vị đã sáng. Đội được giảm sát thương từ đợt sương này.';
   gameEvents.emit('lantern_ward_activated', { element: 'light' }, battleContext(battle, boss.actor_id));
+  return true;
+}
+
+export function retreatFromTide(state) {
+  const battle = state.battle;
+  const wave = battle?.bossTelegraph;
+  if (battle?.phase !== 'battle_running' || battle.paused || wave?.counter !== 'retreat' || wave.retreating) return false;
+  wave.retreating = true;
+  state.lastMessage = 'Đội đang lùi về bậc đá khô. Vị Linh sẽ tự quay lại sau khi sóng qua.';
+  gameEvents.emit('tide_retreat', { element: 'water' }, battleContext(battle));
   return true;
 }
 
@@ -343,6 +392,19 @@ function stepActor(battle, actor) {
   actor.moving = false;
   if (actor.shieldUntil <= battle.tick) actor.shield = 0;
   actor.cooldown = Math.max(0, actor.cooldown - 1);
+  const wave = battle.bossTelegraph;
+  const committed = actor.action && (actor.action.sourceKind === 'ultimate'
+    || (actor.action.travel && battle.tick > actor.action.launchTick));
+  if (actor.team === 'player' && wave?.retreating && !committed) {
+    actor.action = null;
+    if (actor.x > wave.safeX - 16) {
+      const speed = adventureEncounters[battle.encounter].retreatSpeed;
+      actor.x = Math.max(wave.safeX - 16, actor.x - speed);
+      actor.direction = 'W';
+      actor.moving = true;
+    }
+    return;
+  }
   if (actor.action) {
     const action = actor.action;
     if (action.travel && battle.tick === action.launchTick) {
@@ -460,6 +522,9 @@ function updateBoss(state) {
     } else if (next.counter === 'lantern') {
       telegraph.targetIds = bossTelegraphTargets(battle, boss).map(actor => actor.actor_id);
       state.lastMessage = boss.name + ' đang tụ ' + next.attack + '. Hãy để ý các Vị Linh được đánh dấu.';
+    } else if (next.counter === 'retreat') {
+      telegraph.safeX = next.safeX;
+      state.lastMessage = next.attack + ' sắp tràn qua. Bấm R hoặc Lùi về vùng khô để tránh sóng.';
     } else {
       state.lastMessage = 'Bếp Trưởng sắp tung Vòng Lửa. Hãy bảo vệ các Vị Linh được đánh dấu.';
     }
@@ -479,7 +544,9 @@ function updateBoss(state) {
     state.lastMessage = 'Đã phá cả hai bếp và ngắt Bếp Bùng Cháy!';
     return;
   }
-  state.lastMessage = boss.name + ' đã tung ' + attack + '!';
+  state.lastMessage = counter === 'retreat'
+    ? victims.length ? `Sóng đánh trúng ${victims.length} Vị Linh còn trong vùng nước.` : 'Cả đội đã tránh được sóng!'
+    : boss.name + ' đã tung ' + attack + '!';
   const coefficient = encounter.phases[attackPhase].coefficient;
   const adjusted = warded ? Math.floor(coefficient * (10000 - encounter.wardReductionBp) / 10000) : coefficient;
   for (const victim of victims) applyBattleHit(battle, boss, victim, adjusted, 'boss_telegraph');
@@ -495,6 +562,7 @@ export function bossTelegraphTargets(battle, boss) {
   const telegraph = battle.bossTelegraph;
   if (!telegraph) return [];
   const allies = battle.actors.filter(actor => actor.team === 'player' && actor.alive);
+  if (telegraph.counter === 'retreat') return allies.filter(actor => actor.x > telegraph.safeX);
   if (telegraph.targetIds) return telegraph.targetIds.map(id => allies.find(actor => actor.actor_id === id)).filter(Boolean);
   const phase = adventureEncounters[battle.encounter ?? 'forest'].phases[telegraph.phase];
   const distance = (actor) => Math.hypot(actor.x - boss.x, actor.y - boss.y);
@@ -545,8 +613,9 @@ export function claimBattleResult(state, save) {
   const battle = state.battle;
   if (battle?.phase !== 'battle_end' || battle.result !== 'victory') return save;
   const updated = structuredClone(save);
-  const seal = battle.encounter === 'seal';
-  const claimId = seal ? 'forest_empty_bowl_reward' : `${battle.id}:forest_reward`;
+  const { encounter } = battle;
+  const claimId = encounter === 'seal' ? 'forest_empty_bowl_reward'
+    : encounter === 'tide' ? 'harbor_tidal_conch_reward' : `${battle.id}:forest_reward`;
   if (!updated.adventure.rewardClaims.includes(claimId)) {
     const { gold, essence } = adventureEncounters[battle.encounter ?? 'forest'].reward;
     updated.adventure.rewardClaims.push(claimId);
@@ -557,7 +626,8 @@ export function claimBattleResult(state, save) {
       const actor = battle.actors.find(item => item.actor_id === member.id);
       return { ...member, hp: Math.max(1, Math.round(actor.hp * member.maxHp / actor.maxHp)), energy: 0 };
     });
-    if (seal) updated.adventure.chapterTwo.stage = 'ready_to_claim';
+    if (encounter === 'seal') updated.adventure.chapterTwo.stage = 'ready_to_claim';
+    else if (encounter === 'tide') updated.adventure.chapterThree.stage = 'ready_to_claim';
     else {
       updated.adventure.forestCleared = true;
       updated.adventure.quest = 'ready_to_claim';
@@ -565,8 +635,9 @@ export function claimBattleResult(state, save) {
   }
   state.battle = null;
   state.result = null;
-  state.lastMessage = seal ? 'Ấn Bát Rỗng đã vỡ. Hãy mang mảnh men về cho Lilia.'
-    : 'Rừng đã yên tĩnh. Hãy trở về làng để báo tin cho Lilia.';
+  state.lastMessage = encounter === 'seal' ? 'Ấn Bát Rỗng đã vỡ. Hãy mang mảnh men về cho Lilia.'
+    : encounter === 'tide' ? 'Thủy triều đã dịu. Hãy trở lại đầu bến báo tin cho Phở Lam Vũ.'
+      : 'Rừng đã yên tĩnh. Hãy trở về làng để báo tin cho Lilia.';
   return updated;
 }
 

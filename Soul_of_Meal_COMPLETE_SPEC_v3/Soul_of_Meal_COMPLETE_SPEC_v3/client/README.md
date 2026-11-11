@@ -35,7 +35,13 @@ Khi chạy với [máy chủ ASP.NET Core và PostgreSQL](../server/README.md), 
 
 - Sau cảnh kết Chương 1, nói chuyện với Lilia lần nữa. Ở rừng, thắp **đèn Mộc** rồi **đèn Quang**. Hai đèn mở đường đến đàn đá.
 - Ấn Bát Rỗng báo trước **Sương Rút Vị** và **Triều Sương**. Khi boss tụ sương, dùng nút **Đèn Giữ Vị** hoặc phím **F** để giảm 60% sát thương của một đợt. Có một lượt dùng mỗi trận.
-- Nhận thưởng sau trận và đem mảnh men về gặp Lilia để xem cảnh kết Chương 2. Nhật ký cho xem lại đối thoại đã mở của cả hai chương.
+- Nhận thưởng sau trận và đem mảnh men về gặp Lilia để xem cảnh kết Chương 2. Nhật ký cho xem lại các đoạn đối thoại đã mở.
+
+## Chương 3 · Hải Vực Hương Biển
+
+- Sau khi nhận thưởng Chương 2 từ Lilia, đi tới bến thuyền ở Làng Ẩm Thực. Gặp Phở Lam Vũ ở cảng rồi kiểm tra lưới và vệt triều để mở trận Tù Và Hải Triều.
+- Khi có báo sóng, nhấn **R** hoặc chọn **Lùi về vùng khô**. Vị Linh cần thời gian chạy về phía trái. Đội tạm ngừng đòn thường trong lúc lùi và tự giao tranh tiếp sau khi sóng qua. Tuyệt kỹ và đạn đã tung vẫn xử lý theo lịch cũ.
+- Nhận thưởng giao tranh rồi báo tin cho Phở Lam Vũ. Có thể đi thuyền về làng và quay lại với tiến trình đã lưu.
 
 ## Hồ sơ Vị Linh
 

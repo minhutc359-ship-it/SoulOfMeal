@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { createAdventureState, interactAdventure, nearestInteraction, beginBattle, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, leaveAdventureDefeat, activateUltimate, activateLanternWard, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
+import { createAdventureState, interactAdventure, nearestInteraction, beginBattle, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, leaveAdventureDefeat, activateUltimate, activateLanternWard, retreatFromTide, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
 import { advanceChessRound, benchChessUnit, buyChessOffer, createChessRun, nextChessOpponent, placeChessUnit, startChessCombat, chessTraits } from '../src/modes/autoChess.js';
 import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard, mulliganTcg, surrenderTcg } from '../src/modes/tcg.js';
 import { createDefaultSave, migrateSave, SAVE_VERSION } from '../src/core/save.js';
@@ -220,6 +220,41 @@ function prepareBossCharge(encounter = 'forest') {
   }
   return { advance, save, state, battle, boss };
 }
+
+test('harbor tides hit only exposed Vị Linh, and a timely retreat moves the whole party to safety', () => {
+  const { advance, state, battle, boss, save } = prepareBossCharge('tide');
+  const allies = battle.actors.filter(actor => actor.team === 'player');
+  const events = [];
+  const listener = ({ detail }) => events.push(detail);
+  gameEvents.addEventListener('game-event', listener);
+  try {
+    assert.equal(retreatFromTide(state), false);
+    allies[0].x = 650;
+    advance();
+    assert.equal(battle.bossTelegraph.attack, 'Sóng Tràn Bến');
+    assert.deepEqual(bossTelegraphTargets(battle, boss), [allies[0]]);
+    while (battle.bossTelegraph) advance();
+    const firstHits = events.filter(event => event.type === 'hit_resolved' && event.payload.source_kind === 'boss_telegraph');
+    assert.deepEqual(firstHits.map(event => event.target_id), [allies[0].actor_id]);
+
+    boss.hp = Math.floor(boss.maxHp * .44);
+    for (const actor of allies) actor.x = 680;
+    advance();
+    assert.equal(battle.bossTelegraph.attack, 'Đại Triều Vọng');
+    battle.paused = true;
+    assert.equal(retreatFromTide(state), false);
+    battle.paused = false;
+    assert.equal(retreatFromTide(state), true);
+    assert.equal(retreatFromTide(state), false);
+    assert.equal(activateUltimate(state, save, allies[0].id).ok, false);
+    while (battle.bossTelegraph) advance();
+    assert.ok(allies.every(actor => actor.x <= 345));
+    assert.match(state.lastMessage, /tránh được sóng/);
+    assert.equal(events.filter(event => event.type === 'hit_resolved' && event.payload.source_kind === 'boss_telegraph').length, 1);
+  } finally {
+    gameEvents.removeEventListener('game-event', listener);
+  }
+});
 
 test('the lantern reduces one cast from the seal without changing marked targets or damage timing', () => {
   const { advance, state, battle, boss } = prepareBossCharge('seal');
@@ -515,6 +550,65 @@ test('chapter two unlocks in order, survives reload and credits the current save
   assert.equal(save.player.gold, 507);
   assert.equal(save.player.level, 3);
   assert.equal(save.adventure.chapterTwo.stage, 'completed');
+  assert.equal(adventureJournal(save).action, null);
+});
+
+test('chapter three opens the harbor after chapter two and survives travel, reload and reward claim', async () => {
+  const maps = createAdventureMapRegistry(await Promise.all(['village', 'forest', 'harbor'].map(key => readJson(`examples/maps/${key}.json`))));
+  const legacy = {
+    version: SAVE_VERSION, player: { gold: 490, essence: 54, experience: 200, level: 3 },
+    adventure: { quest: 'completed', chestOpened: true, forestCleared: true, chapterTwo: { stage: 'ready_to_claim', lanterns: 2 } },
+    completedBattles: 2,
+  };
+  let save = migrateSave(legacy);
+  let state = createAdventureState(save);
+  function interact(action) {
+    const item = getAdventureMap(maps, state.map).interactables.find(item => item.action === action);
+    Object.assign(state, { x: item.x, y: item.y });
+    const result = interactAdventure(state, save, maps);
+    save = result.save;
+    return result;
+  }
+  assert.equal(interact('harbor_route').changed, false);
+  assert.equal(migrateSave({ ...legacy, adventure: { ...legacy.adventure, map: 'harbor' } }).adventure.map, 'village');
+
+  save = migrateSave({ ...legacy, adventure: { ...legacy.adventure, chapterTwo: { stage: 'completed' } } });
+  state = createAdventureState(save);
+  assert.equal(adventureJournal(save).nextChapterAction, 'harbor_route');
+  interact('harbor_route');
+  assert.equal(state.map, 'harbor');
+  assert.equal(adventureJournal(save).action, 'harbor_guide');
+  const map = getAdventureMap(maps, 'harbor');
+  assert.equal(collidesWithWorld('harbor', 465, 128, undefined, maps), true);
+  assert.ok(map.interactables.every(point => findAdventurePath('harbor', state, point, undefined, maps).length));
+  assert.equal(interact('tide_encounter').changed, false);
+  assert.equal(interact('harbor_guide').dialogue, 'harborOpening');
+  assert.equal(interact('harbor_tide').changed, true);
+  assert.equal(interact('harbor_tide').changed, false);
+  interact('harbor_return');
+  assert.equal(state.map, 'village');
+  save = migrateSave(JSON.parse(JSON.stringify(save)));
+  state = createAdventureState(save);
+  assert.deepEqual(save.adventure.chapterThree.clues, ['harbor_tide']);
+  interact('harbor_route');
+  assert.equal(adventureJournal(save).action, 'harbor_net');
+  interact('harbor_net');
+  assert.equal(adventureJournal(save).action, 'tide_encounter');
+  interact('tide_encounter');
+  assert.equal(state.battle.encounter, 'tide');
+  for (let i = 0; i < 2400 && state.battle.phase === 'battle_running'; i++) {
+    retreatFromTide(state);
+    stepAdventure(state, save, 1 / 30, maps);
+  }
+  assert.equal(state.battle.result, 'victory');
+  save = claimBattleResult(state, save);
+  assert.equal(save.adventure.chapterThree.stage, 'ready_to_claim');
+  assert.equal(claimBattleResult(state, save), save);
+  assert.equal(interact('harbor_guide').dialogue, 'harborEnding');
+  assert.equal(interact('harbor_guide').changed, false);
+  assert.equal(save.player.gold, 755);
+  assert.equal(save.player.level, 4);
+  assert.equal(save.adventure.chapterThree.stage, 'completed');
   assert.equal(adventureJournal(save).action, null);
 });
 

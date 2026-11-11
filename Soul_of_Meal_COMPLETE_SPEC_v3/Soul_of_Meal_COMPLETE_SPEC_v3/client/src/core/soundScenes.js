@@ -18,7 +18,7 @@ export function resolveSoundScene(page, adventure) {
     if (adventure.battle) {
       return adventure.battle.actors.some(actor => actor.boss) ? 'epic_boss_battle' : 'adventure_battle';
     }
-    return adventure.map === 'forest' ? 'forest' : 'village';
+    return adventure.map === 'harbor' ? 'adventure' : adventure.map === 'forest' ? 'forest' : 'village';
   }
   return 'village';
 }

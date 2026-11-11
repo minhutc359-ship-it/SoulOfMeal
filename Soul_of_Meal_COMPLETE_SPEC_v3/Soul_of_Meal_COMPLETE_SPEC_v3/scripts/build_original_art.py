@@ -17,7 +17,7 @@ HEROES = {
     "caphe": "chr_caphe_davu",
 }
 BOSS = "boss_bep_truong"
-STANDALONE_PROPS = {"boss_stove": 208, "empty_bowl_seal": 320}
+STANDALONE_PROPS = {"boss_stove": 208, "empty_bowl_seal": 320, "tidal_conch": 320}
 ACTORS = ("npc_lilia", "mob_mushroom_01", "mob_pepper_01", BOSS)
 COMBAT_EFFECTS = ("boss_warning", "boss_cleave", "shield_bubble", "shield_break")
 PROPS = (
@@ -25,7 +25,7 @@ PROPS = (
     "chest_closed", "chest_open", "portal", "table",
 )
 ELEMENTS = ("fire", "water", "wood", "light", "shadow")
-SCENES = ("home", "village", "forest", "arena")
+SCENES = ("home", "village", "forest", "arena", "harbor")
 CARD_ART = tuple(f"card_demo_{index:02d}" for index in (7, *range(10, 19)))
 DIRECTIONS = ("N", "E", "S", "W")
 CLIPS = {
@@ -270,7 +270,7 @@ def main():
     unknown = set(args.ids) - set(ids)
     if unknown:
         parser.error(f"unknown asset IDs: {sorted(unknown)}")
-    default_ids = tuple(asset_id for asset_id in ids if asset_id not in (BOSS, *STANDALONE_PROPS, "combat_effects")
+    default_ids = tuple(asset_id for asset_id in ids if asset_id not in (BOSS, *STANDALONE_PROPS, "combat_effects", "harbor")
                         or (args.sources / f"{asset_id}.png").is_file())
     export_art(args.sources, args.assets, args.ids or default_ids)
 

@@ -19,12 +19,14 @@
     ]
   },
   "transitions": [
-    { "id": "portal_ingredient_forest", "type": "door", "from": "village", "to": "forest", "targetMap": "forest", "spawn": { "x": 82, "y": 420 }, "label": "Cổng Rừng Nguyên Liệu" }
+    { "id": "portal_ingredient_forest", "type": "door", "from": "village", "to": "forest", "targetMap": "forest", "spawn": { "x": 82, "y": 420 }, "label": "Cổng Rừng Nguyên Liệu" },
+    { "id": "village_harbor_route", "type": "door", "from": "village", "to": "harbor", "spawn": { "x": 114, "y": 425 }, "label": "Hải Vực Hương Biển" }
   ],
   "interactables": [
     { "id": "npc_lilia", "kind": "npc", "action": "lilia", "label": "Lilia", "x": 235, "y": 260, "radius": 62 },
     { "id": "village_supply_chest_p0", "kind": "chest", "action": "chest", "label": "Rương nguyên liệu", "x": 680, "y": 355, "radius": 62 },
-    { "id": "portal_ingredient_forest", "kind": "portal", "action": "portal", "label": "Cổng Rừng Nguyên Liệu", "x": 878, "y": 260, "radius": 62 }
+    { "id": "portal_ingredient_forest", "kind": "portal", "action": "portal", "label": "Cổng Rừng Nguyên Liệu", "x": 878, "y": 260, "radius": 62 },
+    { "id": "village_harbor_route", "kind": "portal", "action": "harbor_route", "label": "Thuyền đi Hải Vực", "x": 860, "y": 422, "radius": 54 }
   ],
   "visuals": [
     { "id": "building_kitchen", "kind": "house", "x": 60, "y": 105, "width": 176, "height": 118, "palette": "coral" },
@@ -33,6 +35,7 @@
     { "id": "plaza_table", "kind": "table", "x": 270, "y": 395, "width": 85, "height": 52 },
     { "id": "npc_lilia", "kind": "marker", "x": 235, "y": 260, "label": "LILIA", "palette": "wood" },
     { "id": "village_supply_chest_p0", "kind": "chest", "x": 680, "y": 355, "label": "RƯƠNG" },
-    { "id": "portal_ingredient_forest", "kind": "portal", "x": 878, "y": 260, "label": "RỪNG" }
+    { "id": "portal_ingredient_forest", "kind": "portal", "x": 878, "y": 260, "label": "RỪNG" },
+    { "id": "village_harbor_route", "kind": "portal", "x": 860, "y": 422, "label": "BẾN THUYỀN" }
   ]
 }

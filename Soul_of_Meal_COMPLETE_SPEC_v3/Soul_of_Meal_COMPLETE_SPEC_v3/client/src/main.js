@@ -1,4 +1,4 @@
-import { createAdventureState, interactAdventure, nearestInteraction, availableAdventureInteractions, setAdventureInput, stepAdventure, activateUltimate, activateLanternWard, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, leaveAdventureDefeat, WORLD, resolveCameraViewport } from './modes/adventure.js';
+import { createAdventureState, interactAdventure, nearestInteraction, availableAdventureInteractions, setAdventureInput, stepAdventure, activateUltimate, activateLanternWard, retreatFromTide, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, leaveAdventureDefeat, WORLD, resolveCameraViewport } from './modes/adventure.js';
 import { createTcgMatch, playTcgCard, passTcgPriority, runBotPriority, runTcgBot, attackTcg, assignTcgBlockers, declaredTcgAttackers, endTcgTurn, mulliganTcg, surrenderTcg, validateDeck } from './modes/tcg.js';
 import { advanceChessRound, benchChessUnit, buyChessOffer, createChessRun, moveChessUnit, nextChessOpponent, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat, toggleChessLock, buyChessExperience, chessTraits, CHESS_TRAITS } from './modes/autoChess.js';
 import { gameEvents } from './core/events.js';
@@ -66,7 +66,7 @@ const elementColors = { fire: '#dd684a', water: '#428eac', wood: '#548d56', ligh
 const contentFiles = [
   'cards/cards.catalog.json', 'cards/starter_deck.json',
   'auto_chess/units.json', 'auto_chess/shop_odds.json',
-  'maps/village.json', 'maps/forest.json',
+  'maps/village.json', 'maps/forest.json', 'maps/harbor.json',
 ];
 
 async function loadContent(report) {
@@ -74,7 +74,7 @@ async function loadContent(report) {
   const signal = AbortSignal.timeout(15000);
   const message = 'Đang tải dữ liệu hành trình…';
   report(0, message);
-  const [cards, deck, unitsData, shopConfig, villageMap, forestMap] = await Promise.all(
+  const [cards, deck, unitsData, shopConfig, ...maps] = await Promise.all(
     contentFiles.map(async (file) => {
       const response = await fetch('../examples/' + file, { signal });
       const data = await checkResponse(response).json();
@@ -88,7 +88,7 @@ async function loadContent(report) {
   runtime.deck = deck;
   runtime.units = unitsData.units;
   runtime.shopConfig = shopConfig;
-  runtime.maps = createAdventureMapRegistry([villageMap, forestMap]);
+  runtime.maps = createAdventureMapRegistry(maps);
   const manifests = await preloadGameAssets(spriteRenderer);
   runtime.animations = new AnimationAdapter({
     eventTarget: gameEvents, manifests, reducedMotion: runtime.save.settings.reducedMotion,
@@ -321,16 +321,9 @@ function pageHeader(kicker, title, description, back = 'home') {
 }
 
 function renderHome() {
-  const { quest, chapterTwo } = runtime.save.adventure;
+  const { quest } = runtime.save.adventure;
   const journal = adventureJournal(runtime.save);
-  const headline = chapterTwo.stage === 'accepted' || chapterTwo.stage === 'ready_to_claim'
-    ? journal.labels[journal.step]?.title
-    : ({
-    not_started: 'Gặp Lilia ở quảng trường',
-    accepted: 'Theo dấu Thất Vị vào rừng',
-    ready_to_claim: 'Trở về báo tin cho Lilia',
-    completed: 'Trở lại Làng Ẩm Thực',
-  })[quest];
+  const headline = journal.labels[journal.step]?.title ?? journal.nextChapterLabel ?? 'Trở lại Làng Ẩm Thực';
   shell(`
     <section class="lobby">
       <div class="lobby-copy">
@@ -353,6 +346,7 @@ function renderAdventure() {
   const journal = adventureJournal(save);
   const guideAction = journal.action ?? journal.nextChapterAction;
   const encounter = adventureEncounters[battle?.encounter ?? 'forest'];
+  const mapTitle = getAdventureMap(runtime.maps, adventure.map)?.display_name ?? 'Làng Ẩm Thực';
   const actionLabel = target ? `Tương tác · ${target.label}` : 'Tiến gần điểm tương tác';
   const actorRows = save.roster.map((member, index) => {
     const actor = battle?.actors.find((candidate) => candidate.actor_id === member.id) ?? adventureSpiritStats(member, spiritProfile(save, member.id));
@@ -380,7 +374,7 @@ function renderAdventure() {
       <img src="${propArt('boss_stove')}" alt=""><span><b>${index + 6} · Bếp ${index + 1}</b><small data-stove-hp></small></span>
     </button>`).join('');
   shell(`
-    ${pageHeader('Phiêu lưu', adventure.map === 'village' ? 'Làng Ẩm Thực' : 'Rừng Nguyên Liệu', '', 'home')}
+    ${pageHeader('Phiêu lưu', escapeHtml(mapTitle), '', 'home')}
     <div class="game-layout adventure-layout"><section class="panel world-panel">
       <div class="canvas-wrap"><canvas id="adventure-canvas" width="960" height="540" aria-label="Bản đồ phiêu lưu tương tác"></canvas>
       <span class="phase-pill world-phase ${battle ? 'combat' : ''}">${battle ? battle.phase === 'battle_end' ? 'Kết quả' : `Đợt ${battle.wave + 1}/${encounter.waves.length}` : 'Khám phá'}</span></div>
@@ -396,8 +390,10 @@ function renderAdventure() {
         </div>
         ${battle.encounter === 'seal' && battle.phase === 'battle_running' ? `<div class="ward-controls"><p>Giảm ${encounter.wardReductionBp / 100}% sát thương của một đợt sương.</p>
           <button class="button light" data-lantern-ward type="button" disabled>F · Đèn Giữ Vị</button></div>` : ''}
+        ${battle.encounter === 'tide' && battle.phase === 'battle_running' ? `<div class="tide-controls" data-tide-controls hidden>
+          <p data-tide-threat></p><button class="button light" data-tide-retreat type="button">R · Lùi về vùng khô</button></div>` : ''}
         </section>` : `<section class="panel"><h2>${journal.title}</h2>
-          <p class="quest-objective">${journal.labels[journal.step]?.title ?? (journal.nextChapterAction ? 'Gặp Lilia để mở Chương 2' : 'Chương đã hoàn thành')}</p>
+          <p class="quest-objective">${journal.labels[journal.step]?.title ?? journal.nextChapterLabel ?? 'Chương đã hoàn thành'}</p>
           <div class="action-row">${guideAction ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
             <button class="button light" data-page="journey">Nhật ký hành trình</button></div>
         </section>`}
@@ -413,6 +409,9 @@ function renderAdventure() {
   app.querySelector('[data-guide-objective]')?.addEventListener('click', () => guideToObjective(guideAction));
   app.querySelector('[data-lantern-ward]')?.addEventListener('click', () => {
     if (activateLanternWard(adventure)) updateBattleHud(battle);
+  });
+  app.querySelector('[data-tide-retreat]')?.addEventListener('click', () => {
+    if (retreatFromTide(adventure)) updateBattleHud(battle);
   });
   app.querySelectorAll('[data-ultimate]').forEach((button) => button.addEventListener('click', () => useUltimate(button.dataset.ultimate)));
   app.querySelectorAll('[data-stove]').forEach(button => button.addEventListener('click', () => selectBossStove(button.dataset.stove)));
@@ -437,12 +436,14 @@ function renderAdventureJournal() {
   const { save, adventure } = runtime;
   const journal = adventureJournal(save);
   const guideAction = journal.action ?? journal.nextChapterAction;
-  const { quest, chapterTwo } = save.adventure;
+  const { quest, chapterTwo, chapterThree } = save.adventure;
   const replays = [
     quest !== 'not_started' && 'opening',
     quest === 'completed' && 'ending',
     chapterTwo.stage !== 'not_started' && 'forestOpening',
     chapterTwo.stage === 'completed' && 'forestEnding',
+    chapterThree.stage !== 'not_started' && 'harborOpening',
+    chapterThree.stage === 'completed' && 'harborEnding',
   ].filter(Boolean);
   const statusText = { done: 'Hoàn thành', current: 'Mục tiêu hiện tại', upcoming: 'Sắp tới' };
   shell(`
@@ -482,7 +483,7 @@ function updateBattleHud(battle) {
     card.querySelector('[data-hp]').style.width = actor.hp / actor.maxHp * 100 + '%';
     card.querySelector('[data-energy]').style.width = actor.energy + '%';
     const button = card.querySelector('[data-ultimate]');
-    button.disabled = battle.paused || !actor.alive || actor.energy < 100 || Boolean(actor.action)
+    button.disabled = battle.paused || battle.bossTelegraph?.retreating || !actor.alive || actor.energy < 100 || Boolean(actor.action)
       || actor.ultimateReadyTick > battle.tick || battle.phase !== 'battle_running';
     button.querySelector('[data-charge]').textContent = actor.energy + '%';
     card.classList.toggle('skill-ready', !button.disabled);
@@ -522,6 +523,20 @@ function updateBattleHud(battle) {
     ward.disabled = battle.paused || battle.wardUsed || battle.bossTelegraph?.counter !== 'lantern';
     const label = battle.bossTelegraph?.warded ? 'Đang che chở' : battle.wardUsed ? 'Đèn đã dùng' : 'F · Đèn Giữ Vị';
     if (ward.textContent !== label) ward.textContent = label;
+  }
+  const tideControls = app.querySelector('[data-tide-controls]');
+  if (tideControls) {
+    const wave = battle.bossTelegraph;
+    tideControls.hidden = wave?.counter !== 'retreat';
+    if (!tideControls.hidden) {
+      const threatened = battle.actors.filter(actor => actor.team === 'player' && actor.alive && actor.x > wave.safeX).length;
+      const summary = tideControls.querySelector('[data-tide-threat]');
+      const label = threatened ? `${threatened} Vị Linh đang trong vùng nước.` : 'Đội đang ở vùng khô.';
+      if (summary.textContent !== label) summary.textContent = label;
+      const button = tideControls.querySelector('[data-tide-retreat]');
+      button.disabled = battle.paused || Boolean(wave.retreating);
+      button.textContent = wave.retreating ? 'Giữ vị trí đến khi sóng qua' : 'R · Lùi về vùng khô';
+    }
   }
   if (pause) {
     const label = battle.paused ? 'Tiếp tục' : 'Tạm dừng';
@@ -713,11 +728,10 @@ function syncAdventureAnimations(adventure) {
 }
 
 function drawWorldScene(context, adventure, save) {
-  const forest = adventure.map === 'forest';
   const map = getAdventureMap(runtime.maps, adventure.map);
-  context.fillStyle = forest ? '#466a52' : '#b79864';
+  context.fillStyle = ({ village: '#b79864', forest: '#466a52', harbor: '#52677c' })[adventure.map] ?? '#466a52';
   context.fillRect(0, 0, 960, 540);
-  spriteRenderer.drawImage(context, sceneArt(forest ? 'forest' : 'village'), 0, 0, 960, 540);
+  spriteRenderer.drawImage(context, sceneArt(map?.runtime_key ?? 'village'), 0, 0, 960, 540);
   drawMapVisuals(context, map, save);
   drawPlayer(context, adventure.x, adventure.y, runtime.animations.getActorState(HERO_ID)?.animation);
 }
@@ -738,15 +752,18 @@ function drawMapVisuals(context, map, save) {
     } else if (visual.kind === 'marker' && visual.id === 'npc_lilia') {
       drawFitted(context, actorArt('npc_lilia'), x, y + 11, 65, 70);
       drawMapLabel(context, visual.label, x, y + 24);
+    } else if (visual.kind === 'guide') {
+      drawFitted(context, actorArt(visual.actorId), x, y + 11, 65, 70);
+      drawMapLabel(context, visual.label, x, y + 24);
     } else if (visual.kind === 'clue' && activeIds.has(visual.id)) {
-      drawElementEffect(context, spriteRenderer, 'light', 'impact', { x, y: y - 9, size: 48, opacity: .9 });
+      drawElementEffect(context, spriteRenderer, visual.element ?? 'light', 'impact', { x, y: y - 9, size: 48, opacity: .9 });
       drawMapLabel(context, visual.label, x, y + 19);
     } else if (visual.kind === 'lantern' && save.adventure.chapterTwo.stage === 'accepted') {
       const lit = !activeIds.has(visual.id);
       drawElementEffect(context, spriteRenderer, visual.element, 'impact', { x, y: y - 10, size: lit ? 63 : 49, opacity: lit ? 1 : .6 });
       drawMapLabel(context, lit ? visual.label + ' · ĐÃ SÁNG' : visual.label, x, y + 19);
     } else if (visual.kind === 'seal' && activeIds.has(visual.id)) {
-      drawFitted(context, propArt('empty_bowl_seal'), x, y + 12, 81, 85);
+      drawFitted(context, propArt(visual.artId ?? 'empty_bowl_seal'), x, y + 12, 81, 85);
       drawMapLabel(context, visual.label, x, y + 24);
     } else if (visual.kind === 'marker' && activeIds.has(visual.id)) {
       drawFitted(context, actorArt('mob_mushroom_01'), x, y + 10, 59, 62);
@@ -790,21 +807,27 @@ function drawBattleScene(context, adventure) {
   const battle = adventure.battle;
   context.fillStyle = '#283f33';
   context.fillRect(0, 0, 960, 540);
-  spriteRenderer.drawImage(context, sceneArt('arena'), 0, 0, 960, 540);
+  spriteRenderer.drawImage(context, sceneArt(adventureEncounters[battle.encounter ?? 'forest'].scene ?? 'arena'), 0, 0, 960, 540);
   if (battle.encounter === 'seal') {
     context.fillStyle = '#2f154852';
     context.fillRect(0, 0, 960, 540);
   }
   const boss = battle.actors.find((actor) => actor.boss && actor.alive);
   if (boss && battle.bossTelegraph) {
-    const { ticks, duration } = battle.bossTelegraph;
+    const { ticks, duration, counter, safeX } = battle.bossTelegraph;
     const opacity = .46 + .33 * (1 - ticks / duration);
-    if (boss.element === 'shadow') drawElementEffect(context, spriteRenderer, 'shadow', 'impact', { x: boss.x, y: boss.y + 5, size: 198, opacity });
-    else drawBossWarning(context, boss.x, boss.y + 2, 230, opacity);
+    if (counter === 'retreat') {
+      drawTideWarning(context, safeX, opacity);
+      drawElementEffect(context, spriteRenderer, 'water', 'impact', { x: boss.x, y: boss.y + 5, size: 180, opacity });
+    } else if (boss.element === 'shadow') {
+      drawElementEffect(context, spriteRenderer, 'shadow', 'impact', { x: boss.x, y: boss.y + 5, size: 198, opacity });
+    } else drawBossWarning(context, boss.x, boss.y + 2, 230, opacity);
     for (const target of bossTelegraphTargets(battle, boss)) {
       if (boss.element === 'shadow') {
         const element = battle.bossTelegraph.warded ? 'light' : 'shadow';
         drawElementEffect(context, spriteRenderer, element, 'impact', { x: target.x, y: target.y + 2, size: 96, opacity });
+      } else if (counter === 'retreat') {
+        drawElementEffect(context, spriteRenderer, 'water', 'impact', { x: target.x, y: target.y + 2, size: 79, opacity });
       } else drawBossWarning(context, target.x, target.y + 2, 79, opacity);
     }
   }
@@ -817,6 +840,19 @@ function drawBattleScene(context, adventure) {
     }
   }
   runtime.effects.draw(context, battle, runtime.save.settings.reducedMotion);
+}
+
+function drawTideWarning(context, safeX, opacity) {
+  context.save();
+  context.fillStyle = '#5ce9ad24';
+  context.fillRect(0, 220, safeX, 320);
+  context.fillStyle = `rgba(36, 163, 224, ${opacity * .41})`;
+  context.fillRect(safeX, 220, WORLD.width - safeX, 320);
+  context.fillStyle = '#ccf7fe';
+  context.fillRect(safeX - 1, 220, 2, 320);
+  drawMapLabel(context, 'VÙNG KHÔ', safeX - 43, 235);
+  drawMapLabel(context, 'VÙNG NƯỚC', safeX + 48, 235);
+  context.restore();
 }
 
 function drawBossWarning(context, x, y, size, opacity) {
@@ -1458,6 +1494,7 @@ window.addEventListener('keydown', (event) => {
   }
   if (key === '6' || key === '7') selectBossStove('boss_stove_' + (Number(key) - 5));
   if (key === 'f') app.querySelector('[data-lantern-ward]')?.click();
+  if (key === 'r') app.querySelector('[data-tide-retreat]')?.click();
   if (key === 'p') app.querySelector('[data-battle-pause]')?.click();
 });
 window.addEventListener('keyup', (event) => runtime.heldKeys.delete(event.key.length === 1 ? event.key.toLowerCase() : event.key));

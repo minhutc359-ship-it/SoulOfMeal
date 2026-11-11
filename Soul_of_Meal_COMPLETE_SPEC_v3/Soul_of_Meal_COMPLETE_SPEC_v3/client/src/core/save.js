@@ -1,4 +1,4 @@
-import { restoreChapterTwo, restoreForestClues } from '../modes/adventureStory.js';
+import { restoreChapterThree, restoreChapterTwo, restoreForestClues } from '../modes/adventureStory.js';
 import { restoreSpiritProgress } from '../modes/spiritProgress.js';
 
 export const SAVE_KEY = 'soul-of-meal.save.v2';
@@ -12,6 +12,7 @@ export function createDefaultSave() {
       map: 'village', x: 120, y: 310, quest: 'not_started', chestOpened: false,
       forestCleared: false, forestClues: [], rewardClaims: [], battle: null,
       chapterTwo: { stage: 'not_started', lanterns: 0 },
+      chapterThree: { stage: 'not_started', clues: [] },
       spirits: { ownedGear: [], profiles: {} },
     },
     roster: [
@@ -33,6 +34,10 @@ export function migrateSave(input) {
   const adventure = { ...fresh.adventure, ...input.adventure };
   adventure.forestClues = restoreForestClues(adventure);
   adventure.chapterTwo = restoreChapterTwo(adventure);
+  adventure.chapterThree = restoreChapterThree(adventure);
+  if (adventure.map === 'harbor' && adventure.chapterTwo.stage !== 'completed') {
+    Object.assign(adventure, { map: fresh.adventure.map, x: fresh.adventure.x, y: fresh.adventure.y });
+  }
   if (input.version === SAVE_VERSION) {
     const roster = Array.isArray(input.roster) && input.roster.length ? input.roster : fresh.roster;
     adventure.spirits = restoreSpiritProgress(adventure.spirits, roster);

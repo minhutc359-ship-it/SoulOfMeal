@@ -35,6 +35,7 @@ export const adventureBalance = {
     mob_pepper_01: { range: 205, windup: 8, travel: 10 },
     boss_bep_truong: { range: 120, windup: 13 },
     empty_bowl_seal: { range: 335, windup: 13, travel: 14 },
+    tidal_conch: { range: 340, windup: 13, travel: 12 },
   },
 };
 
@@ -62,5 +63,17 @@ export const adventureEncounters = {
     },
     reward: { gold: 90, essence: 15 },
     wardReductionBp: 6000,
+  },
+  tide: {
+    waves: [[{ ...mushroom, hp: 1800, maxHp: 1800 }, { ...pepper, hp: 1950, maxHp: 1950 }], [
+      { id: 'tidal_conch', name: 'Tù Và Hải Triều', hp: 9900, maxHp: 9900, atk: 290, def: 98, interval: 67, element: 'water', boss: true, stationary: true },
+    ]],
+    phases: {
+      2: { threshold: .72, attack: 'Sóng Tràn Bến', windup: 105, coefficient: 34000, counter: 'retreat', safeX: 410 },
+      3: { threshold: .45, attack: 'Đại Triều Vọng', windup: 81, coefficient: 51000, counter: 'retreat', safeX: 345 },
+    },
+    retreatSpeed: 7.2,
+    scene: 'harbor',
+    reward: { gold: 125, essence: 20 },
   },
 };
