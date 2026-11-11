@@ -1,4 +1,4 @@
-import { createAdventureState, interactAdventure, nearestInteraction, setAdventureInput, stepAdventure, activateUltimate, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, WORLD, resolveCameraViewport } from './modes/adventure.js';
+import { createAdventureState, interactAdventure, nearestInteraction, availableAdventureInteractions, setAdventureInput, stepAdventure, activateUltimate, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, WORLD, resolveCameraViewport } from './modes/adventure.js';
 import { createTcgMatch, playTcgCard, passTcgPriority, runBotPriority, runTcgBot, attackTcg, assignTcgBlockers, declaredTcgAttackers, endTcgTurn, mulliganTcg, validateDeck } from './modes/tcg.js';
 import { advanceChessRound, buyChessOffer, createChessRun, moveChessUnit, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat, toggleChessLock, buyChessExperience, chessTraits, CHESS_TRAITS } from './modes/autoChess.js';
 import { gameEvents } from './core/events.js';
@@ -14,11 +14,13 @@ import { BattleEffects } from './render/battleEffects.js';
 import { GameAudio } from './core/audio.js';
 import { resolveSoundScene } from './core/soundScenes.js';
 import { adventureJournal } from './modes/adventureJournal.js';
+import { CHAPTER_DIALOGUES, FIRST_CHAPTER } from './modes/adventureStory.js';
 import { ChessReplay } from './render/chessReplay.js';
 import { renderEntry } from './shell/entry.js';
 import { createAccountApi, accountErrorMessage } from './core/accountApi.js';
 import { createCloudSave } from './core/cloudSave.js';
 import { openAccountDialog } from './shell/accountDialog.js';
+import { openStoryDialog } from './shell/storyDialog.js';
 
 const app = document.querySelector('#app');
 const stageHost = document.querySelector('#web-stage');
@@ -343,7 +345,7 @@ function renderAdventure() {
   const adventure = runtime.adventure;
   const battle = adventure.battle;
   const target = nearestInteraction(adventure, save, runtime.maps);
-  const questLabel = ({ not_started: 'Chưa nhận', accepted: 'Đang tìm nguyên liệu', ready_to_claim: 'Có thể báo tin', completed: 'Hoàn thành' })[save.adventure.quest];
+  const journal = adventureJournal(save);
   const actionLabel = target ? `Tương tác · ${target.label}` : 'Tiến gần điểm tương tác';
   const actorRows = save.roster.map((member, index) => {
     const actor = battle?.actors.find((candidate) => candidate.actor_id === member.id) ?? member;
@@ -380,11 +382,16 @@ function renderAdventure() {
         <div class="telegraph" data-telegraph hidden><div class="telegraph-heading"><b data-telegraph-name></b><span data-telegraph-seconds></span></div>
           <progress data-telegraph-time aria-label="Thời gian trước đòn boss"></progress>
           <div class="stove-controls" data-stove-controls hidden><p>Phá 2 bếp để hạ hộ thuẫn và ngắt chiêu.</p><div class="stove-buttons">${stoveControls}</div></div>
-        </div></section>` : `<section class="panel"><h2>Dấu Vết Thất Vị</h2><div class="data-list"><div class="data-row"><span>Nhiệm vụ</span><strong>${questLabel}</strong></div><div class="data-row"><span>Rương tiếp tế</span><span>${save.adventure.chestOpened ? 'Đã mở' : 'Chưa mở'}</span></div></div><div class="action-row"><button class="button light" data-page="journey">Nhật ký hành trình</button></div></section>`}
+        </div></section>` : `<section class="panel"><h2>${FIRST_CHAPTER}</h2>
+          <p class="quest-objective">${journal.labels[journal.step]?.title ?? 'Chương đã hoàn thành'}</p>
+          <div class="action-row">${journal.action ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
+            <button class="button light" data-page="journey">Nhật ký hành trình</button></div>
+        </section>`}
       <section class="panel party-panel"><h2>Đội hình Vị Linh</h2><div class="actor-list">${actorRows}</div></section>
     </aside></div>
   `);
   app.querySelector('[data-interact]')?.addEventListener('click', doAdventureInteract);
+  app.querySelector('[data-guide-objective]')?.addEventListener('click', () => guideToObjective(journal.action));
   app.querySelectorAll('[data-ultimate]').forEach((button) => button.addEventListener('click', () => useUltimate(button.dataset.ultimate)));
   app.querySelectorAll('[data-stove]').forEach(button => button.addEventListener('click', () => selectBossStove(button.dataset.stove)));
   app.querySelector('[data-battle-pause]')?.addEventListener('click', () => {
@@ -402,27 +409,38 @@ function renderAdventure() {
 }
 
 function renderAdventureJournal() {
-  const journal = adventureJournal(runtime.save);
+  const { save, adventure } = runtime;
+  const journal = adventureJournal(save);
   const statusText = { done: 'Hoàn thành', current: 'Mục tiêu hiện tại', upcoming: 'Sắp tới' };
   shell(`
     ${pageHeader('Phiêu lưu', 'Nhật ký hành trình', '', 'adventure')}
     <section class="panel journey-panel">
-      <h2>Dấu Vết Thất Vị</h2>
+      <h2>${FIRST_CHAPTER}</h2>
       <ol class="journey-steps">${journal.labels.map(({ title, status }) =>
         `<li data-step-status="${status}" ${status === 'current' ? 'aria-current="step"' : ''}>
           <strong>${title}</strong><small>${statusText[status]}</small>
         </li>`).join('')}</ol>
+      ${journal.clues.length ? `<details class="journal-clues"><summary>Manh mối đã ghi (${journal.clues.length})</summary>
+        <dl>${journal.clues.map(clue => `<dt>${clue.title}</dt><dd>${clue.note}</dd>`).join('')}</dl>
+      </details>` : ''}
       <div class="action-row">
-        ${journal.action && !runtime.adventure.battle ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
+        ${journal.action && !adventure.battle ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
         <button class="button light" data-page="adventure">Về bản đồ</button>
+        ${save.adventure.quest !== 'not_started' ? `<button class="button light" data-story-replay="opening">${CHAPTER_DIALOGUES.opening.title}</button>` : ''}
+        ${save.adventure.quest === 'completed' ? `<button class="button light" data-story-replay="ending">${CHAPTER_DIALOGUES.ending.title}</button>` : ''}
       </div>
     </section>`);
-  app.querySelector('[data-guide-objective]')?.addEventListener('click', () => {
-    const map = getAdventureMap(runtime.maps, runtime.adventure.map);
-    const objective = map?.interactables.find(item => item.action === journal.action);
-    navigate('adventure');
-    if (objective) queueWorldPath({ x: objective.x, y: objective.y });
+  app.querySelector('[data-guide-objective]')?.addEventListener('click', () => guideToObjective(journal.action));
+  app.querySelectorAll('[data-story-replay]').forEach(button => {
+    button.addEventListener('click', () => openStoryDialog(app, button.dataset.storyReplay));
   });
+}
+
+function guideToObjective(action) {
+  const objective = availableAdventureInteractions(runtime.adventure.map, runtime.save, runtime.maps)
+    .find(item => item.action === action);
+  if (runtime.page !== 'adventure') navigate('adventure');
+  if (objective) queueWorldPath(objective);
 }
 
 function updateBattleHud(battle) {
@@ -486,8 +504,16 @@ function doAdventureInteract() {
   const result = interactAdventure(runtime.adventure, runtime.save, runtime.maps);
   runtime.adventure = result.state;
   runtime.save = result.save;
-  if (result.changed) saveNow();
+  if (result.changed) {
+    runtime.heldKeys.clear();
+    setAdventureInput(runtime.adventure, 0, 0);
+    runtime.adventure.walkPath = [];
+    runtime.adventure.walkTarget = null;
+    runtime.adventure.tapInteraction = null;
+    saveNow();
+  }
   render();
+  if (result.dialogue) openStoryDialog(app, result.dialogue);
 }
 
 function useUltimate(actorId) {
@@ -509,6 +535,7 @@ function claimAdventureBattle() {
 }
 
 function onWorldPointer(event) {
+  if (app.querySelector('.story-dialog[open]')) return;
   const canvas = event.currentTarget;
   const rect = canvas.getBoundingClientRect();
   const x = (event.clientX - rect.left) / rect.width * WORLD.width;
@@ -520,9 +547,9 @@ function onWorldPointer(event) {
     if (stove) selectBossStove(stove.actor_id);
     return;
   }
-  const map = getAdventureMap(runtime.maps, runtime.adventure.map);
-  const action = map?.interactables.find(item => Math.hypot(item.x - x, item.y - y) < 35)?.action;
-  canvas.dataset.pathLength = String(queueWorldPath({ x, y }, action));
+  const target = availableAdventureInteractions(runtime.adventure.map, runtime.save, runtime.maps)
+    .find(item => Math.hypot(item.x - x, item.y - y) < 35);
+  canvas.dataset.pathLength = String(queueWorldPath(target ?? { x, y }, target?.action));
 }
 
 function queueWorldPath(destination, action = null) {
@@ -570,6 +597,8 @@ function drawAdventureFrame(deltaSeconds) {
     adventure.walkTarget = null;
     adventure.walkPath = [];
     adventure.tapInteraction = null;
+  } else if (!adventure.walkPath?.length) {
+    setAdventureInput(adventure, 0, 0);
   }
   const previousPhase = adventure.battle?.phase;
   const previousWave = adventure.battle?.wave;
@@ -657,6 +686,7 @@ function drawWorldScene(context, adventure, save) {
 }
 
 function drawMapVisuals(context, map, save) {
+  const activeIds = new Set(availableAdventureInteractions(map?.runtime_key, save, runtime.maps).map(item => item.id));
   for (const visual of map?.visuals ?? []) {
     const { x, y } = visual;
     if (visual.kind === 'house') {
@@ -671,14 +701,17 @@ function drawMapVisuals(context, map, save) {
     } else if (visual.kind === 'marker' && visual.id === 'npc_lilia') {
       drawFitted(context, actorArt('npc_lilia'), x, y + 11, 65, 70);
       drawMapLabel(context, visual.label, x, y + 24);
-    } else if (visual.kind === 'marker') {
+    } else if (visual.kind === 'clue' && activeIds.has(visual.id)) {
+      drawElementEffect(context, spriteRenderer, 'light', 'impact', { x, y: y - 9, size: 48, opacity: .9 });
+      drawMapLabel(context, visual.label, x, y + 19);
+    } else if (visual.kind === 'marker' && activeIds.has(visual.id)) {
       drawFitted(context, actorArt('mob_mushroom_01'), x, y + 10, 59, 62);
       drawMapLabel(context, visual.label, x, y + 24);
     } else if (visual.kind === 'chest') {
       drawFitted(context, propArt(save.adventure.chestOpened ? 'chest_open' : 'chest_closed'), x, y + 19, 58, 53);
       drawMapLabel(context, 'RƯƠNG', x, y + 33);
     } else if (visual.kind === 'portal') {
-      const open = visual.id === 'forest_return_portal' ? save.adventure.forestCleared : save.adventure.chestOpened;
+      const open = activeIds.has(visual.id);
       context.save();
       context.globalAlpha = open ? 1 : .48;
       drawFitted(context, propArt('portal'), x, y + 16, 78, 89);
@@ -1193,7 +1226,7 @@ function escapeAttr(value = '') { return escapeHtml(value); }
 
 window.addEventListener('keydown', (event) => {
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
-  if (event.target?.matches?.('input, select, textarea')) return;
+  if (event.target?.matches?.('input, select, textarea') || app.querySelector('.story-dialog[open]')) return;
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'w', 'a', 's', 'd'].includes(key) && runtime.page === 'adventure') {
     runtime.heldKeys.add(key); event.preventDefault();
   }

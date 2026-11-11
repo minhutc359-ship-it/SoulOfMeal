@@ -127,7 +127,9 @@ const DEFAULT_ADVENTURE_MAPS = createAdventureMapRegistry([
       { id: 'forest_return_portal', type: 'door', from: 'forest', to: 'village', targetMap: 'village', spawn: { x: 878, y: 260 }, label: 'Về làng' },
     ],
     interactables: [
-      { id: 'forest_encounter_p0', kind: 'encounter', action: 'encounter', label: 'Dấu chân lạ', x: 500, y: 300, radius: 62 },
+      { id: 'forest_clue_salt', kind: 'clue', action: 'forest_clue_salt', label: 'Muối đã mất vị', x: 268, y: 435, radius: 48 },
+      { id: 'forest_clue_ladle', kind: 'clue', action: 'forest_clue_ladle', label: 'Chiếc vá ám khói', x: 682, y: 207, radius: 48 },
+      { id: 'forest_encounter_p0', kind: 'encounter', action: 'encounter', label: 'Sân bếp Hỏa Diệm', x: 500, y: 300, radius: 62 },
       { id: 'forest_return_portal', kind: 'portal', action: 'village_return', label: 'Về làng', x: 900, y: 470, radius: 62 },
     ],
     visuals: [
@@ -144,8 +146,10 @@ const DEFAULT_ADVENTURE_MAPS = createAdventureMapRegistry([
       { id: 'forest_tree_11', kind: 'tree', x: 451, y: 180, palette: 'forest_dark' },
       { id: 'forest_tree_12', kind: 'tree', x: 588, y: 259, palette: 'forest_light' },
       { id: 'forest_tree_13', kind: 'tree', x: 725, y: 338, palette: 'forest_dark' },
-      { id: 'forest_encounter_p0', kind: 'marker', x: 500, y: 300, label: 'DẤU VẾT', palette: 'coral' },
-      { id: 'forest_return_portal', kind: 'marker', x: 900, y: 470, label: 'VỀ LÀNG', palette: 'gold' },
+      { id: 'forest_clue_salt', kind: 'clue', x: 268, y: 435, label: 'MUỐI NHẠT' },
+      { id: 'forest_clue_ladle', kind: 'clue', x: 682, y: 207, label: 'VÁ ÁM KHÓI' },
+      { id: 'forest_encounter_p0', kind: 'marker', x: 500, y: 300, label: 'SÂN BẾP', palette: 'coral' },
+      { id: 'forest_return_portal', kind: 'portal', x: 900, y: 470, label: 'VỀ LÀNG' },
     ],
   },
 ]);

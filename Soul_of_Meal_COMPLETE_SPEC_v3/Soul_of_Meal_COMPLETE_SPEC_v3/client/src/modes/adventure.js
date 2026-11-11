@@ -2,6 +2,7 @@ import { gameEvents } from '../core/events.js';
 import { moveWithCollision } from './adventureNavigation.js';
 import { getAdventureMap } from './mapCatalog.js';
 import { adventureBalance as balance } from './adventureBalance.js';
+import { FOREST_CLUES, FOREST_CLUE_IDS } from './adventureStory.js';
 
 export const WORLD = { width: 960, height: 540 };
 const PLAYER_SPEED = 190;
@@ -28,7 +29,8 @@ export function createAdventureState(save) {
     battle: save.adventure.battle ? { stoves: [], stoveTargetId: null, paused: false, speed: 1, ...save.adventure.battle } : null,
     lastMessage: save.adventure.quest === 'completed' ? 'Làng Ẩm Thực đã tìm lại hương vị.' :
       save.adventure.forestCleared ? 'Trở về làng để báo tin cho Lilia.' :
-        save.adventure.map === 'forest' ? 'Theo dấu chân trong rừng.' : 'Tìm Lilia ở quảng trường để bắt đầu.',
+        save.adventure.map === 'forest' ? 'Theo dấu Bếp Trưởng Hỏa Diệm trong rừng.' :
+          save.adventure.quest === 'accepted' ? 'Mở nhật ký để tiếp tục điều tra Thất Vị.' : 'Tìm Lilia ở quảng trường để bắt đầu.',
     result: null,
   };
 }
@@ -82,19 +84,25 @@ export function setAdventureInput(state, x, y) {
 
 export function nearestInteraction(state, save, maps) {
   if (state.battle) return null;
-  const map = getAdventureMap(maps, state.map);
-  if (!map) return null;
-  const candidates = map.interactables
-    .filter((item) => item.action !== 'chest' || !save.adventure.chestOpened)
-    .filter((item) => item.action !== 'lilia' || save.adventure.quest !== 'completed')
-    .filter((item) => item.action !== 'portal' || save.adventure.chestOpened)
-    .filter((item) => item.action !== 'encounter' || !save.adventure.forestCleared)
-    .filter((item) => item.action !== 'village_return' || save.adventure.forestCleared)
-    .map((item) => ({ ...item, id: item.action }));
-  return candidates
-    .map((item) => ({ ...item, distance: Math.hypot(item.x - state.x, item.y - state.y) }))
+  return availableAdventureInteractions(state.map, save, maps)
+    .map((item) => ({ ...item, id: item.action, distance: Math.hypot(item.x - state.x, item.y - state.y) }))
     .filter((item) => item.distance <= item.radius)
     .sort((a, b) => a.distance - b.distance)[0] ?? null;
+}
+
+export function availableAdventureInteractions(mapId, save, maps) {
+  const { quest, chestOpened, forestCleared, forestClues } = save.adventure;
+  const items = getAdventureMap(maps, mapId)?.interactables ?? [];
+  return items.filter(({ action, kind }) => {
+    if (kind === 'clue') return Object.hasOwn(FOREST_CLUES, action) && quest === 'accepted' && !forestCleared && !forestClues.includes(action);
+    switch (action) {
+      case 'chest': return !chestOpened;
+      case 'lilia': return quest !== 'completed';
+      case 'portal': return chestOpened;
+      case 'encounter': return quest === 'accepted' && !forestCleared && FOREST_CLUE_IDS.every(id => forestClues.includes(id));
+      default: return true;
+    }
+  });
 }
 
 export function interactAdventure(state, save, maps) {
@@ -104,10 +112,12 @@ export function interactAdventure(state, save, maps) {
     return { state, save, changed: false };
   }
   const updated = structuredClone(save);
+  let dialogue;
   if (target.id === 'lilia') {
     if (updated.adventure.quest === 'not_started') {
       updated.adventure.quest = 'accepted';
-      state.lastMessage = 'Lilia: Hương vị trong rừng đang biến mất. Hãy mở rương tiếp tế rồi theo dấu vào rừng.';
+      state.lastMessage = 'Đã nhận nhiệm vụ. Mở rương tiếp tế ở phía đông quảng trường.';
+      dialogue = 'opening';
       gameEvents.emit('quest_accepted', { quest_id: 'quest_missing_flavor' }, { map_id: 'village' });
     } else if (updated.adventure.quest === 'ready_to_claim') {
       updated.adventure.quest = 'completed';
@@ -115,7 +125,8 @@ export function interactAdventure(state, save, maps) {
       updated.player.experience += 100;
       updated.player.level = 1 + Math.floor(updated.player.experience / 100);
       updated.roster = updated.roster.map((actor) => ({ ...actor, hp: actor.maxHp }));
-      state.lastMessage = 'Nhiệm vụ hoàn thành. Lilia trao 80 vàng và 100 kinh nghiệm.';
+      state.lastMessage = 'Đã hoàn thành Hương Vị Đầu Tiên. Nhận 80 vàng và 100 kinh nghiệm.';
+      dialogue = 'ending';
       gameEvents.emit('quest_completed', { quest_id: 'quest_missing_flavor', gold: 80, experience: 100 });
     } else {
       state.lastMessage = 'Lilia: Rương ở phía đông quảng trường có thể giúp bạn chuẩn bị.';
@@ -140,8 +151,15 @@ export function interactAdventure(state, save, maps) {
     const routed = transitionMap(state, updated, 'forest', maps);
     Object.assign(updated, routed.save);
     Object.assign(state, routed.state);
-    state.lastMessage = 'Rừng Nguyên Liệu: những dấu chân dẫn sâu vào tán cây.';
+    state.lastMessage = 'Rừng Nguyên Liệu. Tìm manh mối hoặc mở nhật ký để được dẫn đường.';
     gameEvents.emit('route_changed', { map: 'forest' }, { map_id: 'forest' });
+  } else if (target.kind === 'clue') {
+    updated.adventure.forestClues.push(target.id);
+    const allCluesFound = FOREST_CLUE_IDS.every(id => updated.adventure.forestClues.includes(id));
+    state.lastMessage = allCluesFound
+      ? 'Đã tìm đủ manh mối. Lần theo vệt tro tới sân bếp.'
+      : 'Đã ghi vào nhật ký: ' + FOREST_CLUES[target.id].title + '.';
+    gameEvents.emit('clue_discovered', { clue_id: target.id }, { map_id: 'forest' });
   } else if (target.id === 'encounter') {
     beginBattle(state, updated);
   } else if (target.id === 'village_return') {
@@ -149,10 +167,11 @@ export function interactAdventure(state, save, maps) {
     Object.assign(updated, routed.save);
     Object.assign(state, routed.state);
     if (updated.adventure.forestCleared && updated.adventure.quest === 'accepted') updated.adventure.quest = 'ready_to_claim';
-    state.lastMessage = 'Đã trở về làng. Hãy báo tin cho Lilia.';
+    state.lastMessage = updated.adventure.forestCleared ? 'Đã trở về làng. Hãy báo tin cho Lilia.'
+      : 'Đã trở về làng. Có thể quay lại rừng khi đã sẵn sàng.';
     gameEvents.emit('route_changed', { map: 'village' }, { map_id: 'village' });
   }
-  return { state, save: updated, changed: true };
+  return { state, save: updated, changed: true, dialogue };
 }
 
 export function beginBattle(state, save) {

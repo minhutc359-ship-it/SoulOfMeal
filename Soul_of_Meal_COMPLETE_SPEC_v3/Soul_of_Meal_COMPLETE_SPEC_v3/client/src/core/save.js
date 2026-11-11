@@ -1,3 +1,5 @@
+import { restoreForestClues } from '../modes/adventureStory.js';
+
 export const SAVE_KEY = 'soul-of-meal.save.v2';
 export const SAVE_VERSION = 2;
 
@@ -7,7 +9,7 @@ export function createDefaultSave() {
     player: { name: 'Người Kết Vị', level: 1, experience: 0, gold: 120, essence: 24 },
     adventure: {
       map: 'village', x: 120, y: 310, quest: 'not_started', chestOpened: false,
-      forestCleared: false, rewardClaims: [], battle: null,
+      forestCleared: false, forestClues: [], rewardClaims: [], battle: null,
     },
     roster: [
       { id: 'chr_bunbo_holinh', hp: 3000, maxHp: 3000, atk: 320, def: 100, element: 'fire', role: 'fighter', energy: 0 },
@@ -25,12 +27,14 @@ export function createDefaultSave() {
 export function migrateSave(input) {
   const fresh = createDefaultSave();
   if (!input || typeof input !== 'object') return fresh;
+  const adventure = { ...fresh.adventure, ...input.adventure };
+  adventure.forestClues = restoreForestClues(adventure);
   if (input.version === SAVE_VERSION) {
     return {
       ...fresh,
       ...input,
       player: { ...fresh.player, ...input.player },
-      adventure: { ...fresh.adventure, ...input.adventure },
+      adventure,
       settings: { ...fresh.settings, ...input.settings },
       modes: { ...fresh.modes, ...input.modes },
       roster: Array.isArray(input.roster) && input.roster.length ? input.roster : fresh.roster,
@@ -40,7 +44,7 @@ export function migrateSave(input) {
     const migrated = {
       ...fresh,
       player: { ...fresh.player, ...input.player },
-      adventure: { ...fresh.adventure, ...input.adventure },
+      adventure,
       roster: fresh.roster,
       completedBattles: input.completedBattles ?? 0,
     };

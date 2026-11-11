@@ -21,7 +21,7 @@ Khi chạy với [máy chủ ASP.NET Core và PostgreSQL](../server/README.md), 
 
 ## Lối chơi
 
-- **Adventure** · Mở **Nhật ký hành trình** để xem mục tiêu và dẫn đường. Nhận nhiệm vụ từ Lilia, mở rương, vào rừng, đánh hai đợt quái, nhận thưởng và trở lại làng. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
+- **Adventure** · Chơi chương mở đầu **Hương Vị Đầu Tiên**. Gặp Lilia, mở rương, tìm hai manh mối Thất Vị trong rừng, đánh hai đợt và trở về làng nhận thưởng, xem cảnh kết. Dùng **Dẫn đường** trên bản đồ hoặc trong **Nhật ký hành trình**. Nhật ký lưu manh mối đã tìm và cho đọc lại đối thoại đã mở. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
 - **TCG** · Đấu bot với bộ 36 lá, đổi bài mở màn một lần, xây bộ bài trong danh mục 22 lá, triệu hồi Vị Linh, đặt bẫy úp và phản ứng theo lượt ưu tiên. Bộ bài đã lưu dùng khi bắt đầu ván mới.
 - **Auto Chess** · Mua quân, hợp thể ba bản sao, xếp đội hình, nâng cấp cửa hàng và chơi tối đa mười vòng. Hai nhân vật khác nhau cùng hệ Hỏa, Mộc hoặc Quang kích hoạt hiệp lực tương ứng. Phát lại giao tranh dùng vị trí, đòn đánh và HP do mô phỏng ghi lại.
 
@@ -71,4 +71,4 @@ python3 -m unittest discover -s tests -v
 python3 scripts/validate_package.py .
 ```
 
-Battle Adventure và Auto Chess vẫn dùng Canvas 2D. Cả ba chế độ dùng bot. Chế độ tài khoản đồng bộ bản luyện tập lên PostgreSQL, còn luật chiến đấu vẫn chạy trên client. Các phần còn cần hoàn thiện trước phát hành gồm rig/animation đầy đủ cho cả đội, duyệt mỹ thuật và quyền sử dụng, voice, benchmark renderer WebGL trên thiết bị thật, cân bằng dài hạn và nội dung các chương sau. Bản chơi thử lưu mốc nhiệm vụ/phần thưởng, ván TCG và vòng Auto Chess. Adventure bắt đầu lại cuộc chạm trán nếu tải lại giữa trận.
+Battle Adventure và Auto Chess vẫn dùng Canvas 2D. Cả ba chế độ dùng bot. Chế độ tài khoản đồng bộ bản luyện tập lên PostgreSQL, còn luật chiến đấu vẫn chạy trên client. Các phần còn cần hoàn thiện trước phát hành gồm rig/animation đầy đủ cho cả đội, duyệt mỹ thuật và quyền sử dụng, voice, benchmark renderer WebGL trên thiết bị thật, cân bằng dài hạn và nội dung các chương sau. Bản chơi thử lưu manh mối, mốc nhiệm vụ/phần thưởng, ván TCG và vòng Auto Chess. Bản lưu cũ đã qua boss giữ bước tiếp theo. Adventure bắt đầu lại cuộc chạm trán nếu tải lại giữa trận.

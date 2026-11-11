@@ -57,6 +57,8 @@ Boss Bếp Trưởng Hỏa Diệm, three phase model (P0 demo):
 ## 8. Quest, exploration and save
 World P0: village 64×48 tiles, chunk 16×16, tile 64 world units (all PROPOSED). Interactable schema has `id`, `map_id`, `kind`, `bounds`, `state`, `cooldown`, `quest_gate`, `action`. Example Lilia quest states `unavailable -> offered -> accepted -> progress -> ready_to_claim -> completed`. Chest states `locked -> available -> opened`; `opened` is persisted using account_id + chest_id, never grants twice on reload. Navigation exit changes map only after new chunk preload succeeds; rollback on failure. Quest reward claim has idempotent `reward_claim_id`.
 
+**Chương mở đầu trong bản chơi thử:** Hương Vị Đầu Tiên. Đối thoại Lilia mở nhiệm vụ, rương mở cổng rừng, hai manh mối `forest_clue_salt` và `forest_clue_ladle` mở sân bếp Hỏa Diệm. Hai manh mối có thể lấy theo thứ tự bất kỳ. Có thể về làng giữa lúc điều tra. Khi nhận thưởng boss, người chơi quay lại gặp Lilia để nhận thưởng nhiệm vụ và mở cảnh kết. Nhật ký hiển thị mục tiêu, manh mối đã ghi và cảnh có thể đọc lại. `save.adventure.forestClues` chứa ID đã tìm, bổ sung trên schema v2. Khi nạp bản lưu đã vượt boss, nhật ký đánh dấu cả hai manh mối đã hoàn thành dựa vào cờ tiến trình.
+
 ## 9. Battle event protocol
 `battle_started, actor_spawned, move_started, target_changed, cast_started, projectile_spawned, hit_resolved, shield_changed, status_applied, actor_died, boss_phase_changed, wave_completed, battle_finished, reward_claimed`. All include `{battle_id, tick, seq, source_id, target_id?, payload, rules_version}`. Deduplicate by battle_id+seq; render may arrive late but must not change rules. Replay from seed+commands+version; save snapshots per wave.
 

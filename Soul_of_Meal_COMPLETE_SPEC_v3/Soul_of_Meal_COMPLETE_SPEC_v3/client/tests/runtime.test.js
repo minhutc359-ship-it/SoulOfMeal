@@ -6,6 +6,8 @@ import { advanceChessRound, buyChessOffer, createChessRun, placeChessUnit, start
 import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard, mulliganTcg } from '../src/modes/tcg.js';
 import { createDefaultSave, migrateSave, SAVE_VERSION } from '../src/core/save.js';
 import { adventureJournal } from '../src/modes/adventureJournal.js';
+import { FOREST_CLUE_IDS } from '../src/modes/adventureStory.js';
+import { createAdventureMapRegistry, getAdventureMap } from '../src/modes/mapCatalog.js';
 import { gameEvents } from '../src/core/events.js';
 import { collidesWithWorld, findAdventurePath, moveWithCollision } from '../src/modes/adventureNavigation.js';
 
@@ -19,6 +21,21 @@ test('save migration preserves version-one progress and normalizes coordinates',
   assert.equal(migrated.adventure.x, 240);
   assert.equal(migrated.adventure.y, 270);
   assert.equal(migrated.adventure.chestOpened, true);
+});
+
+test('Adventure restores clue IDs without resetting completed chapters or changing rewards', () => {
+  const [salt, ladle] = FOREST_CLUE_IDS;
+  const partial = migrateSave({
+    version: 2, adventure: { quest: 'accepted', chestOpened: true, map: 'forest', forestClues: ['unknown', ladle, ladle] },
+  });
+  assert.deepEqual(partial.adventure.forestClues, [ladle]);
+  assert.equal(adventureJournal(partial).action, salt);
+  for (const quest of ['ready_to_claim', 'completed']) {
+    const legacy = migrateSave({ version: 2, player: { gold: 290 }, adventure: { quest, forestCleared: true } });
+    assert.deepEqual(legacy.adventure.forestClues, [salt, ladle]);
+    assert.equal(legacy.adventure.quest, quest);
+    assert.equal(legacy.player.gold, 290);
+  }
 });
 
 test('Adventure requires nearby interaction and persists quest/chest/route progression', () => {
@@ -106,6 +123,10 @@ test('the Adventure journal points to the correct interaction after a map or que
   Object.assign(save.adventure, { chestOpened: true });
   assert.equal(adventureJournal(save).action, 'portal');
   Object.assign(save.adventure, { map: 'forest' });
+  assert.equal(adventureJournal(save).action, 'forest_clue_salt');
+  save.adventure.forestClues.push('forest_clue_ladle');
+  assert.equal(adventureJournal(save).action, 'forest_clue_salt');
+  save.adventure.forestClues.push('forest_clue_salt');
   assert.equal(adventureJournal(save).action, 'encounter');
   Object.assign(save.adventure, { forestCleared: true, quest: 'ready_to_claim' });
   assert.equal(adventureJournal(save).action, 'village_return');
@@ -289,36 +310,50 @@ test('Adventure tap navigation routes around solid buildings', () => {
   assert.ok(insideBuilding.every((point) => !collidesWithWorld('village', point.x, point.y)));
 });
 
-test('Adventure completes the P0 quest, battle reward and Lilia claim loop', () => {
+test('Adventure completes chapter one across a reload, with a gated boss and a single reward', async () => {
+  const maps = createAdventureMapRegistry(await Promise.all(['village', 'forest'].map(key => readJson(`examples/maps/${key}.json`))));
   let save = createDefaultSave();
-  const state = createAdventureState(save);
-  state.x = 235; state.y = 260;
-  let result = interactAdventure(state, save);
-  save = result.save;
-  state.x = 680; state.y = 355;
-  result = interactAdventure(state, save);
-  save = result.save;
-  state.x = 878; state.y = 260;
-  result = interactAdventure(state, save);
-  save = result.save;
-  state.x = 500; state.y = 300;
-  result = interactAdventure(state, save);
-  save = result.save;
-  for (let frame = 0; frame < 1_800 && state.battle?.phase === 'battle_running'; frame += 1) stepAdventure(state, save, 1 / 30);
+  let state = createAdventureState(save);
+  function interact(action) {
+    const item = getAdventureMap(maps, state.map).interactables.find(item => item.action === action);
+    Object.assign(state, { x: item.x, y: item.y });
+    const result = interactAdventure(state, save, maps);
+    save = result.save;
+    return result;
+  }
+
+  assert.equal(interact('lilia').dialogue, 'opening');
+  interact('chest');
+  interact('portal');
+  assert.equal(interact('encounter').changed, false);
+  assert.equal(state.battle, null);
+  const [salt, ladle] = FOREST_CLUE_IDS;
+  assert.equal(interact(ladle).changed, true);
+  assert.equal(interact(ladle).changed, false);
+  assert.equal(interact('encounter').changed, false);
+
+  interact('village_return');
+  assert.equal(state.map, 'village');
+  save = migrateSave(JSON.parse(JSON.stringify(save)));
+  state = createAdventureState(save);
+  assert.deepEqual(save.adventure.forestClues, [ladle]);
+  interact('portal');
+  assert.equal(adventureJournal(save).action, salt);
+  assert.equal(interact(salt).changed, true);
+  assert.equal(interact('encounter').changed, true);
+  for (let frame = 0; frame < 1_800 && state.battle.phase === 'battle_running'; frame += 1) stepAdventure(state, save, 1 / 30, maps);
 
   assert.equal(state.battle.phase, 'battle_end');
   assert.equal(state.battle.result, 'victory');
   save = claimBattleResult(state, save);
-  state.x = 900; state.y = 470;
-  result = interactAdventure(state, save);
-  save = result.save;
-  state.x = 235; state.y = 260;
-  result = interactAdventure(state, save);
-  save = result.save;
+  interact('village_return');
+  assert.equal(interact('lilia').dialogue, 'ending');
+  assert.equal(interact('lilia').changed, false);
 
   assert.equal(save.adventure.quest, 'completed');
   assert.equal(save.adventure.chestOpened, true);
   assert.equal(save.adventure.forestCleared, true);
+  assert.equal(adventureJournal(save).clues.length, 2);
   assert.equal(save.player.gold, 290);
   assert.equal(save.player.essence, 39);
   assert.equal(save.adventure.rewardClaims.length, 2);
