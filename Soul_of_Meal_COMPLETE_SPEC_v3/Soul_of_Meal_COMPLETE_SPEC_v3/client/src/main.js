@@ -1,4 +1,4 @@
-import { createAdventureState, interactAdventure, nearestInteraction, availableAdventureInteractions, setAdventureInput, stepAdventure, activateUltimate, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, WORLD, resolveCameraViewport } from './modes/adventure.js';
+import { createAdventureState, interactAdventure, nearestInteraction, availableAdventureInteractions, setAdventureInput, stepAdventure, activateUltimate, activateLanternWard, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, WORLD, resolveCameraViewport } from './modes/adventure.js';
 import { createTcgMatch, playTcgCard, passTcgPriority, runBotPriority, runTcgBot, attackTcg, assignTcgBlockers, declaredTcgAttackers, endTcgTurn, mulliganTcg, validateDeck } from './modes/tcg.js';
 import { advanceChessRound, buyChessOffer, createChessRun, moveChessUnit, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat, toggleChessLock, buyChessExperience, chessTraits, CHESS_TRAITS } from './modes/autoChess.js';
 import { gameEvents } from './core/events.js';
@@ -9,12 +9,12 @@ import { createAdventureMapRegistry, getAdventureMap } from './modes/mapCatalog.
 import { spriteRenderer } from './render/spriteRenderer.js';
 import { actorArt, combatArt, effectArt, HERO_ID, HERO_NAMES as characterNames, originalCardArt, preloadGameAssets, propArt, sceneArt, TRAVEL_HERO } from './render/spriteAssets.js';
 import { drawEffectTexture, drawElementEffect } from './render/elementEffects.js';
-import { adventureBalance } from './modes/adventureBalance.js';
+import { adventureBalance, adventureEncounters } from './modes/adventureBalance.js';
 import { BattleEffects } from './render/battleEffects.js';
 import { GameAudio } from './core/audio.js';
 import { resolveSoundScene } from './core/soundScenes.js';
 import { adventureJournal } from './modes/adventureJournal.js';
-import { CHAPTER_DIALOGUES, FIRST_CHAPTER } from './modes/adventureStory.js';
+import { CHAPTER_DIALOGUES } from './modes/adventureStory.js';
 import { ChessReplay } from './render/chessReplay.js';
 import { renderEntry } from './shell/entry.js';
 import { createAccountApi, accountErrorMessage } from './core/accountApi.js';
@@ -319,8 +319,11 @@ function pageHeader(kicker, title, description, back = 'home') {
 }
 
 function renderHome() {
-  const quest = runtime.save.adventure.quest;
-  const headline = ({
+  const { quest, chapterTwo } = runtime.save.adventure;
+  const journal = adventureJournal(runtime.save);
+  const headline = chapterTwo.stage === 'accepted' || chapterTwo.stage === 'ready_to_claim'
+    ? journal.labels[journal.step]?.title
+    : ({
     not_started: 'Gặp Lilia ở quảng trường',
     accepted: 'Theo dấu Thất Vị vào rừng',
     ready_to_claim: 'Trở về báo tin cho Lilia',
@@ -346,6 +349,8 @@ function renderAdventure() {
   const battle = adventure.battle;
   const target = nearestInteraction(adventure, save, runtime.maps);
   const journal = adventureJournal(save);
+  const guideAction = journal.action ?? journal.nextChapterAction;
+  const encounter = adventureEncounters[battle?.encounter ?? 'forest'];
   const actionLabel = target ? `Tương tác · ${target.label}` : 'Tiến gần điểm tương tác';
   const actorRows = save.roster.map((member, index) => {
     const actor = battle?.actors.find((candidate) => candidate.actor_id === member.id) ?? member;
@@ -359,7 +364,7 @@ function renderAdventure() {
       ${battle ? `<button class="button skill-button" data-ultimate="${actor.id}" title="${escapeAttr(skill.description)}" disabled><span class="key-tag">${index + 1}</span><img class="skill-art" src="${effectArt(actor.element, 'impact')}" alt="">${escapeHtml(skill.name)}<small data-charge>${actor.energy}%</small></button>` : `<small>${escapeHtml(skill.name)}</small>`}
     </div>`;
   }).join('');
-  const resultPanel = battle?.phase === 'battle_end' ? `<div class="result-box ${battle.result}"><strong>${battle.result === 'victory' ? 'Chiến thắng' : 'Đội hình đã gục'}</strong><p>${battle.result === 'victory' ? 'Phần thưởng · 60 vàng và 10 tinh hoa' : 'Đội hình có thể vào trận lại.'}</p><button class="button" data-battle-result>${battle.result === 'victory' ? 'Nhận thưởng' : 'Thử lại'}</button></div>` : '';
+  const resultPanel = battle?.phase === 'battle_end' ? `<div class="result-box ${battle.result}"><strong>${battle.result === 'victory' ? 'Chiến thắng' : 'Đội hình đã gục'}</strong><p>${battle.result === 'victory' ? `Phần thưởng · ${encounter.reward.gold} vàng và ${encounter.reward.essence} tinh hoa` : 'Đội hình có thể vào trận lại.'}</p><button class="button" data-battle-result>${battle.result === 'victory' ? 'Nhận thưởng' : 'Thử lại'}</button></div>` : '';
   const battleControls = battle?.phase === 'battle_running' ? `
     <button class="button light compact" data-battle-pause></button>
     <button class="button light compact" data-battle-speed aria-label="Tăng tốc trận đấu" aria-pressed="false">2×</button>
@@ -372,7 +377,7 @@ function renderAdventure() {
     ${pageHeader('Phiêu lưu', adventure.map === 'village' ? 'Làng Ẩm Thực' : 'Rừng Nguyên Liệu', '', 'home')}
     <div class="game-layout adventure-layout"><section class="panel world-panel">
       <div class="canvas-wrap"><canvas id="adventure-canvas" width="960" height="540" aria-label="Bản đồ phiêu lưu tương tác"></canvas>
-      <span class="phase-pill world-phase ${battle ? 'combat' : ''}">${battle ? battle.phase === 'battle_end' ? 'Kết quả' : 'Đợt ' + (battle.wave + 1) + '/2' : 'Khám phá'}</span></div>
+      <span class="phase-pill world-phase ${battle ? 'combat' : ''}">${battle ? battle.phase === 'battle_end' ? 'Kết quả' : `Đợt ${battle.wave + 1}/${encounter.waves.length}` : 'Khám phá'}</span></div>
       <p class="controls-hint" data-adventure-message role="status">${escapeHtml(adventure.lastMessage)}</p>
       <div class="action-row">${battle ? battleControls : `<button class="button" data-interact ${!target ? 'disabled' : ''}>${escapeHtml(actionLabel)}</button><span class="key-hint">WASD / chạm để đi · E để tương tác</span>`}</div>
       ${resultPanel}
@@ -382,16 +387,22 @@ function renderAdventure() {
         <div class="telegraph" data-telegraph hidden><div class="telegraph-heading"><b data-telegraph-name></b><span data-telegraph-seconds></span></div>
           <progress data-telegraph-time aria-label="Thời gian trước đòn boss"></progress>
           <div class="stove-controls" data-stove-controls hidden><p>Phá 2 bếp để hạ hộ thuẫn và ngắt chiêu.</p><div class="stove-buttons">${stoveControls}</div></div>
-        </div></section>` : `<section class="panel"><h2>${FIRST_CHAPTER}</h2>
-          <p class="quest-objective">${journal.labels[journal.step]?.title ?? 'Chương đã hoàn thành'}</p>
-          <div class="action-row">${journal.action ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
+        </div>
+        ${battle.encounter === 'seal' && battle.phase === 'battle_running' ? `<div class="ward-controls"><p>Giảm ${encounter.wardReductionBp / 100}% sát thương của một đợt sương.</p>
+          <button class="button light" data-lantern-ward type="button" disabled>F · Đèn Giữ Vị</button></div>` : ''}
+        </section>` : `<section class="panel"><h2>${journal.title}</h2>
+          <p class="quest-objective">${journal.labels[journal.step]?.title ?? (journal.nextChapterAction ? 'Gặp Lilia để mở Chương 2' : 'Chương đã hoàn thành')}</p>
+          <div class="action-row">${guideAction ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
             <button class="button light" data-page="journey">Nhật ký hành trình</button></div>
         </section>`}
       <section class="panel party-panel"><h2>Đội hình Vị Linh</h2><div class="actor-list">${actorRows}</div></section>
     </aside></div>
   `);
   app.querySelector('[data-interact]')?.addEventListener('click', doAdventureInteract);
-  app.querySelector('[data-guide-objective]')?.addEventListener('click', () => guideToObjective(journal.action));
+  app.querySelector('[data-guide-objective]')?.addEventListener('click', () => guideToObjective(guideAction));
+  app.querySelector('[data-lantern-ward]')?.addEventListener('click', () => {
+    if (activateLanternWard(adventure)) updateBattleHud(battle);
+  });
   app.querySelectorAll('[data-ultimate]').forEach((button) => button.addEventListener('click', () => useUltimate(button.dataset.ultimate)));
   app.querySelectorAll('[data-stove]').forEach(button => button.addEventListener('click', () => selectBossStove(button.dataset.stove)));
   app.querySelector('[data-battle-pause]')?.addEventListener('click', () => {
@@ -411,11 +422,19 @@ function renderAdventure() {
 function renderAdventureJournal() {
   const { save, adventure } = runtime;
   const journal = adventureJournal(save);
+  const guideAction = journal.action ?? journal.nextChapterAction;
+  const { quest, chapterTwo } = save.adventure;
+  const replays = [
+    quest !== 'not_started' && 'opening',
+    quest === 'completed' && 'ending',
+    chapterTwo.stage !== 'not_started' && 'forestOpening',
+    chapterTwo.stage === 'completed' && 'forestEnding',
+  ].filter(Boolean);
   const statusText = { done: 'Hoàn thành', current: 'Mục tiêu hiện tại', upcoming: 'Sắp tới' };
   shell(`
     ${pageHeader('Phiêu lưu', 'Nhật ký hành trình', '', 'adventure')}
     <section class="panel journey-panel">
-      <h2>${FIRST_CHAPTER}</h2>
+      <h2>${journal.title}</h2>
       <ol class="journey-steps">${journal.labels.map(({ title, status }) =>
         `<li data-step-status="${status}" ${status === 'current' ? 'aria-current="step"' : ''}>
           <strong>${title}</strong><small>${statusText[status]}</small>
@@ -424,13 +443,12 @@ function renderAdventureJournal() {
         <dl>${journal.clues.map(clue => `<dt>${clue.title}</dt><dd>${clue.note}</dd>`).join('')}</dl>
       </details>` : ''}
       <div class="action-row">
-        ${journal.action && !adventure.battle ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
+        ${guideAction && !adventure.battle ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
         <button class="button light" data-page="adventure">Về bản đồ</button>
-        ${save.adventure.quest !== 'not_started' ? `<button class="button light" data-story-replay="opening">${CHAPTER_DIALOGUES.opening.title}</button>` : ''}
-        ${save.adventure.quest === 'completed' ? `<button class="button light" data-story-replay="ending">${CHAPTER_DIALOGUES.ending.title}</button>` : ''}
+        ${replays.map(scene => `<button class="button light" data-story-replay="${scene}">${CHAPTER_DIALOGUES[scene].title}</button>`).join('')}
       </div>
     </section>`);
-  app.querySelector('[data-guide-objective]')?.addEventListener('click', () => guideToObjective(journal.action));
+  app.querySelector('[data-guide-objective]')?.addEventListener('click', () => guideToObjective(guideAction));
   app.querySelectorAll('[data-story-replay]').forEach(button => {
     button.addEventListener('click', () => openStoryDialog(app, button.dataset.storyReplay));
   });
@@ -485,12 +503,18 @@ function updateBattleHud(battle) {
     if (seconds.textContent !== label) seconds.textContent = label;
   }
   const pause = app.querySelector('[data-battle-pause]');
+  const ward = app.querySelector('[data-lantern-ward]');
+  if (ward) {
+    ward.disabled = battle.paused || battle.wardUsed || battle.bossTelegraph?.counter !== 'lantern';
+    const label = battle.bossTelegraph?.warded ? 'Đang che chở' : battle.wardUsed ? 'Đèn đã dùng' : 'F · Đèn Giữ Vị';
+    if (ward.textContent !== label) ward.textContent = label;
+  }
   if (pause) {
     const label = battle.paused ? 'Tiếp tục' : 'Tạm dừng';
     if (pause.textContent !== label) pause.textContent = label;
     app.querySelector('[data-battle-speed]').setAttribute('aria-pressed', String(battle.speed === 2));
     const pill = app.querySelector('.world-phase');
-    const phase = battle.paused ? 'Tạm dừng' : `Đợt ${battle.wave + 1}/2`;
+    const phase = battle.paused ? 'Tạm dừng' : `Đợt ${battle.wave + 1}/${adventureEncounters[battle.encounter ?? 'forest'].waves.length}`;
     if (pill.textContent !== phase) pill.textContent = phase;
   }
 }
@@ -504,14 +528,14 @@ function doAdventureInteract() {
   const result = interactAdventure(runtime.adventure, runtime.save, runtime.maps);
   runtime.adventure = result.state;
   runtime.save = result.save;
-  if (result.changed) {
+  if (result.changed || result.dialogue) {
     runtime.heldKeys.clear();
     setAdventureInput(runtime.adventure, 0, 0);
     runtime.adventure.walkPath = [];
     runtime.adventure.walkTarget = null;
     runtime.adventure.tapInteraction = null;
-    saveNow();
   }
+  if (result.changed) saveNow();
   render();
   if (result.dialogue) openStoryDialog(app, result.dialogue);
 }
@@ -524,8 +548,7 @@ function useUltimate(actorId) {
 
 function claimAdventureBattle() {
   if (runtime.adventure.battle?.result === 'defeat') {
-    runtime.adventure.battle = null;
-    beginBattle(runtime.adventure, runtime.save);
+    beginBattle(runtime.adventure, runtime.save, runtime.adventure.battle.encounter);
     render();
     return;
   }
@@ -704,6 +727,13 @@ function drawMapVisuals(context, map, save) {
     } else if (visual.kind === 'clue' && activeIds.has(visual.id)) {
       drawElementEffect(context, spriteRenderer, 'light', 'impact', { x, y: y - 9, size: 48, opacity: .9 });
       drawMapLabel(context, visual.label, x, y + 19);
+    } else if (visual.kind === 'lantern' && save.adventure.chapterTwo.stage === 'accepted') {
+      const lit = !activeIds.has(visual.id);
+      drawElementEffect(context, spriteRenderer, visual.element, 'impact', { x, y: y - 10, size: lit ? 63 : 49, opacity: lit ? 1 : .6 });
+      drawMapLabel(context, lit ? visual.label + ' · ĐÃ SÁNG' : visual.label, x, y + 19);
+    } else if (visual.kind === 'seal' && activeIds.has(visual.id)) {
+      drawFitted(context, propArt('empty_bowl_seal'), x, y + 12, 81, 85);
+      drawMapLabel(context, visual.label, x, y + 24);
     } else if (visual.kind === 'marker' && activeIds.has(visual.id)) {
       drawFitted(context, actorArt('mob_mushroom_01'), x, y + 10, 59, 62);
       drawMapLabel(context, visual.label, x, y + 24);
@@ -747,13 +777,21 @@ function drawBattleScene(context, adventure) {
   context.fillStyle = '#283f33';
   context.fillRect(0, 0, 960, 540);
   spriteRenderer.drawImage(context, sceneArt('arena'), 0, 0, 960, 540);
+  if (battle.encounter === 'seal') {
+    context.fillStyle = '#2f154852';
+    context.fillRect(0, 0, 960, 540);
+  }
   const boss = battle.actors.find((actor) => actor.boss && actor.alive);
   if (boss && battle.bossTelegraph) {
     const { ticks, duration } = battle.bossTelegraph;
     const opacity = .46 + .33 * (1 - ticks / duration);
-    drawBossWarning(context, boss.x, boss.y + 2, 230, opacity);
+    if (boss.element === 'shadow') drawElementEffect(context, spriteRenderer, 'shadow', 'impact', { x: boss.x, y: boss.y + 5, size: 198, opacity });
+    else drawBossWarning(context, boss.x, boss.y + 2, 230, opacity);
     for (const target of bossTelegraphTargets(battle, boss)) {
-      drawBossWarning(context, target.x, target.y + 2, 79, opacity);
+      if (boss.element === 'shadow') {
+        const element = battle.bossTelegraph.warded ? 'light' : 'shadow';
+        drawElementEffect(context, spriteRenderer, element, 'impact', { x: target.x, y: target.y + 2, size: 96, opacity });
+      } else drawBossWarning(context, target.x, target.y + 2, 79, opacity);
     }
   }
   for (const actor of [...battle.actors, ...battle.stoves].sort((a, b) => a.y - b.y)) {
@@ -761,7 +799,7 @@ function drawBattleScene(context, adventure) {
       if (actor.alive) drawBossStove(context, actor, battle.stoveTargetId === actor.actor_id);
     } else {
       drawActor(context, actor, runtime.animations.getActorState(actor.actor_id)?.animation,
-        actor.boss && battle.bossTelegraph?.phase === 2);
+        actor.boss && battle.bossTelegraph?.counter === 'stoves');
     }
   }
   runtime.effects.draw(context, battle, runtime.save.settings.reducedMotion);
@@ -801,8 +839,10 @@ function drawActor(context, actor, animation, protectedByStoves) {
   context.beginPath();
   context.ellipse(x, y + 2, actor.boss ? 33 : 23, 7, 0, 0, Math.PI * 2);
   context.fill();
-  const drawn = spriteRenderer.drawSprite(context, actor.id, animation, x, y, { scale: actor.boss ? 1.04 : .67 });
-  if (!drawn) {
+  const drawn = !actor.stationary && spriteRenderer.drawSprite(context, actor.id, animation, x, y, { scale: actor.boss ? 1.04 : .67 });
+  if (actor.stationary) {
+    drawFitted(context, propArt(actor.id), x, y, 150, 129);
+  } else if (!drawn) {
     const pose = placeholderPose(animation);
     drawFitted(context, actorArt(actor.id), x, y + pose.offsetY,
       (actor.boss ? 150 : 77) * pose.scaleX, (actor.boss ? 128 : 78) * pose.scaleY);
@@ -1237,6 +1277,7 @@ window.addEventListener('keydown', (event) => {
     if (button && !button.disabled) useUltimate(button.dataset.ultimate);
   }
   if (key === '6' || key === '7') selectBossStove('boss_stove_' + (Number(key) - 5));
+  if (key === 'f') app.querySelector('[data-lantern-ward]')?.click();
   if (key === 'p') app.querySelector('[data-battle-pause]')?.click();
 });
 window.addEventListener('keyup', (event) => runtime.heldKeys.delete(event.key.length === 1 ? event.key.toLowerCase() : event.key));

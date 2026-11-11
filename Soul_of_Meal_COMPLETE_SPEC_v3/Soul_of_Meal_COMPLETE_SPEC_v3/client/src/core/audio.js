@@ -10,6 +10,7 @@ const CUES = {
   shield_broken: 'sfx_element_light_impact', boss_cast_released: 'sfx_impact_fire',
   boss_stove_destroyed: 'sfx_impact_fire', boss_cast_interrupted: 'sfx_ui_confirm',
   clue_discovered: 'sfx_ui_confirm',
+  lantern_ward_activated: 'sfx_element_light_cast',
 };
 
 const ELEMENTS = new Set(['fire', 'water', 'wood', 'light', 'shadow']);
@@ -112,6 +113,8 @@ export class GameAudio {
     if (['hit_resolved', 'heal_resolved', 'shield_applied'].includes(type)) this.play(elementalCue(payload.element, 'impact', CUES[type] ?? 'sfx_hit'));
     else if (type === 'attack_started') this.play(payload.clip_id === 'attack_b' ? 'sfx_slash_b' : 'sfx_slash_a');
     else if (type === 'cast_started') this.play(elementalCue(payload.element, 'cast', 'sfx_cast_fire'));
+    else if (type === 'boss_phase_changed' && payload.element === 'shadow') this.play('sfx_element_shadow_cast');
+    else if (type === 'boss_cast_released' && payload.element === 'shadow') this.play('sfx_element_shadow_impact');
     else if (type === 'battle_finished' && (payload.winner_team === 'player' || payload.winner === 0)) this.play('sfx_victory');
     else if (CUES[type]) this.play(CUES[type]);
   }

@@ -284,8 +284,8 @@
     },
     {
       "path": "docs/01_gameplay/ADVENTURE_RULEBOOK.md",
-      "bytes": 7270,
-      "sha256": "4af6e353e653fb7692d52b9c1bc77a1f066948e6ce6954a6c37b2bdeff88c3c7"
+      "bytes": 8208,
+      "sha256": "c872cc5c6d96781b291b9bb981276c9186d06316008af23704b60fb33017a238"
     },
     {
       "path": "docs/01_gameplay/AUTO_CHESS_RULEBOOK.md",
@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 7892,
-      "sha256": "de893cc204e31156e2873e2d9f6c57c44ed1223e059ccbca4e35f249b4e2e415"
+      "bytes": 8535,
+      "sha256": "201eca84603ebbbd52c667150495d623427022973393fb04e063e8d1f237330c"
     },
     {
       "path": "client/index.html",
@@ -789,18 +789,18 @@
     },
     {
       "path": "client/src/core/save.js",
-      "bytes": 2849,
-      "sha256": "f37d0003319227a24cf9ff798926be9d825242cb840316301b59e1fe5a82763e"
+      "bytes": 2980,
+      "sha256": "c538e58492c7c9022ad4e342a425ef367477c5c36b41c711d8b1d1c421454f35"
     },
     {
       "path": "client/src/main.js",
-      "bytes": 76060,
-      "sha256": "6b82cd74e167e82a59b0146239c80b2c00d4ba09703f50888fab96e0958d5b9a"
+      "bytes": 78933,
+      "sha256": "533800325658f12c499d45d1a126156ce9ccdc53f9116b4cd6637bdc7509819d"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 24757,
-      "sha256": "0df5f06de82d468265f7dc8fe665b43b7ba081c11a64339fa967c3b3f29888ac"
+      "bytes": 28675,
+      "sha256": "3b49bb4c2739dbccda1b26b2b99cc9aeac471b2d58ccd379ea7a5c49c9343c25"
     },
     {
       "path": "client/src/modes/autoChess.js",
@@ -819,8 +819,8 @@
     },
     {
       "path": "client/tests/runtime.test.js",
-      "bytes": 25254,
-      "sha256": "0bee4eaca4b488c040bc14726ae6bf6aeafda3e9a88edb66c6258e1584ed7d62"
+      "bytes": 29772,
+      "sha256": "96ffc4aba07e852967b54456ff0f2aab918ba26b6515d41d3fc81e70c3913fc5"
     },
     {
       "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
@@ -1249,8 +1249,8 @@
     },
     {
       "path": "client/src/modes/mapCatalog.js",
-      "bytes": 10928,
-      "sha256": "07ccdf6511fa75a3651aa863b023504eb06e1f3b7b7d5644a74308821061f048"
+      "bytes": 11647,
+      "sha256": "8ab470de1775f50f48d80bce038f6756a41030f3d974433d7ec0c810e8e18206"
     },
     {
       "path": "client/src/render/animationManifest.js",
@@ -1259,8 +1259,8 @@
     },
     {
       "path": "client/src/render/spriteAssets.js",
-      "bytes": 2717,
-      "sha256": "297eafa03267182dfed09e82b5444b5a85184ed7cbfd7a3ec8c947e3fa4b9051"
+      "bytes": 2736,
+      "sha256": "3cc5be83e49c4996e46353c88a976d7b978ed1d01059aae780dfaaa1f4b959ce"
     },
     {
       "path": "client/src/render/spriteRenderer.js",
@@ -1269,8 +1269,8 @@
     },
     {
       "path": "examples/maps/forest.json",
-      "bytes": 4050,
-      "sha256": "22cbb8bc4abb916ae8c3ca662033f38a6455ec81a7fa958a51586869d310812b"
+      "bytes": 4833,
+      "sha256": "c0e6cb3c2ac899a046e5827c164e7e600b61da21ee90e733e5dd691f8b5684ed"
     },
     {
       "path": "examples/maps/village.json",
@@ -1474,18 +1474,18 @@
     },
     {
       "path": "client/src/core/audio.js",
-      "bytes": 5231,
-      "sha256": "6dbc7f3c41e573f30ba026b9f5366df0ae2647d591f65bc4185ae94c0cdeb364"
+      "bytes": 5513,
+      "sha256": "bec9d4ab6fdcc6f6d599d993619e683b99aee272b9967c3bd3c4945986517d48"
     },
     {
       "path": "client/src/modes/adventureBalance.js",
-      "bytes": 2206,
-      "sha256": "65bb50adfb88257827cfab05fb1739ea755b7d49202e2ce942fa8e713122d67b"
+      "bytes": 3470,
+      "sha256": "e1dde96a15516946a7d87bf1c3cf65c61e925a09dbce2e1f05b9e8b48c9cc062"
     },
     {
       "path": "client/src/render/battleEffects.js",
-      "bytes": 6980,
-      "sha256": "c91c6ed58dbedf92bb2957d9e4c46162f9367082e1e54d868e02783833a65701"
+      "bytes": 7321,
+      "sha256": "229027e6907b012d1e18218cb139588658c072c983d8822131ea87cbba759db2"
     },
     {
       "path": "client/src/render/chessReplay.js",
@@ -2179,13 +2179,13 @@
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_PLAYTEST.md",
-      "bytes": 7226,
-      "sha256": "46418382f996a05c6912e72b28699c52d62cd110cbc05d77b03db581f74f5ec6"
+      "bytes": 7701,
+      "sha256": "7e95b87894f3af174b769317a105a4eee8e0eedda1d6ebedb9e57146190f5101"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_SOURCES.json",
-      "bytes": 26415,
-      "sha256": "92905c5446210ec8a33674e9817849f761b14e89245c0f6f7217f9c839235047"
+      "bytes": 27663,
+      "sha256": "781f83b939880b8c06cbbfbb26ab90cab7d4f450dd3ea358a52f6f42e8c9affa"
     },
     {
       "path": "scripts/build_element_sfx.py",
@@ -2194,8 +2194,8 @@
     },
     {
       "path": "scripts/build_original_art.py",
-      "bytes": 11769,
-      "sha256": "d824f59eb60fbb8fd82ff72d882438928ff51ecf664f86e1a3de2060295b6df2"
+      "bytes": 11872,
+      "sha256": "877a0a61fa753f19aa10fd0c0b57149caf719485882b21f0e3c9b20bf5629b84"
     },
     {
       "path": "docs/00_foundation/decisions/D-018.md",
@@ -2209,8 +2209,8 @@
     },
     {
       "path": "docs/04_qa/PLAYTEST_CONCEPT_GAP.md",
-      "bytes": 4609,
-      "sha256": "1cfac11ce6875d2929d67c8ce08d7d0614a50ec6ca18bbfd3003c025849a0d14"
+      "bytes": 4563,
+      "sha256": "f4515f932ba1280b8c936ac38ea3bb3a3d6349520a2474c025361ecbdc7c8bbb"
     },
     {
       "path": "client/assets/original/scenes/title.webp",
@@ -2224,8 +2224,8 @@
     },
     {
       "path": "client/shell.css",
-      "bytes": 16466,
-      "sha256": "5ce166fea3158e1b801b2c6143ed3370af9e5ad0d8d603b753ffc19e97312bf7"
+      "bytes": 16685,
+      "sha256": "1cb24d98b2bedf030a567572034085ff8e5c878ad67caef45131e0bf80e9ff8c"
     },
     {
       "path": "client/src/shell/entry.js",
@@ -2404,8 +2404,8 @@
     },
     {
       "path": "client/src/modes/adventureJournal.js",
-      "bytes": 1188,
-      "sha256": "e7eeb486c2ba9dd3e638f07f4c950cad290c834e9e416bbf2607f2f810658fd8"
+      "bytes": 2033,
+      "sha256": "64f0e75e4bc8fe825f7a48c1c69dbbe7dac4a54aa51294e304868c4be86adf4e"
     },
     {
       "path": "client/tests/soundScenes.test.js",
@@ -2429,13 +2429,18 @@
     },
     {
       "path": "client/src/modes/adventureStory.js",
-      "bytes": 2678,
-      "sha256": "fecef14358c2845c615a0444eb1e5a8bcc6ad07d37971037f4e49cad4fd5f325"
+      "bytes": 4782,
+      "sha256": "84bfd690c5907afc6cb4925759cbf9ac461c88c3204540ff161a25d4c1ac1b03"
     },
     {
       "path": "client/src/shell/storyDialog.js",
-      "bytes": 2614,
-      "sha256": "e6462808a76ec19a3872db61e663056fb5d98f86bc87728fb3a3c46c0613dfb3"
+      "bytes": 2633,
+      "sha256": "04db46a80a218e170c58bfc0ec67d0246d0dc2c14cd86f15597ff84d856fa732"
+    },
+    {
+      "path": "client/assets/original/props/empty_bowl_seal.webp",
+      "bytes": 28166,
+      "sha256": "f404846bb32b9f4a676b3731d4b508807e1dee6092e57a25a2943b9a1532bcc8"
     }
   ]
 }

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { createAdventureState, interactAdventure, nearestInteraction, beginBattle, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, activateUltimate, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
+import { createAdventureState, interactAdventure, nearestInteraction, beginBattle, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, activateUltimate, activateLanternWard, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
 import { advanceChessRound, buyChessOffer, createChessRun, placeChessUnit, startChessCombat, chessTraits } from '../src/modes/autoChess.js';
 import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard, mulliganTcg } from '../src/modes/tcg.js';
 import { createDefaultSave, migrateSave, SAVE_VERSION } from '../src/core/save.js';
@@ -135,10 +135,10 @@ test('the Adventure journal points to the correct interaction after a map or que
   assert.ok(adventureJournal(save).labels.every(step => step.status === 'done'));
 });
 
-function prepareBossCharge() {
+function prepareBossCharge(encounter = 'forest') {
   const save = createDefaultSave();
   const state = createAdventureState(save);
-  beginBattle(state, save);
+  beginBattle(state, save, encounter);
   const battle = state.battle;
   for (const enemy of battle.actors.filter(actor => actor.team === 'enemy')) enemy.alive = false;
   const advance = () => stepAdventure(state, save, 1 / 30);
@@ -151,6 +151,46 @@ function prepareBossCharge() {
   }
   return { advance, save, state, battle, boss };
 }
+
+test('the lantern reduces one cast from the seal without changing marked targets or damage timing', () => {
+  const { advance, state, battle, boss } = prepareBossCharge('seal');
+  const events = [];
+  const listener = ({ detail }) => events.push(detail);
+  gameEvents.addEventListener('game-event', listener);
+  try {
+    assert.equal(activateLanternWard(state), false);
+    advance();
+    const telegraph = battle.bossTelegraph;
+    assert.equal(telegraph.attack, 'Sương Rút Vị');
+    assert.equal(telegraph.duration, 90);
+    const targets = bossTelegraphTargets(battle, boss);
+    assert.equal(targets.length, 2);
+    for (const target of targets) target.x = boss.x;
+    assert.deepEqual(bossTelegraphTargets(battle, boss), targets);
+    const before = targets.map(actor => actor.hp);
+    const releaseTick = battle.tick + telegraph.duration;
+    battle.paused = true;
+    assert.equal(activateLanternWard(state), false);
+    battle.paused = false;
+    assert.equal(activateLanternWard(state), true);
+    assert.equal(activateLanternWard(state), false);
+    while (battle.tick < releaseTick - 1) advance();
+    assert.deepEqual(targets.map(actor => actor.hp), before);
+    advance();
+    const hits = events.filter(event => event.type === 'hit_resolved' && event.source_id === boss.id);
+    assert.deepEqual(hits.map(event => event.target_id), targets.map(actor => actor.actor_id));
+    assert.deepEqual(hits.map(event => event.payload.hp_damage), targets.map(actor => Math.floor(boss.atk * 1.28 * 100 / (100 + actor.def))));
+    assert.ok(hits.every(event => event.tick === releaseTick));
+    boss.hp = Math.floor(boss.maxHp * .4);
+    advance();
+    assert.equal(battle.bossTelegraph.attack, 'Triều Sương');
+    assert.equal(bossTelegraphTargets(battle, boss).length, 5);
+    assert.equal(activateLanternWard(state), false);
+    assert.equal(events.filter(event => event.type === 'lantern_ward_activated').length, 1);
+  } finally {
+    gameEvents.removeEventListener('game-event', listener);
+  }
+});
 
 test('one surviving stove lets the boss hit the marked targets on the scheduled tick', () => {
   const { advance, battle, boss } = prepareBossCharge();
@@ -348,7 +388,6 @@ test('Adventure completes chapter one across a reload, with a gated boss and a s
   save = claimBattleResult(state, save);
   interact('village_return');
   assert.equal(interact('lilia').dialogue, 'ending');
-  assert.equal(interact('lilia').changed, false);
 
   assert.equal(save.adventure.quest, 'completed');
   assert.equal(save.adventure.chestOpened, true);
@@ -357,6 +396,57 @@ test('Adventure completes chapter one across a reload, with a gated boss and a s
   assert.equal(save.player.gold, 290);
   assert.equal(save.player.essence, 39);
   assert.equal(save.adventure.rewardClaims.length, 2);
+  assert.equal(interact('lilia').dialogue, 'forestOpening');
+  assert.equal(save.player.gold, 290);
+  assert.equal(save.adventure.chapterTwo.stage, 'accepted');
+});
+
+test('chapter two unlocks in order, survives reload and credits the current save once', async () => {
+  const maps = createAdventureMapRegistry(await Promise.all(['village', 'forest'].map(key => readJson(`examples/maps/${key}.json`))));
+  let save = migrateSave({
+    version: SAVE_VERSION,
+    player: { gold: 290, essence: 39, experience: 100, level: 2 },
+    adventure: { quest: 'completed', chestOpened: true, forestCleared: true },
+    completedBattles: 1,
+  });
+  let state = createAdventureState(save);
+  function interact(action) {
+    const item = getAdventureMap(maps, state.map).interactables.find(item => item.action === action);
+    Object.assign(state, { x: item.x, y: item.y });
+    const result = interactAdventure(state, save, maps);
+    save = result.save;
+    return result;
+  }
+  assert.equal(save.adventure.chapterTwo.stage, 'not_started');
+  assert.equal(adventureJournal(save).nextChapterAction, 'lilia');
+  assert.equal(interact('lilia').dialogue, 'forestOpening');
+  interact('portal');
+  assert.equal(interact('forest_lantern_light').changed, false);
+  assert.equal(interact('seal_encounter').changed, false);
+  assert.equal(interact('forest_lantern_wood').changed, true);
+  save = migrateSave(JSON.parse(JSON.stringify(save)));
+  state = createAdventureState(save);
+  assert.equal(adventureJournal(save).action, 'forest_lantern_light');
+  assert.equal(interact('forest_lantern_light').changed, true);
+  assert.equal(interact('seal_encounter').changed, true);
+  assert.equal(state.battle.encounter, 'seal');
+  for (let i = 0; i < 2400 && state.battle.phase === 'battle_running'; i++) {
+    if (state.battle.bossPhase === 3) activateLanternWard(state);
+    stepAdventure(state, save, 1 / 30, maps);
+  }
+  assert.equal(state.battle.result, 'victory');
+  save.player.gold += 17;
+  save = claimBattleResult(state, save);
+  assert.equal(save.player.gold, 397);
+  assert.equal(save.adventure.chapterTwo.stage, 'ready_to_claim');
+  assert.equal(claimBattleResult(state, save), save);
+  interact('village_return');
+  assert.equal(interact('lilia').dialogue, 'forestEnding');
+  assert.equal(interact('lilia').changed, false);
+  assert.equal(save.player.gold, 507);
+  assert.equal(save.player.level, 3);
+  assert.equal(save.adventure.chapterTwo.stage, 'completed');
+  assert.equal(adventureJournal(save).action, null);
 });
 
 test('TCG starts with a valid 36-card deck and passes priority into combat', async () => {

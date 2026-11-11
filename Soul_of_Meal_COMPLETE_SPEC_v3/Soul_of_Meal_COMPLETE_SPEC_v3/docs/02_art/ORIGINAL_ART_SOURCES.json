@@ -9,6 +9,12 @@
   "identity_review": "pending",
   "commercial_rights_review": "pending",
   "sources": {
+    "empty_bowl_seal": {
+      "prompt": "Use case: stylized-concept. Create one new transparent fantasy boss PROP for Soul of Meal, an original Vietnamese culinary anime chibi RPG. The Empty Bowl Seal is a large possessed Vietnamese celadon ceramic bowl, visibly empty inside, slightly tilted toward viewer and hovering very close over a squat hexagonal weathered jade-stone altar with small stylized cloud engravings. A few compact plum-purple vapor ribbons are wrapped around the bowl silhouette with dim warm copper glints. Three-quarter top-down side view for a 2.5D isometric arena, single unified object composition, clean lively cel-shaded anime game paint, polished hand-drawn contours, deep teal and purple, distinct clear silhouette readable at 130 px. Art only, center within square with generous padding, a clear bottom edge at the base of the altar. Isolated genuine transparent RGBA outside the object. No ground plane, background or lighting vignette, no text, logos, icons, lettering, figures, legs, eyes, characters, extra props, stock imagery or separate ornament.",
+      "alpha": true,
+      "source_file": "empty_bowl_seal.png",
+      "source_sha256": "3ae4927624f746186e3dc244d9489139ab90617c424f01948e6829ff0fbbc771"
+    },
     "boss_stove": {
       "prompt": "Use case: stylized-concept. Create a NEW original transparent game prop sprite for Soul of Meal, a Vietnamese anime chibi fantasy culinary RPG. One squat traditional Vietnamese terracotta charcoal stove (bếp than đất nung) seen in 3/4 view from slightly above, with a wide glowing coal opening in its front, three chunky pot supports along the rim, hand-painted copper-gold wave trim and tiny red lacquer accents, and a small contained amber magical flame between the pot supports. Clean hand-painted anime chibi RPG illustration, rich cel-shaded surfaces, dark warm brown contours, compact silhouette legible at 56 pixels. Visible curved oval top, cylindrical clay body, front opening, and flat bottom. Warm apricot highlights, deep brick and maroon shadows. Single prop occupies the center of square canvas with even transparent padding. Bottom unobscured. No scenery, backdrop, ground, cast shadow, floating embers, glow extending beyond silhouette, texture outside the asset, person, character face, eyes, separate objects, text, watermark, interface or pedestal. Genuine transparent alpha.",
       "alpha": true,

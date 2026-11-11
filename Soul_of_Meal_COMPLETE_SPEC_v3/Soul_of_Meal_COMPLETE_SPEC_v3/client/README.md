@@ -31,6 +31,12 @@ Khi chạy với [máy chủ ASP.NET Core và PostgreSQL](../server/README.md), 
 - Ở 30% HP, **Vòng Lửa** đánh vào ba Vị Linh được đánh dấu khi hết 1,2 giây báo trước. Dùng tuyệt kỹ của Bánh Bao để tạo lá chắn cho đội.
 - Nút **Tạm dừng** hoặc phím **P** đóng băng trận. Bật **2×** để mô phỏng và hoạt ảnh cùng chạy nhanh gấp đôi.
 
+## Chương 2 · Bí Mật Rừng Nguyên Liệu
+
+- Sau cảnh kết Chương 1, nói chuyện với Lilia lần nữa. Ở rừng, thắp **đèn Mộc** rồi **đèn Quang**. Hai đèn mở đường đến đàn đá.
+- Ấn Bát Rỗng báo trước **Sương Rút Vị** và **Triều Sương**. Khi boss tụ sương, dùng nút **Đèn Giữ Vị** hoặc phím **F** để giảm 60% sát thương của một đợt. Có một lượt dùng mỗi trận.
+- Nhận thưởng sau trận và đem mảnh men về gặp Lilia để xem cảnh kết Chương 2. Nhật ký cho xem lại đối thoại đã mở của cả hai chương.
+
 ## Giao tranh TCG
 
 - Sau khi kết thúc giai đoạn triển khai, chạm các Vị Linh đang sẵn sàng để chọn nhóm tấn công. Các Vị Linh sẵn sàng được chọn mặc định.

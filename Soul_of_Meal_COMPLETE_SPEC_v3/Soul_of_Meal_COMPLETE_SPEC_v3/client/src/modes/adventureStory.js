@@ -1,4 +1,18 @@
 export const FIRST_CHAPTER = 'Hương Vị Đầu Tiên';
+export const SECOND_CHAPTER = 'Bí Mật Rừng Nguyên Liệu';
+export const FOREST_LANTERNS = ['forest_lantern_wood', 'forest_lantern_light'];
+
+export function restoreChapterTwo(adventure) {
+  const progress = adventure.chapterTwo;
+  if (adventure.quest === 'completed' && ['accepted', 'ready_to_claim', 'completed'].includes(progress?.stage)) {
+    const lanterns = [0, 1, 2].includes(progress.lanterns) ? progress.lanterns : 0;
+    return {
+      stage: progress.stage,
+      lanterns: progress.stage === 'accepted' ? lanterns : FOREST_LANTERNS.length,
+    };
+  }
+  return { stage: 'not_started', lanterns: 0 };
+}
 
 export const FOREST_CLUES = Object.freeze({
   forest_clue_salt: {
@@ -35,6 +49,24 @@ export const CHAPTER_DIALOGUES = Object.freeze({
       { speaker: 'Lilia', art: 'npc_lilia', text: 'Đưa tôi chiếc vá nào. À… mùi sả! Tôi nhớ rồi. Mỗi lần nêm nước dùng, ông ấy đều bảo tôi chờ thêm một nhịp trước khi nếm.' },
       { speaker: 'Bún Bò Hỏa Linh', art: 'chr_bunbo_holinh', text: 'Dưới đáy vá có một dấu hình chiếc bát rỗng. Khi lửa tắt, dấu ấy vẫn sáng. Tôi sẽ ghi lại để lần sau đi sâu hơn vào rừng.' },
       { speaker: 'Lilia', art: 'npc_lilia', text: 'Việc đó để mai. Hôm nay, ở lại ăn với làng một bữa. Tôi muốn mọi người nhớ lại vị của nồi nước dùng này.' },
+    ],
+  },
+  forestOpening: {
+    chapter: SECOND_CHAPTER,
+    title: 'Vết khắc dưới đáy vá',
+    lines: [
+      { speaker: 'Lilia', art: 'npc_lilia', text: 'Dấu bát rỗng trên chiếc vá giống dấu khắc trên một đàn đá trong rừng. Đêm qua, từ đó lại có sương tràn ra.' },
+      { speaker: 'Gỏi Cuốn Diệp Nhi', art: 'chr_goicuon_diepnhi', text: 'Mẹ tôi từng dạy cách mở đàn đá: thắp đèn Mộc trước để gọi hương về, rồi thắp đèn Quang để giữ hương lại.' },
+      { speaker: 'Lilia', art: 'npc_lilia', text: 'Hai ngọn đèn sẽ cho các bạn một lần che chở cả đội. Hãy giữ ánh đèn đến lúc lớp sương dày nhất.' },
+    ],
+  },
+  forestEnding: {
+    chapter: SECOND_CHAPTER,
+    title: 'Bản đồ dưới lớp men',
+    lines: [
+      { speaker: 'Bún Bò Hỏa Linh', art: 'chr_bunbo_holinh', text: 'Khi sương tan, chúng tôi thấy dưới lớp men có hình các dòng suối. Chúng đều chảy ra một cửa biển.' },
+      { speaker: 'Phở Lam Vũ', art: 'chr_pho_lamvu', text: 'Tôi nhận ra nơi ấy. Hải Vực Hương Biển. Nếu sương đã theo dòng nước tới đó, cảng sẽ là nơi đầu tiên mất vị.' },
+      { speaker: 'Lilia', art: 'npc_lilia', text: 'Ta đã tìm được đường đi của Thất Vị. Tôi sẽ giữ đèn làng sáng. Khi các bạn trở về, nồi nước dùng vẫn sẽ đợi.' },
     ],
   },
 });

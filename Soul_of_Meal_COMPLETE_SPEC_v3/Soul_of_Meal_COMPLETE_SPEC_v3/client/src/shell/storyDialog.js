@@ -2,7 +2,7 @@ import { CHAPTER_DIALOGUES, FIRST_CHAPTER } from '../modes/adventureStory.js';
 import { actorArt } from '../render/spriteAssets.js';
 
 export function openStoryDialog(host, scene) {
-  const { title, lines } = CHAPTER_DIALOGUES[scene];
+  const { chapter = FIRST_CHAPTER, title, lines } = CHAPTER_DIALOGUES[scene];
   const previousFocus = document.activeElement;
   const dialog = document.createElement('dialog');
   dialog.className = 'story-dialog';
@@ -22,7 +22,7 @@ export function openStoryDialog(host, scene) {
       <button class="button" type="button" data-story-next autofocus>Tiếp</button>
     </footer>`;
 
-  dialog.querySelector('[data-story-chapter]').textContent = FIRST_CHAPTER;
+  dialog.querySelector('[data-story-chapter]').textContent = chapter;
   dialog.querySelector('#story-title').textContent = title;
   const back = dialog.querySelector('[data-story-back]');
   const next = dialog.querySelector('[data-story-next]');

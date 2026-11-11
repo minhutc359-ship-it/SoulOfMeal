@@ -1,4 +1,4 @@
-import { restoreForestClues } from '../modes/adventureStory.js';
+import { restoreChapterTwo, restoreForestClues } from '../modes/adventureStory.js';
 
 export const SAVE_KEY = 'soul-of-meal.save.v2';
 export const SAVE_VERSION = 2;
@@ -10,6 +10,7 @@ export function createDefaultSave() {
     adventure: {
       map: 'village', x: 120, y: 310, quest: 'not_started', chestOpened: false,
       forestCleared: false, forestClues: [], rewardClaims: [], battle: null,
+      chapterTwo: { stage: 'not_started', lanterns: 0 },
     },
     roster: [
       { id: 'chr_bunbo_holinh', hp: 3000, maxHp: 3000, atk: 320, def: 100, element: 'fire', role: 'fighter', energy: 0 },
@@ -29,6 +30,7 @@ export function migrateSave(input) {
   if (!input || typeof input !== 'object') return fresh;
   const adventure = { ...fresh.adventure, ...input.adventure };
   adventure.forestClues = restoreForestClues(adventure);
+  adventure.chapterTwo = restoreChapterTwo(adventure);
   if (input.version === SAVE_VERSION) {
     return {
       ...fresh,

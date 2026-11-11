@@ -31,6 +31,8 @@ export class BattleEffects {
         this.effects = this.effects.filter((effect) => effect.type !== 'cutin');
         this.add('cutin', element, .63, { id: source_id, text: payload.name });
       }
+    } else if (type === 'boss_cast_released' && source && element === 'shadow') {
+      this.add('impact', 'shadow', .9, { x: source.x, y: source.y - 64, strong: true });
     } else if (type === 'boss_cast_released' && source) {
       const flipX = source.direction !== 'E';
       this.add('boss_cleave', element, .48, { x: source.x + (flipX ? -66 : 66), y: source.y - 54, flipX });
@@ -38,6 +40,8 @@ export class BattleEffects {
       this.add('impact', element, .65, { x: target.x, y: target.y - 32, text: 'Bếp vỡ', strong: true });
     } else if (type === 'boss_cast_interrupted' && source) {
       this.add('impact', 'light', .85, { x: source.x, y: source.y - 76, text: 'Ngắt chiêu!', strong: true });
+    } else if (type === 'lantern_ward_activated' && source) {
+      this.add('impact', 'light', .75, { x: source.x - 175, y: source.y - 132, text: 'Đèn Giữ Vị' });
     } else if (type === 'shield_broken' && target) {
       this.add('shield_break', 'light', .38, { x: target.x, y: target.y - 39 });
     } else if (target && ['hit_resolved', 'heal_resolved', 'shield_applied'].includes(type)) {

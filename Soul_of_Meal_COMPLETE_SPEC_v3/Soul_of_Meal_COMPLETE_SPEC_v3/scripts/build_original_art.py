@@ -17,7 +17,7 @@ HEROES = {
     "caphe": "chr_caphe_davu",
 }
 BOSS = "boss_bep_truong"
-BOSS_STOVE = "boss_stove"
+STANDALONE_PROPS = {"boss_stove": 208, "empty_bowl_seal": 320}
 ACTORS = ("npc_lilia", "mob_mushroom_01", "mob_pepper_01", BOSS)
 COMBAT_EFFECTS = ("boss_warning", "boss_cleave", "shield_bubble", "shield_break")
 PROPS = (
@@ -232,9 +232,10 @@ def export_art(sources, assets, selection):
             export_character(source, assets, HEROES[source_id] if source_id in HEROES else HEROES["bunbo"], source_id == "travel")
         elif source_id == BOSS:
             export_character(source, assets, BOSS)
-        elif source_id == BOSS_STOVE:
-            with Image.open(source) as stove:
-                export_cutout(assets / "original" / "props" / f"{BOSS_STOVE}.webp", stove.convert("RGBA"), (208, 208), 86)
+        elif source_id in STANDALONE_PROPS:
+            size = STANDALONE_PROPS[source_id]
+            with Image.open(source) as prop:
+                export_cutout(assets / "original" / "props" / f"{source_id}.webp", prop.convert("RGBA"), (size, size), 86)
         elif source_id == "combat_effects":
             for effect, image in zip(COMBAT_EFFECTS, cells(source, 2, 2)):
                 export_cutout(assets / "original" / "effects" / f"{effect}.webp", image, (384, 384), 88)
@@ -263,13 +264,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("sources", type=Path, help="Directory of newly generated source sheets named by asset ID")
     parser.add_argument("--assets", type=Path, default=Path("client/assets"))
-    ids = (*HEROES, "travel", "extras", "props", "effects", "cards", *SCENES, BOSS, BOSS_STOVE, "combat_effects")
+    ids = (*HEROES, "travel", "extras", "props", "effects", "cards", *SCENES, BOSS, *STANDALONE_PROPS, "combat_effects")
     parser.add_argument("ids", nargs="*", metavar="ASSET_ID")
     args = parser.parse_args()
     unknown = set(args.ids) - set(ids)
     if unknown:
         parser.error(f"unknown asset IDs: {sorted(unknown)}")
-    default_ids = tuple(asset_id for asset_id in ids if asset_id not in (BOSS, BOSS_STOVE, "combat_effects")
+    default_ids = tuple(asset_id for asset_id in ids if asset_id not in (BOSS, *STANDALONE_PROPS, "combat_effects")
                         or (args.sources / f"{asset_id}.png").is_file())
     export_art(args.sources, args.assets, args.ids or default_ids)
 

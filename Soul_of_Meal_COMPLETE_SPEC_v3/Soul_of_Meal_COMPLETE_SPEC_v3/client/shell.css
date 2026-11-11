@@ -351,6 +351,9 @@ body { height: 100%; min-height: 0; overflow: hidden; background: var(--night); 
 .story-actions .button, .story-heading .button { min-height: 44px; }
 
 .telegraph progress { display: block; width: 100%; height: 9px; margin-top: 5px; accent-color: #bf4e28; }
+.ward-controls { margin-top: 8px; padding: 8px; border-radius: 7px; color: #3d2d55; background: #efe6f5; }
+.ward-controls p { margin: 0 0 6px; font-size: 12px; }
+.ward-controls button { min-height: 40px; width: 100%; }
 
 .tcg-unit-avatar { display: block; }
 button.tcg-unit { cursor: pointer; color: var(--ink); font: inherit; font-size: 10px; }
