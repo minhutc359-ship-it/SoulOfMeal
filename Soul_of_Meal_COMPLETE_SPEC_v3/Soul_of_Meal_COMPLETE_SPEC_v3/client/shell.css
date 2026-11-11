@@ -320,7 +320,7 @@ body { height: 100%; min-height: 0; overflow: hidden; background: var(--night); 
 .journal-clues dl { margin: 0; }
 .journal-clues dt { margin-top: 8px; font-weight: 750; }
 .journal-clues dd { margin: 3px 0 0; line-height: 1.45; }
-.story-dialog {
+.story-dialog, .game-info-dialog {
   width: min(560px, calc(100vw - 28px));
   max-height: calc(100dvh - 32px);
   padding: clamp(13px, 3vw, 24px);
@@ -330,7 +330,7 @@ body { height: 100%; min-height: 0; overflow: hidden; background: var(--night); 
   background: #fff6e1;
   box-shadow: 0 15px 40px #061210b8;
 }
-.story-dialog::backdrop { background: #091b17bc; }
+.story-dialog::backdrop, .game-info-dialog::backdrop { background: #091b17bc; }
 .story-heading, .story-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .story-heading small, .story-actions span { color: var(--forest-2); font-weight: 700; }
 .story-heading h2 { margin: 3px 0 0; font-size: clamp(18px, 4vw, 25px); }
@@ -349,6 +349,70 @@ body { height: 100%; min-height: 0; overflow: hidden; background: var(--night); 
 .story-line strong { color: #843f24; }
 .story-line p { margin: 6px 0 0; line-height: 1.5; }
 .story-actions .button, .story-heading .button { min-height: 44px; }
+
+.party-avatar { width: 34px; height: 34px; padding: 0; overflow: hidden; border: 1px solid #ba925c; border-radius: 8px; background: #f9e9c5; cursor: pointer; }
+.party-avatar img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.spirit-profile {
+  width: min(100%, 930px);
+  display: grid;
+  grid-template-columns: minmax(160px, .85fr) minmax(0, 1.3fr);
+  gap: clamp(9px, 2vw, 20px);
+  background: linear-gradient(145deg, #fff8e5, #f2deb9);
+}
+.spirit-portrait {
+  position: relative;
+  align-self: start;
+  min-height: 210px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 2px solid #b77942;
+  border-radius: 12px;
+  background: radial-gradient(ellipse at 50% 35%, #fff2c8, var(--unit-color));
+}
+.spirit-portrait img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.spirit-portrait-label { position: absolute; inset: auto 0 0; padding: 21px 11px 9px; background: linear-gradient(transparent, #382419e8 54%); color: #fff3d4; }
+.spirit-portrait-label span { font-size: 12px; }
+.spirit-portrait-label h2 { color: inherit; font-size: clamp(17px, 2.8vw, 26px); margin: 2px 0 0; }
+.spirit-detail { min-width: 0; }
+.spirit-tabs, .spirit-picker { display: flex; gap: 5px; }
+.spirit-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.spirit-tabs .button { padding: 8px 3px; min-height: 38px; font-size: clamp(11px, 1.4vw, 14px); }
+.spirit-tabs [aria-pressed="true"], .spirit-choice[aria-pressed="true"] { border-color: #a56b36; background: #ffe3a1; }
+.spirit-tab-body { margin-top: 10px; padding: clamp(8px, 2vw, 16px); border: 1px solid #ceb083; border-radius: 9px; background: #fff8e6; }
+.spirit-tab-body h3, .spirit-skill p { margin: 0 0 6px; }
+.spirit-rank { display: flex; align-items: center; gap: 12px; }
+.spirit-tab-body progress { width: min(50%, 180px); accent-color: #aa6d37; }
+.spirit-stats { margin: 8px 0 12px; }
+.spirit-stats div { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid #e6d4b8; }
+.spirit-stats dd { margin: 0; }
+.spirit-stats small { color: #326346; }
+.spirit-skill { display: grid; grid-template-columns: 66px minmax(0, 1fr); align-items: center; gap: 12px; }
+.spirit-skill img { width: 66px; height: 66px; object-fit: contain; border-radius: 8px; background: #372337; }
+.spirit-gear-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.spirit-gear-item { display: grid; grid-template-columns: 27px minmax(0, 1fr); align-items: center; gap: 5px; border: 1px solid #e6d4b8; border-radius: 7px; padding: 6px; }
+.spirit-gear-item > span { display: grid; place-items: center; aspect-ratio: 1; color: #fff4d0; background: #593d61; border-radius: 5px; }
+.spirit-gear-item strong, .spirit-gear-item small { display: block; }
+.spirit-gear-item strong { font-size: 12px; }
+.spirit-gear-item small { font-size: 11px; }
+.spirit-gear-item .button { grid-column: 1 / -1; padding: 5px 4px; font-size: 11px; }
+.spirit-picker { grid-column: 1 / -1; justify-content: center; }
+.spirit-choice { min-width: 0; flex: 1 1 0; max-width: 130px; padding: 4px; color: #4c3826; background: #fcf0d2; border: 1px solid #c6a477; border-radius: 7px; cursor: pointer; font: inherit; font-size: 11px; }
+.spirit-choice img { display: block; width: min(100%, 42px); aspect-ratio: 1; margin: 0 auto 3px; border-radius: 5px; object-fit: cover; }
+.inspect-tcg { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 14px; align-items: center; margin-top: 12px; }
+.inspect-tcg img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; }
+.inspect-tcg p { margin: 6px 0 0; line-height: 1.45; }
+.tcg-graveyard, .chess-scout-roster { list-style: none; padding: 0; }
+.tcg-graveyard li, .chess-scout-roster li { padding: 8px 0; border-bottom: 1px solid #e6d4b8; }
+.tcg-graveyard small { display: block; margin-top: 3px; }
+.chess-scout-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.chess-scout-cell { display: grid; justify-items: center; align-content: center; min-height: 35px; padding: 2px; border: 1px solid #b6a0b0; border-radius: 5px; background: #eee2ed; font-size: 10px; }
+.chess-scout-cell .chess-portrait { width: min(100%, 34px); height: auto; aspect-ratio: 1; }
+.chess-scout-roster li { display: flex; justify-content: space-between; gap: 6px; font-size: 12px; }
+@media (max-width: 570px) and (orientation: portrait) {
+  .spirit-profile { grid-template-columns: minmax(0, 1fr); }
+  .spirit-portrait { width: min(100%, 250px); justify-self: center; min-height: 0; }
+  .spirit-picker { grid-row: 2; }
+}
 
 .telegraph progress { display: block; width: 100%; height: 9px; margin-top: 5px; accent-color: #bf4e28; }
 .ward-controls { margin-top: 8px; padding: 8px; border-radius: 7px; color: #3d2d55; background: #efe6f5; }

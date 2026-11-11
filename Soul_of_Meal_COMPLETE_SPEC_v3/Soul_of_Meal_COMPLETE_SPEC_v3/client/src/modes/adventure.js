@@ -1,12 +1,12 @@
 import { gameEvents } from '../core/events.js';
 import { moveWithCollision } from './adventureNavigation.js';
 import { getAdventureMap } from './mapCatalog.js';
-import { adventureBalance as balance, adventureEncounters } from './adventureBalance.js';
+import { adventureBalance as balance, adventureEncounters, ADVENTURE_TICK_RATE } from './adventureBalance.js';
 import { FOREST_CLUES, FOREST_CLUE_IDS, FOREST_LANTERNS } from './adventureStory.js';
+import { adventureSpiritStats, spiritProfile } from './spiritProgress.js';
 
 export const WORLD = { width: 960, height: 540 };
 const PLAYER_SPEED = 190;
-const TICK_RATE = 30;
 
 const FOREST_QUEST_REWARD = { gold: 110, experience: 100 };
 
@@ -207,7 +207,7 @@ export function beginBattle(state, save, encounter = 'forest') {
     tick: 0,
     wave: 0,
     actors: [
-      ...save.roster.map((actor, index) => spawnActor(actor, 'player', index)),
+      ...save.roster.map((actor, index) => spawnActor(adventureSpiritStats(actor, spiritProfile(save, actor.id)), 'player', index)),
       ...adventureEncounters[encounter].waves[0].map((enemy, index) => spawnActor(enemy, 'enemy', index)),
     ],
     bossPhase: 1,
@@ -280,7 +280,7 @@ export function stepAdventure(state, save, deltaSeconds, maps) {
   if (state.battle) {
     if (state.battle.paused || state.battle.phase !== 'battle_running') return;
     state.battle.accumulator = (state.battle.accumulator ?? 0) + Math.min(deltaSeconds, 0.25);
-    const tickDuration = 1 / TICK_RATE;
+    const tickDuration = 1 / ADVENTURE_TICK_RATE;
     while (state.battle.accumulator >= tickDuration && state.battle.phase === 'battle_running') {
       state.battle.accumulator -= tickDuration;
       stepBattle(state);
@@ -369,7 +369,7 @@ function stepActor(battle, actor) {
   actor.direction = dx < 0 ? 'W' : 'E';
   if (distance > profile.range) {
     if (actor.stationary) return;
-    const speed = balance.approachSpeed * (actor.slowUntil > battle.tick ? .55 : 1);
+    const speed = (actor.speed ?? balance.approachSpeed) * (actor.slowUntil > battle.tick ? .55 : 1);
     const step = Math.min(speed, distance - profile.range);
     actor.x += dx * step / distance;
     actor.y += dy * step / distance;
@@ -555,7 +555,7 @@ export function claimBattleResult(state, save) {
     updated.completedBattles += 1;
     updated.roster = updated.roster.map(member => {
       const actor = battle.actors.find(item => item.actor_id === member.id);
-      return { ...member, hp: Math.max(1, actor.hp), energy: 0 };
+      return { ...member, hp: Math.max(1, Math.round(actor.hp * member.maxHp / actor.maxHp)), energy: 0 };
     });
     if (seal) updated.adventure.chapterTwo.stage = 'ready_to_claim';
     else {
@@ -568,6 +568,14 @@ export function claimBattleResult(state, save) {
   state.lastMessage = seal ? 'Ấn Bát Rỗng đã vỡ. Hãy mang mảnh men về cho Lilia.'
     : 'Rừng đã yên tĩnh. Hãy trở về làng để báo tin cho Lilia.';
   return updated;
+}
+
+export function leaveAdventureDefeat(state) {
+  if (state.battle?.phase !== 'battle_end' || state.battle.result !== 'defeat') return false;
+  state.battle = null;
+  state.result = null;
+  state.lastMessage = 'Đội đã rút lui. Hãy chuẩn bị Vị Linh rồi quay lại điểm giao tranh.';
+  return true;
 }
 
 function battleContext(battle, sourceId, targetId) {

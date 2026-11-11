@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { createAdventureState, interactAdventure, nearestInteraction, beginBattle, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, activateUltimate, activateLanternWard, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
-import { advanceChessRound, buyChessOffer, createChessRun, placeChessUnit, startChessCombat, chessTraits } from '../src/modes/autoChess.js';
-import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard, mulliganTcg } from '../src/modes/tcg.js';
+import { createAdventureState, interactAdventure, nearestInteraction, beginBattle, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, leaveAdventureDefeat, activateUltimate, activateLanternWard, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
+import { advanceChessRound, benchChessUnit, buyChessOffer, createChessRun, nextChessOpponent, placeChessUnit, startChessCombat, chessTraits } from '../src/modes/autoChess.js';
+import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard, mulliganTcg, surrenderTcg } from '../src/modes/tcg.js';
 import { createDefaultSave, migrateSave, SAVE_VERSION } from '../src/core/save.js';
 import { adventureJournal } from '../src/modes/adventureJournal.js';
 import { FOREST_CLUE_IDS } from '../src/modes/adventureStory.js';
+import { adventureSpiritStats, changeSpiritProgress, spiritProfile } from '../src/modes/spiritProgress.js';
 import { createAdventureMapRegistry, getAdventureMap } from '../src/modes/mapCatalog.js';
 import { gameEvents } from '../src/core/events.js';
 import { collidesWithWorld, findAdventurePath, moveWithCollision } from '../src/modes/adventureNavigation.js';
@@ -21,6 +22,74 @@ test('save migration preserves version-one progress and normalizes coordinates',
   assert.equal(migrated.adventure.x, 240);
   assert.equal(migrated.adventure.y, 270);
   assert.equal(migrated.adventure.chestOpened, true);
+});
+
+test('Adventure spirit rank, gear and bond survive save migration and affect only their intended stats', () => {
+  let save = createDefaultSave();
+  const [hero, ally] = save.roster;
+  const action = (type, id = hero.id, gearId) => { save = changeSpiritProgress(save, { type, id, gearId }); };
+  assert.equal(spiritProfile(save, hero.id).rank, 1);
+  assert.throws(() => changeSpiritProgress(save, { type: 'rank', id: hero.id }, true), /kết thúc trận/);
+  action('rank');
+  assert.equal(save.player.gold, 60);
+  assert.equal(save.player.essence, 21);
+  assert.throws(() => action('rank'), /Không đủ/);
+  save.player.gold += 200;
+  action('craft', hero.id, 'spice_blade');
+  assert.throws(() => action('craft', hero.id, 'spice_blade'), /không thể chế tác/);
+  action('equip', hero.id, 'spice_blade');
+  assert.throws(() => action('equip', ally.id, 'spice_blade'), /Hãy tháo/);
+  action('unequip', hero.id, 'spice_blade');
+  action('equip', ally.id, 'spice_blade');
+  action('gift');
+  action('gift');
+  save = migrateSave(JSON.parse(JSON.stringify(save)));
+  assert.deepEqual(spiritProfile(save, hero.id), { rank: 2, bond: 2, equipped: [] });
+  assert.deepEqual(spiritProfile(save, ally.id).equipped, ['spice_blade']);
+  const trained = adventureSpiritStats(save.roster[0], spiritProfile(save, hero.id));
+  assert.deepEqual([trained.maxHp, trained.atk, trained.def], [3240, 342, 105]);
+  assert.equal(adventureSpiritStats(save.roster[1], spiritProfile(save, ally.id)).atk, 418);
+  assert.deepEqual(save.roster, [hero, ally, ...createDefaultSave().roster.slice(2)]);
+  assert.deepEqual(save.modes, { tcg: null, chess: null });
+
+  save.adventure.spirits.profiles[hero.id].equipped = ['spice_blade', 'unknown'];
+  const repaired = migrateSave(save);
+  assert.deepEqual(spiritProfile(repaired, hero.id).equipped, ['spice_blade']);
+  assert.deepEqual(spiritProfile(repaired, ally.id).equipped, []);
+});
+
+test('Adventure battle uses ranked and equipped stats and normalizes remaining HP back to the saved roster', () => {
+  const initial = createDefaultSave();
+  initial.player.gold = 200;
+  const id = initial.roster[0].id;
+  initial.roster[0].hp = 1500;
+  let save = changeSpiritProgress(initial, { type: 'rank', id });
+  save = changeSpiritProgress(save, { type: 'craft', id, gearId: 'village_recipe' });
+  save = changeSpiritProgress(save, { type: 'equip', id, gearId: 'village_recipe' });
+  const state = createAdventureState(save);
+  beginBattle(state, save);
+  const hero = state.battle.actors.find(actor => actor.id === id);
+  assert.deepEqual([hero.hp, hero.maxHp, hero.atk], [1740, 3480, 342]);
+  hero.hp = 870;
+  Object.assign(state.battle, { phase: 'battle_end', result: 'victory' });
+  save = claimBattleResult(state, save);
+  assert.deepEqual([save.roster[0].hp, save.roster[0].maxHp, save.roster[0].atk], [750, 3000, 320]);
+  beginBattle(state, save);
+  assert.equal(state.battle.actors.find(actor => actor.id === id).hp, 870);
+});
+
+test('Adventure defeat allows preparing the party again without granting encounter rewards', () => {
+  const save = createDefaultSave();
+  const state = createAdventureState(save);
+  beginBattle(state, save);
+  assert.equal(leaveAdventureDefeat(state), false);
+  for (const actor of state.battle.actors) if (actor.team === 'player') actor.alive = false;
+  stepAdventure(state, save, 1 / 30);
+  assert.equal(state.battle.result, 'defeat');
+  assert.equal(leaveAdventureDefeat(state), true);
+  assert.equal(state.battle, null);
+  assert.equal(save.player.gold, 120);
+  assert.deepEqual(save.adventure.rewardClaims, []);
 });
 
 test('Adventure restores clue IDs without resetting completed chapters or changing rewards', () => {
@@ -467,6 +536,24 @@ test('TCG starts with a valid 36-card deck and passes priority into combat', asy
   assert.equal(returnedToPlayer.round, 2);
 });
 
+test('TCG surrender resolves a pending match once and preserves already spent cards', async () => {
+  const catalog = await readJson('examples/cards/cards.catalog.json');
+  const deck = await readJson('examples/cards/starter_deck.json');
+  const match = createTcgMatch(catalog, deck);
+  const card = match.players[1].hand.pop();
+  match.stack.push({ card, owner: 1, kind: 'spell' });
+  match.pendingAttack = { playerIndex: 1 };
+  const result = surrenderTcg(match, 0);
+  assert.equal(result.winner, 1);
+  assert.equal(result.result, 'surrender');
+  assert.equal(result.phase, 'result');
+  assert.deepEqual(result.stack, []);
+  assert.equal(result.pendingAttack, null);
+  assert.deepEqual(result.players[1].graveyard, [card]);
+  assert.equal(match.result, null);
+  assert.throws(() => surrenderTcg(result, 0), /đã kết thúc/);
+});
+
 test('TCG mulligan replaces selected cards once and preserves the deck size', async () => {
   const catalog = await readJson('examples/cards/cards.catalog.json');
   const deck = await readJson('examples/cards/starter_deck.json');
@@ -584,6 +671,30 @@ test('Auto Chess run reaches a terminal result at the round cap', async () => {
   }
   assert.equal(run.phase, 'finished');
   assert.ok(['victory', 'complete'].includes(run.result));
+});
+
+test('Auto Chess benches a deployed unit without selling it and scouts the same living opponent used in combat', async () => {
+  const unitsData = await readJson('examples/auto_chess/units.json');
+  const shop = await readJson('examples/auto_chess/shop_odds.json');
+  let run = createChessRun(unitsData.units, shop);
+  run = buyChessOffer(run, 0);
+  run = placeChessUnit(run, 0, 2, 3);
+  const gold = run.gold;
+  const id = run.board[0].id;
+  run = benchChessUnit(run, 0);
+  assert.equal(run.board.length, 0);
+  assert.equal(run.bench[0].id, id);
+  assert.equal(run.bench[0].x, undefined);
+  assert.equal(run.gold, gold);
+  run = placeChessUnit(run, 0, 4, 0);
+  run.opponents[0].hp = 0;
+  const forecast = nextChessOpponent(run);
+  assert.equal(forecast.id, run.opponents[1].id);
+  const result = startChessCombat(run);
+  assert.equal(result.result.opponentId, forecast.id);
+  assert.deepEqual(result.combat.startActors.filter(actor => actor.team === 'enemy').map(({ id, x, y }) => [id, x, y]),
+    forecast.units.map(unit => [unit.id, unit.x, unit.y + 4]));
+  assert.throws(() => benchChessUnit(result, 0), /chuẩn bị/);
 });
 test('Auto Chess applies synergy to unique allies and records an ordered replay', async () => {
   const { units } = await readJson('examples/auto_chess/units.json');

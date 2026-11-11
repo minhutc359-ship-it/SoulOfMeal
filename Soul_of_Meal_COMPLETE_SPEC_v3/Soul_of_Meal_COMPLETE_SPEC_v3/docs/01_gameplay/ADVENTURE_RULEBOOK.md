@@ -61,6 +61,8 @@ World P0: village 64×48 tiles, chunk 16×16, tile 64 world units (all PROPOSED)
 
 **Chương 2 trong bản chơi thử:** Bí Mật Rừng Nguyên Liệu. Lilia mở chương sau khi người chơi nhận thưởng nhiệm vụ Chương 1. Người chơi thắp đèn Mộc rồi đèn Quang để mở đàn đá. Ấn Bát Rỗng đứng yên, bắn đạn Bóng Tối và đánh dấu mục tiêu cố định khi bắt đầu tụ sương. Ở ngưỡng 65% và 42% HP, boss báo trước đòn vào hai mục tiêu xa nhất và cả đội tương ứng. Người chơi có một lượt dùng Đèn Giữ Vị trong cửa sổ báo trước để giảm 60% hệ số sát thương của lần tụ sương đó. Tất cả số liệu là cân bằng thử nghiệm. `save.adventure.chapterTwo` lưu mốc nhiệm vụ và số đèn đã thắp, mặc định chưa bắt đầu trên bản lưu v2 cũ. Nhận thưởng đàn đá ghi ID `forest_empty_bowl_reward` trước khi mở cảnh kết tại làng.
 
+**Hồ sơ và tiến triển thử nghiệm:** Vị Linh có cấp 1–5, bốn ô trang bị và mức quan hệ riêng. Nâng cấp và chế tác tiêu hao vàng/tinh hoa. Quà dùng tinh hoa và mở ký ức ở mức Tin cậy. `save.adventure.spirits` lưu cấp, quan hệ, kho và chủ trang bị theo ID. Bản lưu v2 cũ bắt đầu với cấp 1 và kho trống. Trận Adventure tính chỉ số hiệu lực từ chỉ số gốc khi vào trận và lưu lại tỷ lệ HP sau trận. TCG và Auto Chess dùng bảng chỉ số theo chế độ.
+
 ## 9. Battle event protocol
 `battle_started, actor_spawned, move_started, target_changed, cast_started, projectile_spawned, hit_resolved, shield_changed, status_applied, actor_died, boss_phase_changed, wave_completed, battle_finished, reward_claimed`. All include `{battle_id, tick, seq, source_id, target_id?, payload, rules_version}`. Deduplicate by battle_id+seq; render may arrive late but must not change rules. Replay from seed+commands+version; save snapshots per wave.
 

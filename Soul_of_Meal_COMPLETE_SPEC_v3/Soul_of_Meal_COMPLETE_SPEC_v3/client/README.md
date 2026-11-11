@@ -37,12 +37,24 @@ Khi chạy với [máy chủ ASP.NET Core và PostgreSQL](../server/README.md), 
 - Ấn Bát Rỗng báo trước **Sương Rút Vị** và **Triều Sương**. Khi boss tụ sương, dùng nút **Đèn Giữ Vị** hoặc phím **F** để giảm 60% sát thương của một đợt. Có một lượt dùng mỗi trận.
 - Nhận thưởng sau trận và đem mảnh men về gặp Lilia để xem cảnh kết Chương 2. Nhật ký cho xem lại đối thoại đã mở của cả hai chương.
 
+## Hồ sơ Vị Linh
+
+Chạm chân dung trong Adventure hoặc mở **Vị Linh** ở thanh điều hướng. **Thông tin** hiển thị HP, ATK, DEF, tốc độ và mức tăng trước khi nâng cấp. **Kỹ năng** hiển thị tuyệt kỹ, năng lượng và thời gian hồi. **Trang bị** có bốn món để chế tác, đeo hoặc tháo về kho. Mỗi món chỉ có một bản, có thể chuyển giữa các Vị Linh. **Quan hệ** dùng tinh hoa để tặng quà và mở ký ức khi đạt mức Tin cậy.
+
+Cấp 1–5, công thức và giá là cân bằng thử nghiệm. Nâng cấp và trang bị ảnh hưởng các trận Adventure bắt đầu sau thay đổi. Khi thua, chọn **Chuẩn bị đội hình** để chỉnh Vị Linh rồi quay lại điểm giao tranh. TCG và Auto Chess dùng bảng chỉ số riêng. Tiến trình được lưu trong cùng bản luyện tập.
+
 ## Giao tranh TCG
 
 - Sau khi kết thúc giai đoạn triển khai, chạm các Vị Linh đang sẵn sàng để chọn nhóm tấn công. Các Vị Linh sẵn sàng được chọn mặc định.
 - Khi bot tuyên bố tấn công, chọn một quân chặn cho từng đường muốn bảo vệ rồi chọn **Chốt phòng thủ**. Một Vị Linh chỉ chặn một đường. Chỉ số sát thương dự kiến cập nhật ngay khi đổi lựa chọn.
 - Sau khi chọn quân chặn, dùng tốc chú nếu cửa sổ phản ứng mở. Nếu quân chặn rời sân trước khi giao tranh được xử lý, đòn của đường đó đi thẳng vào chủ soái.
 - Tiến trình đang chờ chọn quân chặn được giữ khi rời trận hoặc tải lại. Lựa chọn chưa chốt chỉ dùng để xem trước.
+- Chọn **Chi tiết** trên tay bài hoặc tên thẻ trong trình sửa bộ bài để xem điều kiện dùng và hiệu ứng. **Mộ bài** cho xem các lá của bạn đã rời ván. Nút **Đầu hàng** kết thúc ván và ghi kết quả vào nhật ký.
+
+## Chuẩn bị Auto Chess
+
+- Dùng **Do thám** để xem đúng đối thủ kế tiếp, nửa bàn và vị trí quân của họ. Số lãi dự kiến cập nhật theo vàng hiện có.
+- Chọn một quân trên bàn rồi bấm **Rút về ghế** để giữ quân và số sao. Ghế có chỗ thì có thể triển khai lại ở vị trí khác trước khi khóa đội hình.
 
 ## Cài nhạc theo cảnh
 

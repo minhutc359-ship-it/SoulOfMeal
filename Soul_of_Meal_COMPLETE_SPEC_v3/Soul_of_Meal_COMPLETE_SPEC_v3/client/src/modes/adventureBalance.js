@@ -1,4 +1,5 @@
 // Browser playtest values. Combat advances at 30 ticks/s.
+export const ADVENTURE_TICK_RATE = 30;
 export const adventureBalance = {
   openingEnergy: 72,
   basicEnergy: 12,

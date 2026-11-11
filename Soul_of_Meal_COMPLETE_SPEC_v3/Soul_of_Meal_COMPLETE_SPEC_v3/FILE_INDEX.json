@@ -284,8 +284,8 @@
     },
     {
       "path": "docs/01_gameplay/ADVENTURE_RULEBOOK.md",
-      "bytes": 8208,
-      "sha256": "c872cc5c6d96781b291b9bb981276c9186d06316008af23704b60fb33017a238"
+      "bytes": 8774,
+      "sha256": "86168b957b24bb837159e006090c8688ad154beaece75888c0024cc952ab8434"
     },
     {
       "path": "docs/01_gameplay/AUTO_CHESS_RULEBOOK.md",
@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 8535,
-      "sha256": "201eca84603ebbbd52c667150495d623427022973393fb04e063e8d1f237330c"
+      "bytes": 10114,
+      "sha256": "31fd29e74d3bca4f1c92e140735c93865cbb05fce64ecb27cf65c7485b70087a"
     },
     {
       "path": "client/index.html",
@@ -789,38 +789,38 @@
     },
     {
       "path": "client/src/core/save.js",
-      "bytes": 2980,
-      "sha256": "c538e58492c7c9022ad4e342a425ef367477c5c36b41c711d8b1d1c421454f35"
+      "bytes": 3256,
+      "sha256": "86dd4559ddb95d7e4a24f08f5cb54662d243497281b71ab3c22bca0e7f9d6071"
     },
     {
       "path": "client/src/main.js",
-      "bytes": 78933,
-      "sha256": "533800325658f12c499d45d1a126156ce9ccdc53f9116b4cd6637bdc7509819d"
+      "bytes": 91806,
+      "sha256": "e36b19e1614ebbac2875a103266c669fa011c0a7b3d6614ab91b33680fa78749"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 28675,
-      "sha256": "3b49bb4c2739dbccda1b26b2b99cc9aeac471b2d58ccd379ea7a5c49c9343c25"
+      "bytes": 29186,
+      "sha256": "34d81b2c6c1698f983e540433eef3a3b406933006de6fbbf8c78569faa1cb4f0"
     },
     {
       "path": "client/src/modes/autoChess.js",
-      "bytes": 13996,
-      "sha256": "677a723d01102a042710a4bc59f48b3a3f8283c5db8ec8a1f75e41838b2838e2"
+      "bytes": 14891,
+      "sha256": "562c4a7a1d3a10830e5726151c32e4e16301a5190cd2955f6069b510973bc1cc"
     },
     {
       "path": "client/src/modes/tcg.js",
-      "bytes": 22267,
-      "sha256": "b88eded8d9015c2614fd0a54656112384a8f645eb2bcbdf7442e38d0c4a34541"
+      "bytes": 23043,
+      "sha256": "dc2d435d033ab16450ce5139d8c0bc4686495ebe40109c3e57b48339bbdb0560"
     },
     {
       "path": "client/styles.css",
-      "bytes": 19827,
-      "sha256": "f45fb2b3e1382deecd32a902bb52a2e62ebe0a8c770af920b881bc9393ce05b2"
+      "bytes": 19460,
+      "sha256": "4de8fa61a9a1928104645f65558d97a0aac21188d033516c3eb49f1ef5a4119b"
     },
     {
       "path": "client/tests/runtime.test.js",
-      "bytes": 29772,
-      "sha256": "96ffc4aba07e852967b54456ff0f2aab918ba26b6515d41d3fc81e70c3913fc5"
+      "bytes": 35496,
+      "sha256": "0bdd6371d86a02a9b652fecb66e11c49a7cac08d3b891c58ed1ebdbc51a424f6"
     },
     {
       "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
@@ -1479,8 +1479,8 @@
     },
     {
       "path": "client/src/modes/adventureBalance.js",
-      "bytes": 3470,
-      "sha256": "e1dde96a15516946a7d87bf1c3cf65c61e925a09dbce2e1f05b9e8b48c9cc062"
+      "bytes": 3509,
+      "sha256": "9a149a3005b54fdaee050cd2f3d85a3b579e912d773af6cd1bfb19847e14aa10"
     },
     {
       "path": "client/src/render/battleEffects.js",
@@ -2209,8 +2209,8 @@
     },
     {
       "path": "docs/04_qa/PLAYTEST_CONCEPT_GAP.md",
-      "bytes": 4563,
-      "sha256": "f4515f932ba1280b8c936ac38ea3bb3a3d6349520a2474c025361ecbdc7c8bbb"
+      "bytes": 4730,
+      "sha256": "77fea3f0416b3eb6667113026cbdf5af3cf5ba26c2e323479ed13190d51db173"
     },
     {
       "path": "client/assets/original/scenes/title.webp",
@@ -2224,8 +2224,8 @@
     },
     {
       "path": "client/shell.css",
-      "bytes": 16685,
-      "sha256": "1cb24d98b2bedf030a567572034085ff8e5c878ad67caef45131e0bf80e9ff8c"
+      "bytes": 21334,
+      "sha256": "b8aeee30c19d4a0c50f015a26cdfb61b88b732295b363403181c1130be10a912"
     },
     {
       "path": "client/src/shell/entry.js",
@@ -2441,6 +2441,11 @@
       "path": "client/assets/original/props/empty_bowl_seal.webp",
       "bytes": 28166,
       "sha256": "f404846bb32b9f4a676b3731d4b508807e1dee6092e57a25a2943b9a1532bcc8"
+    },
+    {
+      "path": "client/src/modes/spiritProgress.js",
+      "bytes": 5923,
+      "sha256": "6d1a69e028c2aff12c0d8c331bf727c8a1b575962db80bb703e659bc43cc0c6e"
     }
   ]
 }

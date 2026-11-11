@@ -52,6 +52,17 @@ export function mulliganTcg(match, selected) {
   return updated;
 }
 
+export function surrenderTcg(match, playerIndex) {
+  assertMatch(match);
+  if (![0, 1].includes(playerIndex)) throw new Error('Chủ soái không hợp lệ.');
+  const updated = structuredClone(match);
+  updated.pendingAttack = null;
+  for (const item of updated.stack) updated.players[item.owner].graveyard.push(item.card);
+  updated.stack = [];
+  finishTcg(updated, 1 - playerIndex, 'surrender');
+  return updated;
+}
+
 export function playTcgCard(match, playerIndex, instanceId, targetId = null) {
   assertMatch(match);
   if (!['action', 'reaction'].includes(match.phase) || match.priority !== playerIndex) throw new Error('Bạn chưa có quyền hành động.');
@@ -424,14 +435,20 @@ function drawCard(match, playerIndex) {
   if (!player.deck.length) { finishTcg(match, 1 - playerIndex); return; }
   const card = player.deck.pop();
   if (player.hand.length < 9) player.hand.push(card);
-  else player.graveyard.push(card);
+  else {
+    player.graveyard.push(card);
+    logEvent(match, 'hand_overflow', playerIndex === 0 ? 'Tay bạn đã đầy. Lá vừa rút chuyển vào mộ bài.' : 'Tay đối thủ đã đầy. Một lá chuyển vào mộ bài.');
+  }
 }
 
-function finishTcg(match, winner) {
+function finishTcg(match, winner, result = 'commander_defeated') {
   match.winner = winner;
-  match.result = 'commander_defeated';
+  match.result = result;
   match.phase = 'result';
-  logEvent(match, 'match_finished', winner === 0 ? 'Bạn thắng trận.' : 'Đối thủ thắng trận.');
+  const text = result === 'surrender'
+    ? winner === 0 ? 'Đối thủ đã đầu hàng.' : 'Bạn đã đầu hàng.'
+    : winner === 0 ? 'Bạn thắng trận.' : 'Đối thủ thắng trận.';
+  logEvent(match, 'match_finished', text);
   gameEvents.emit('battle_finished', { mode: 'tcg', winner: winner === 0 ? 'player' : 'bot' }, {
     battle_id: match.battleId,
     rules_version: 'client-tcg-v1',
