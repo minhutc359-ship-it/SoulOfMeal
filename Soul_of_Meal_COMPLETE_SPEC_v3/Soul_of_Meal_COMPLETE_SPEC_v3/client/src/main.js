@@ -1,5 +1,5 @@
 import { createAdventureState, interactAdventure, nearestInteraction, setAdventureInput, stepAdventure, activateUltimate, beginBattle, bossTelegraphTargets, claimBattleResult, WORLD, resolveCameraViewport } from './modes/adventure.js';
-import { createTcgMatch, playTcgCard, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, mulliganTcg, validateDeck } from './modes/tcg.js';
+import { createTcgMatch, playTcgCard, passTcgPriority, runBotPriority, runTcgBot, attackTcg, assignTcgBlockers, declaredTcgAttackers, endTcgTurn, mulliganTcg, validateDeck } from './modes/tcg.js';
 import { advanceChessRound, buyChessOffer, createChessRun, moveChessUnit, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat, toggleChessLock, buyChessExperience, chessTraits, CHESS_TRAITS } from './modes/autoChess.js';
 import { gameEvents } from './core/events.js';
 import { loadSave, migrateSave, persistSave, SAVE_KEY } from './core/save.js';
@@ -27,7 +27,7 @@ let webStage;
 const accountApi = import.meta.env?.SOM_ACCOUNTS ? createAccountApi() : null;
 const runtime = {
   page: 'title', save: loadSave(), adventure: null, cards: null, deck: null, units: null, maps: null,
-  shopConfig: null, tcg: null, chess: null, selectedTarget: 'commander', selectedBench: null, mulligan: new Set(), deckDraft: null,
+  shopConfig: null, tcg: null, chess: null, selectedTarget: 'commander', tcgAttackers: null, selectedBench: null, mulligan: new Set(), deckDraft: null,
   account: null, cloud: null, cloudStatus: 'saved', cloudError: null,
   selectedBoard: null, notice: '', lastSavedLocation: 0, heldKeys: new Set(), tcgImpacts: new Map(),
 };
@@ -43,8 +43,14 @@ gameEvents.addEventListener('game-event', ({ detail }) => {
   runtime.effects.handle(detail, runtime.adventure.battle);
   if (detail.payload.source_kind !== 'auto_chess_attack') runtime.audio.handle(detail);
   if (detail.type === 'hit_resolved' && detail.rules_version === 'client-tcg-v1') {
-    const { element, target_player, target_lane } = detail.payload;
-    const impact = { element, matchId: detail.battle_id, expires: performance.now() + 550 };
+    const { element, target_player, target_lane, damage } = detail.payload;
+    const prior = runtime.tcgImpacts.get(detail.target_id);
+    const sameAction = prior?.matchId === detail.battle_id && prior?.actionSeq === detail.action_seq;
+    const impact = {
+      element, matchId: detail.battle_id, actionSeq: detail.action_seq,
+      damage: (sameAction ? prior.damage : 0) + damage,
+      expires: performance.now() + 680,
+    };
     runtime.tcgImpacts.set(detail.target_id, impact);
     if (Number.isInteger(target_lane)) runtime.tcgImpacts.set(tcgLaneId(target_player, target_lane), impact);
   }
@@ -125,6 +131,7 @@ function replaceProfile(save) {
   runtime.chess = save.modes.chess;
   runtime.chessReplay = null;
   runtime.selectedTarget = 'commander';
+  runtime.tcgAttackers = null;
   runtime.selectedBoard = null;
   runtime.selectedBench = null;
   runtime.mulligan.clear();
@@ -721,7 +728,7 @@ function placeholderPose(animation) {
 
 const CARD_TYPES = { unit: 'Vị Linh', trap: 'Bẫy', fast_spell: 'Tốc chú', slow_spell: 'Chậm chú', burst_spell: 'Tức chú' };
 const ELEMENT_NAMES = { fire: 'Hỏa', water: 'Thủy', wood: 'Mộc', light: 'Quang', shadow: 'Ảnh' };
-const TCG_PHASES = { action: 'Triển khai', reaction: 'Phản ứng', combat: 'Tấn công', round_end: 'Kết thúc lượt' };
+const TCG_PHASES = { action: 'Triển khai', reaction: 'Phản ứng', combat: 'Tấn công', block_assign: 'Chọn quân chặn', round_end: 'Kết thúc lượt' };
 
 function playerDeck() {
   try {
@@ -735,6 +742,7 @@ function playerDeck() {
 function startTcg(seed) {
   runtime.mulligan.clear();
   runtime.selectedTarget = 'commander';
+  runtime.tcgAttackers = null;
   return createTcgMatch(runtime.cards, playerDeck(), seed, runtime.deck);
 }
 
@@ -749,9 +757,9 @@ function tcgLaneId(player, lane) { return `lane:p${player}:${lane}`; }
 
 function tcgImpact(id) {
   const impact = runtime.tcgImpacts.get(id);
-  if (runtime.save.settings.reducedMotion || !impact || impact.matchId !== runtime.tcg.battleId
-    || impact.expires <= performance.now()) return '';
-  return `<img class="tcg-impact" src="${effectArt(impact.element, 'impact')}" alt="">`;
+  if (!impact || impact.matchId !== runtime.tcg.battleId || impact.expires <= performance.now()) return '';
+  const visual = runtime.save.settings.reducedMotion ? '' : `<img class="tcg-impact" src="${effectArt(impact.element, 'impact')}" alt="">`;
+  return `${visual}<span class="tcg-damage ${runtime.save.settings.reducedMotion ? 'static' : ''}" aria-hidden="true">−${impact.damage}</span>`;
 }
 
 function renderTcg() {
@@ -775,23 +783,35 @@ function renderTcg() {
   }).join('');
   const phaseLabel = match.result ? match.winner === 0 ? 'Chiến thắng' : match.winner === null ? 'Hòa trận' : 'Thất bại' : TCG_PHASES[match.phase];
   const showCombat = match.phase === 'combat' && match.activePlayer === 0 && !match.result;
+  const defending = match.phase === 'block_assign' && match.priority === 0;
+  const incoming = declaredTcgAttackers(match);
+  const declared = new Set(incoming.map(unit => unit.instance_id));
+  const blocked = new Set(match.pendingAttack?.blocks?.map(block => block.blockerId));
+  if (showCombat) runtime.tcgAttackers ??= new Set(user.units.filter(unit => unit.ready && unit.current_def > 0).map(unit => unit.instance_id));
+  else runtime.tcgAttackers = null;
+  const selected = runtime.tcgAttackers?.size ?? 0;
+  const stackTop = match.stack.at(-1);
   const trapReveal = match.stack.find((item) => item.kind === 'counter' || item.kind === 'attack_counter');
   if (!bot.units.some((unit) => unit.instance_id === runtime.selectedTarget)) runtime.selectedTarget = 'commander';
   shell(`
     ${pageHeader('Đấu với bot', 'Thẻ chiến thuật', '', 'home')}
     <div class="game-layout tactical-layout"><section class="panel tcg-board">
       <div class="duel-top"><div><strong>Chủ soái đối thủ</strong><small>${bot.deck.length} lá trong bộ bài · ${bot.hand.length} lá trên tay · ${bot.traps.length} bẫy úp</small></div><div class="commander-hp enemy-hp">${bot.hp}<small> / 8000 HP</small>${tcgImpact('commander:p1')}</div></div>
-      <div class="unit-row enemy-row">${tcgLanes(bot.units, false)}</div>
-      <div class="stack-strip"><span>Vòng ${match.round} · ${phaseLabel}</span><b>${match.priority === 0 ? 'Ưu tiên: bạn' : 'Ưu tiên: đối thủ'}</b><span>Chờ xử lý: ${match.stack.length}</span></div>
+      <div class="unit-row enemy-row">${tcgLanes(bot.units, false, declared, blocked)}</div>
+      <div class="stack-strip"><span>Vòng ${match.round} · ${phaseLabel}</span><b>${match.activePlayer === 0 ? 'Lượt của bạn' : 'Lượt đối thủ'}</b><span>${match.priority === 0 ? 'Ưu tiên: bạn' : 'Ưu tiên: đối thủ'}</span></div>
+      ${stackTop ? `<p class="tcg-stack-top">Xử lý trước: <strong>${escapeHtml(cardName(stackTop.card))}</strong> · ${match.stack.length} chờ</p>` : ''}
+      ${defending ? tcgDefensePanel(incoming, user.units) : ''}
       ${trapReveal ? `<div class="trap-reveal" role="status"><img src="${escapeAttr(cardArt(trapReveal.card))}" alt="">Bẫy lật mở · ${escapeHtml(cardName(trapReveal.card))}</div>` : ''}
-      <div class="unit-row friendly-row">${tcgLanes(user.units, true)}</div>
+      <div class="unit-row friendly-row">${tcgLanes(user.units, true, declared, blocked)}</div>
       <div class="duel-bottom"><div><strong>Người Kết Vị</strong><small>${user.units.length}/5 Vị Linh · ${user.traps.length}/2 bẫy úp</small></div><div class="commander-hp">${user.hp}<small> / 8000 HP</small>${tcgImpact('commander:p0')}</div></div>
       <div class="hand-heading"><strong>${opening ? 'Chọn các lá muốn đổi' : 'Bài trên tay'}</strong><span>${user.mana}/${user.maxMana} mana</span></div>
       <div class="hand-row">${hand || '<p class="empty-message">Không còn bài trên tay.</p>'}</div>
       ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}
-      ${match.result ? `<div class="result-box ${match.winner === 0 ? 'victory' : 'defeat'}"><strong>${phaseLabel}</strong><button class="button" data-tcg-new>Ván mới</button></div>` : opening ? `<div class="action-row"><button class="button" data-tcg-mulligan>${runtime.mulligan.size ? 'Đổi ' + runtime.mulligan.size + ' lá' : 'Giữ bài và vào trận'}</button></div>` : `
-      <div class="action-row"><label class="target-select">Mục tiêu <select id="tcg-target"><option value="commander">Chủ soái đối thủ</option>${bot.units.map((unit) => `<option value="${escapeAttr(unit.instance_id)}" ${runtime.selectedTarget === unit.instance_id ? 'selected' : ''}>${escapeHtml(cardName(unit))}</option>`).join('')}</select></label>
-      <button class="button" data-tcg-pass ${!canPlay ? 'disabled' : ''}>Bỏ ưu tiên</button><button class="button light" data-tcg-attack ${showCombat ? '' : 'disabled'}>Tấn công</button><button class="button light" data-tcg-skip ${showCombat ? '' : 'disabled'}>Bỏ tấn công</button><button class="button secondary dark-secondary" data-tcg-end ${match.phase === 'round_end' && match.activePlayer === 0 ? '' : 'disabled'}>Kết thúc lượt</button></div>`}
+      ${match.result ? `<div class="result-box ${match.winner === 0 ? 'victory' : 'defeat'}"><strong>${phaseLabel}</strong><button class="button" data-tcg-new>Ván mới</button></div>` : opening ? `<div class="action-row"><button class="button" data-tcg-mulligan>${runtime.mulligan.size ? 'Đổi ' + runtime.mulligan.size + ' lá' : 'Giữ bài và vào trận'}</button></div>` : ''}
+      ${canPlay ? `<div class="action-row"><label class="target-select">Mục tiêu <select id="tcg-target"><option value="commander">Chủ soái đối thủ</option>${bot.units.map(unit => `<option value="${escapeAttr(unit.instance_id)}" ${runtime.selectedTarget === unit.instance_id ? 'selected' : ''}>${escapeHtml(cardName(unit))}</option>`).join('')}</select></label>
+      <button class="button" data-tcg-pass>${match.phase === 'reaction' ? 'Bỏ phản ứng' : 'Bỏ ưu tiên'}</button></div>` : ''}
+      ${showCombat ? `<div class="action-row"><button class="button" data-tcg-attack>${selected ? `Tấn công với ${selected} Vị Linh` : 'Bỏ tấn công'}</button>${selected ? '<button class="button light" data-tcg-skip>Bỏ tấn công</button><span class="key-hint">Chạm Vị Linh để chọn đội tấn công</span>' : ''}</div>` : ''}
+      ${!match.result && match.phase === 'round_end' && match.activePlayer === 0 ? '<div class="action-row"><button class="button" data-tcg-end>Kết thúc lượt</button></div>' : ''}
     </section><aside class="side-stack"><section class="panel"><h2>Bộ bài</h2><p class="muted-copy">Chỉnh 36 lá cho ván kế tiếp.</p><button class="button light" data-page="deck">Sửa bộ bài</button><button class="button light" data-tcg-restart>Ván mới</button></section><section class="panel"><h2>Nhật ký trận</h2>${renderTextLog(match.log)}</section></aside></div>
   `);
   app.querySelector('#tcg-target')?.addEventListener('change', (event) => { runtime.selectedTarget = event.target.value; });
@@ -808,7 +828,14 @@ function renderTcg() {
     runtime.mulligan.clear();
   });
   app.querySelector('[data-tcg-pass]')?.addEventListener('click', () => actTcg(() => passTcgPriority(runtime.tcg, 0)));
-  app.querySelector('[data-tcg-attack]')?.addEventListener('click', () => actTcg(() => attackTcg(runtime.tcg, 0)));
+  app.querySelectorAll('[data-tcg-attacker]').forEach(button => button.addEventListener('click', () => {
+    const id = button.dataset.tcgAttacker;
+    if (!runtime.tcgAttackers.delete(id)) runtime.tcgAttackers.add(id);
+    renderTcg();
+    app.querySelector(`[data-tcg-attacker="${CSS.escape(id)}"]`)?.focus();
+  }));
+  app.querySelector('[data-tcg-attack]')?.addEventListener('click', () => actTcg(() => attackTcg(runtime.tcg, 0, [...runtime.tcgAttackers])));
+  if (defending) bindTcgDefense();
   app.querySelector('[data-tcg-skip]')?.addEventListener('click', () => actTcg(() => attackTcg(runtime.tcg, 0, [])));
   app.querySelector('[data-tcg-end]')?.addEventListener('click', () => actTcg(() => endTcgTurn(runtime.tcg, 0)));
   function restart() {
@@ -834,12 +861,57 @@ function actTcg(action) {
   render();
 }
 
-function tcgLanes(units, friendly) {
+function tcgLanes(units, friendly, declared, blocked) {
   return Array.from({ length: 5 }, (_, lane) => {
     const unit = units.find((candidate) => candidate.lane === lane);
     if (!unit) return `<div class="empty-slot" aria-label="Vị trí trống">·${tcgImpact(tcgLaneId(friendly ? 0 : 1, lane))}</div>`;
-    return `<div class="tcg-unit ${friendly ? 'friendly' : ''}"><div class="tcg-unit-avatar"><img src="${escapeAttr(cardArt(unit))}" alt=""></div><b>${escapeHtml(cardName(unit))}</b><span>${unit.atk} / ${unit.current_def}</span><small>${unit.ready ? 'Sẵn sàng' : 'Nghỉ'}</small>${tcgImpact(unit.instance_id)}</div>`;
+    const selectable = friendly && runtime.tcgAttackers && unit.ready && unit.current_def > 0;
+    const selected = selectable && runtime.tcgAttackers.has(unit.instance_id);
+    const attacking = declared.has(unit.instance_id);
+    const blocking = blocked.has(unit.instance_id);
+    const badge = selected || attacking ? 'Tấn công' : blocking ? 'Chặn' : unit.ready ? 'Sẵn sàng' : 'Nghỉ';
+    const css = `tcg-unit ${friendly ? 'friendly' : ''} ${selected || attacking ? 'tcg-attacking' : ''} ${blocking ? 'tcg-blocking' : ''}`;
+    const content = `<span class="tcg-unit-avatar"><img src="${escapeAttr(cardArt(unit))}" alt=""></span><b>${escapeHtml(cardName(unit))}</b><span>${unit.atk} / ${unit.current_def}</span><small>${badge}</small>${tcgImpact(unit.instance_id)}`;
+    return selectable
+      ? `<button type="button" class="${css}" data-tcg-attacker="${escapeAttr(unit.instance_id)}" aria-pressed="${selected}">${content}</button>`
+      : `<div class="${css}">${content}</div>`;
   }).join('');
+}
+
+function tcgDefensePanel(attackers, defenders) {
+  const units = defenders.filter(unit => unit.current_def > 0);
+  return `<section class="tcg-defense" aria-label="Chọn quân chặn">
+    <div class="tcg-defense-header"><strong>Chọn quân chặn</strong><span data-tcg-exposed role="status"></span></div>
+    <div class="tcg-block-grid">${attackers.map(unit => `<label>
+      <span>Đường ${unit.lane + 1} · ${escapeHtml(cardName(unit))} · ${unit.atk} ATK</span>
+      <select data-tcg-block="${unit.lane}" data-damage="${unit.atk}">
+        <option value="">Không chặn</option>
+        ${units.map(blocker => `<option value="${escapeAttr(blocker.instance_id)}">${escapeHtml(cardName(blocker))} · ${blocker.atk}/${blocker.current_def}</option>`).join('')}
+      </select>
+    </label>`).join('')}</div>
+    <button class="button" data-tcg-confirm-block>Chốt phòng thủ</button>
+  </section>`;
+}
+
+function bindTcgDefense() {
+  const fields = [...app.querySelectorAll('[data-tcg-block]')];
+  const exposed = app.querySelector('[data-tcg-exposed]');
+  function updateBlocks() {
+    const selected = new Set(fields.map(field => field.value).filter(Boolean));
+    let damage = 0;
+    for (const field of fields) {
+      if (!field.value) damage += Number(field.dataset.damage);
+      for (const option of field.options) option.disabled = option.value !== field.value && selected.has(option.value);
+    }
+    exposed.textContent = `Chủ soái dự kiến nhận ${damage} sát thương`;
+  }
+  fields.forEach(field => field.addEventListener('change', updateBlocks));
+  updateBlocks();
+  app.querySelector('[data-tcg-confirm-block]').addEventListener('click', () => {
+    const blocks = fields.filter(field => field.value)
+      .map(field => ({ lane: Number(field.dataset.tcgBlock), blockerId: field.value }));
+    actTcg(() => assignTcgBlockers(runtime.tcg, 0, blocks));
+  });
 }
 
 function renderDeck() {

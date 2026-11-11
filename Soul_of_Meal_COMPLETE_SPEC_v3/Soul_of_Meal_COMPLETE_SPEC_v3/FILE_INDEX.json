@@ -294,8 +294,8 @@
     },
     {
       "path": "docs/01_gameplay/TCG_RULEBOOK.md",
-      "bytes": 6142,
-      "sha256": "2ddc3335cb31b6bd7ff8aa3372f2276703ca590b892e4b90d79471ea2beed52a"
+      "bytes": 6519,
+      "sha256": "7fe74b2c0bcee25d037c72d371c73be5f11c489d66bda3df5b629bddf48c37fb"
     },
     {
       "path": "docs/02_art/LICENSE_AND_PROVENANCE.md",
@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 6156,
-      "sha256": "4a0a487092065ec4d28cc2b338da0662c5e6d5665ed1a5464a5aba6b6075e045"
+      "bytes": 6991,
+      "sha256": "439e59d9d32950392b9577c09567909e4bb3ebb0dc41c5af181b5f062a13e412"
     },
     {
       "path": "client/index.html",
@@ -794,8 +794,8 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 65270,
-      "sha256": "559b3cd1c27745b9ba84dac06e27e7b801ded5ac4f64c0e26206d7df495f1180"
+      "bytes": 69899,
+      "sha256": "82eb9bb801c7c36b3e35d92787b9502bdda894e0f372547b1b281b7ce85325e7"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -809,8 +809,8 @@
     },
     {
       "path": "client/src/modes/tcg.js",
-      "bytes": 19770,
-      "sha256": "a81f0934556605c0a6a9e0b8630d107f3dd9e0f6a167831a39f7c1b80f98bc76"
+      "bytes": 22267,
+      "sha256": "b88eded8d9015c2614fd0a54656112384a8f645eb2bcbdf7442e38d0c4a34541"
     },
     {
       "path": "client/styles.css",
@@ -2209,8 +2209,8 @@
     },
     {
       "path": "docs/04_qa/PLAYTEST_CONCEPT_GAP.md",
-      "bytes": 4349,
-      "sha256": "209ce8dced5c36956058879bb133c2b70cf662c0709d05cdc57d101babf23dab"
+      "bytes": 4396,
+      "sha256": "c98126632390c6af69b4f3946a59cfa473498d1317a1db4edf02724534f54eb5"
     },
     {
       "path": "client/assets/original/scenes/title.webp",
@@ -2224,8 +2224,8 @@
     },
     {
       "path": "client/shell.css",
-      "bytes": 13090,
-      "sha256": "7abacfa384fd590978ec7515163293957c630c6588de5b5098258e95e1ceaac0"
+      "bytes": 15006,
+      "sha256": "077754707dc14dec9278d0ab0ae4183b0a19b4f84ff05e176dd3b469075c1143"
     },
     {
       "path": "client/src/shell/entry.js",
@@ -2416,6 +2416,11 @@
       "path": "examples/characters/boss_bep_truong/identity.json",
       "bytes": 675,
       "sha256": "d8c1d76801ecff98a758eadfa522209681771e12403a8557352b1ab9a092bf50"
+    },
+    {
+      "path": "client/tests/tcgCombat.test.js",
+      "bytes": 6673,
+      "sha256": "2ab2c5a1c014250c7a7fb2a852912a0766d9ce0780b8192994dc26e5530047d9"
     }
   ]
 }

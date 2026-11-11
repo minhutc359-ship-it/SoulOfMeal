@@ -25,6 +25,13 @@ Khi chạy với [máy chủ ASP.NET Core và PostgreSQL](../server/README.md), 
 - **TCG** · Đấu bot với bộ 36 lá, đổi bài mở màn một lần, xây bộ bài trong danh mục 22 lá, triệu hồi Vị Linh, đặt bẫy úp và phản ứng theo lượt ưu tiên. Bộ bài đã lưu dùng khi bắt đầu ván mới.
 - **Auto Chess** · Mua quân, hợp thể ba bản sao, xếp đội hình, nâng cấp cửa hàng và chơi tối đa mười vòng. Hai nhân vật khác nhau cùng hệ Hỏa, Mộc hoặc Quang kích hoạt hiệp lực tương ứng. Phát lại giao tranh dùng vị trí, đòn đánh và HP do mô phỏng ghi lại.
 
+## Giao tranh TCG
+
+- Sau khi kết thúc giai đoạn triển khai, chạm các Vị Linh đang sẵn sàng để chọn nhóm tấn công. Các Vị Linh sẵn sàng được chọn mặc định.
+- Khi bot tuyên bố tấn công, chọn một quân chặn cho từng đường muốn bảo vệ rồi chọn **Chốt phòng thủ**. Một Vị Linh chỉ chặn một đường. Chỉ số sát thương dự kiến cập nhật ngay khi đổi lựa chọn.
+- Sau khi chọn quân chặn, dùng tốc chú nếu cửa sổ phản ứng mở. Nếu quân chặn rời sân trước khi giao tranh được xử lý, đòn của đường đó đi thẳng vào chủ soái.
+- Tiến trình đang chờ chọn quân chặn được giữ khi rời trận hoặc tải lại. Lựa chọn chưa chốt chỉ dùng để xem trước.
+
 ## Cài nhạc theo cảnh
 
 Đặt file trong `client/assets/audio/` hoặc thư mục con như `client/assets/audio/custom/`. Sửa [soundtracks.json](assets/audio/soundtracks.json) và điền tên tương đối, chẳng hạn `"login": "custom/ten-file-login.mp3"`. Dùng MP3 hoặc OGG để có phạm vi tương thích rộng. Sau khi sửa, tải lại game. Nếu dùng bản build Vite, build lại để đưa file mới vào bản phân phối.

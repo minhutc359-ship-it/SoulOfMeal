@@ -93,7 +93,13 @@ export function playTcgCard(match, playerIndex, instanceId, targetId = null) {
   updated.priority = opponentIndex;
   updated.passes = 0;
   updated.eventSeq += 1;
-  gameEvents.emit(played.type === 'unit' ? 'unit_summoned' : 'card_played', { card_id: played.card_id, player_index: playerIndex });
+  if (played.type === 'trap') {
+    gameEvents.emit('trap_set', { player_index: playerIndex });
+  } else {
+    gameEvents.emit(played.type === 'unit' ? 'unit_summoned' : 'card_played', {
+      card_id: played.card_id, player_index: playerIndex,
+    });
+  }
   return updated;
 }
 
@@ -128,25 +134,91 @@ export function attackTcg(match, playerIndex, attackers = null) {
   const updated = structuredClone(match);
   const player = updated.players[playerIndex];
   if (player.attackUsedRound === updated.round) throw new Error('Lượt này đã tấn công.');
-  const chosen = attackers ?? player.units.filter((unit) => unit.ready).map((unit) => unit.instance_id);
-  const active = player.units.filter((unit) => chosen.includes(unit.instance_id) && unit.ready);
+  const ready = player.units.filter(unit => unit.ready && unit.current_def > 0);
+  const chosen = attackers ?? ready.map(unit => unit.instance_id);
+  const active = ready.filter(unit => chosen.includes(unit.instance_id));
+  if (active.length !== chosen.length) throw new Error('Đội hình tấn công có đơn vị không hợp lệ.');
   player.attackUsedRound = updated.round;
-  active.forEach((unit) => { unit.ready = false; });
-  const traps = updated.players[1 - playerIndex].traps;
-  const armedTrapIndex = traps.findIndex((trap) => trap.faceDown && trap.setRound < updated.round && trap.card.trigger?.when === 'attack_declared');
-  if (armedTrapIndex >= 0 && active.length >= (traps[armedTrapIndex].card.trigger.condition?.min_attackers ?? 1)) {
+  if (!active.length) {
+    updated.phase = 'round_end';
+    logEvent(updated, 'attack_skipped', 'Bỏ đợt tấn công.');
+    return updated;
+  }
+
+  active.forEach(unit => { unit.ready = false; });
+  const defender = 1 - playerIndex;
+  updated.pendingAttack = { playerIndex, attackerIds: active.map(unit => unit.instance_id), blocks: [], canceled: false };
+  logEvent(updated, 'attack_declared', `${active.length} Vị Linh tuyên bố tấn công.`);
+
+  const traps = updated.players[defender].traps;
+  const armedTrapIndex = traps.findIndex(trap => trap.faceDown && trap.setRound < updated.round
+    && trap.card.trigger?.when === 'attack_declared' && active.length >= (trap.card.trigger.condition?.min_attackers ?? 1));
+  if (armedTrapIndex >= 0) {
     const [trap] = traps.splice(armedTrapIndex, 1);
-    updated.stack.push({ id: updated.nextStackId++, kind: 'attack_counter', card: trap.card, owner: 1 - playerIndex });
-    updated.pendingAttack = { playerIndex, attackerIds: active.map((unit) => unit.instance_id), canceled: true };
+    updated.stack.push({ id: updated.nextStackId++, kind: 'attack_counter', card: trap.card, owner: defender });
     updated.phase = 'reaction';
     updated.priority = playerIndex;
     updated.passes = 0;
-    logEvent(updated, 'trap_revealed', `${trap.card.display_name} lật mở và chặn đợt tấn công.`);
+    logEvent(updated, 'trap_revealed', `${trap.card.display_name} lật mở khi có đợt tấn công.`);
     gameEvents.emit('trap_revealed', { card_id: trap.card.card_id, trigger: 'attack_declared' });
-    return updated;
+  } else if (eligibleBlockers(updated, defender).length) {
+    updated.phase = 'block_assign';
+    updated.priority = defender;
+  } else {
+    startAttackReaction(updated);
   }
-  resolveCombat(updated, playerIndex, active);
-  return finishUserCombat(updated, playerIndex);
+  return updated;
+}
+
+export function declaredTcgAttackers(match) {
+  const pending = match.pendingAttack;
+  if (!pending) return [];
+  return match.players[pending.playerIndex].units
+    .filter(unit => unit.current_def > 0 && pending.attackerIds.includes(unit.instance_id));
+}
+
+function eligibleBlockers(match, playerIndex) {
+  return match.players[playerIndex].units.filter(unit => unit.current_def > 0);
+}
+
+export function assignTcgBlockers(match, playerIndex, blocks) {
+  if (match.phase !== 'block_assign' || match.priority !== playerIndex || match.pendingAttack?.playerIndex !== 1 - playerIndex) {
+    throw new Error('Chưa đến lượt chọn quân chặn.');
+  }
+  const lanes = new Set(declaredTcgAttackers(match).map(unit => unit.lane));
+  const units = new Set(eligibleBlockers(match, playerIndex).map(unit => unit.instance_id));
+  for (const { lane, blockerId } of blocks) {
+    if (!lanes.delete(lane) || !units.delete(blockerId)) throw new Error('Mỗi đường và mỗi Vị Linh chỉ được chọn một lần.');
+  }
+  const updated = structuredClone(match);
+  updated.pendingAttack.blocks = blocks.map(({ lane, blockerId }) => ({ lane, blockerId }));
+  logEvent(updated, 'blockers_assigned', blocks.length ? `Đã bố trí ${blocks.length} quân chặn.` : 'Đợt tấn công không có quân chặn.');
+  startAttackReaction(updated);
+  return updated;
+}
+
+function startAttackReaction(match) {
+  if (match.players.some(player => player.hand.some(card => card.type === 'fast_spell'
+    && card.effect?.kind === 'deal_damage' && card.cost <= player.mana))) {
+    match.phase = 'reaction';
+    match.priority = 1 - match.pendingAttack.playerIndex;
+    match.passes = 0;
+  } else {
+    resolvePendingAttack(match);
+  }
+}
+
+function chooseBotBlocks(match, playerIndex) {
+  const defenders = [...eligibleBlockers(match, playerIndex)];
+  const attackers = declaredTcgAttackers(match).sort((a, b) => b.atk - a.atk || a.lane - b.lane);
+  const blocks = [];
+  for (const attacker of attackers) {
+    if (!defenders.length) break;
+    const sameLane = defenders.findIndex(unit => unit.lane === attacker.lane);
+    const [blocker] = defenders.splice(Math.max(0, sameLane), 1);
+    blocks.push({ lane: attacker.lane, blockerId: blocker.instance_id });
+  }
+  return blocks;
 }
 
 export function endTcgTurn(match, playerIndex) {
@@ -159,6 +231,11 @@ export function runTcgBot(match, { yieldToPlayer = false } = {}) {
   let updated = structuredClone(match);
   let safety = 0;
   while (updated.result === null && updated.activePlayer === 1 && safety++ < 48) {
+    if (updated.phase === 'block_assign') {
+      if (yieldToPlayer) return updated;
+      updated = assignTcgBlockers(updated, 0, chooseBotBlocks(updated, 0));
+      continue;
+    }
     if (updated.phase === 'action' || updated.phase === 'reaction') {
       if (updated.priority === 1) {
         const move = chooseBotCard(updated.players[1], updated);
@@ -187,7 +264,11 @@ export function runTcgBot(match, { yieldToPlayer = false } = {}) {
 export function runBotPriority(match) {
   let updated = structuredClone(match);
   let safety = 0;
-  while ((updated.phase === 'action' || updated.phase === 'reaction') && updated.priority === 1 && safety++ < 24) {
+  while (['action', 'reaction', 'block_assign'].includes(updated.phase) && updated.priority === 1 && safety++ < 24) {
+    if (updated.phase === 'block_assign') {
+      updated = assignTcgBlockers(updated, 1, chooseBotBlocks(updated, 1));
+      continue;
+    }
     const move = chooseBotCard(updated.players[1], updated);
     updated = move ? playTcgCard(updated, 1, move.instance_id, move.target_id) : passTcgPriority(updated, 1);
   }
@@ -237,8 +318,7 @@ function resolveStackTop(match) {
   } else {
     resolveSpell(match, item.card, item.owner, item.targetId);
   }
-  if (!match.stack.length && match.pendingAttack) resolvePendingAttack(match);
-  else if (!match.stack.length && match.phase === 'reaction') match.phase = 'action';
+  if (!match.stack.length && !match.pendingAttack && match.phase === 'reaction') match.phase = 'action';
 }
 
 function resolveSpell(match, card, ownerIndex, targetId) {
@@ -280,48 +360,38 @@ function resolveSpell(match, card, ownerIndex, targetId) {
 function resolvePendingAttack(match) {
   const pending = match.pendingAttack;
   if (!pending) return;
-  if (!pending.canceled) resolveCombat(match, pending.playerIndex, pending.attackerIds.map((id) => match.players[pending.playerIndex].units.find((unit) => unit.instance_id === id)).filter(Boolean));
+  const attackers = declaredTcgAttackers(match);
+  if (!pending.canceled) resolveCombat(match, pending.playerIndex, attackers, pending.blocks ?? []);
   match.pendingAttack = null;
-  if (!match.result) match.phase = 'round_end';
-  logEvent(match, pending.canceled ? 'attack_canceled' : 'combat_resolved', pending.canceled ? 'Đợt tấn công đã bị hủy.' : 'Giao tranh đã kết thúc.');
+  if (match.result) return;
+  match.phase = 'round_end';
+  match.priority = pending.playerIndex;
+  if (pending.canceled) logEvent(match, 'attack_canceled', 'Đợt tấn công đã bị hủy.');
 }
 
-function resolveCombat(match, attackerIndex, attackers) {
+function resolveCombat(match, attackerIndex, attackers, assignedBlocks) {
   const defenderIndex = 1 - attackerIndex;
-  const attackersByLane = new Map(attackers.map((unit) => [unit.lane, unit]));
-  const defenderUnits = match.players[defenderIndex].units;
-  const blockers = [];
-  const usedBlockers = new Set();
-  for (const [lane, attacker] of attackersByLane) {
-    const blocker = defenderUnits.find((unit) => unit.lane === lane && !usedBlockers.has(unit.instance_id));
-    if (blocker) { blockers.push({ attacker, blocker }); usedBlockers.add(blocker.instance_id); }
-    else {
-      match.players[defenderIndex].hp = Math.max(0, match.players[defenderIndex].hp - attacker.atk);
+  const defender = match.players[defenderIndex];
+  const blocks = new Map(assignedBlocks.map(({ lane, blockerId }) => [lane, blockerId]));
+  for (const attacker of attackers) {
+    const blocker = defender.units.find(unit => unit.current_def > 0 && unit.instance_id === blocks.get(attacker.lane));
+    if (!blocker) {
+      defender.hp = Math.max(0, defender.hp - attacker.atk);
       emitTcgHit(match, attacker.atk, attacker, `commander:p${defenderIndex}`);
+      continue;
     }
-  }
-  for (const { attacker, blocker } of blockers) {
     attacker.current_def -= blocker.atk;
     blocker.current_def -= attacker.atk;
     emitTcgHit(match, blocker.atk, blocker, attacker.instance_id, attackerIndex, attacker.lane);
     emitTcgHit(match, attacker.atk, attacker, blocker.instance_id, defenderIndex, blocker.lane);
   }
-  for (let playerIndex = 0; playerIndex < 2; playerIndex += 1) {
-    const player = match.players[playerIndex];
-    const dead = player.units.filter((unit) => unit.current_def <= 0);
+  for (const player of match.players) {
+    const dead = player.units.filter(unit => unit.current_def <= 0);
     player.graveyard.push(...dead);
-    player.units = player.units.filter((unit) => unit.current_def > 0);
+    player.units = player.units.filter(unit => unit.current_def > 0);
   }
-  if (match.players[defenderIndex].hp <= 0) finishTcg(match, attackerIndex);
-  logEvent(match, 'combat_resolved', `${attackers.length} đơn vị tham chiến; sát thương được áp dụng đồng thời.`);
-}
-
-function finishUserCombat(match, playerIndex) {
-  if (match.result) return match;
-  match.phase = 'round_end';
-  match.players[playerIndex].attackUsedRound = match.round;
-  logEvent(match, 'combat_resolved', 'Giao tranh đã kết thúc.');
-  return match;
+  logEvent(match, 'combat_resolved', `${attackers.length} đơn vị tham chiến. Sát thương được áp dụng đồng thời.`);
+  if (defender.hp <= 0) finishTcg(match, attackerIndex);
 }
 
 function advanceTurn(match, playerIndex) {

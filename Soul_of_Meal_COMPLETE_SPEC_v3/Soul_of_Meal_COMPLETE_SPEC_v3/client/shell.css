@@ -316,3 +316,35 @@ body { height: 100%; min-height: 0; overflow: hidden; background: var(--night); 
 .journey-steps small { color: var(--forest-2); text-align: right; }
 
 .telegraph progress { display: block; width: 100%; height: 9px; margin-top: 5px; accent-color: #bf4e28; }
+
+.tcg-unit-avatar { display: block; }
+button.tcg-unit { cursor: pointer; color: var(--ink); font: inherit; font-size: 10px; }
+.tcg-unit.tcg-attacking { background: #fff1d5; border-color: #bd7143; box-shadow: inset 0 -2px #df996a; }
+.tcg-unit.tcg-blocking { background: #dceddf; border-color: #589470; box-shadow: inset 0 -2px #83ba94; }
+.tcg-stack-top { margin: 5px 0; font-size: 12px; }
+.tcg-defense { background: #f8edda; border: 1px solid #c99263; border-radius: 8px; margin: 6px 0; padding: 8px; }
+.tcg-defense-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 10px; font-size: 12px; }
+.tcg-defense-header span { color: #8b432e; font-weight: 700; }
+.tcg-block-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(145px, 100%), 1fr)); gap: 6px; margin: 7px 0; }
+.tcg-block-grid label { display: grid; gap: 3px; align-content: space-between; font-size: 11px; }
+.tcg-block-grid select { width: 100%; min-height: 32px; color: var(--ink); border: 1px solid #ae936d; border-radius: 5px; background: var(--white); }
+.tcg-defense > .button { padding: 6px 10px; font-size: 12px; }
+@media (pointer: coarse) {
+  .tcg-block-grid select, .tcg-defense > .button { min-height: 44px; }
+}
+.tcg-damage {
+  position: absolute; top: 8%; left: 50%; z-index: 3; pointer-events: none;
+  color: #fff4dc; background: #6f3029; border-radius: 5px; padding: 2px 5px;
+  font: 800 12px/1.1 system-ui, sans-serif;
+  transform: translate(-50%, -10%); animation: tcg-damage .65s ease-out both;
+}
+@keyframes tcg-damage {
+  0% { opacity: 0; }
+  15%, 62% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -95%); }
+}
+.tcg-damage.static { animation: tcg-damage-static .65s steps(1, end) both; }
+@media (prefers-reduced-motion: reduce) {
+  .tcg-damage { animation: tcg-damage-static .65s steps(1, end) both; }
+}
+@keyframes tcg-damage-static { from { opacity: 1; } to { opacity: 0; } }

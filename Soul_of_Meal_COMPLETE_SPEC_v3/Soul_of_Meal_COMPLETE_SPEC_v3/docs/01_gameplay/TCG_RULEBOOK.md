@@ -16,6 +16,8 @@ At ROUND_START increase max mana by one, cap 10; refill current mana to max. Spe
 ## 4. Attack, blockers and damage
 Up to five attackers are assigned to attack lanes. Defender may assign one blocker per attacking lane if unit available and not stunned. By default unblocked attacker deals full ATK to enemy commander; blocked attackers deal ATK damage to blocking unit while blocker deals ATK simultaneously to attacker. Both damages are applied in one resolution window; units with current_def ≤0 die and go graveyard. Damage **persists** while unit stays on board unless healed; it is not reset after round. Blocking is positional by lane; no unsolicited strike through a live blocker. Overflow is not allowed without a `pierce` keyword.
 
+The browser playtest lets the defender assign a unit to an attack lane for that exchange. Its board position stays the same. An available defender can block while resting. A blocker removed by a response opens its attack lane before combat resolves. The bot assigns its available blockers to the highest-ATK attacks first, preferring a blocker in the same lane when possible.
+
 Example: 1200-ATK/1000-DEF unit attacks 700-ATK/1500-DEF blocker. Both exchange damage: attacker goes to 300 DEF, blocker goes to 300 DEF. No commander damage. If attacker is unblocked, commander HP 8000→6800. This resolves the scale question explicitly for this mode.
 
 ## 5. Traps
