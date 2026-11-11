@@ -131,9 +131,14 @@ export class AnimationAdapter extends EventTarget {
       const clipId = payload.clip_id ?? (/ultimate|ult/i.test(abilityId) ? 'ultimate_01' : 'skill_01');
       if (actorId && this.#play(actorId, clipId, event.type === 'attack_started')) actions.push({ actorId, clipId, reason: event.type });
     } else if (event.type === 'boss_phase_changed' || event.type === 'boss_cast_released') {
-      const clipId = event.type === 'boss_phase_changed' ? 'skill_01' : 'boss_release';
-      if (event.source_id && this.#play(event.source_id, clipId, true)) {
+      const charging = event.type === 'boss_phase_changed';
+      const clipId = charging ? 'skill_01' : 'boss_release';
+      if (this.players.get(event.source_id)?.clip.play(clipId, { force: true, hold: charging })) {
         actions.push({ actorId: event.source_id, clipId, reason: event.type });
+      }
+    } else if (event.type === 'boss_cast_interrupted') {
+      if (event.source_id && this.#play(event.source_id, 'hit', true)) {
+        actions.push({ actorId: event.source_id, clipId: 'hit', reason: event.type });
       }
     } else if (event.type === 'hit_resolved') {
       const sourceId = event.source_id;
@@ -143,7 +148,7 @@ export class AnimationAdapter extends EventTarget {
       if (sourceId && !payload.timed && this.#play(sourceId, sourceClip, false, sourceKind !== 'ultimate')) {
         actions.push({ actorId: sourceId, clipId: sourceClip, reason: event.type });
       }
-      if (targetId && targetId !== sourceId && this.#play(targetId, 'hit')) actions.push({ actorId: targetId, clipId: 'hit', reason: event.type });
+      if (targetId && targetId !== sourceId && !payload.guarded && this.#play(targetId, 'hit')) actions.push({ actorId: targetId, clipId: 'hit', reason: event.type });
       this.dispatchEvent(new CustomEvent('presentation-hit', { detail: { ...event, actions } }));
     } else if (event.type === 'actor_died') {
       const actorId = payload.actor_id ?? event.target_id;

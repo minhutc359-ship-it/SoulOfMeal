@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { createAdventureState, interactAdventure, nearestInteraction, beginBattle, bossTelegraphTargets, setAdventureInput, stepAdventure, claimBattleResult, activateUltimate, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
+import { createAdventureState, interactAdventure, nearestInteraction, beginBattle, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, activateUltimate, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
 import { advanceChessRound, buyChessOffer, createChessRun, placeChessUnit, startChessCombat, chessTraits } from '../src/modes/autoChess.js';
 import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard, mulliganTcg } from '../src/modes/tcg.js';
 import { createDefaultSave, migrateSave, SAVE_VERSION } from '../src/core/save.js';
@@ -114,40 +114,109 @@ test('the Adventure journal points to the correct interaction after a map or que
   assert.ok(adventureJournal(save).labels.every(step => step.status === 'done'));
 });
 
-test('the boss winds up, strikes the marked targets on the scheduled tick and emits one shield break', () => {
+function prepareBossCharge() {
   const save = createDefaultSave();
   const state = createAdventureState(save);
   beginBattle(state, save);
   const battle = state.battle;
   for (const enemy of battle.actors.filter(actor => actor.team === 'enemy')) enemy.alive = false;
-  stepAdventure(state, save, 1 / 30);
+  const advance = () => stepAdventure(state, save, 1 / 30);
+  advance();
   const boss = battle.actors.find(actor => actor.boss);
-  assert.equal(boss.id, 'boss_bep_truong');
   boss.hp = Math.floor(boss.maxHp * .6);
   boss.cooldown = 900;
   for (const actor of battle.actors.filter(actor => actor.team === 'player')) {
     actor.action = { hitTick: 900 };
   }
+  return { advance, save, state, battle, boss };
+}
+
+test('one surviving stove lets the boss hit the marked targets on the scheduled tick', () => {
+  const { advance, battle, boss } = prepareBossCharge();
+  assert.equal(boss.id, 'boss_bep_truong');
   const events = [];
   const listener = ({ detail }) => events.push(detail);
   gameEvents.addEventListener('game-event', listener);
   try {
-    stepAdventure(state, save, 1 / 30);
+    advance();
     const windup = events.find(event => event.type === 'boss_phase_changed');
-    assert.ok(windup);
+    assert.equal(windup.payload.windup_ticks, 180);
+    Object.assign(battle.stoves[0], { hp: 0, alive: false });
+    assert.equal(focusBossStove(battle, battle.stoves[0].actor_id), false);
+    assert.equal(focusBossStove(battle, battle.stoves[1].actor_id), true);
     const targets = bossTelegraphTargets(battle, boss);
     assert.equal(targets.length, 2);
     targets[0].shield = 1;
     targets[0].shieldUntil = 500;
     const releaseTick = windup.tick + windup.payload.windup_ticks;
-    while (battle.tick < releaseTick - 1) stepAdventure(state, save, 1 / 30);
+    while (battle.tick < releaseTick - 1) advance();
     assert.ok(events.every(event => event.type !== 'boss_cast_released'));
-    stepAdventure(state, save, 1 / 30);
+    advance();
     assert.equal(events.filter(event => event.type === 'boss_cast_released').length, 1);
     const hits = events.filter(event => event.type === 'hit_resolved' && event.source_id === boss.id);
     assert.deepEqual(hits.map(event => event.target_id), targets.map(actor => actor.actor_id));
     assert.ok(hits.every(event => event.tick === releaseTick));
     assert.equal(events.filter(event => event.type === 'shield_broken').length, 1);
+    assert.deepEqual(battle.stoves, []);
+    assert.equal(battle.stoveTargetId, null);
+  } finally {
+    gameEvents.removeEventListener('game-event', listener);
+  }
+});
+
+test('targeted basic attacks and ultimates can interrupt the boss on the final charge tick', () => {
+  const { advance, save, state, battle, boss } = prepareBossCharge();
+  const mage = battle.actors.find(actor => actor.role === 'mage');
+  const fighter = battle.actors.find(actor => actor.role === 'fighter');
+  const events = [];
+  const listener = ({ detail }) => events.push(detail);
+  gameEvents.addEventListener('game-event', listener);
+  try {
+    advance();
+    const [first, second] = battle.stoves;
+    const releaseTick = battle.tick + battle.bossTelegraph.duration;
+    assert.equal(battle.bossPhase, 2);
+    assert.equal(focusBossStove(battle, boss.actor_id), false);
+    Object.assign(fighter, { x: boss.x - 70, y: boss.y, action: null, cooldown: 0, atk: 1000 });
+    const bossHP = boss.hp;
+    advance();
+    assert.equal(fighter.action.targetId, boss.actor_id);
+    while (fighter.action) advance();
+    assert.equal(boss.hp, bossHP);
+    assert.ok(events.some(event => event.type === 'hit_resolved' && event.payload.guarded));
+
+    assert.equal(focusBossStove(battle, first.actor_id), true);
+    Object.assign(fighter, { x: first.x - 70, y: first.y, cooldown: 0 });
+    advance();
+    assert.equal(fighter.action.targetId, first.actor_id);
+    while (fighter.action) advance();
+    assert.equal(first.alive, false);
+    assert.equal(battle.stoveTargetId, null);
+    assert.equal(second.hp, second.maxHp);
+    fighter.cooldown = 900;
+
+    assert.equal(focusBossStove(battle, second.actor_id), true);
+    Object.assign(mage, { action: null, cooldown: 900, energy: 100, atk: 1000 });
+    while (battle.tick < releaseTick - 24) advance();
+    battle.paused = true;
+    assert.equal(activateUltimate(state, save, mage.actor_id).ok, false);
+    for (let i = 0; i < 30; i++) advance();
+    assert.equal(battle.tick, releaseTick - 24);
+    battle.paused = false;
+    assert.equal(activateUltimate(state, save, mage.actor_id).ok, true);
+    while (battle.tick < releaseTick) advance();
+    assert.ok(events.some(event => event.type === 'projectile_spawned' && event.target_id === second.actor_id));
+    assert.equal(second.alive, false);
+    assert.equal(battle.bossTelegraph, null);
+    assert.deepEqual(events.filter(event => event.type === 'boss_cast_interrupted').map(event => event.tick), [releaseTick]);
+    assert.ok(events.every(event => event.type !== 'boss_cast_released'));
+
+    boss.hp = Math.floor(boss.maxHp * .3);
+    advance();
+    assert.equal(battle.bossPhase, 3);
+    assert.equal(battle.bossTelegraph.duration, 36);
+    assert.equal(bossTelegraphTargets(battle, boss).length, 3);
+    assert.deepEqual(battle.stoves, []);
   } finally {
     gameEvents.removeEventListener('game-event', listener);
   }

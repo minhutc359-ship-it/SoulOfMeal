@@ -190,6 +190,15 @@ h2 { font-size: 24px; }
 .skill-ready .skill-button { background: linear-gradient(120deg, #e6a150, #ffd882); box-shadow: 0 0 12px #d889413c; }
 .key-tag { border: 1px solid #79502155; padding: 0 3px; border-radius: 3px; }
 .battle-target .telegraph { margin: 8px 0 0; }
+.telegraph-heading { display: flex; justify-content: space-between; gap: 8px; }
+.telegraph-heading span { font-variant-numeric: tabular-nums; }
+.telegraph progress { display: block; width: 100%; margin: 4px 0; accent-color: #a43b28; }
+.stove-controls p { margin: 7px 0 5px; }
+.stove-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+.stove-button { display: flex; gap: 4px; align-items: center; padding: 4px; text-align: left; }
+.stove-button img { width: 26px; height: 26px; object-fit: contain; }
+.stove-button small { display: block; color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+.stove-button[aria-pressed="true"], [data-battle-speed][aria-pressed="true"] { background: #ffe2a4; border-color: #aa6334; }
 
 /* TCG */
 .tcg-board { background: #fdf8e9; }

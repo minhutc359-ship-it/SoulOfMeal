@@ -14,7 +14,7 @@ export const HERO_NAMES = Object.freeze({
 
 const ACTORS = [...Object.keys(HERO_NAMES), 'npc_lilia', 'mob_mushroom_01', 'mob_pepper_01', BOSS_ID];
 const CARD_IDS = new Set([7, 10, 11, 12, 13, 14, 15, 16, 17, 18].map((id) => 'card_demo_' + String(id).padStart(2, '0')));
-const PROPS = ['house_kitchen', 'house_guild', 'house_merchant', 'tree', 'chest_closed', 'chest_open', 'portal', 'table'];
+const PROPS = ['house_kitchen', 'house_guild', 'house_merchant', 'tree', 'chest_closed', 'chest_open', 'portal', 'table', 'boss_stove'];
 
 export const ELEMENT_ART = Object.freeze({
   fire: { color: '#ffae69', dark: '#70241f' },

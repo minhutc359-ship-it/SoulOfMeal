@@ -8,6 +8,7 @@ const CUES = {
   chess_units_merged: 'sfx_cast_fire', heal_resolved: 'sfx_ui_confirm',
   shield_applied: 'sfx_ui_confirm', boss_phase_changed: 'sfx_cast_fire',
   shield_broken: 'sfx_element_light_impact', boss_cast_released: 'sfx_impact_fire',
+  boss_stove_destroyed: 'sfx_impact_fire', boss_cast_interrupted: 'sfx_ui_confirm',
 };
 
 const ELEMENTS = new Set(['fire', 'water', 'wood', 'light', 'shadow']);

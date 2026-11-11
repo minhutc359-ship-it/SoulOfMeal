@@ -1,4 +1,4 @@
-import { createAdventureState, interactAdventure, nearestInteraction, setAdventureInput, stepAdventure, activateUltimate, beginBattle, bossTelegraphTargets, claimBattleResult, WORLD, resolveCameraViewport } from './modes/adventure.js';
+import { createAdventureState, interactAdventure, nearestInteraction, setAdventureInput, stepAdventure, activateUltimate, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, WORLD, resolveCameraViewport } from './modes/adventure.js';
 import { createTcgMatch, playTcgCard, passTcgPriority, runBotPriority, runTcgBot, attackTcg, assignTcgBlockers, declaredTcgAttackers, endTcgTurn, mulliganTcg, validateDeck } from './modes/tcg.js';
 import { advanceChessRound, buyChessOffer, createChessRun, moveChessUnit, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat, toggleChessLock, buyChessExperience, chessTraits, CHESS_TRAITS } from './modes/autoChess.js';
 import { gameEvents } from './core/events.js';
@@ -358,22 +358,43 @@ function renderAdventure() {
     </div>`;
   }).join('');
   const resultPanel = battle?.phase === 'battle_end' ? `<div class="result-box ${battle.result}"><strong>${battle.result === 'victory' ? 'Chiến thắng' : 'Đội hình đã gục'}</strong><p>${battle.result === 'victory' ? 'Phần thưởng · 60 vàng và 10 tinh hoa' : 'Đội hình có thể vào trận lại.'}</p><button class="button" data-battle-result>${battle.result === 'victory' ? 'Nhận thưởng' : 'Thử lại'}</button></div>` : '';
+  const battleControls = battle?.phase === 'battle_running' ? `
+    <button class="button light compact" data-battle-pause></button>
+    <button class="button light compact" data-battle-speed aria-label="Tăng tốc trận đấu" aria-pressed="false">2×</button>
+    <span class="key-hint">1–5 · Tuyệt kỹ</span>` : '';
+  const stoveControls = adventureBalance.bossStoves.positions.map((_, index) => `
+    <button class="button light stove-button" data-stove="boss_stove_${index + 1}" aria-pressed="false">
+      <img src="${propArt('boss_stove')}" alt=""><span><b>${index + 6} · Bếp ${index + 1}</b><small data-stove-hp></small></span>
+    </button>`).join('');
   shell(`
     ${pageHeader('Phiêu lưu', adventure.map === 'village' ? 'Làng Ẩm Thực' : 'Rừng Nguyên Liệu', '', 'home')}
     <div class="game-layout adventure-layout"><section class="panel world-panel">
       <div class="canvas-wrap"><canvas id="adventure-canvas" width="960" height="540" aria-label="Bản đồ phiêu lưu tương tác"></canvas>
       <span class="phase-pill world-phase ${battle ? 'combat' : ''}">${battle ? battle.phase === 'battle_end' ? 'Kết quả' : 'Đợt ' + (battle.wave + 1) + '/2' : 'Khám phá'}</span></div>
       <p class="controls-hint" data-adventure-message role="status">${escapeHtml(adventure.lastMessage)}</p>
-      <div class="action-row">${battle ? '<span class="key-hint">Phím 1–5 · Tuyệt kỹ</span>' : `<button class="button" data-interact ${!target ? 'disabled' : ''}>${escapeHtml(actionLabel)}</button><span class="key-hint">WASD / chạm để đi · E để tương tác</span>`}</div>
+      <div class="action-row">${battle ? battleControls : `<button class="button" data-interact ${!target ? 'disabled' : ''}>${escapeHtml(actionLabel)}</button><span class="key-hint">WASD / chạm để đi · E để tương tác</span>`}</div>
       ${resultPanel}
     </section>
     <aside class="side-stack">
-      ${battle ? '<section class="panel battle-target"><h2 data-enemy-name>Đối thủ</h2><div class="meter enemy"><i data-enemy-hp></i></div><div class="telegraph" data-telegraph hidden><b data-telegraph-name></b><progress data-telegraph-time aria-label="Thời gian trước đòn boss"></progress></div></section>' : `<section class="panel"><h2>Dấu Vết Thất Vị</h2><div class="data-list"><div class="data-row"><span>Nhiệm vụ</span><strong>${questLabel}</strong></div><div class="data-row"><span>Rương tiếp tế</span><span>${save.adventure.chestOpened ? 'Đã mở' : 'Chưa mở'}</span></div></div><div class="action-row"><button class="button light" data-page="journey">Nhật ký hành trình</button></div></section>`}
+      ${battle ? `<section class="panel battle-target"><h2 data-enemy-name>Đối thủ</h2><div class="meter enemy"><i data-enemy-hp></i></div>
+        <div class="telegraph" data-telegraph hidden><div class="telegraph-heading"><b data-telegraph-name></b><span data-telegraph-seconds></span></div>
+          <progress data-telegraph-time aria-label="Thời gian trước đòn boss"></progress>
+          <div class="stove-controls" data-stove-controls hidden><p>Phá 2 bếp để hạ hộ thuẫn và ngắt chiêu.</p><div class="stove-buttons">${stoveControls}</div></div>
+        </div></section>` : `<section class="panel"><h2>Dấu Vết Thất Vị</h2><div class="data-list"><div class="data-row"><span>Nhiệm vụ</span><strong>${questLabel}</strong></div><div class="data-row"><span>Rương tiếp tế</span><span>${save.adventure.chestOpened ? 'Đã mở' : 'Chưa mở'}</span></div></div><div class="action-row"><button class="button light" data-page="journey">Nhật ký hành trình</button></div></section>`}
       <section class="panel party-panel"><h2>Đội hình Vị Linh</h2><div class="actor-list">${actorRows}</div></section>
     </aside></div>
   `);
   app.querySelector('[data-interact]')?.addEventListener('click', doAdventureInteract);
   app.querySelectorAll('[data-ultimate]').forEach((button) => button.addEventListener('click', () => useUltimate(button.dataset.ultimate)));
+  app.querySelectorAll('[data-stove]').forEach(button => button.addEventListener('click', () => selectBossStove(button.dataset.stove)));
+  app.querySelector('[data-battle-pause]')?.addEventListener('click', () => {
+    battle.paused = !battle.paused;
+    updateBattleHud(battle);
+  });
+  app.querySelector('[data-battle-speed]')?.addEventListener('click', () => {
+    battle.speed = battle.speed === 2 ? 1 : 2;
+    updateBattleHud(battle);
+  });
   app.querySelector('[data-battle-result]')?.addEventListener('click', claimAdventureBattle);
   const canvas = app.querySelector('#adventure-canvas');
   canvas?.addEventListener('pointerdown', onWorldPointer);
@@ -411,7 +432,7 @@ function updateBattleHud(battle) {
     card.querySelector('[data-hp]').style.width = actor.hp / actor.maxHp * 100 + '%';
     card.querySelector('[data-energy]').style.width = actor.energy + '%';
     const button = card.querySelector('[data-ultimate]');
-    button.disabled = !actor.alive || actor.energy < 100 || Boolean(actor.action)
+    button.disabled = battle.paused || !actor.alive || actor.energy < 100 || Boolean(actor.action)
       || actor.ultimateReadyTick > battle.tick || battle.phase !== 'battle_running';
     button.querySelector('[data-charge]').textContent = actor.energy + '%';
     card.classList.toggle('skill-ready', !button.disabled);
@@ -423,6 +444,16 @@ function updateBattleHud(battle) {
   }
   const telegraph = app.querySelector('[data-telegraph]');
   telegraph.hidden = !battle.bossTelegraph;
+  const stoveControls = app.querySelector('[data-stove-controls]');
+  stoveControls.hidden = !battle.stoves.length;
+  for (const button of stoveControls.querySelectorAll('[data-stove]')) {
+    const stove = battle.stoves.find(target => target.actor_id === button.dataset.stove);
+    button.disabled = !stove?.alive;
+    button.setAttribute('aria-pressed', String(stove?.actor_id === battle.stoveTargetId));
+    const hp = button.querySelector('[data-stove-hp]');
+    const label = stove?.alive ? `${stove.hp}/${stove.maxHp} HP` : 'Đã phá';
+    if (hp.textContent !== label) hp.textContent = label;
+  }
   if (battle.bossTelegraph) {
     const { attack, duration, ticks } = battle.bossTelegraph;
     const name = telegraph.querySelector('[data-telegraph-name]');
@@ -430,7 +461,25 @@ function updateBattleHud(battle) {
     const time = telegraph.querySelector('[data-telegraph-time]');
     time.max = duration;
     time.value = ticks;
+    const seconds = telegraph.querySelector('[data-telegraph-seconds]');
+    const remaining = Math.ceil(ticks / 3) / 10;
+    const label = remaining.toLocaleString('vi', { minimumFractionDigits: 1 }) + ' s';
+    if (seconds.textContent !== label) seconds.textContent = label;
   }
+  const pause = app.querySelector('[data-battle-pause]');
+  if (pause) {
+    const label = battle.paused ? 'Tiếp tục' : 'Tạm dừng';
+    if (pause.textContent !== label) pause.textContent = label;
+    app.querySelector('[data-battle-speed]').setAttribute('aria-pressed', String(battle.speed === 2));
+    const pill = app.querySelector('.world-phase');
+    const phase = battle.paused ? 'Tạm dừng' : `Đợt ${battle.wave + 1}/2`;
+    if (pill.textContent !== phase) pill.textContent = phase;
+  }
+}
+
+function selectBossStove(stoveId) {
+  const battle = runtime.adventure.battle;
+  if (focusBossStove(battle, stoveId)) updateBattleHud(battle);
 }
 
 function doAdventureInteract() {
@@ -460,11 +509,17 @@ function claimAdventureBattle() {
 }
 
 function onWorldPointer(event) {
-  if (runtime.adventure.battle) return;
   const canvas = event.currentTarget;
   const rect = canvas.getBoundingClientRect();
   const x = (event.clientX - rect.left) / rect.width * WORLD.width;
   const y = (event.clientY - rect.top) / rect.height * WORLD.height;
+  const battle = runtime.adventure.battle;
+  if (battle) {
+    const stove = battle.stoves.find(target => target.alive
+      && Math.abs(target.x - x) <= 39 && y >= target.y - 73 && y <= target.y + 10);
+    if (stove) selectBossStove(stove.actor_id);
+    return;
+  }
   const map = getAdventureMap(runtime.maps, runtime.adventure.map);
   const action = map?.interactables.find(item => Math.hypot(item.x - x, item.y - y) < 35)?.action;
   canvas.dataset.pathLength = String(queueWorldPath({ x, y }, action));
@@ -520,7 +575,8 @@ function drawAdventureFrame(deltaSeconds) {
   const previousWave = adventure.battle?.wave;
   const oldX = adventure.x;
   const oldY = adventure.y;
-  stepAdventure(adventure, runtime.save, deltaSeconds, runtime.maps);
+  const playbackDelta = adventure.battle?.paused ? 0 : deltaSeconds * (adventure.battle?.speed ?? 1);
+  stepAdventure(adventure, runtime.save, playbackDelta, runtime.maps);
   if (!adventure.battle && Math.hypot(adventure.x - oldX, adventure.y - oldY) > .3) {
     runtime.stepSoundTime = (runtime.stepSoundTime ?? 0) + deltaSeconds;
     if (runtime.stepSoundTime >= .34) {
@@ -529,8 +585,8 @@ function drawAdventureFrame(deltaSeconds) {
     }
   }
   syncAdventureAnimations(adventure);
-  runtime.animations.advance(deltaSeconds * 1000);
-  runtime.effects.advance(deltaSeconds);
+  runtime.animations.advance(playbackDelta * 1000);
+  runtime.effects.advance(playbackDelta);
   if (adventure.battle) {
     if (previousPhase !== adventure.battle.phase || previousWave !== adventure.battle.wave) return renderAdventure();
     updateBattleHud(adventure.battle);
@@ -667,8 +723,13 @@ function drawBattleScene(context, adventure) {
       drawBossWarning(context, target.x, target.y + 2, 79, opacity);
     }
   }
-  for (const actor of [...battle.actors].sort((a, b) => a.y - b.y)) {
-    drawActor(context, actor, runtime.animations.getActorState(actor.actor_id)?.animation);
+  for (const actor of [...battle.actors, ...battle.stoves].sort((a, b) => a.y - b.y)) {
+    if (actor.stove) {
+      if (actor.alive) drawBossStove(context, actor, battle.stoveTargetId === actor.actor_id);
+    } else {
+      drawActor(context, actor, runtime.animations.getActorState(actor.actor_id)?.animation,
+        actor.boss && battle.bossTelegraph?.phase === 2);
+    }
   }
   runtime.effects.draw(context, battle, runtime.save.settings.reducedMotion);
 }
@@ -680,7 +741,26 @@ function drawBossWarning(context, x, y, size, opacity) {
   }
 }
 
-function drawActor(context, actor, animation) {
+function drawBossStove(context, stove, focused) {
+  const { x, y } = stove;
+  drawBossWarning(context, x, y, focused ? 116 : 93, focused ? 1 : .55);
+  drawFitted(context, propArt('boss_stove'), x, y + 3, 72, 70);
+  context.save();
+  context.fillStyle = '#291b20';
+  context.fillRect(x - 30, y - 81, 60, 7);
+  context.fillStyle = focused ? '#ffe292' : '#ff9870';
+  context.fillRect(x - 29, y - 80, 58 * stove.hp / stove.maxHp, 5);
+  context.font = '800 17px system-ui';
+  context.textAlign = 'center';
+  context.strokeStyle = '#291b20';
+  context.lineWidth = 4;
+  const key = stove.actor_id === 'boss_stove_1' ? '6' : '7';
+  context.strokeText(key, x, y - 88);
+  context.fillText(key, x, y - 88);
+  context.restore();
+}
+
+function drawActor(context, actor, animation, protectedByStoves) {
   const { x, y } = actor;
   context.save();
   context.globalAlpha = actor.alive ? 1 : .32;
@@ -694,8 +774,8 @@ function drawActor(context, actor, animation) {
     drawFitted(context, actorArt(actor.id), x, y + pose.offsetY,
       (actor.boss ? 150 : 77) * pose.scaleX, (actor.boss ? 128 : 78) * pose.scaleY);
   }
-  if (actor.shield) {
-    const options = { x, y: y - 39, size: 113, opacity: .72 };
+  if (actor.shield || protectedByStoves) {
+    const options = { x, y: y - (protectedByStoves ? 66 : 39), size: protectedByStoves ? 210 : 113, opacity: .72 };
     if (!drawEffectTexture(context, spriteRenderer, combatArt('shield_bubble'), options)) {
       drawElementEffect(context, spriteRenderer, 'light', 'impact', options);
     }
@@ -1123,6 +1203,8 @@ window.addEventListener('keydown', (event) => {
     const button = app.querySelectorAll('[data-ultimate]')[Number(key) - 1];
     if (button && !button.disabled) useUltimate(button.dataset.ultimate);
   }
+  if (key === '6' || key === '7') selectBossStove('boss_stove_' + (Number(key) - 5));
+  if (key === 'p') app.querySelector('[data-battle-pause]')?.click();
 });
 window.addEventListener('keyup', (event) => runtime.heldKeys.delete(event.key.length === 1 ? event.key.toLowerCase() : event.key));
 window.addEventListener('blur', () => runtime.heldKeys.clear());

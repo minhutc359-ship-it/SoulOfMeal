@@ -25,6 +25,12 @@ Khi chạy với [máy chủ ASP.NET Core và PostgreSQL](../server/README.md), 
 - **TCG** · Đấu bot với bộ 36 lá, đổi bài mở màn một lần, xây bộ bài trong danh mục 22 lá, triệu hồi Vị Linh, đặt bẫy úp và phản ứng theo lượt ưu tiên. Bộ bài đã lưu dùng khi bắt đầu ván mới.
 - **Auto Chess** · Mua quân, hợp thể ba bản sao, xếp đội hình, nâng cấp cửa hàng và chơi tối đa mười vòng. Hai nhân vật khác nhau cùng hệ Hỏa, Mộc hoặc Quang kích hoạt hiệp lực tương ứng. Phát lại giao tranh dùng vị trí, đòn đánh và HP do mô phỏng ghi lại.
 
+## Bếp Trưởng Hỏa Diệm
+
+- Ở 70% HP, boss tạo hộ thuẫn và nạp **Bếp Bùng Cháy** trong 6 giây mô phỏng. Bấm bếp trên sân, dùng nút bên cạnh thanh HP hoặc phím **6–7** để đội hình tập trung tấn công. Phá cả hai bếp trước hoặc đúng tick cuối để ngắt chiêu.
+- Ở 30% HP, **Vòng Lửa** đánh vào ba Vị Linh được đánh dấu khi hết 1,2 giây báo trước. Dùng tuyệt kỹ của Bánh Bao để tạo lá chắn cho đội.
+- Nút **Tạm dừng** hoặc phím **P** đóng băng trận. Bật **2×** để mô phỏng và hoạt ảnh cùng chạy nhanh gấp đôi.
+
 ## Giao tranh TCG
 
 - Sau khi kết thúc giai đoạn triển khai, chạm các Vị Linh đang sẵn sàng để chọn nhóm tấn công. Các Vị Linh sẵn sàng được chọn mặc định.

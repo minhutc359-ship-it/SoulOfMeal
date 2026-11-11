@@ -25,7 +25,7 @@ export function createAdventureState(save) {
     facing: 'down',
     tick: 0,
     input: { x: 0, y: 0 },
-    battle: save.adventure.battle,
+    battle: save.adventure.battle ? { stoves: [], stoveTargetId: null, paused: false, speed: 1, ...save.adventure.battle } : null,
     lastMessage: save.adventure.quest === 'completed' ? 'Làng Ẩm Thực đã tìm lại hương vị.' :
       save.adventure.forestCleared ? 'Trở về làng để báo tin cho Lilia.' :
         save.adventure.map === 'forest' ? 'Theo dấu chân trong rừng.' : 'Tìm Lilia ở quảng trường để bắt đầu.',
@@ -167,6 +167,10 @@ export function beginBattle(state, save) {
     ],
     bossPhase: 1,
     bossTelegraph: null,
+    stoves: [],
+    stoveTargetId: null,
+    paused: false,
+    speed: 1,
     events: [],
   };
   state.lastMessage = 'Các Vị Linh tự áp sát và tấn công. Hãy tung tuyệt kỹ khi đủ năng lượng.';
@@ -188,6 +192,7 @@ function spawnActor(template, team, index) {
 export function activateUltimate(state, save, actorId) {
   const battle = state.battle;
   if (!battle || battle.phase !== 'battle_running') return { ok: false, reason: 'Trận đấu chưa sẵn sàng.' };
+  if (battle.paused) return { ok: false, reason: 'Trận đấu đang tạm dừng.' };
   const actor = battle.actors.find((item) => item.actor_id === actorId && item.team === 'player');
   if (!actor?.alive) return { ok: false, reason: 'Vị Linh đã gục.' };
   if (actor.energy < 100) return { ok: false, reason: 'Chưa đủ năng lượng.' };
@@ -202,8 +207,20 @@ export function activateUltimate(state, save, actorId) {
   return { ok: true, save };
 }
 
+export function focusBossStove(battle, stoveId) {
+  if (battle?.phase !== 'battle_running' || !battle.stoves.some(stove => stove.actor_id === stoveId && stove.alive)) return false;
+  battle.stoveTargetId = stoveId;
+  return true;
+}
+
+export function findBattleTarget(battle, targetId) {
+  return battle.actors.find(actor => actor.actor_id === targetId)
+    ?? battle.stoves?.find(stove => stove.actor_id === targetId);
+}
+
 export function stepAdventure(state, save, deltaSeconds, maps) {
   if (state.battle) {
+    if (state.battle.paused || state.battle.phase !== 'battle_running') return;
     state.battle.accumulator = (state.battle.accumulator ?? 0) + Math.min(deltaSeconds, 0.25);
     const tickDuration = 1 / TICK_RATE;
     while (state.battle.accumulator >= tickDuration && state.battle.phase === 'battle_running') {
@@ -257,7 +274,7 @@ function stepBattle(state, save) {
     gameEvents.emit('actor_spawned', { actor_id: 'boss_bep_truong', character_id: 'boss_bep_truong', boss: true }, battleContext(battle));
     state.lastMessage = 'Bếp Trưởng Hỏa Diệm xuất hiện!';
   }
-  updateBoss(battle);
+  updateBoss(state);
 }
 
 function stepActor(battle, actor) {
@@ -267,7 +284,7 @@ function stepActor(battle, actor) {
   if (actor.action) {
     const action = actor.action;
     if (action.travel && battle.tick === action.launchTick) {
-      const target = battle.actors.find((item) => item.actor_id === action.targetId);
+      const target = findBattleTarget(battle, action.targetId);
       if (target?.alive) {
         gameEvents.emit('projectile_spawned', {
           element: actor.element, travel_ticks: action.travel,
@@ -304,6 +321,10 @@ function stepActor(battle, actor) {
 }
 
 function selectTarget(battle, actor, weakest = false) {
+  if (actor.team === 'player' && battle.stoveTargetId) {
+    const focused = findBattleTarget(battle, battle.stoveTargetId);
+    if (focused?.alive) return focused;
+  }
   const targets = battle.actors.filter((item) => item.alive && item.team !== actor.team);
   if (actor.team === 'enemy') {
     const guardian = targets.find((item) => item.role === 'guardian');
@@ -342,9 +363,12 @@ function resolveAction(battle, actor, action) {
     }
     return;
   }
-  const originalTarget = battle.actors.find((item) => item.actor_id === action.targetId && item.alive);
-  const target = originalTarget ?? (action.sourceKind === 'ultimate' && !action.travel ? selectTarget(battle, actor, action.kind === 'execute') : null);
-  const targets = action.kind === 'area' ? battle.actors.filter((item) => item.alive && item.team !== actor.team) : target ? [target] : [];
+  const originalTarget = findBattleTarget(battle, action.targetId);
+  const target = originalTarget?.alive ? originalTarget
+    : action.sourceKind === 'ultimate' && !action.travel ? selectTarget(battle, actor, action.kind === 'execute') : null;
+  const targets = action.kind === 'area'
+    ? [...battle.actors, ...battle.stoves].filter((item) => item.alive && item.team !== actor.team)
+    : target ? [target] : [];
   for (const victim of targets) {
     const coefficient = action.kind === 'execute' && victim.hp <= victim.maxHp * .35 ? action.executeCoefficient : action.coefficient;
     applyBattleHit(battle, actor, victim, coefficient ?? 10000, action.sourceKind);
@@ -353,25 +377,48 @@ function resolveAction(battle, actor, action) {
   if (actor.team === 'player' && action.sourceKind === 'basic') actor.energy = Math.min(100, actor.energy + balance.basicEnergy);
 }
 
-function updateBoss(battle) {
+function updateBoss(state) {
+  const battle = state.battle;
   const boss = battle.actors.find((item) => item.boss && item.alive);
   if (!boss) return;
-  const ratio = boss.hp / boss.maxHp;
-  const phase = ratio <= .3 ? 3 : ratio <= .7 ? 2 : 1;
-  if (phase > battle.bossPhase && !battle.bossTelegraph && !boss.action) {
+  const phase = battle.bossPhase + 1;
+  const next = balance.bossPhases[phase];
+  if (next && boss.hp <= Math.ceil(boss.maxHp * next.threshold) && !battle.bossTelegraph && !boss.action) {
     battle.bossPhase = phase;
-    const duration = phase === 3 ? 36 : 27;
-    const attack = phase === 3 ? 'Vòng Lửa' : 'Bếp Bùng Cháy';
-    battle.bossTelegraph = { phase, ticks: duration, duration, attack };
-    gameEvents.emit('boss_phase_changed', { phase, attack, windup_ticks: duration }, battleContext(battle, boss.actor_id));
+    battle.bossTelegraph = { phase, ticks: next.windup, duration: next.windup, attack: next.attack };
+    if (phase === 2) {
+      const { hp, def, positions } = balance.bossStoves;
+      battle.stoves = positions.map(([x, y], index) => ({
+        actor_id: 'boss_stove_' + (index + 1), team: 'enemy', stove: true, x, y, hp, maxHp: hp, def, alive: true,
+      }));
+      state.lastMessage = 'Chọn từng bếp lửa để cả đội tập trung phá bếp và ngắt chiêu.';
+    } else {
+      state.lastMessage = 'Bếp Trưởng sắp tung Vòng Lửa. Hãy bảo vệ các Vị Linh được đánh dấu.';
+    }
+    gameEvents.emit('boss_phase_changed', { phase, attack: next.attack, windup_ticks: next.windup }, battleContext(battle, boss.actor_id));
     return;
   }
-  if (!battle.bossTelegraph || --battle.bossTelegraph.ticks > 0) return;
-  const { phase: attackPhase } = battle.bossTelegraph;
+  if (!battle.bossTelegraph) return;
+  const { phase: attackPhase, attack } = battle.bossTelegraph;
+  const interrupted = attackPhase === 2 && battle.stoves.every(stove => !stove.alive);
+  if (!interrupted && --battle.bossTelegraph.ticks > 0) return;
   const victims = bossTelegraphTargets(battle, boss);
+  clearBossTelegraph(battle);
+  const cue = interrupted ? 'boss_cast_interrupted' : 'boss_cast_released';
+  gameEvents.emit(cue, { element: boss.element, attack }, battleContext(battle, boss.actor_id));
+  if (interrupted) {
+    boss.cooldown = Math.max(boss.cooldown, 24);
+    state.lastMessage = 'Đã phá cả hai bếp và ngắt Bếp Bùng Cháy!';
+    return;
+  }
+  state.lastMessage = 'Bếp Trưởng đã tung ' + attack + '!';
+  for (const victim of victims) applyBattleHit(battle, boss, victim, balance.bossPhases[attackPhase].coefficient, 'boss_telegraph');
+}
+
+function clearBossTelegraph(battle) {
   battle.bossTelegraph = null;
-  gameEvents.emit('boss_cast_released', { element: boss.element }, battleContext(battle, boss.actor_id));
-  for (const victim of victims) applyBattleHit(battle, boss, victim, attackPhase === 3 ? 25000 : 18000, 'boss_telegraph');
+  battle.stoves = [];
+  battle.stoveTargetId = null;
 }
 
 export function bossTelegraphTargets(battle, boss) {
@@ -379,33 +426,41 @@ export function bossTelegraphTargets(battle, boss) {
   const distance = (actor) => Math.hypot(actor.x - boss.x, actor.y - boss.y);
   return battle.actors.filter((actor) => actor.team === 'player' && actor.alive)
     .sort((a, b) => distance(a) - distance(b))
-    .slice(0, battle.bossTelegraph.phase === 3 ? 3 : 2);
+    .slice(0, balance.bossPhases[battle.bossTelegraph.phase].targets);
 }
 
 function applyBattleHit(battle, source, target, coefficientBp, sourceKind) {
   const damage = Math.max(1, Math.floor(source.atk * coefficientBp / 10000 * 100 / (100 + target.def)));
   const absorbed = Math.min(damage, target.shield ?? 0);
   target.shield = (target.shield ?? 0) - absorbed;
-  const hpDamage = Math.min(target.hp, damage - absorbed);
+  const protectedByStoves = target.boss && battle.bossTelegraph?.phase === 2;
+  const nextPhase = target.boss ? balance.bossPhases[battle.bossPhase + 1] : null;
+  const hpFloor = nextPhase ? Math.ceil(target.maxHp * nextPhase.threshold) : 0;
+  const hpDamage = protectedByStoves ? 0 : Math.min(Math.max(0, target.hp - hpFloor), damage - absorbed);
   target.hp -= hpDamage;
   target.alive = target.hp > 0;
   if (target.team === 'player') target.energy = Math.min(100, target.energy + balance.hurtEnergy);
   const payload = {
     hit_id: `${battle.tick}:${source.actor_id}:${target.actor_id}`, damage, hp_damage: hpDamage, absorbed,
-    source_kind: sourceKind, element: source.element, timed: true,
+    source_kind: sourceKind, element: source.element, timed: true, guarded: Boolean(protectedByStoves),
   };
   const hit = gameEvents.emit('hit_resolved', payload, battleContext(battle, source.actor_id, target.actor_id));
   battle.events.push(hit);
   if (absorbed > 0 && target.shield === 0) {
     gameEvents.emit('shield_broken', { element: 'light' }, battleContext(battle, source.actor_id, target.actor_id));
   }
-  if (!target.alive) gameEvents.emit('actor_died', { actor_id: target.actor_id }, battleContext(battle, source.actor_id, target.actor_id));
+  if (!target.alive && target.stove) {
+    if (battle.stoveTargetId === target.actor_id) battle.stoveTargetId = null;
+    gameEvents.emit('boss_stove_destroyed', { element: 'fire' }, battleContext(battle, source.actor_id, target.actor_id));
+  } else if (!target.alive) {
+    gameEvents.emit('actor_died', { actor_id: target.actor_id }, battleContext(battle, source.actor_id, target.actor_id));
+  }
 }
 
 function finishBattle(state, save, won) {
   const battle = state.battle;
   battle.phase = 'battle_end';
-  battle.bossTelegraph = null;
+  clearBossTelegraph(battle);
   battle.result = won ? 'victory' : 'defeat';
   if (won) {
     const updated = structuredClone(save);

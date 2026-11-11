@@ -1,5 +1,6 @@
 import { combatArt, cutinArt, ELEMENT_ART, HERO_NAMES } from './spriteAssets.js';
 import { drawEffectTexture, drawElementEffect } from './elementEffects.js';
+import { findBattleTarget } from '../modes/adventure.js';
 
 export class BattleEffects {
   constructor(renderer) {
@@ -11,7 +12,7 @@ export class BattleEffects {
     if (!battle || battle_id !== battle.id) return;
     if (type === 'battle_started' || type === 'wave_completed') this.effects = [];
     const source = battle.actors.find((actor) => actor.actor_id === source_id);
-    const target = battle.actors.find((actor) => actor.actor_id === target_id);
+    const target = findBattleTarget(battle, target_id);
     const element = payload.element ?? source?.element;
 
     if (type === 'projectile_spawned') {
@@ -33,14 +34,19 @@ export class BattleEffects {
     } else if (type === 'boss_cast_released' && source) {
       const flipX = source.direction !== 'E';
       this.add('boss_cleave', element, .48, { x: source.x + (flipX ? -66 : 66), y: source.y - 54, flipX });
+    } else if (type === 'boss_stove_destroyed' && target) {
+      this.add('impact', element, .65, { x: target.x, y: target.y - 32, text: 'Bếp vỡ', strong: true });
+    } else if (type === 'boss_cast_interrupted' && source) {
+      this.add('impact', 'light', .85, { x: source.x, y: source.y - 76, text: 'Ngắt chiêu!', strong: true });
     } else if (type === 'shield_broken' && target) {
       this.add('shield_break', 'light', .38, { x: target.x, y: target.y - 39 });
     } else if (target && ['hit_resolved', 'heal_resolved', 'shield_applied'].includes(type)) {
+      if (payload.guarded && this.effects.some(effect => effect.guarded)) return;
       const text = type === 'heal_resolved' ? '+' + payload.amount
         : type === 'shield_applied' ? 'Hộ thuẫn +' + payload.amount
-          : payload.hp_damage ? '−' + payload.hp_damage : 'Chặn đòn';
+          : payload.hp_damage ? '−' + payload.hp_damage : payload.guarded ? 'Hộ thuẫn bếp' : 'Chặn đòn';
       this.add('impact', element, .72, {
-        x: target.x, y: target.y - 45, text,
+        x: target.x, y: target.y - (target.stove ? 27 : 45), text, guarded: payload.guarded,
         strong: type !== 'hit_resolved' || ['ultimate', 'boss_telegraph'].includes(payload.source_kind),
       });
     }
@@ -66,11 +72,12 @@ export class BattleEffects {
       } else if (effect.type === 'projectile') {
         const travel = (battle.tick - effect.tick) / effect.travelTicks;
         if (travel >= 1) continue;
-        const target = battle.actors.find((actor) => actor.actor_id === effect.targetId && actor.alive) ?? effect.to;
+        const tracked = findBattleTarget(battle, effect.targetId);
+        const target = tracked?.alive ? tracked : effect.to;
         const dx = target.x - effect.from.x;
         const dy = target.y - effect.from.y;
         const x = effect.from.x + dx * travel;
-        const y = effect.from.y - 42 + dy * travel - Math.sin(Math.PI * travel) * 20;
+        const y = effect.from.y - 42 + dy * travel + (target.stove ? 16 * travel : 0) - Math.sin(Math.PI * travel) * 20;
         drawElementEffect(context, this.renderer, effect.element, 'trail', {
           x, y, size: 96, angle: Math.atan2(dy, dx), opacity: .95,
         });

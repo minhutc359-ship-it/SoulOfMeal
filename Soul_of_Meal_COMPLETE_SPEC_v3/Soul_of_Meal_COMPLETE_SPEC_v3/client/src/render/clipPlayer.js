@@ -84,12 +84,12 @@ export class ClipPlayer {
     const requestedClipId = this.current?.requestedClipId ?? this.fallbackClip;
     const previousFrameIndex = this.frameIndex ?? 0;
     const resolved = this.#resolveClip(requestedClipId);
-    this.current = { ...resolved, requestedClipId };
+    this.current = { ...resolved, requestedClipId, hold: this.current?.hold ?? false };
     this.frameIndex = Math.min(previousFrameIndex, resolved.frames.length - 1);
     this.missingClip = resolved.missing;
   }
 
-  play(requestedClipId, { force = false, restart = true } = {}) {
+  play(requestedClipId, { force = false, restart = true, hold = false } = {}) {
     const resolved = this.#resolveClip(requestedClipId);
     const nextPriority = CLIP_PRIORITY[requestedClipId] ?? 10;
     const currentPriority = CLIP_PRIORITY[this.current?.requestedClipId] ?? 10;
@@ -97,7 +97,7 @@ export class ClipPlayer {
     if (!restart && this.current?.clipId === resolved.clipId) return true;
     if (!force && this.current?.requestedClipId === requestedClipId && !this.completed && !restart) return true;
 
-    this.current = { ...resolved, requestedClipId };
+    this.current = { ...resolved, requestedClipId, hold };
     this.frameIndex = 0;
     this.elapsedMs = 0;
     this.completed = false;
@@ -113,6 +113,8 @@ export class ClipPlayer {
     const totalFramesElapsed = Math.floor(this.elapsedMs / frameDuration);
     if (this.current.loop) {
       this.frameIndex = totalFramesElapsed % frameCount;
+    } else if (this.current.hold) {
+      this.frameIndex = Math.min(totalFramesElapsed, frameCount - 1);
     } else if (totalFramesElapsed >= frameCount) {
       this.completed = true;
       const completedClip = this.current.clipId;

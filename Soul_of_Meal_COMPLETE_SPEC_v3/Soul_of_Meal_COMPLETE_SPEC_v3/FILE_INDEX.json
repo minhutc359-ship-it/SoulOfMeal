@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 6991,
-      "sha256": "439e59d9d32950392b9577c09567909e4bb3ebb0dc41c5af181b5f062a13e412"
+      "bytes": 7648,
+      "sha256": "49f68c03644e2221453e8b37ae214689baa4755cda1cabd6e081a478df15dd40"
     },
     {
       "path": "client/index.html",
@@ -794,13 +794,13 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 69899,
-      "sha256": "82eb9bb801c7c36b3e35d92787b9502bdda894e0f372547b1b281b7ce85325e7"
+      "bytes": 74342,
+      "sha256": "d11a929a50de441504e791629e72f2ff3264cbef924b184abacee3110b436cd6"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 21086,
-      "sha256": "3f02ee758aa7a1223c082daeabfae23fdae7600da8660e524b2abbe28b1f37cb"
+      "bytes": 23669,
+      "sha256": "cb1f21e1ede738339e0acab2e4c26fa56cb80acc61bde095b1849d257565954d"
     },
     {
       "path": "client/src/modes/autoChess.js",
@@ -814,13 +814,13 @@
     },
     {
       "path": "client/styles.css",
-      "bytes": 19052,
-      "sha256": "76b1c9a261f197d8b0610af59f2ddfa6e8db1f9bcb07a36a42df49fb89071282"
+      "bytes": 19827,
+      "sha256": "f45fb2b3e1382deecd32a902bb52a2e62ebe0a8c770af920b881bc9393ce05b2"
     },
     {
       "path": "client/tests/runtime.test.js",
-      "bytes": 20105,
-      "sha256": "ab66da34e1f9688dc7c3cf69bbe40b2389ac89e28fa25a116283358295f46f83"
+      "bytes": 23267,
+      "sha256": "803ff702493631a29715414b1da5922c346b1688bbf91bea307cfe677f6be2f6"
     },
     {
       "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
@@ -834,13 +834,13 @@
     },
     {
       "path": "client/src/render/animationAdapter.js",
-      "bytes": 9154,
-      "sha256": "23a49fed3d7c7241ba48ac311a2cfd024c82c9b988c31d3ee0db4ca9c5544be0"
+      "bytes": 9458,
+      "sha256": "bebd9824f6a0e30c3e9767a36165a1fa226808efeae43ca7a2218b0391daf848"
     },
     {
       "path": "client/src/render/clipPlayer.js",
-      "bytes": 7192,
-      "sha256": "d1906b370f2a7a284509fe405e56aa8abe9c4c557844c3d8accbf64475a4d3f1"
+      "bytes": 7354,
+      "sha256": "8a9192453a01cc0de84b073637371f2254e850785c6c15a17f68d479d6691159"
     },
     {
       "path": "client/tests/animation.test.js",
@@ -1259,8 +1259,8 @@
     },
     {
       "path": "client/src/render/spriteAssets.js",
-      "bytes": 2703,
-      "sha256": "c724b47b901b7936c77e0e562acbcf32608e0e39739eee62be39991601a09095"
+      "bytes": 2717,
+      "sha256": "297eafa03267182dfed09e82b5444b5a85184ed7cbfd7a3ec8c947e3fa4b9051"
     },
     {
       "path": "client/src/render/spriteRenderer.js",
@@ -1474,18 +1474,18 @@
     },
     {
       "path": "client/src/core/audio.js",
-      "bytes": 5110,
-      "sha256": "4d9ed06a12e8dfe68557e76d40aaa033f6211fe046b3156bdcfc842fb630bb3a"
+      "bytes": 5194,
+      "sha256": "53544fd922cbf700359fd74a1319fefe2ab01a7eed6a923fdcbe77a3058361a9"
     },
     {
       "path": "client/src/modes/adventureBalance.js",
-      "bytes": 1884,
-      "sha256": "36caac1d8430cffe7ed42beeb6ccc38d6af6e539bcf9358695152dc0f058944c"
+      "bytes": 2206,
+      "sha256": "65bb50adfb88257827cfab05fb1739ea755b7d49202e2ce942fa8e713122d67b"
     },
     {
       "path": "client/src/render/battleEffects.js",
-      "bytes": 6387,
-      "sha256": "d58d85b9af4c2213d7730f1fb1fc382efcbe7801b4139abe174ed3965106b70f"
+      "bytes": 6980,
+      "sha256": "c91c6ed58dbedf92bb2957d9e4c46162f9367082e1e54d868e02783833a65701"
     },
     {
       "path": "client/src/render/chessReplay.js",
@@ -2179,13 +2179,13 @@
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_PLAYTEST.md",
-      "bytes": 6890,
-      "sha256": "623c70f72237f57da37c4bd0763800f264f80949d4540ffbe098bd9a45fa6b78"
+      "bytes": 7226,
+      "sha256": "46418382f996a05c6912e72b28699c52d62cd110cbc05d77b03db581f74f5ec6"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_SOURCES.json",
-      "bytes": 25119,
-      "sha256": "dd00c4503864d96f8867ee25b98a0f02677cbc1030a927ebdd2811a21ceafc4e"
+      "bytes": 26415,
+      "sha256": "92905c5446210ec8a33674e9817849f761b14e89245c0f6f7217f9c839235047"
     },
     {
       "path": "scripts/build_element_sfx.py",
@@ -2194,8 +2194,8 @@
     },
     {
       "path": "scripts/build_original_art.py",
-      "bytes": 11512,
-      "sha256": "198c1d6639d18b2242a9606650393eb628937b275cc85e92c851c1942d96ca34"
+      "bytes": 11769,
+      "sha256": "d824f59eb60fbb8fd82ff72d882438928ff51ecf664f86e1a3de2060295b6df2"
     },
     {
       "path": "docs/00_foundation/decisions/D-018.md",
@@ -2209,8 +2209,8 @@
     },
     {
       "path": "docs/04_qa/PLAYTEST_CONCEPT_GAP.md",
-      "bytes": 4396,
-      "sha256": "c98126632390c6af69b4f3946a59cfa473498d1317a1db4edf02724534f54eb5"
+      "bytes": 4525,
+      "sha256": "000bf271a788cc4075fb6c1787cbf9382bec8a174c6bb3bc9787e7900ea2b5c6"
     },
     {
       "path": "client/assets/original/scenes/title.webp",
@@ -2421,6 +2421,11 @@
       "path": "client/tests/tcgCombat.test.js",
       "bytes": 6673,
       "sha256": "2ab2c5a1c014250c7a7fb2a852912a0766d9ce0780b8192994dc26e5530047d9"
+    },
+    {
+      "path": "client/assets/original/props/boss_stove.webp",
+      "bytes": 12814,
+      "sha256": "676edb7f22f898ea814032d86007aaae79ee8193bd6c22ba858c8282a4d2c037"
     }
   ]
 }
