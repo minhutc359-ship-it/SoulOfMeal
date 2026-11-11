@@ -1,6 +1,8 @@
 const ORIGINAL = './assets/original';
 export const HERO_ID = 'chr_bunbo_holinh';
 export const TRAVEL_HERO = HERO_ID + '_travel';
+export const BOSS_ID = 'boss_bep_truong';
+const COMBAT_EFFECTS = ['boss_warning', 'boss_cleave', 'shield_bubble', 'shield_break'];
 
 export const HERO_NAMES = Object.freeze({
   [HERO_ID]: 'Bún Bò Hỏa Linh',
@@ -10,7 +12,7 @@ export const HERO_NAMES = Object.freeze({
   chr_caphe_davu: 'Cà Phê Dạ Vũ',
 });
 
-const ACTORS = [...Object.keys(HERO_NAMES), 'npc_lilia', 'mob_mushroom_01', 'mob_pepper_01', 'boss_bep_truong'];
+const ACTORS = [...Object.keys(HERO_NAMES), 'npc_lilia', 'mob_mushroom_01', 'mob_pepper_01', BOSS_ID];
 const CARD_IDS = new Set([7, 10, 11, 12, 13, 14, 15, 16, 17, 18].map((id) => 'card_demo_' + String(id).padStart(2, '0')));
 const PROPS = ['house_kitchen', 'house_guild', 'house_merchant', 'tree', 'chest_closed', 'chest_open', 'portal', 'table'];
 
@@ -27,6 +29,7 @@ export function actorArt(id) { return ACTORS.includes(id) ? `${ORIGINAL}/actors/
 export function propArt(id) { return `${ORIGINAL}/props/${id}.webp`; }
 export function originalCardArt(id) { return CARD_IDS.has(id) ? `${ORIGINAL}/cards/${id}.webp` : null; }
 export function cutinArt(id) { return `${ORIGINAL}/cutins/${id}.webp`; }
+export function combatArt(id) { return `${ORIGINAL}/effects/${id}.webp`; }
 export function effectArt(element, phase) {
   const key = Object.hasOwn(ELEMENT_ART, element) ? element : 'light';
   return `${ORIGINAL}/effects/${key}_${phase}.webp`;
@@ -38,9 +41,10 @@ export async function preloadGameAssets(renderer) {
     ...ACTORS.map(actorArt),
     ...PROPS.map(propArt),
     ...Object.keys(HERO_NAMES).map(cutinArt),
+    ...COMBAT_EFFECTS.map(combatArt),
     ...Object.keys(ELEMENT_ART).flatMap((id) => [effectArt(id, 'trail'), effectArt(id, 'impact')]),
   ];
-  const loadSprites = [TRAVEL_HERO, ...Object.keys(HERO_NAMES)].map(async (id) => {
+  const loadSprites = [TRAVEL_HERO, BOSS_ID, ...Object.keys(HERO_NAMES)].map(async (id) => {
     const path = `${ORIGINAL}/atlases/${id}`;
     const entry = await renderer.loadCharacter(id, path + '.webp', path + '.json');
     return [id, entry.loaded ? entry.manifest : null];

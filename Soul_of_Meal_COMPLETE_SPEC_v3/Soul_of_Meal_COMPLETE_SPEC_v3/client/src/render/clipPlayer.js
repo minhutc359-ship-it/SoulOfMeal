@@ -7,6 +7,7 @@ export const CLIP_PRIORITY = Object.freeze({
   attack_b: 30,
   hit: 40,
   skill_01: 50,
+  boss_release: 50,
   ultimate_01: 60,
   defeat: 100,
 });

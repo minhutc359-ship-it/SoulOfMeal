@@ -1,0 +1,35 @@
+{
+  "character_id": "boss_bep_truong",
+  "skin_id": "default",
+  "frame_size_px": [
+    256,
+    256
+  ],
+  "source_sheet_sha256": "ccf42bd3dd3848b31e60cef22b538e110fd1cc7e65e8487f5f9c63d8d9877113",
+  "ground_anchor": [
+    0.5,
+    0.8984375
+  ],
+  "rights_status": "pending_review",
+  "identity_review": "pending",
+  "animations": {
+    "keyposes": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "W": {
+          "frames": [
+            "poses/boss_bep_truong_pose_00.png",
+            "poses/boss_bep_truong_pose_01.png",
+            "poses/boss_bep_truong_pose_02.png",
+            "poses/boss_bep_truong_pose_03.png",
+            "poses/boss_bep_truong_pose_04.png",
+            "poses/boss_bep_truong_pose_05.png",
+            "poses/boss_bep_truong_pose_06.png",
+            "poses/boss_bep_truong_pose_07.png"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -94,6 +94,18 @@
       "alpha": true,
       "source_file": "cards.png",
       "source_sha256": "139f1359c634360b71d1b3f8671be5f18ec8fd48b9cc395bb890dd12ea4fc90e"
+    },
+    "boss_bep_truong": {
+      "prompt": "Create an original production-ready 2D anime chibi game sprite key-pose sheet for Soul of Meal's Bếp Trưởng Hỏa Diệm, the broad, stocky fire chef boss. The supplied boss portrait is a character-identity reference only: keep his tall white chef hat, orange pointed eyebrows and handlebar mustache, little orange beard, red-and-dark-brown apron armor with gold knot trim, gold-edged rectangular cleaver in his right hand, round soot-black wok shield with flame emblem in his left hand, red ribbons, brown boots and stern face. Match the original finely drawn fantasy anime chibi art; preserve the same proportions, face, costume, equipment and palette in all poses. Exactly EIGHT isolated full-body poses on a true transparent canvas, arranged strictly in a uniform FOUR-COLUMN TWO-ROW sprite grid. All eight face left at the same three-quarter side angle, same ground line per row, and same drawing scale. Top row left-to-right: guarded idle, first grounded walk contact, opposite walk contact, crouched cleaver wind-up with wok held in front. Bottom row left-to-right: wide horizontal cleaver strike to the left, braced casting stance with raised wok and cleaver, stagger backward from a hit, defeated kneeling with both items still visible. Keep enough transparent padding to avoid touching the adjacent cells, keep all feet/hair/weapons inside each cell and preserve the original identity. A very wide landscape canvas with four even columns and two even rows, no shadows, no fire particles, no stylized motion blur, no props outside the character, no borders, captions, logos, text, watermarks, or checkerboard. Only these eight individual figures on alpha.",
+      "alpha": true,
+      "source_file": "boss_bep_truong.png",
+      "source_sha256": "ccf42bd3dd3848b31e60cef22b538e110fd1cc7e65e8487f5f9c63d8d9877113"
+    },
+    "combat_effects": {
+      "prompt": "Production transparent game VFX sprite sheet for original anime fantasy game Soul of Meal. Create exactly FOUR isolated effects in a clean equal TWO-COLUMN TWO-ROW grid, transparent alpha, no background, no terrain, no shadows, no text. All effects with generous padding, isolated from one another. Top left: Bếp Trưởng Hỏa Diệm's red-orange kitchen-fire warning seal, a thin circular golden fire glyph with cut-out holes and a stylized wok flame emblem, seen as an oval in top-down three-quarter perspective, readable in a small game frame. Top right: an orange-red crescent cleaver slash, shaped as a broad asymmetric heated metal edge with small sparks. Bottom left: Quang shield bubble as a delicate upright amber-white thin glass dome, spherical curved edges, softly luminous rim, a few gold specks, and genuinely transparent clear middle to see a chibi character inside. Bottom right: a circular shield break burst of separated amber-white curved shards and sparks flying outward, the center clear. Crisp painted anime spell effects with a bright core and natural transparent falloff, each effect defined by its color and visual silhouette, same rendering style. No surrounding objects, character silhouettes, labels, border, grey checkerboard or watermark.",
+      "alpha": true,
+      "source_file": "combat_effects.png",
+      "source_sha256": "d591bc2c36b4dfecf013cf7b365752d45233434c6adb0094e165d5efa267ea89"
     }
   },
   "generator": "OpenAI ImageGen, built-in image generation",

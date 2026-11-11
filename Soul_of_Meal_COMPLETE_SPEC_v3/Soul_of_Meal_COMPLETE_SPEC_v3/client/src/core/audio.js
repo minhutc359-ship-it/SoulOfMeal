@@ -1,3 +1,5 @@
+import { customSoundtrack, DEFAULT_SOUNDTRACKS } from './soundScenes.js';
+
 const AUDIO_PATH = './assets/audio/';
 const CUES = {
   quest_accepted: 'sfx_ui_confirm', chest_opened: 'sfx_ui_confirm',
@@ -5,6 +7,7 @@ const CUES = {
   unit_summoned: 'sfx_ui_confirm', chess_unit_bought: 'sfx_ui_confirm',
   chess_units_merged: 'sfx_cast_fire', heal_resolved: 'sfx_ui_confirm',
   shield_applied: 'sfx_ui_confirm', boss_phase_changed: 'sfx_cast_fire',
+  shield_broken: 'sfx_element_light_impact', boss_cast_released: 'sfx_impact_fire',
 };
 
 const ELEMENTS = new Set(['fire', 'water', 'wood', 'light', 'shadow']);
@@ -17,6 +20,7 @@ export class GameAudio {
     this.settings = settings;
     this.active = new Map();
     this.loops = {};
+    this.soundtracks = {};
     this.lastPlayed = new Map();
     this.unlocked = false;
   }
@@ -31,28 +35,69 @@ export class GameAudio {
     this.updateLoops();
   }
 
+  async loadSoundtracks(fetchRequest = globalThis.fetch) {
+    try {
+      const response = await fetchRequest(AUDIO_PATH + 'soundtracks.json', { cache: 'no-cache' });
+      if (!response.ok) return;
+      const config = await response.json();
+      this.soundtracks = Object.fromEntries(Object.keys(DEFAULT_SOUNDTRACKS)
+        .map(key => [key, customSoundtrack(config?.[key])]));
+      this.updateLoops();
+    } catch {
+      // The demo tracks are already available while configuration is loading.
+    }
+  }
+
   updateLoops() {
     if (!this.unlocked) return;
-    const tracks = {
-      music: ({ title: 'village_theme', home: 'village_theme', village: 'village_theme', forest: 'forest_theme', battle: 'battle_theme', tcg: 'forest_theme', chess: 'battle_theme' })[this.scene],
-      ambience: this.scene === 'forest' ? 'forest_wind' : null,
-    };
-    for (const [channel, id] of Object.entries(tracks)) {
-      let track = this.loops[channel];
-      if (track?.id !== id) {
-        track?.audio.pause();
-        delete this.loops[channel];
-        if (!id) continue;
-        const audio = this.create(id, channel);
-        audio.loop = true;
-        track = { id, audio };
-        this.loops[channel] = track;
-      }
-      if (!track) continue;
-      track.audio.volume = this.volume(channel);
-      if (track.audio.volume > 0) track.audio.play().catch(() => {});
-      else track.audio.pause();
+    const music = DEFAULT_SOUNDTRACKS[this.scene];
+    this.updateLoop('music', this.soundtracks[this.scene] ?? music, music);
+    const wind = this.scene === 'forest' ? 'forest_wind.ogg' : undefined;
+    this.updateLoop('ambience', wind, wind);
+  }
+
+  updateLoop(channel, preferred, fallback) {
+    let track = this.loops[channel];
+    if (track?.preferred !== preferred || track?.fallback !== fallback) {
+      track?.audio.pause();
+      delete this.loops[channel];
+      if (!preferred) return;
+      track = this.startLoop(channel, preferred, fallback, preferred);
     }
+    if (!track || track.failed) return;
+
+    track.audio.volume = this.volume(channel);
+    if (!track.audio.volume) {
+      track.audio.pause();
+      track.requested = false;
+      track.attempt += 1;
+    } else if (!track.requested) {
+      track.requested = true;
+      const attempt = ++track.attempt;
+      track.audio.play().catch(error => {
+        if (this.loops[channel] !== track || track.attempt !== attempt) return;
+        track.requested = false;
+        if (error?.name === 'NotSupportedError' || error?.name === 'EncodingError') this.failLoop(channel, track);
+      });
+    }
+  }
+
+  startLoop(channel, preferred, fallback, path) {
+    const audio = new Audio(AUDIO_PATH + path);
+    audio.loop = true;
+    const track = { audio, preferred, fallback, path, requested: false, failed: false, attempt: 0 };
+    this.loops[channel] = track;
+    audio.addEventListener('error', () => this.failLoop(channel, track), { once: true });
+    return track;
+  }
+
+  failLoop(channel, track) {
+    if (this.loops[channel] !== track || track.failed) return;
+    track.failed = true;
+    track.audio.pause();
+    if (!track.fallback || track.path === track.fallback) return;
+    this.startLoop(channel, track.preferred, track.fallback, track.fallback);
+    this.updateLoops();
   }
 
   setSettings(settings) {

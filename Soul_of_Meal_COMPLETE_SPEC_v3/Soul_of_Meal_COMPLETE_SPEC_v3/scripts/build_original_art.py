@@ -16,7 +16,9 @@ HEROES = {
     "banhbao": "chr_banhbao_bachngoc",
     "caphe": "chr_caphe_davu",
 }
-ACTORS = ("npc_lilia", "mob_mushroom_01", "mob_pepper_01", "boss_bep_truong")
+BOSS = "boss_bep_truong"
+ACTORS = ("npc_lilia", "mob_mushroom_01", "mob_pepper_01", BOSS)
+COMBAT_EFFECTS = ("boss_warning", "boss_cleave", "shield_bubble", "shield_break")
 PROPS = (
     "house_kitchen", "house_guild", "house_merchant", "tree",
     "chest_closed", "chest_open", "portal", "table",
@@ -36,6 +38,17 @@ CLIPS = {
     "hit": ((5, 0), 8, False),
     "defeat": ((5,), 2, True),
     "victory": ((7, 0), 3, True),
+}
+BOSS_CLIPS = {
+    "idle": ((0,), 1, True),
+    "walk": ((1, 0, 2), 8, True),
+    "run": ((1, 2), 10, True),
+    "attack_a": ((3, 4, 0), 8, False),
+    "attack_b": ((5, 4, 0), 8, False),
+    "skill_01": ((3, 5), 1.5, False),
+    "boss_release": ((4, 0), 5, False),
+    "hit": ((6, 0), 8, False),
+    "defeat": ((7,), 1, True),
 }
 FRAME_SIZE = 256
 ATLAS_FRAME = 160
@@ -169,13 +182,16 @@ def export_character(source, assets, character_id, travel=False):
                 },
             }
     else:
-        source_directions = {"E": {"frames": [f"poses/{frame_id}.png" for frame_id in frame_ids]}}
+        facing = "W" if character_id == BOSS else "E"
+        clips = BOSS_CLIPS if character_id == BOSS else CLIPS
+        source_directions = {facing: {"frames": [f"poses/{frame_id}.png" for frame_id in frame_ids]}}
         runtime_clips = {
-            name: clip([frame_ids[index] for index in indexes], fps, loop, "E")
-            for name, (indexes, fps, loop) in CLIPS.items()
+            name: clip([frame_ids[index] for index in indexes], fps, loop, facing)
+            for name, (indexes, fps, loop) in clips.items()
         }
-        export_cutout(assets / "original" / "actors" / f"{character_id}.webp", images[0], (330, 330))
-        export_cutout(assets / "original" / "cutins" / f"{character_id}.webp", images[6], (470, 470), 87)
+        if character_id != BOSS:
+            export_cutout(assets / "original" / "actors" / f"{character_id}.webp", images[0], (330, 330))
+            export_cutout(assets / "original" / "cutins" / f"{character_id}.webp", images[6], (470, 470), 87)
 
     source_manifest = {
         "character_id": character_id,
@@ -213,6 +229,11 @@ def export_art(sources, assets, selection):
         source = sources / f"{source_id}.png"
         if source_id in HEROES or source_id == "travel":
             export_character(source, assets, HEROES[source_id] if source_id in HEROES else HEROES["bunbo"], source_id == "travel")
+        elif source_id == BOSS:
+            export_character(source, assets, BOSS)
+        elif source_id == "combat_effects":
+            for effect, image in zip(COMBAT_EFFECTS, cells(source, 2, 2)):
+                export_cutout(assets / "original" / "effects" / f"{effect}.webp", image, (384, 384), 88)
         elif source_id == "extras":
             for actor, image in zip(ACTORS, cells(source, 4, 1)):
                 export_cutout(assets / "original" / "actors" / f"{actor}.webp", image, (330, 330))
@@ -238,13 +259,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("sources", type=Path, help="Directory of newly generated source sheets named by asset ID")
     parser.add_argument("--assets", type=Path, default=Path("client/assets"))
-    ids = (*HEROES, "travel", "extras", "props", "effects", "cards", *SCENES)
+    ids = (*HEROES, "travel", "extras", "props", "effects", "cards", *SCENES, BOSS, "combat_effects")
     parser.add_argument("ids", nargs="*", metavar="ASSET_ID")
     args = parser.parse_args()
     unknown = set(args.ids) - set(ids)
     if unknown:
         parser.error(f"unknown asset IDs: {sorted(unknown)}")
-    export_art(args.sources, args.assets, args.ids or ids)
+    default_ids = tuple(asset_id for asset_id in ids if asset_id not in (BOSS, "combat_effects")
+                        or (args.sources / f"{asset_id}.png").is_file())
+    export_art(args.sources, args.assets, args.ids or default_ids)
 
 
 if __name__ == "__main__":

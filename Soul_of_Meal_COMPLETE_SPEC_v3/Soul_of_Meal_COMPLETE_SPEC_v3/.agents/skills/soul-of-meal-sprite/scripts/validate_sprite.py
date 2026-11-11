@@ -10,7 +10,7 @@ def validate(manifest_path, root, strict=False):
     data=json.loads(manifest_path.read_text(encoding='utf8'))
     issues=[]; warnings=[]; seen_hash={}; checked=0
     cid=data.get('character_id','');skin=data.get('skin_id','')
-    if not re.fullmatch(r'chr_[a-z0-9_]+',cid): issues.append('Invalid character ID')
+    if not re.fullmatch(r'(?:chr|boss)_[a-z0-9_]+',cid): issues.append('Invalid character ID')
     if not re.fullmatch(r'[a-z0-9_]+',skin): issues.append('Invalid skin ID')
     size=data.get('frame_size_px',[512,512]); expected=tuple(size)
     anims=data.get('animations',{})

@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { createAdventureState, interactAdventure, nearestInteraction, beginBattle, setAdventureInput, stepAdventure, claimBattleResult, activateUltimate, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
+import { createAdventureState, interactAdventure, nearestInteraction, beginBattle, bossTelegraphTargets, setAdventureInput, stepAdventure, claimBattleResult, activateUltimate, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
 import { advanceChessRound, buyChessOffer, createChessRun, placeChessUnit, startChessCombat, chessTraits } from '../src/modes/autoChess.js';
 import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard, mulliganTcg } from '../src/modes/tcg.js';
 import { createDefaultSave, migrateSave, SAVE_VERSION } from '../src/core/save.js';
+import { adventureJournal } from '../src/modes/adventureJournal.js';
 import { gameEvents } from '../src/core/events.js';
 import { collidesWithWorld, findAdventurePath, moveWithCollision } from '../src/modes/adventureNavigation.js';
 
@@ -92,6 +93,61 @@ test('Adventure projectiles take time to hit and defensive ultimates affect the 
     assert.equal(impact.tick - launch.tick, launch.payload.travel_ticks);
     assert.ok(ally.shield > 0 && ally.hp > ally.maxHp - 1000);
     assert.ok(events.some((event) => event.type === 'heal_resolved' && event.target_id === ally.actor_id));
+  } finally {
+    gameEvents.removeEventListener('game-event', listener);
+  }
+});
+
+test('the Adventure journal points to the correct interaction after a map or quest change', () => {
+  const save = createDefaultSave();
+  assert.equal(adventureJournal(save).action, 'lilia');
+  Object.assign(save.adventure, { quest: 'accepted' });
+  assert.equal(adventureJournal(save).action, 'chest');
+  Object.assign(save.adventure, { chestOpened: true });
+  assert.equal(adventureJournal(save).action, 'portal');
+  Object.assign(save.adventure, { map: 'forest' });
+  assert.equal(adventureJournal(save).action, 'encounter');
+  Object.assign(save.adventure, { forestCleared: true, quest: 'ready_to_claim' });
+  assert.equal(adventureJournal(save).action, 'village_return');
+  Object.assign(save.adventure, { map: 'village', quest: 'completed' });
+  assert.equal(adventureJournal(save).action, null);
+  assert.ok(adventureJournal(save).labels.every(step => step.status === 'done'));
+});
+
+test('the boss winds up, strikes the marked targets on the scheduled tick and emits one shield break', () => {
+  const save = createDefaultSave();
+  const state = createAdventureState(save);
+  beginBattle(state, save);
+  const battle = state.battle;
+  for (const enemy of battle.actors.filter(actor => actor.team === 'enemy')) enemy.alive = false;
+  stepAdventure(state, save, 1 / 30);
+  const boss = battle.actors.find(actor => actor.boss);
+  assert.equal(boss.id, 'boss_bep_truong');
+  boss.hp = Math.floor(boss.maxHp * .6);
+  boss.cooldown = 900;
+  for (const actor of battle.actors.filter(actor => actor.team === 'player')) {
+    actor.action = { hitTick: 900 };
+  }
+  const events = [];
+  const listener = ({ detail }) => events.push(detail);
+  gameEvents.addEventListener('game-event', listener);
+  try {
+    stepAdventure(state, save, 1 / 30);
+    const windup = events.find(event => event.type === 'boss_phase_changed');
+    assert.ok(windup);
+    const targets = bossTelegraphTargets(battle, boss);
+    assert.equal(targets.length, 2);
+    targets[0].shield = 1;
+    targets[0].shieldUntil = 500;
+    const releaseTick = windup.tick + windup.payload.windup_ticks;
+    while (battle.tick < releaseTick - 1) stepAdventure(state, save, 1 / 30);
+    assert.ok(events.every(event => event.type !== 'boss_cast_released'));
+    stepAdventure(state, save, 1 / 30);
+    assert.equal(events.filter(event => event.type === 'boss_cast_released').length, 1);
+    const hits = events.filter(event => event.type === 'hit_resolved' && event.source_id === boss.id);
+    assert.deepEqual(hits.map(event => event.target_id), targets.map(actor => actor.actor_id));
+    assert.ok(hits.every(event => event.tick === releaseTick));
+    assert.equal(events.filter(event => event.type === 'shield_broken').length, 1);
   } finally {
     gameEvents.removeEventListener('game-event', listener);
   }

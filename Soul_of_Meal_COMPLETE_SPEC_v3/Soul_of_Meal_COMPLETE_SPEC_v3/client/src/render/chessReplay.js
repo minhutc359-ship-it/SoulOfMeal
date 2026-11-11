@@ -2,6 +2,9 @@ import { ClipPlayer } from './clipPlayer.js';
 import { actorArt, ELEMENT_ART, sceneArt } from './spriteAssets.js';
 import { drawElementEffect } from './elementEffects.js';
 
+const ATTACK_LEAD = .20;
+const FALL_DURATION = .36;
+
 export class ChessReplay {
   constructor(combat, renderer, reducedMotion) {
     this.combat = combat;
@@ -9,7 +12,7 @@ export class ChessReplay {
     this.reducedMotion = reducedMotion;
     this.actors = new Map(combat.startActors.map((actor) => {
       return [actor.actorId, {
-        ...actor, viewX: actor.x, viewY: actor.y,
+        ...actor, viewX: actor.x, viewY: actor.y, attackCount: 0, preparedHit: -1,
         player: new ClipPlayer(renderer.sheets.get(actor.id)?.manifest, { direction: actor.team === 'player' ? 'E' : 'W', reducedMotion }),
       }];
     }));
@@ -17,13 +20,15 @@ export class ChessReplay {
     this.elapsed = 0;
     this.eventIndex = 0;
     this.impacts = [];
+    this.approaching = [];
   }
 
   advance(delta, onImpact) {
     this.elapsed = Math.min(this.duration + .42, this.elapsed + delta);
     const tick = Math.min(this.combat.tick, Math.floor(this.elapsed * this.combat.tick / this.duration));
     while (this.combat.events[this.eventIndex]?.tick <= tick) {
-      const event = this.combat.events[this.eventIndex++];
+      const index = this.eventIndex++;
+      const event = this.combat.events[index];
       const source = this.actors.get(event.source_id);
       if (event.type === 'move') {
         source.x = event.x;
@@ -32,19 +37,21 @@ export class ChessReplay {
       } else if (event.type === 'hit_resolved') {
         const target = this.actors.get(event.target_id);
         target.hp = event.payload.hp;
-        source.player.play('attack_a', { force: true });
+        this.prepareAttack(source, index);
         target.player.play(target.hp ? 'hit' : 'defeat', { force: true });
+        if (target.hp <= 0) target.fallUntil = this.elapsed + FALL_DURATION;
         this.impacts.push({ targetId: target.actorId, damage: event.payload.damage, element: source.element, end: this.elapsed + .38 });
         onImpact({ type: 'hit_resolved', payload: { element: source.element } });
       }
     }
+    this.trackApproachingAttacks();
     this.impacts = this.impacts.filter((impact) => impact.end > this.elapsed);
     for (const actor of this.actors.values()) {
       const fraction = this.reducedMotion ? 1 : Math.min(1, delta * 15);
       actor.viewX += (actor.x - actor.viewX) * fraction;
       actor.viewY += (actor.y - actor.viewY) * fraction;
       actor.player.advance(delta * 1000);
-      if (Math.abs(actor.x - actor.viewX) + Math.abs(actor.y - actor.viewY) < .015) {
+      if (actor.hp > 0 && Math.abs(actor.x - actor.viewX) + Math.abs(actor.y - actor.viewY) < .015) {
         actor.player.play('idle', { restart: false });
       }
     }
@@ -66,9 +73,11 @@ export class ChessReplay {
       }
     }
     for (const actor of [...this.actors.values()].sort((a, b) => b.viewY - a.viewY)) {
-      if (actor.hp <= 0) continue;
+      const standing = actor.hp > 0;
+      if (!standing && (this.reducedMotion || !(actor.fallUntil > this.elapsed))) continue;
+      const opacity = standing ? 1 : (actor.fallUntil - this.elapsed) / FALL_DURATION;
       const { x, y } = boardPoint(actor.viewX, actor.viewY);
-      const drawn = this.renderer.drawSprite(context, actor.id, actor.player.snapshot(), x, y + 9, { scale: .36 });
+      const drawn = this.renderer.drawSprite(context, actor.id, actor.player.snapshot(), x, y + 9, { scale: .36, opacity });
       if (!drawn) {
         const asset = actorArt(actor.id);
         const image = this.renderer.images.get(asset);
@@ -76,9 +85,13 @@ export class ChessReplay {
           const scale = Math.min(45 / image.naturalWidth, 44 / image.naturalHeight);
           const width = image.naturalWidth * scale;
           const height = image.naturalHeight * scale;
+          context.save();
+          context.globalAlpha = opacity;
           this.renderer.drawImage(context, asset, x - width / 2, y + 9 - height, width, height);
+          context.restore();
         }
       }
+      if (!standing) continue;
       context.fillStyle = '#151f1c';
       context.fillRect(x - 23, y - 46, 46, 5);
       context.fillStyle = actor.team === 'player' ? '#a6e3a5' : '#ff977b';
@@ -106,21 +119,37 @@ export class ChessReplay {
     }
   }
 
-  drawApproachingAttacks(context) {
-    const lead = .20;
+  prepareAttack(actor, eventIndex) {
+    if (actor.preparedHit === eventIndex) return;
+    actor.preparedHit = eventIndex;
+    const clip = actor.attackCount++ % 2 === 0 ? 'attack_a' : 'attack_b';
+    actor.player.play(clip, { force: true });
+  }
+
+  trackApproachingAttacks() {
+    this.approaching = [];
+    const preparing = new Set();
     for (let index = this.eventIndex; index < this.combat.events.length; index += 1) {
       const event = this.combat.events[index];
       const contact = event.tick * this.duration / this.combat.tick;
-      if (contact > this.elapsed + lead) break;
+      if (contact > this.elapsed + ATTACK_LEAD) break;
       if (event.type !== 'hit_resolved') continue;
       const source = this.actors.get(event.source_id);
       const target = this.actors.get(event.target_id);
-      if (!source || !target || source.hp <= 0 || target.hp <= 0) continue;
+      if (!source || !target || source.hp <= 0 || target.hp <= 0 || preparing.has(source.actorId)) continue;
+      preparing.add(source.actorId);
+      this.prepareAttack(source, index);
+      this.approaching.push({ source, target, contact });
+    }
+  }
+
+  drawApproachingAttacks(context) {
+    for (const { source, target, contact } of this.approaching) {
       const from = boardPoint(source.viewX, source.viewY);
       const to = boardPoint(target.viewX, target.viewY);
       const dx = to.x - from.x;
       const dy = to.y - from.y;
-      const progress = Math.max(0, 1 - (contact - this.elapsed) / lead);
+      const progress = Math.max(0, 1 - (contact - this.elapsed) / ATTACK_LEAD);
       drawElementEffect(context, this.renderer, source.element, 'trail', {
         x: from.x + dx * progress, y: from.y + dy * progress - 21,
         size: 60, angle: Math.atan2(dy, dx), opacity: .86,

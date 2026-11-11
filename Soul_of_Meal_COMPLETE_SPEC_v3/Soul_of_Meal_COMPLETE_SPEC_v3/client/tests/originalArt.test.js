@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { BattleEffects } from '../src/render/battleEffects.js';
 import { validateAnimationManifest } from '../src/render/clipPlayer.js';
-import { actorArt, cutinArt, ELEMENT_ART, effectArt, HERO_NAMES, originalCardArt, preloadGameAssets, TRAVEL_HERO } from '../src/render/spriteAssets.js';
+import { actorArt, BOSS_ID, combatArt, cutinArt, ELEMENT_ART, effectArt, HERO_NAMES, originalCardArt, preloadGameAssets, TRAVEL_HERO } from '../src/render/spriteAssets.js';
 
 const assetFile = (path) => new URL('../' + path.slice(2), import.meta.url);
 
@@ -25,14 +25,17 @@ test('the playtest preloads original art for the entire roster and all direction
     },
   });
 
-  assert.deepEqual(Object.keys(manifests).sort(), [TRAVEL_HERO, ...Object.keys(HERO_NAMES)].sort());
+  assert.deepEqual(Object.keys(manifests).sort(), [TRAVEL_HERO, BOSS_ID, ...Object.keys(HERO_NAMES)].sort());
   for (const [hero, manifest] of Object.entries(manifests)) {
-    if (hero === TRAVEL_HERO) continue;
+    if (hero === TRAVEL_HERO || hero === BOSS_ID) continue;
     assert.equal(Object.keys(manifest.clips).length, 10);
     assert.ok(paths.has(actorArt(hero)) && paths.has(cutinArt(hero)));
     assert.ok(manifest.clips.ultimate_01.directions.E.frames.length >= 3);
   }
   assert.deepEqual(Object.keys(manifests[TRAVEL_HERO].clips.walk.directions).sort(), ['E', 'N', 'S', 'W']);
+  assert.ok(manifests[BOSS_ID].clips.skill_01.directions.W.frames.length >= 2);
+  assert.ok(manifests[BOSS_ID].clips.defeat.directions.W.frames.length);
+  for (const key of ['boss_warning', 'boss_cleave', 'shield_bubble', 'shield_break']) assert.ok(paths.has(combatArt(key)));
   for (const index of [7, 10, 11, 12, 13, 14, 15, 16, 17, 18]) {
     await readAsset(originalCardArt('card_demo_' + String(index).padStart(2, '0')));
   }

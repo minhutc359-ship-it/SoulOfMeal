@@ -130,6 +130,11 @@ export class AnimationAdapter extends EventTarget {
       const abilityId = payload.ability_id ?? '';
       const clipId = payload.clip_id ?? (/ultimate|ult/i.test(abilityId) ? 'ultimate_01' : 'skill_01');
       if (actorId && this.#play(actorId, clipId, event.type === 'attack_started')) actions.push({ actorId, clipId, reason: event.type });
+    } else if (event.type === 'boss_phase_changed' || event.type === 'boss_cast_released') {
+      const clipId = event.type === 'boss_phase_changed' ? 'skill_01' : 'boss_release';
+      if (event.source_id && this.#play(event.source_id, clipId, true)) {
+        actions.push({ actorId: event.source_id, clipId, reason: event.type });
+      }
     } else if (event.type === 'hit_resolved') {
       const sourceId = event.source_id;
       const targetId = event.target_id;

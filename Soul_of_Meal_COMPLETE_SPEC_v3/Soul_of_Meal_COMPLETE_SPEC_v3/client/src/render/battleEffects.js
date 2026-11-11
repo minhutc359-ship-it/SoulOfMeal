@@ -1,5 +1,5 @@
-import { cutinArt, ELEMENT_ART, HERO_NAMES } from './spriteAssets.js';
-import { drawElementEffect } from './elementEffects.js';
+import { combatArt, cutinArt, ELEMENT_ART, HERO_NAMES } from './spriteAssets.js';
+import { drawEffectTexture, drawElementEffect } from './elementEffects.js';
 
 export class BattleEffects {
   constructor(renderer) {
@@ -30,6 +30,11 @@ export class BattleEffects {
         this.effects = this.effects.filter((effect) => effect.type !== 'cutin');
         this.add('cutin', element, .63, { id: source_id, text: payload.name });
       }
+    } else if (type === 'boss_cast_released' && source) {
+      const flipX = source.direction !== 'E';
+      this.add('boss_cleave', element, .48, { x: source.x + (flipX ? -66 : 66), y: source.y - 54, flipX });
+    } else if (type === 'shield_broken' && target) {
+      this.add('shield_break', 'light', .38, { x: target.x, y: target.y - 39 });
     } else if (target && ['hit_resolved', 'heal_resolved', 'shield_applied'].includes(type)) {
       const text = type === 'heal_resolved' ? '+' + payload.amount
         : type === 'shield_applied' ? 'Hộ thuẫn +' + payload.amount
@@ -69,6 +74,12 @@ export class BattleEffects {
         drawElementEffect(context, this.renderer, effect.element, 'trail', {
           x, y, size: 96, angle: Math.atan2(dy, dx), opacity: .95,
         });
+      } else if (effect.type === 'boss_cleave' || effect.type === 'shield_break') {
+        const size = (effect.type === 'boss_cleave' ? 220 : 90) * (reducedMotion ? 1 : .78 + .35 * progress);
+        const options = { x: effect.x, y: effect.y, size, flipX: effect.flipX, opacity: fade };
+        if (!drawEffectTexture(context, this.renderer, combatArt(effect.type), options)) {
+          drawElementEffect(context, this.renderer, effect.element, 'impact', options);
+        }
       } else {
         const strike = effect.type === 'strike';
         const size = strike ? 88 : effect.strong ? 144 : effect.type === 'cast' ? 104 : 85;

@@ -1,4 +1,4 @@
-import { createAdventureState, interactAdventure, nearestInteraction, setAdventureInput, stepAdventure, activateUltimate, beginBattle, claimBattleResult, WORLD, resolveCameraViewport } from './modes/adventure.js';
+import { createAdventureState, interactAdventure, nearestInteraction, setAdventureInput, stepAdventure, activateUltimate, beginBattle, bossTelegraphTargets, claimBattleResult, WORLD, resolveCameraViewport } from './modes/adventure.js';
 import { createTcgMatch, playTcgCard, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, mulliganTcg, validateDeck } from './modes/tcg.js';
 import { advanceChessRound, buyChessOffer, createChessRun, moveChessUnit, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat, toggleChessLock, buyChessExperience, chessTraits, CHESS_TRAITS } from './modes/autoChess.js';
 import { gameEvents } from './core/events.js';
@@ -7,11 +7,13 @@ import { AnimationAdapter } from './render/animationAdapter.js';
 import { findAdventurePath } from './modes/adventureNavigation.js';
 import { createAdventureMapRegistry, getAdventureMap } from './modes/mapCatalog.js';
 import { spriteRenderer } from './render/spriteRenderer.js';
-import { actorArt, effectArt, HERO_ID, HERO_NAMES as characterNames, originalCardArt, preloadGameAssets, propArt, sceneArt, TRAVEL_HERO } from './render/spriteAssets.js';
-import { drawElementEffect } from './render/elementEffects.js';
+import { actorArt, combatArt, effectArt, HERO_ID, HERO_NAMES as characterNames, originalCardArt, preloadGameAssets, propArt, sceneArt, TRAVEL_HERO } from './render/spriteAssets.js';
+import { drawEffectTexture, drawElementEffect } from './render/elementEffects.js';
 import { adventureBalance } from './modes/adventureBalance.js';
 import { BattleEffects } from './render/battleEffects.js';
 import { GameAudio } from './core/audio.js';
+import { resolveSoundScene } from './core/soundScenes.js';
+import { adventureJournal } from './modes/adventureJournal.js';
 import { ChessReplay } from './render/chessReplay.js';
 import { renderEntry } from './shell/entry.js';
 import { createAccountApi, accountErrorMessage } from './core/accountApi.js';
@@ -34,7 +36,8 @@ runtime.tcg = runtime.save.modes.tcg;
 runtime.chess = runtime.save.modes.chess;
 runtime.effects = new BattleEffects(spriteRenderer);
 runtime.audio = new GameAudio(runtime.save.settings);
-window.addEventListener('pointerdown', () => runtime.audio.unlock(), { once: true, capture: true });
+void runtime.audio.loadSoundtracks();
+window.addEventListener('click', () => runtime.audio.unlock(), { capture: true });
 window.addEventListener('keydown', () => runtime.audio.unlock(), { once: true, capture: true });
 gameEvents.addEventListener('game-event', ({ detail }) => {
   runtime.effects.handle(detail, runtime.adventure.battle);
@@ -268,11 +271,7 @@ function syncFullscreenButton() {
 document.addEventListener('fullscreenchange', syncFullscreenButton);
 
 function shell(content) {
-  const adventureScene = runtime.adventure.battle ? 'battle' : runtime.adventure.map;
-  if (runtime.page !== 'settings') {
-    const scene = ({ adventure: adventureScene, deck: 'tcg', roster: 'home' })[runtime.page] ?? runtime.page;
-    runtime.audio.setScene(scene);
-  }
+  if (runtime.page !== 'settings') runtime.audio.setScene(resolveSoundScene(runtime.page, runtime.adventure));
   const player = runtime.save.player;
   const sameScreen = app.querySelector('.shell')?.dataset.screen === runtime.page;
   const scrollTop = sameScreen ? app.querySelector('.main').scrollTop : 0;
@@ -362,7 +361,7 @@ function renderAdventure() {
       ${resultPanel}
     </section>
     <aside class="side-stack">
-      ${battle ? '<section class="panel battle-target"><h2 data-enemy-name>Đối thủ</h2><div class="meter enemy"><i data-enemy-hp></i></div><p class="telegraph" data-telegraph hidden></p></section>' : `<section class="panel"><h2>Dấu Vết Thất Vị</h2><div class="data-list"><div class="data-row"><span>Nhiệm vụ</span><strong>${questLabel}</strong></div><div class="data-row"><span>Rương tiếp tế</span><span>${save.adventure.chestOpened ? 'Đã mở' : 'Chưa mở'}</span></div></div></section>`}
+      ${battle ? '<section class="panel battle-target"><h2 data-enemy-name>Đối thủ</h2><div class="meter enemy"><i data-enemy-hp></i></div><div class="telegraph" data-telegraph hidden><b data-telegraph-name></b><progress data-telegraph-time aria-label="Thời gian trước đòn boss"></progress></div></section>' : `<section class="panel"><h2>Dấu Vết Thất Vị</h2><div class="data-list"><div class="data-row"><span>Nhiệm vụ</span><strong>${questLabel}</strong></div><div class="data-row"><span>Rương tiếp tế</span><span>${save.adventure.chestOpened ? 'Đã mở' : 'Chưa mở'}</span></div></div><div class="action-row"><button class="button light" data-page="journey">Nhật ký hành trình</button></div></section>`}
       <section class="panel party-panel"><h2>Đội hình Vị Linh</h2><div class="actor-list">${actorRows}</div></section>
     </aside></div>
   `);
@@ -372,6 +371,30 @@ function renderAdventure() {
   const canvas = app.querySelector('#adventure-canvas');
   canvas?.addEventListener('pointerdown', onWorldPointer);
   if (battle) updateBattleHud(battle);
+}
+
+function renderAdventureJournal() {
+  const journal = adventureJournal(runtime.save);
+  const statusText = { done: 'Hoàn thành', current: 'Mục tiêu hiện tại', upcoming: 'Sắp tới' };
+  shell(`
+    ${pageHeader('Phiêu lưu', 'Nhật ký hành trình', '', 'adventure')}
+    <section class="panel journey-panel">
+      <h2>Dấu Vết Thất Vị</h2>
+      <ol class="journey-steps">${journal.labels.map(({ title, status }) =>
+        `<li data-step-status="${status}" ${status === 'current' ? 'aria-current="step"' : ''}>
+          <strong>${title}</strong><small>${statusText[status]}</small>
+        </li>`).join('')}</ol>
+      <div class="action-row">
+        ${journal.action && !runtime.adventure.battle ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
+        <button class="button light" data-page="adventure">Về bản đồ</button>
+      </div>
+    </section>`);
+  app.querySelector('[data-guide-objective]')?.addEventListener('click', () => {
+    const map = getAdventureMap(runtime.maps, runtime.adventure.map);
+    const objective = map?.interactables.find(item => item.action === journal.action);
+    navigate('adventure');
+    if (objective) queueWorldPath({ x: objective.x, y: objective.y });
+  });
 }
 
 function updateBattleHud(battle) {
@@ -393,7 +416,14 @@ function updateBattleHud(battle) {
   }
   const telegraph = app.querySelector('[data-telegraph]');
   telegraph.hidden = !battle.bossTelegraph;
-  telegraph.textContent = battle.bossTelegraph?.attack ?? '';
+  if (battle.bossTelegraph) {
+    const { attack, duration, ticks } = battle.bossTelegraph;
+    const name = telegraph.querySelector('[data-telegraph-name]');
+    if (name.textContent !== attack) name.textContent = attack;
+    const time = telegraph.querySelector('[data-telegraph-time]');
+    time.max = duration;
+    time.value = ticks;
+  }
 }
 
 function doAdventureInteract() {
@@ -428,17 +458,22 @@ function onWorldPointer(event) {
   const rect = canvas.getBoundingClientRect();
   const x = (event.clientX - rect.left) / rect.width * WORLD.width;
   const y = (event.clientY - rect.top) / rect.height * WORLD.height;
-  const path = findAdventurePath(runtime.adventure.map, { x: runtime.adventure.x, y: runtime.adventure.y }, { x, y }, undefined, runtime.maps);
-  if (!path.length) {
-    runtime.adventure.lastMessage = 'Không tìm được đường đi tới điểm đó.';
-    canvas.dataset.pathLength = '0';
-    return;
-  }
-  runtime.adventure.walkPath = path;
-  runtime.adventure.walkTarget = { x, y };
   const map = getAdventureMap(runtime.maps, runtime.adventure.map);
-  runtime.adventure.tapInteraction = map?.interactables.find((item) => Math.hypot(item.x - x, item.y - y) < 35)?.action ?? null;
-  canvas.dataset.pathLength = String(path.length);
+  const action = map?.interactables.find(item => Math.hypot(item.x - x, item.y - y) < 35)?.action;
+  canvas.dataset.pathLength = String(queueWorldPath({ x, y }, action));
+}
+
+function queueWorldPath(destination, action = null) {
+  const adventure = runtime.adventure;
+  const path = findAdventurePath(adventure.map, adventure, destination, undefined, runtime.maps);
+  if (!path.length) {
+    adventure.lastMessage = 'Không tìm được đường đi tới điểm đó.';
+    return 0;
+  }
+  adventure.walkPath = path;
+  adventure.walkTarget = destination;
+  adventure.tapInteraction = action;
+  return path.length;
 }
 
 function drawAdventureFrame(deltaSeconds) {
@@ -618,15 +653,24 @@ function drawBattleScene(context, adventure) {
   spriteRenderer.drawImage(context, sceneArt('arena'), 0, 0, 960, 540);
   const boss = battle.actors.find((actor) => actor.boss && actor.alive);
   if (boss && battle.bossTelegraph) {
-    drawElementEffect(context, spriteRenderer, 'fire', 'impact', {
-      x: boss.x, y: boss.y + 8, size: 364, height: 108,
-      opacity: .42 + .28 * (1 - battle.bossTelegraph.ticks / 45),
-    });
+    const { ticks, duration } = battle.bossTelegraph;
+    const opacity = .46 + .33 * (1 - ticks / duration);
+    drawBossWarning(context, boss.x, boss.y + 2, 230, opacity);
+    for (const target of bossTelegraphTargets(battle, boss)) {
+      drawBossWarning(context, target.x, target.y + 2, 79, opacity);
+    }
   }
   for (const actor of [...battle.actors].sort((a, b) => a.y - b.y)) {
     drawActor(context, actor, runtime.animations.getActorState(actor.actor_id)?.animation);
   }
   runtime.effects.draw(context, battle, runtime.save.settings.reducedMotion);
+}
+
+function drawBossWarning(context, x, y, size, opacity) {
+  const options = { x, y, size, opacity };
+  if (!drawEffectTexture(context, spriteRenderer, combatArt('boss_warning'), options)) {
+    drawElementEffect(context, spriteRenderer, 'fire', 'impact', options);
+  }
 }
 
 function drawActor(context, actor, animation) {
@@ -637,14 +681,17 @@ function drawActor(context, actor, animation) {
   context.beginPath();
   context.ellipse(x, y + 2, actor.boss ? 33 : 23, 7, 0, 0, Math.PI * 2);
   context.fill();
-  const drawn = spriteRenderer.drawSprite(context, actor.id, animation, x, y, { scale: .67 });
+  const drawn = spriteRenderer.drawSprite(context, actor.id, animation, x, y, { scale: actor.boss ? 1.04 : .67 });
   if (!drawn) {
     const pose = placeholderPose(animation);
     drawFitted(context, actorArt(actor.id), x, y + pose.offsetY,
       (actor.boss ? 150 : 77) * pose.scaleX, (actor.boss ? 128 : 78) * pose.scaleY);
   }
   if (actor.shield) {
-    drawElementEffect(context, spriteRenderer, 'light', 'impact', { x, y: y - 43, size: 100, opacity: .46 });
+    const options = { x, y: y - 39, size: 113, opacity: .72 };
+    if (!drawEffectTexture(context, spriteRenderer, combatArt('shield_bubble'), options)) {
+      drawElementEffect(context, spriteRenderer, 'light', 'impact', options);
+    }
   }
   const barY = y - (actor.boss ? 140 : drawn ? 104 : 89);
   const barWidth = actor.boss ? 94 : 50;
@@ -970,13 +1017,14 @@ function renderSettings() {
 
 function render() {
   if (runtime.page === 'title') {
-    runtime.audio.setScene('title');
+    runtime.audio.setScene(resolveSoundScene('title', runtime.adventure));
     return renderEntry(app, enterGame, accountApi
       ? () => openAccountDialog(app, accountApi, enterAccount)
       : null);
   }
   if (runtime.page === 'home') return renderHome();
   if (runtime.page === 'adventure') return renderAdventure();
+  if (runtime.page === 'journey') return renderAdventureJournal();
   if (runtime.page === 'tcg') return renderTcg();
   if (runtime.page === 'chess') return renderChess();
   if (runtime.page === 'roster') return renderRoster();

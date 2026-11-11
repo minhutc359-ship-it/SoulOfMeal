@@ -254,7 +254,7 @@ function stepBattle(state, save) {
     }
     battle.actors.push(...ENEMIES.forest_boss.map((enemy, index) => spawnActor(enemy, 'enemy', index)));
     gameEvents.emit('wave_completed', { wave: 1 }, battleContext(battle));
-    gameEvents.emit('actor_spawned', { actor_id: 'boss_bep_truong', character_id: 'boss_thief', boss: true }, battleContext(battle));
+    gameEvents.emit('actor_spawned', { actor_id: 'boss_bep_truong', character_id: 'boss_bep_truong', boss: true }, battleContext(battle));
     state.lastMessage = 'Bếp Trưởng Hỏa Diệm xuất hiện!';
   }
   updateBoss(battle);
@@ -358,17 +358,28 @@ function updateBoss(battle) {
   if (!boss) return;
   const ratio = boss.hp / boss.maxHp;
   const phase = ratio <= .3 ? 3 : ratio <= .7 ? 2 : 1;
-  if (phase > battle.bossPhase && !battle.bossTelegraph) {
+  if (phase > battle.bossPhase && !battle.bossTelegraph && !boss.action) {
     battle.bossPhase = phase;
-    battle.bossTelegraph = { phase, ticks: phase === 3 ? 36 : 27, attack: phase === 3 ? 'Vòng Lửa' : 'Bếp Bùng Cháy' };
-    gameEvents.emit('boss_phase_changed', { phase, attack: battle.bossTelegraph.attack }, battleContext(battle, boss.actor_id));
+    const duration = phase === 3 ? 36 : 27;
+    const attack = phase === 3 ? 'Vòng Lửa' : 'Bếp Bùng Cháy';
+    battle.bossTelegraph = { phase, ticks: duration, duration, attack };
+    gameEvents.emit('boss_phase_changed', { phase, attack, windup_ticks: duration }, battleContext(battle, boss.actor_id));
+    return;
   }
   if (!battle.bossTelegraph || --battle.bossTelegraph.ticks > 0) return;
-  const attackPhase = battle.bossTelegraph.phase;
+  const { phase: attackPhase } = battle.bossTelegraph;
+  const victims = bossTelegraphTargets(battle, boss);
   battle.bossTelegraph = null;
-  const victims = battle.actors.filter((item) => item.team === 'player' && item.alive);
-  victims.sort((a, b) => Math.hypot(a.x - boss.x, a.y - boss.y) - Math.hypot(b.x - boss.x, b.y - boss.y));
-  for (const victim of victims.slice(0, attackPhase === 3 ? 3 : 2)) applyBattleHit(battle, boss, victim, attackPhase === 3 ? 25000 : 18000, 'boss_telegraph');
+  gameEvents.emit('boss_cast_released', { element: boss.element }, battleContext(battle, boss.actor_id));
+  for (const victim of victims) applyBattleHit(battle, boss, victim, attackPhase === 3 ? 25000 : 18000, 'boss_telegraph');
+}
+
+export function bossTelegraphTargets(battle, boss) {
+  if (!battle.bossTelegraph) return [];
+  const distance = (actor) => Math.hypot(actor.x - boss.x, actor.y - boss.y);
+  return battle.actors.filter((actor) => actor.team === 'player' && actor.alive)
+    .sort((a, b) => distance(a) - distance(b))
+    .slice(0, battle.bossTelegraph.phase === 3 ? 3 : 2);
 }
 
 function applyBattleHit(battle, source, target, coefficientBp, sourceKind) {
@@ -381,16 +392,20 @@ function applyBattleHit(battle, source, target, coefficientBp, sourceKind) {
   if (target.team === 'player') target.energy = Math.min(100, target.energy + balance.hurtEnergy);
   const payload = {
     hit_id: `${battle.tick}:${source.actor_id}:${target.actor_id}`, damage, hp_damage: hpDamage, absorbed,
-    source_kind: sourceKind, element: source.element, timed: sourceKind !== 'boss_telegraph',
+    source_kind: sourceKind, element: source.element, timed: true,
   };
   const hit = gameEvents.emit('hit_resolved', payload, battleContext(battle, source.actor_id, target.actor_id));
   battle.events.push(hit);
+  if (absorbed > 0 && target.shield === 0) {
+    gameEvents.emit('shield_broken', { element: 'light' }, battleContext(battle, source.actor_id, target.actor_id));
+  }
   if (!target.alive) gameEvents.emit('actor_died', { actor_id: target.actor_id }, battleContext(battle, source.actor_id, target.actor_id));
 }
 
 function finishBattle(state, save, won) {
   const battle = state.battle;
   battle.phase = 'battle_end';
+  battle.bossTelegraph = null;
   battle.result = won ? 'victory' : 'defeat';
   if (won) {
     const updated = structuredClone(save);

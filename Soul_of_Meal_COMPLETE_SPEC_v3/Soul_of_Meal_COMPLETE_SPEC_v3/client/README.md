@@ -21,15 +21,32 @@ Khi chạy với [máy chủ ASP.NET Core và PostgreSQL](../server/README.md), 
 
 ## Lối chơi
 
-- **Adventure** · Nhận nhiệm vụ từ Lilia, mở rương, vào rừng, đánh hai đợt quái, nhận thưởng và trở lại làng. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
+- **Adventure** · Mở **Nhật ký hành trình** để xem mục tiêu và dẫn đường. Nhận nhiệm vụ từ Lilia, mở rương, vào rừng, đánh hai đợt quái, nhận thưởng và trở lại làng. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
 - **TCG** · Đấu bot với bộ 36 lá, đổi bài mở màn một lần, xây bộ bài trong danh mục 22 lá, triệu hồi Vị Linh, đặt bẫy úp và phản ứng theo lượt ưu tiên. Bộ bài đã lưu dùng khi bắt đầu ván mới.
 - **Auto Chess** · Mua quân, hợp thể ba bản sao, xếp đội hình, nâng cấp cửa hàng và chơi tối đa mười vòng. Hai nhân vật khác nhau cùng hệ Hỏa, Mộc hoặc Quang kích hoạt hiệp lực tương ứng. Phát lại giao tranh dùng vị trí, đòn đánh và HP do mô phỏng ghi lại.
+
+## Cài nhạc theo cảnh
+
+Đặt file trong `client/assets/audio/` hoặc thư mục con như `client/assets/audio/custom/`. Sửa [soundtracks.json](assets/audio/soundtracks.json) và điền tên tương đối, chẳng hạn `"login": "custom/ten-file-login.mp3"`. Dùng MP3 hoặc OGG để có phạm vi tương thích rộng. Sau khi sửa, tải lại game. Nếu dùng bản build Vite, build lại để đưa file mới vào bản phân phối.
+
+| Slot | Khi phát |
+|---|---|
+| `login` | Màn mở đầu, đăng nhập và đăng ký |
+| `village` | Sảnh và Làng Ẩm Thực |
+| `forest` | Khám phá Rừng Nguyên Liệu ngoài giao tranh |
+| `tcg` | Đấu thẻ và chỉnh bộ bài |
+| `chess` | Auto Chess, gồm chuẩn bị và xem giao tranh |
+| `adventure` | Nhật ký hành trình trong Phiêu lưu |
+| `adventure_battle` | Giao tranh đợt quái thường |
+| `epic_boss_battle` | Từ lúc boss xuất hiện tới khi đóng kết quả trận |
+
+Mỗi slot để `null` dùng nhạc mẫu. Nếu file tự chọn thiếu hoặc lỗi giải mã, game quay về nhạc mẫu của cảnh. Nhạc bắt đầu sau thao tác đầu tiên. Âm thanh môi trường rừng và SFX giao tranh điều chỉnh riêng trong **Cài đặt**.
 
 ## Tích hợp và tài nguyên
 
 Adventure chạy mô phỏng ở 30 Hz. Chuỗi `attack_started` / `cast_started` → `projectile_spawned` (nếu có) → `hit_resolved` đồng bộ clip, hiệu ứng và âm thanh. Các sự kiện `heal_resolved` và `shield_applied` dùng cùng đồng hồ mô phỏng. Dữ liệu thử nghiệm nằm trong `src/modes/adventureBalance.js` và `examples/`. Renderer và playback chỉ đọc sự kiện.
 
-- Cả năm Vị Linh dùng sprite anime chibi mới, với chân dung và cut-in riêng. Bún Bò Hỏa Linh có bộ sprite đi bản đồ bốn hướng. Adventure, TCG và Auto Chess dùng chung nhận diện nhân vật.
+- Cả năm Vị Linh dùng sprite anime chibi mới, với chân dung và cut-in riêng. Bún Bò Hỏa Linh có bộ sprite đi bản đồ bốn hướng. Boss Hỏa Diệm có bộ sprite hướng tây, pháp ấn báo mục tiêu và hiệu ứng chém riêng. Adventure, TCG và Auto Chess dùng chung nhận diện nhân vật.
 - Tranh làng, rừng, sân đấu, đạo cụ, quái và thẻ phép/bẫy được vẽ riêng cho bản chơi thử. Xem [danh mục, nguồn art và cách tái tạo](../docs/02_art/ORIGINAL_ART_PLAYTEST.md).
 - Nhạc và âm thanh môi trường có thể tái tạo bằng `python3 scripts/build_music.py`. Tái tạo âm thanh năm hệ bằng `python3 scripts/build_element_sfx.py` với FFmpeg.
 

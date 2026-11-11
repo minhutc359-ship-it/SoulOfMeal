@@ -39,8 +39,8 @@
     },
     {
       "path": ".agents/skills/soul-of-meal-sprite/scripts/validate_sprite.py",
-      "bytes": 3631,
-      "sha256": "a40809ae95a52d2a733b595bcd31f6a1b936647e2feba4e1cb85e12db5e51baf"
+      "bytes": 3640,
+      "sha256": "0a23b8f01eee45ce625a5ab8c9de5e66bf382c20fcd1057dbad340835e190931"
     },
     {
       "path": ".agents/skills/soul-of-meal-sprite/templates/identity.template.json",
@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 4702,
-      "sha256": "edc928fc28b2f20188cd97a27052a3b0e929469031c3762a63bd6d3e63de3c55"
+      "bytes": 6156,
+      "sha256": "4a0a487092065ec4d28cc2b338da0662c5e6d5665ed1a5464a5aba6b6075e045"
     },
     {
       "path": "client/index.html",
@@ -794,13 +794,13 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 62780,
-      "sha256": "0e47eb79d7a634e41060445356e29c8723be55b0fe8738ac12eb906f6092e5c0"
+      "bytes": 65270,
+      "sha256": "559b3cd1c27745b9ba84dac06e27e7b801ded5ac4f64c0e26206d7df495f1180"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 20535,
-      "sha256": "0750df9f07de8880699eb19bd76ab79148277dba2da4335eab5d311d9c47fde6"
+      "bytes": 21086,
+      "sha256": "3f02ee758aa7a1223c082daeabfae23fdae7600da8660e524b2abbe28b1f37cb"
     },
     {
       "path": "client/src/modes/autoChess.js",
@@ -819,8 +819,8 @@
     },
     {
       "path": "client/tests/runtime.test.js",
-      "bytes": 17239,
-      "sha256": "17b809b567783490d0e8d821d95c5bbb224b0ec5c4bde4a2d085cc58143bcd15"
+      "bytes": 20105,
+      "sha256": "ab66da34e1f9688dc7c3cf69bbe40b2389ac89e28fa25a116283358295f46f83"
     },
     {
       "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
@@ -834,13 +834,13 @@
     },
     {
       "path": "client/src/render/animationAdapter.js",
-      "bytes": 8811,
-      "sha256": "a21aca735ef13754e85e538af197c989344e6342d9b0210ec102a4e91558c59c"
+      "bytes": 9154,
+      "sha256": "23a49fed3d7c7241ba48ac311a2cfd024c82c9b988c31d3ee0db4ca9c5544be0"
     },
     {
       "path": "client/src/render/clipPlayer.js",
-      "bytes": 7172,
-      "sha256": "eaa138273729ec77c3ceae69ca013c8b955e9f4b2f7278bcf7503d7baddfdfe7"
+      "bytes": 7192,
+      "sha256": "d1906b370f2a7a284509fe405e56aa8abe9c4c557844c3d8accbf64475a4d3f1"
     },
     {
       "path": "client/tests/animation.test.js",
@@ -1259,8 +1259,8 @@
     },
     {
       "path": "client/src/render/spriteAssets.js",
-      "bytes": 2460,
-      "sha256": "2c81539bbb85a2304e94ecbf997250f02f7563e0d7438f776c3d1542854ba12d"
+      "bytes": 2703,
+      "sha256": "c724b47b901b7936c77e0e562acbcf32608e0e39739eee62be39991601a09095"
     },
     {
       "path": "client/src/render/spriteRenderer.js",
@@ -1474,8 +1474,8 @@
     },
     {
       "path": "client/src/core/audio.js",
-      "bytes": 3403,
-      "sha256": "9887c3813963f48c618be1eadf4ecfafeb13e24fed27bbcd1ef3bc31cd73df8a"
+      "bytes": 5110,
+      "sha256": "4d9ed06a12e8dfe68557e76d40aaa033f6211fe046b3156bdcfc842fb630bb3a"
     },
     {
       "path": "client/src/modes/adventureBalance.js",
@@ -1484,13 +1484,13 @@
     },
     {
       "path": "client/src/render/battleEffects.js",
-      "bytes": 5532,
-      "sha256": "5e256f76623e8d243792b0cce3e4fe86acb56b3a07f07f9590c65183f54ed8d1"
+      "bytes": 6387,
+      "sha256": "d58d85b9af4c2213d7730f1fb1fc382efcbe7801b4139abe174ed3965106b70f"
     },
     {
       "path": "client/src/render/chessReplay.js",
-      "bytes": 6039,
-      "sha256": "6e8941e88e57d39b018f8eb5b2d189ca9beb14025ffeefce92dfda942d444429"
+      "bytes": 7187,
+      "sha256": "a47fda735489795f11f3970fc9e1f346a5d038a62a4e8355f4c94b0d158bc2ec"
     },
     {
       "path": "scripts/build_battle_poses.py",
@@ -2169,23 +2169,23 @@
     },
     {
       "path": "client/src/render/elementEffects.js",
-      "bytes": 777,
-      "sha256": "ad3057b1b114fa44f655c3ee1cc5996f9551a77eb0160e55f90f6dd4a475b7ba"
+      "bytes": 962,
+      "sha256": "bfc1a9ae632096e664c90d13e77ced7e7622b72fa9188aed12dada7f6f7e30f4"
     },
     {
       "path": "client/tests/originalArt.test.js",
-      "bytes": 4028,
-      "sha256": "b5db87d08b105324073e53a98217515d563cbfdddc3402a7cdea2484a22819c3"
+      "bytes": 4354,
+      "sha256": "87ac479350b8fd0e5c981aace5a87b4a78b23f0b49be4384b066556d542842fe"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_PLAYTEST.md",
-      "bytes": 5533,
-      "sha256": "d41862baae33c1a662a98166329e338d87e443495ef7ad84b8c4a724666fc404"
+      "bytes": 6890,
+      "sha256": "623c70f72237f57da37c4bd0763800f264f80949d4540ffbe098bd9a45fa6b78"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_SOURCES.json",
-      "bytes": 21766,
-      "sha256": "bce49dafa064c7c71d90cff5c3aa72193c99f4c3bfb176a1c8ba425c63d89bd0"
+      "bytes": 25119,
+      "sha256": "dd00c4503864d96f8867ee25b98a0f02677cbc1030a927ebdd2811a21ceafc4e"
     },
     {
       "path": "scripts/build_element_sfx.py",
@@ -2194,8 +2194,8 @@
     },
     {
       "path": "scripts/build_original_art.py",
-      "bytes": 10417,
-      "sha256": "aec0dae4a58eceb7d1aa9a71692cf52fdb181e353abdc88bb9165473846838b9"
+      "bytes": 11512,
+      "sha256": "198c1d6639d18b2242a9606650393eb628937b275cc85e92c851c1942d96ca34"
     },
     {
       "path": "docs/00_foundation/decisions/D-018.md",
@@ -2224,8 +2224,8 @@
     },
     {
       "path": "client/shell.css",
-      "bytes": 12428,
-      "sha256": "23ad964e8dde1d29131a2d6f0513cb4b3e6015166f009b819a57165548ca4b60"
+      "bytes": 13090,
+      "sha256": "7abacfa384fd590978ec7515163293957c630c6588de5b5098258e95e1ceaac0"
     },
     {
       "path": "client/src/shell/entry.js",
@@ -2306,6 +2306,116 @@
       "path": "server/verify_accounts.py",
       "bytes": 5274,
       "sha256": "31b75c732972305c6be7de86222e04f4ee3bc25d4cb1d027ead0921456deba72"
+    },
+    {
+      "path": "client/assets/audio/soundtracks.json",
+      "bytes": 166,
+      "sha256": "b6343acca2deacc587ab49aec3b6ac5d14dea58f8d860bb362879c9817d98fe5"
+    },
+    {
+      "path": "client/assets/characters/boss_bep_truong/original_battle/poses/boss_bep_truong_pose_00.png",
+      "bytes": 71386,
+      "sha256": "ca160620dea55b5c6ed604f68037130cdf13999072ee3fc5bb42ba7f508c2bbb"
+    },
+    {
+      "path": "client/assets/characters/boss_bep_truong/original_battle/poses/boss_bep_truong_pose_01.png",
+      "bytes": 70049,
+      "sha256": "476c2806171d002701451f387b2dd62ca6dfe68f6cf8b0c13856404b1c4c42a9"
+    },
+    {
+      "path": "client/assets/characters/boss_bep_truong/original_battle/poses/boss_bep_truong_pose_02.png",
+      "bytes": 64364,
+      "sha256": "804017c301c209285da149b47ff350f57351ec3d4c950d3847adf99dfe329be9"
+    },
+    {
+      "path": "client/assets/characters/boss_bep_truong/original_battle/poses/boss_bep_truong_pose_03.png",
+      "bytes": 64363,
+      "sha256": "40ce758913ddbd4f579b08d0ccfaa19b8ef3de7708e8353c780746a01847dc8b"
+    },
+    {
+      "path": "client/assets/characters/boss_bep_truong/original_battle/poses/boss_bep_truong_pose_04.png",
+      "bytes": 70963,
+      "sha256": "b52b36cf3d30f1cb07d372058a5a7ce4a56b60b55fc737eba34a6da09c2194ee"
+    },
+    {
+      "path": "client/assets/characters/boss_bep_truong/original_battle/poses/boss_bep_truong_pose_05.png",
+      "bytes": 72621,
+      "sha256": "7b42b89152b669922564be9ac5298e4313cd2e0f9355939600a76ac41db99fc1"
+    },
+    {
+      "path": "client/assets/characters/boss_bep_truong/original_battle/poses/boss_bep_truong_pose_06.png",
+      "bytes": 68877,
+      "sha256": "bc662ea3d0d78ce24842d34df2d7d037a62f3992a086cdafe9ca97909e3cd9c3"
+    },
+    {
+      "path": "client/assets/characters/boss_bep_truong/original_battle/poses/boss_bep_truong_pose_07.png",
+      "bytes": 63331,
+      "sha256": "bedb9c96531d985689e430ac4d956a8e1d555808b4a4e2d51f64977f19264c22"
+    },
+    {
+      "path": "client/assets/characters/boss_bep_truong/original_battle/preview/poses.gif",
+      "bytes": 44505,
+      "sha256": "b8f0cb659973d324a968aae77134ca6315410f93b80308bd1b494aaeaba7ed5b"
+    },
+    {
+      "path": "client/assets/characters/boss_bep_truong/original_battle/qa.json",
+      "bytes": 216,
+      "sha256": "fbf16e3f9958ca302a7b6c23ca4b0acac43bfdaab44a8fec94eddb64231c8707"
+    },
+    {
+      "path": "client/assets/characters/boss_bep_truong/original_battle/source.sprite.json",
+      "bytes": 882,
+      "sha256": "bb856b0f54cbbe8b25b50dbd6bcbedc3ae366740727e23837e3f14dc32453123"
+    },
+    {
+      "path": "client/assets/original/atlases/boss_bep_truong.json",
+      "bytes": 3855,
+      "sha256": "fd47b6398dd0023a65e323ff733e72bf06955b26370ca5efd706af74646f152b"
+    },
+    {
+      "path": "client/assets/original/atlases/boss_bep_truong.webp",
+      "bytes": 69984,
+      "sha256": "6c06ef6b1290c1897e23c94466071718cfcd98a76e848df0836a1e7f3a002a55"
+    },
+    {
+      "path": "client/assets/original/effects/boss_cleave.webp",
+      "bytes": 53706,
+      "sha256": "7a4adc1acc1b2fc34fe4503e17f215b1073e46597ab2c125fb6c80c2a7e55408"
+    },
+    {
+      "path": "client/assets/original/effects/boss_warning.webp",
+      "bytes": 47520,
+      "sha256": "4b718450e9b65ba4bad89078473e581eaa240f113cd5e0fe654a3eb2d1fecdc6"
+    },
+    {
+      "path": "client/assets/original/effects/shield_break.webp",
+      "bytes": 73726,
+      "sha256": "8e2a0da8c3a84ef324918967946d0ad579ee7f16515b9c55cf71eefb458f810d"
+    },
+    {
+      "path": "client/assets/original/effects/shield_bubble.webp",
+      "bytes": 47774,
+      "sha256": "ecfa6cb7c6957239f59c8e2f46f553ed939290e61caab5544f387d7dd38a2d02"
+    },
+    {
+      "path": "client/src/core/soundScenes.js",
+      "bytes": 1229,
+      "sha256": "0f6c45681693432534d04f08c3584b4fcb51835c4451003723ebcdf5ec995fcf"
+    },
+    {
+      "path": "client/src/modes/adventureJournal.js",
+      "bytes": 845,
+      "sha256": "dd12677a7700ebb986fda9a855e5325d15181b131a7d7c80635a06990ebefc5e"
+    },
+    {
+      "path": "client/tests/soundScenes.test.js",
+      "bytes": 3398,
+      "sha256": "8219ca24647ab319ee16a6a926ecc327794c1dff7d40b2380976ae1eb20bf384"
+    },
+    {
+      "path": "examples/characters/boss_bep_truong/identity.json",
+      "bytes": 675,
+      "sha256": "d8c1d76801ecff98a758eadfa522209681771e12403a8557352b1ab9a092bf50"
     }
   ]
 }
