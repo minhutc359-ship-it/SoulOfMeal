@@ -239,3 +239,62 @@ body { height: 100%; min-height: 0; overflow: hidden; background: var(--night); 
   .main .card-thumb { height: 35px; }
   .main .playing-card { min-height: 83px; padding-bottom: 3px; }
 }
+
+.entry-account {
+  min-height: 44px;
+  margin-top: 9px;
+  padding: 6px 12px;
+  border: 1px solid #ffe5a978;
+  border-radius: 7px;
+  color: var(--champagne);
+  background: #152320cc;
+  cursor: pointer;
+}
+.entry-account:disabled { opacity: .6; cursor: wait; }
+.account-dialog {
+  width: min(405px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 20px;
+  border: 1px solid #aa8450;
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--white);
+  box-shadow: 0 15px 40px #061210b8;
+}
+.account-dialog::backdrop { background: #071513ad; }
+.account-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.account-heading h2 { margin: 0; font-size: 20px; }
+.account-dialog form label { display: grid; gap: 5px; margin-top: 13px; font-size: 14px; font-weight: 750; }
+.account-dialog input {
+  min-height: 44px;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font: inherit;
+}
+.account-dialog .button, .entry-account { min-height: 44px; }
+.account-help, .account-status { font-size: 13px; line-height: 1.4; margin: 10px 0 0; }
+.account-help { color: var(--muted); }
+.account-status { color: var(--forest); }
+.account-status:empty { display: none; }
+.account-session { margin-top: 15px; }
+.cloud-badge {
+  min-height: 36px;
+  padding: 4px 8px;
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  color: var(--champagne);
+  background: #20332c;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.cloud-badge[data-state="error"] { background: #6b3330; }
+.cloud-panel { margin-top: 13px; }
+.cloud-panel p { line-height: 1.45; }
+.cloud-panel [data-cloud-status] { font-weight: 700; }
+@media (max-width: 430px) {
+  .game-bar:has(.cloud-badge) .profile-chip { display: none; }
+  .cloud-badge { max-width: 78px; }
+}

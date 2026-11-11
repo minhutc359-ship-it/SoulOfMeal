@@ -6,11 +6,18 @@ import { defineConfig } from 'vite';
 const client = fileURLToPath(new URL('.', import.meta.url));
 const project = resolve(client, '..');
 const output = resolve(client, 'dist');
+const apiTarget = process.env.SOM_API_TARGET;
+const proxy = apiTarget ? { '/api/v1': { target: apiTarget } } : undefined;
 
 export default defineConfig({
   root: project,
   base: './',
   publicDir: false,
+  define: {
+    'import.meta.env.SOM_ACCOUNTS': JSON.stringify(Boolean(apiTarget) || process.env.SOM_ACCOUNTS === '1'),
+  },
+  server: { proxy },
+  preview: { proxy },
   build: {
     outDir: output,
     emptyOutDir: true,

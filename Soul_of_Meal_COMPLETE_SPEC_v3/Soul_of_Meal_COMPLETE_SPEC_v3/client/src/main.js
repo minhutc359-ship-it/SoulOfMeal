@@ -2,7 +2,7 @@ import { createAdventureState, interactAdventure, nearestInteraction, setAdventu
 import { createTcgMatch, playTcgCard, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, mulliganTcg, validateDeck } from './modes/tcg.js';
 import { advanceChessRound, buyChessOffer, createChessRun, moveChessUnit, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat, toggleChessLock, buyChessExperience, chessTraits, CHESS_TRAITS } from './modes/autoChess.js';
 import { gameEvents } from './core/events.js';
-import { loadSave, persistSave } from './core/save.js';
+import { loadSave, migrateSave, persistSave, SAVE_KEY } from './core/save.js';
 import { AnimationAdapter } from './render/animationAdapter.js';
 import { findAdventurePath } from './modes/adventureNavigation.js';
 import { createAdventureMapRegistry, getAdventureMap } from './modes/mapCatalog.js';
@@ -14,14 +14,19 @@ import { BattleEffects } from './render/battleEffects.js';
 import { GameAudio } from './core/audio.js';
 import { ChessReplay } from './render/chessReplay.js';
 import { renderEntry } from './shell/entry.js';
+import { createAccountApi, accountErrorMessage } from './core/accountApi.js';
+import { createCloudSave } from './core/cloudSave.js';
+import { openAccountDialog } from './shell/accountDialog.js';
 
 const app = document.querySelector('#app');
 const stageHost = document.querySelector('#web-stage');
 const systemMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let webStage;
+const accountApi = import.meta.env?.SOM_ACCOUNTS ? createAccountApi() : null;
 const runtime = {
   page: 'title', save: loadSave(), adventure: null, cards: null, deck: null, units: null, maps: null,
   shopConfig: null, tcg: null, chess: null, selectedTarget: 'commander', selectedBench: null, mulligan: new Set(), deckDraft: null,
+  account: null, cloud: null, cloudStatus: 'saved', cloudError: null,
   selectedBoard: null, notice: '', lastSavedLocation: 0, heldKeys: new Set(), tcgImpacts: new Map(),
 };
 runtime.adventure = createAdventureState(runtime.save);
@@ -90,7 +95,8 @@ function saveNow() {
   runtime.save.adventure.y = runtime.adventure.y;
   runtime.save.modes.tcg = runtime.tcg;
   runtime.save.modes.chess = runtime.chess;
-  persistSave(runtime.save);
+  if (runtime.cloud) runtime.cloud.stage(runtime.save);
+  else persistSave(runtime.save);
 }
 
 function syncStage() {
@@ -105,10 +111,129 @@ function syncMotion() {
 async function enterGame(report) {
   runtime.audio.unlock();
   if (!runtime.animations) await loadContent(report);
+  saveNow();
   navigate('home');
 }
 
+function replaceProfile(save) {
+  runtime.save = save;
+  runtime.adventure = createAdventureState(save);
+  runtime.tcg = save.modes.tcg;
+  runtime.chess = save.modes.chess;
+  runtime.chessReplay = null;
+  runtime.selectedTarget = 'commander';
+  runtime.selectedBoard = null;
+  runtime.selectedBench = null;
+  runtime.mulligan.clear();
+  runtime.deckDraft = null;
+  runtime.tcgImpacts.clear();
+  runtime.effects = new BattleEffects(spriteRenderer);
+  runtime.animations?.retainActors([]);
+  runtime.animations?.setReducedMotion(save.settings.reducedMotion);
+  runtime.audio.setSettings(save.settings);
+  syncMotion();
+}
+
+function applyCloudProfile({ account, practiceSave }) {
+  runtime.account = account;
+  runtime.cloud = createCloudSave(accountApi, account.id, practiceSave, updateCloudStatus);
+  const save = migrateSave(practiceSave.snapshot);
+  save.player.name = account.username;
+  replaceProfile(save);
+  updateCloudStatus('saved');
+  if (practiceSave.snapshot === null) saveNow();
+}
+
+async function enterAccount(bootstrap, report) {
+  runtime.audio.unlock();
+  if (!runtime.animations) await loadContent(report);
+  applyCloudProfile(bootstrap);
+  navigate('home');
+}
+
+function updateCloudStatus(state, error) {
+  runtime.cloudStatus = state;
+  runtime.cloudError = error;
+  const status = ({
+    pending: 'Chờ lưu', saving: 'Đang lưu', saved: 'Đã lưu',
+    error: error?.status === 401 ? 'Hết phiên' : error?.code === 'save_conflict' ? 'Bản lưu mới hơn' : 'Chưa lưu',
+  })[state];
+  const badge = app.querySelector('.cloud-badge');
+  if (badge) {
+    badge.textContent = status;
+    badge.dataset.state = state;
+  }
+  const details = app.querySelector('[data-cloud-status]');
+  if (details) details.textContent = error ? accountErrorMessage(error) : status;
+  const actions = app.querySelectorAll('[data-cloud-action]');
+  for (const button of actions) {
+    const action = button.dataset.cloudAction;
+    if (action === 'logout') continue;
+    button.hidden = action !== (error?.code === 'save_conflict' ? 'reload'
+      : error?.status === 401 ? 'reauth' : error ? 'retry' : null);
+  }
+}
+
+async function runCloudAction(action) {
+  const cloud = runtime.cloud;
+  const account = runtime.account;
+  if (action === 'reauth') {
+    openAccountDialog(app, accountApi, async () => { await cloud.retry({ reauthenticated: true }); }, account);
+    return;
+  }
+  if (action === 'reload' && !confirm('Tải bản lưu từ máy chủ và bỏ các thay đổi đang chờ trên thiết bị này?')) return;
+
+  const shellElement = app.querySelector('.shell');
+  shellElement.inert = true;
+  try {
+    if (action === 'retry') {
+      await cloud.retry();
+    } else if (action === 'reload') {
+      let bootstrap;
+      try {
+        bootstrap = await accountApi.bootstrap();
+      } catch (error) {
+        if (error.status !== 401) throw error;
+      }
+      if (bootstrap?.account.id === account.id) {
+        applyCloudProfile(bootstrap);
+        navigate('home');
+      } else {
+        openAccountDialog(app, accountApi, async (confirmed) => {
+          applyCloudProfile(confirmed);
+          navigate('home');
+        }, account);
+      }
+    } else if (action === 'logout') {
+      if (cloud.dirty() && !await cloud.flush()) return;
+      try {
+        await accountApi.logout(account.id);
+      } catch (error) {
+        if (error.status !== 401) throw error;
+      }
+      runtime.cloud = null;
+      runtime.account = null;
+      replaceProfile(loadSave());
+      navigate('title');
+    }
+  } catch (error) {
+    app.querySelector('[data-cloud-status]')?.replaceChildren(accountErrorMessage(error));
+  } finally {
+    shellElement.inert = false;
+  }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') void runtime.cloud?.flush({ keepalive: true });
+});
+window.addEventListener('beforeunload', event => {
+  if (!runtime.cloud?.dirty()) return;
+  event.preventDefault();
+  event.returnValue = true;
+});
+
 function navigate(page) {
+  if (runtime.page === 'adventure' && page !== 'adventure') saveNow();
   runtime.heldKeys.clear();
   setAdventureInput(runtime.adventure, 0, 0);
   runtime.page = page;
@@ -162,6 +287,7 @@ function shell(content) {
           <span title="Vàng" aria-label="${gold} vàng"><i aria-hidden="true">◈</i> ${gold}</span>
           <span title="Tinh hoa" aria-label="${essence} tinh hoa"><i aria-hidden="true">✦</i> ${essence}</span>
         </div>
+        ${runtime.cloud ? '<button class="cloud-badge" data-page="settings" title="Trạng thái lưu trên máy chủ"></button>' : ''}
         ${document.fullscreenEnabled ? '<button class="shell-icon" type="button" data-fullscreen>⛶</button>' : ''}
       </header>
       <main class="main">${content}</main>
@@ -177,6 +303,7 @@ function shell(content) {
   app.querySelectorAll('[data-page]').forEach((button) => button.addEventListener('click', () => navigate(button.dataset.page)));
   app.querySelector('[data-fullscreen]')?.addEventListener('click', toggleFullscreen);
   syncFullscreenButton();
+  if (runtime.cloud) updateCloudStatus(runtime.cloudStatus, runtime.cloudError);
 }
 
 function pageHeader(kicker, title, description, back = 'home') {
@@ -375,12 +502,10 @@ function drawAdventureFrame(deltaSeconds) {
     interactButton.textContent = target ? `Tương tác · ${target.label}` : 'Tiến gần một điểm tương tác';
   }
   const now = Date.now();
-  if (now - runtime.lastSavedLocation > 900 && !adventure.battle) {
+  if (now - runtime.lastSavedLocation > 900 && !adventure.battle
+      && (runtime.save.adventure.x !== adventure.x || runtime.save.adventure.y !== adventure.y)) {
     runtime.lastSavedLocation = now;
-    runtime.save.adventure.map = adventure.map;
-    runtime.save.adventure.x = adventure.x;
-    runtime.save.adventure.y = adventure.y;
-    persistSave(runtime.save);
+    saveNow();
   }
   canvas.dataset.worldX = String(Math.round(adventure.x));
   canvas.dataset.worldY = String(Math.round(adventure.y));
@@ -823,21 +948,32 @@ function renderSynergies(board) {
 }
 
 function renderRoster() {
-  shell(`${pageHeader('Phiêu lưu', 'Đội hình Vị Linh', 'Chỉ số và tuyệt kỹ của từng Vị Linh.', 'home')}<section class="roster-grid">${runtime.save.roster.map((actor) => `<article class="roster-card"><div class="roster-avatar" style="--unit-color:${elementColors[actor.element]}"><img src="${escapeAttr(actorArt(actor.id))}" alt="${escapeAttr(characterNames[actor.id])}" style="width:100%;height:100%;border-radius:inherit;object-fit:cover;" onerror="this.style.display='none'"></div><div><div class="eyebrow">${actor.element} · ${actor.role}</div><h2>${escapeHtml(characterNames[actor.id])}</h2><div class="data-list"><div class="data-row"><span>HP</span><b>${actor.hp}/${actor.maxHp}</b></div><div class="data-row"><span>ATK</span><b>${actor.atk}</b></div><div class="data-row"><span>DEF</span><b>${actor.def}</b></div></div></div></article>`).join('')}</section>`);
+  shell(`${pageHeader('Phiêu lưu', 'Đội hình Vị Linh', 'Chỉ số và tuyệt kỹ của từng Vị Linh.', 'home')}<section class="roster-grid">${runtime.save.roster.map((actor) => `<article class="roster-card"><div class="roster-avatar" style="--unit-color:${elementColors[actor.element]}"><img src="${escapeAttr(actorArt(actor.id))}" alt="${escapeAttr(characterNames[actor.id])}" style="width:100%;height:100%;border-radius:inherit;object-fit:cover;"></div><div><div class="eyebrow">${actor.element} · ${actor.role}</div><h2>${escapeHtml(characterNames[actor.id])}</h2><div class="data-list"><div class="data-row"><span>HP</span><b>${actor.hp}/${actor.maxHp}</b></div><div class="data-row"><span>ATK</span><b>${actor.atk}</b></div><div class="data-row"><span>DEF</span><b>${actor.def}</b></div></div></div></article>`).join('')}</section>`);
 }
 
 function renderSettings() {
   const settings = runtime.save.settings;
-  shell(`${pageHeader('Thiết bị này · save local', 'Cài đặt', 'Âm lượng và chuyển động lưu riêng trên thiết bị này.', 'home')}<section class="settings-list panel">${[['music', 'Nhạc'], ['sfx', 'Hiệu ứng'], ['ambience', 'Môi trường']].map(([key, label]) => `<label class="setting-row"><span>${label}</span><input type="range" min="0" max="100" value="${settings[key]}" data-setting="${key}"><b>${settings[key]}%</b></label>`).join('')}<label class="setting-row"><span>Giảm chuyển động</span><input type="checkbox" data-setting-motion ${settings.reducedMotion ? 'checked' : ''}><b>${settings.reducedMotion ? 'Bật' : 'Tắt'}</b></label><div class="action-row"><button class="button light" data-page="title">Về màn hình bắt đầu</button><button class="button danger" data-reset-save>Khởi tạo lại tiến trình</button></div></section>`);
+  const guestActions = runtime.cloud ? '' : '<div class="action-row"><button class="button light" data-page="title">Về màn hình bắt đầu</button><button class="button danger" data-reset-save>Khởi tạo lại tiến trình</button></div>';
+  const cloudPanel = runtime.cloud ? `<section class="settings-list panel cloud-panel"><h2>Tài khoản ${escapeHtml(runtime.account.username)}</h2><p>Tiến trình luyện tập lưu trên máy chủ.</p><p role="status" data-cloud-status></p><div class="action-row"><button class="button light" data-cloud-action="retry" hidden>Thử lưu lại</button><button class="button light" data-cloud-action="reload" hidden>Tải bản trên máy chủ</button><button class="button light" data-cloud-action="reauth" hidden>Đăng nhập lại</button><button class="button danger" data-cloud-action="logout">Lưu và đăng xuất</button></div></section>` : '';
+  shell(`${pageHeader(runtime.cloud ? 'Tài khoản' : 'Thiết bị này', 'Cài đặt', '', 'home')}<section class="settings-list panel">${[['music', 'Nhạc'], ['sfx', 'Hiệu ứng'], ['ambience', 'Môi trường']].map(([key, label]) => `<label class="setting-row"><span>${label}</span><input type="range" min="0" max="100" value="${settings[key]}" data-setting="${key}"><b>${settings[key]}%</b></label>`).join('')}<label class="setting-row"><span>Giảm chuyển động</span><input type="checkbox" data-setting-motion ${settings.reducedMotion ? 'checked' : ''}><b>${settings.reducedMotion ? 'Bật' : 'Tắt'}</b></label>${guestActions}</section>${cloudPanel}`);
   app.querySelectorAll('[data-setting]').forEach((input) => input.addEventListener('input', () => { runtime.save.settings[input.dataset.setting] = Number(input.value); input.nextElementSibling.textContent = `${input.value}%`; runtime.audio.setSettings(runtime.save.settings); saveNow(); }));
   app.querySelector('[data-setting-motion]')?.addEventListener('change', (event) => { runtime.save.settings.reducedMotion = event.target.checked; runtime.animations.setReducedMotion(event.target.checked); syncMotion(); saveNow(); renderSettings(); });
-  app.querySelector('[data-reset-save]')?.addEventListener('click', () => { if (!confirm('Xóa tiến trình đã lưu trên thiết bị này?')) return; localStorage.removeItem('soul-of-meal.save.v2'); localStorage.removeItem('soul-of-meal.save.v1'); window.location.reload(); });
+  app.querySelector('[data-reset-save]')?.addEventListener('click', () => {
+    if (!confirm('Xóa tiến trình đã lưu trên thiết bị này?')) return;
+    localStorage.removeItem(SAVE_KEY);
+    localStorage.removeItem('soul-of-meal.save.v1');
+    window.location.reload();
+  });
+  app.querySelectorAll('[data-cloud-action]').forEach(button =>
+    button.addEventListener('click', () => runCloudAction(button.dataset.cloudAction)));
 }
 
 function render() {
   if (runtime.page === 'title') {
     runtime.audio.setScene('title');
-    return renderEntry(app, enterGame);
+    return renderEntry(app, enterGame, accountApi
+      ? () => openAccountDialog(app, accountApi, enterAccount)
+      : null);
   }
   if (runtime.page === 'home') return renderHome();
   if (runtime.page === 'adventure') return renderAdventure();

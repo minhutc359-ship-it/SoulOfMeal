@@ -54,6 +54,8 @@ The Python suite covers engine-independent fixtures. The browser playtest also h
 
 ## G. Web Client–Server acceptance
 
+The account playtest smoke checks registration, login, session revocation, CSRF, account isolation, cross-session persistence, idempotent retries, and concurrent save revisions against PostgreSQL. The full inventory, authoritative rewards, reconnect and device benchmarks below remain production acceptance goals.
+
 These are target checks for [SPEC v3.2](../03_engineering/ENGINE_ARCHITECTURE.md). The local playtest provides gameplay fixtures for these checks.
 
 - WEB-01 Sign in through Login and Loading, open each of the three modes and return to Home in the same viewport and session. Main gameplay actions are accessible without document scroll.

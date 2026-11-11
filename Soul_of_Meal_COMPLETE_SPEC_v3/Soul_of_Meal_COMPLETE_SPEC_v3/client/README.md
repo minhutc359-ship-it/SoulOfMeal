@@ -15,6 +15,10 @@ Trên máy tính, dùng WASD hoặc phím mũi tên để di chuyển, E để t
 
 Đây là bản chơi thử để đối chiếu gameplay và asset khi chuyển sang [Web Client–Server v3.2](../docs/03_engineering/ENGINE_ARCHITECTURE.md). Xem [đối chiếu concept](../docs/04_qa/PLAYTEST_CONCEPT_GAP.md) để phân biệt phần chạy được và hạng mục nghiệm thu.
 
+## Tài khoản
+
+Khi chạy với [máy chủ ASP.NET Core và PostgreSQL](../server/README.md), màn mở đầu có nút **Tài khoản**. Bản lưu của tài khoản có thể mở trên thiết bị khác. Chế độ khách tiếp tục lưu riêng trên trình duyệt.
+
 ## Lối chơi
 
 - **Adventure** · Nhận nhiệm vụ từ Lilia, mở rương, vào rừng, đánh hai đợt quái, nhận thưởng và trở lại làng. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
@@ -37,4 +41,4 @@ python3 -m unittest discover -s tests -v
 python3 scripts/validate_package.py .
 ```
 
-Battle Adventure và Auto Chess vẫn dùng Canvas 2D. Cả ba chế độ dùng bot và lưu tiến trình cục bộ. Xác thực tài khoản và server save thuộc mốc tiếp theo. Các phần còn cần hoàn thiện trước phát hành gồm rig/animation đầy đủ cho cả đội, duyệt mỹ thuật và quyền sử dụng, voice, benchmark renderer WebGL trên thiết bị thật, cân bằng dài hạn và nội dung các chương sau. Bản chơi thử lưu mốc nhiệm vụ/phần thưởng, ván TCG và vòng Auto Chess. Adventure bắt đầu lại cuộc chạm trán nếu tải lại giữa trận.
+Battle Adventure và Auto Chess vẫn dùng Canvas 2D. Cả ba chế độ dùng bot. Chế độ tài khoản đồng bộ bản luyện tập lên PostgreSQL, còn luật chiến đấu vẫn chạy trên client. Các phần còn cần hoàn thiện trước phát hành gồm rig/animation đầy đủ cho cả đội, duyệt mỹ thuật và quyền sử dụng, voice, benchmark renderer WebGL trên thiết bị thật, cân bằng dài hạn và nội dung các chương sau. Bản chơi thử lưu mốc nhiệm vụ/phần thưởng, ván TCG và vòng Auto Chess. Adventure bắt đầu lại cuộc chạm trán nếu tải lại giữa trận.

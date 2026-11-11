@@ -1,6 +1,6 @@
 # Soul of Meal Web Client–Server · SPEC v3.2
 
-**Ngày** 2026-11-11 · **Trạng thái** Bản chơi thử đã có vỏ game, màn chơi khách và sảnh với lớp nền Phaser. Migration gameplay/server và benchmark còn mở. [D-018](../00_foundation/decisions/D-018.md) quy định phạm vi thay đổi. Xem [đối chiếu concept](../04_qa/PLAYTEST_CONCEPT_GAP.md) để biết trạng thái mã nguồn.
+**Ngày** 2026-11-11 · **Trạng thái** Bản chơi thử có sảnh Phaser và tài khoản lưu bản luyện tập trên PostgreSQL. Chuyển luật gameplay lên server và benchmark còn mở. [D-018](../00_foundation/decisions/D-018.md) quy định phạm vi thay đổi. Xem [đối chiếu concept](../04_qa/PLAYTEST_CONCEPT_GAP.md) để biết trạng thái mã nguồn.
 
 ## 1. Nền tảng đích
 
@@ -49,7 +49,9 @@ Render đọc sự kiện đã xác nhận để phát animation, VFX và âm th
 
 ## 4. API, phiên đăng nhập và phục hồi
 
-Các endpoint là hợp đồng đề xuất để bắt đầu triển khai.
+Bản hiện tại triển khai đăng ký, đăng nhập bằng tên tài khoản, đăng xuất, CSRF, bootstrap và `PUT /api/v1/me/practice-save`. Bản luyện tập được lưu theo tài khoản và revision. Bản lưu của khách ở thiết bị. Máy chủ bảo vệ quyền truy cập vào snapshot luyện tập. Các hợp đồng trận đấu, phần thưởng, gacha và version nội dung trong bảng dưới đây là thiết kế đích.
+
+Xem [hướng dẫn chạy và kiểm thử server](../../server/README.md).
 
 | Endpoint / kênh | Hành vi |
 |---|---|

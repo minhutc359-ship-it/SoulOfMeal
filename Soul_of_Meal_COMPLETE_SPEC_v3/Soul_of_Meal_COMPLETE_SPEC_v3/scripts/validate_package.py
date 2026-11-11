@@ -21,7 +21,7 @@ def validate(root):
         for path in ['docs/03_engineering/ADVENTURE_RULES_REFERENCE.md','docs/03_engineering/AUTO_CHESS_RULES_REFERENCE.md','docs/03_engineering/TCG_RULES_REFERENCE.md','game_rules/adventure.py','game_rules/auto_chess.py','game_rules/tcg.py','tests/test_adventure.py','tests/test_auto_chess.py','tests/test_tcg.py']:
             if path not in indexed_paths: errors.append(f'File index entry missing: {path}')
         if len(indexed_paths)!=len(index['files']): errors.append('File index contains duplicate paths')
-        disk_paths={path.relative_to(root).as_posix() for path in root.rglob('*') if path.is_file() and path.name!='FILE_INDEX.json' and '__pycache__' not in path.parts and '.git' not in path.parts and path.relative_to(root).parts[:2] not in {('client','node_modules'), ('client','dist')}}
+        disk_paths={path.relative_to(root).as_posix() for path in root.rglob('*') if path.is_file() and path.name!='FILE_INDEX.json' and '__pycache__' not in path.parts and '.git' not in path.parts and path.relative_to(root).parts[:2] not in {('client','node_modules'), ('client','dist'), ('server','bin'), ('server','obj')}}
         for path in sorted(disk_paths-indexed_paths): errors.append(f'File is not indexed: {path}')
         info['indexed_files']=len(indexed_paths)
     except Exception as e: errors.append('File index: '+str(e))

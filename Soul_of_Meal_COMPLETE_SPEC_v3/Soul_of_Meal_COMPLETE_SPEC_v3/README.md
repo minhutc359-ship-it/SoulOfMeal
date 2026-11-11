@@ -1,5 +1,5 @@
 # Soul of Meal — Game & Art Production SPEC v3.2
-**Ngày** 2026-11-11 · **Trạng thái** Web Client–Server là kiến trúc đích. Bản chơi thử hiện tại chạy cục bộ.
+**Ngày** 2026-11-11 · **Trạng thái** Bản chơi thử có chế độ khách và tài khoản lưu trên máy chủ.
 
 Đây là **gói duy nhất** chứa nguồn hình do người dùng gửi, 5 concept sheet tách riêng, **35 crop ảnh theo từng mục**, toàn bộ gói thiết kế v1 + v2, rulebook của 3 chế độ, kiến trúc dữ liệu, và AI Sprite Agent Skill có script xây atlas/kiểm tra.
 
@@ -57,6 +57,6 @@ python .agents/skills/soul-of-meal-sprite/scripts/make_preview.py --help
 ```
 
 ## Chạy browser runtime
-Client web nằm trong [`client/`](client/README.md). Từ thư mục chứa tài liệu này, chạy `npm --prefix client ci` và `npm --prefix client run dev` rồi mở `http://localhost:4173/client/`. Kiểm tra bằng `node --test client/tests/*.test.js`.
+Client web nằm trong [`client/`](client/README.md). Xem [hướng dẫn ASP.NET Core và PostgreSQL](server/README.md) để bật tài khoản. Từ thư mục chứa tài liệu này, chạy `npm --prefix client ci` và `npm --prefix client run dev` rồi mở `http://localhost:4173/client/`. Kiểm tra bằng `node --test client/tests/*.test.js`.
 
 Bản chơi thử cục bộ gồm tuyến nhiệm vụ Adventure, TCG đấu bot và Auto Chess đấu bot. Cả năm Vị Linh có sprite anime chibi mới. Adventure có cut-in và hiệu ứng theo hệ cho năm tuyệt kỹ, cùng nhạc và âm thanh theo cảnh. Xem [hướng dẫn client](client/README.md) để biết phạm vi kiểm thử và các bước nghiệm thu còn lại.
