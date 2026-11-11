@@ -1,5 +1,7 @@
 import { gameEvents } from '../core/events.js';
 
+export const CHESS_PREPARATION_SECONDS = 30;
+
 export const CHESS_TRAITS = {
   fire: { name: 'Bếp Lửa', detail: '+15% công cho quân Hỏa', stat: 'atk', bonus: .15 },
   wood: { name: 'Mầm Sống', detail: '+15% máu cho quân Mộc', stat: 'maxHp', bonus: .15 },
@@ -26,9 +28,9 @@ function applyTraits(units) {
 
 export function createChessRun(units, shopConfig, seed = 2077) {
   const run = {
-    phase: 'prepare', round: 1, stage: 1, hp: 100, gold: 10, level: 2, experience: 0,
+    phase: 'prepare', preparationSeconds: CHESS_PREPARATION_SECONDS, round: 1, stage: 1, hp: 100, gold: 10, level: 2, experience: 0,
     bench: [], board: [], shopLocked: false, shop: [], seed, wins: 0, losses: 0,
-    log: ['Vòng 1: chuẩn bị đội hình.'], combat: null, result: null,
+    streak: 0, log: ['Vòng 1: chuẩn bị đội hình.'], combat: null, result: null,
     opponents: Array.from({ length: 7 }, (_, index) => ({ id: index + 1, hp: 100, units: botRoster(units, index + seed) })),
   };
   run.shop = rollChessShop(run, units, shopConfig, 5);
@@ -171,6 +173,7 @@ export function advanceChessRound(run, units, shopConfig) {
   if (!updated.shopLocked) updated.shop = rollChessShop(updated, units, shopConfig, 5);
   updated.shopLocked = false;
   updated.phase = 'prepare';
+  updated.preparationSeconds = CHESS_PREPARATION_SECONDS;
   updated.combat = null;
   updated.result = null;
   record(updated, `Vòng ${updated.round}: nhận thu nhập và chuẩn bị đội hình.`);
@@ -232,20 +235,36 @@ function resolveChessCombat(run, opponent) {
       }
     }
   }
-  const playerHp = combat.actors.filter((actor) => actor.team === 'player' && actor.hp > 0).reduce((sum, unit) => sum + unit.hp, 0);
-  const enemyHp = combat.actors.filter((actor) => actor.team === 'enemy' && actor.hp > 0).reduce((sum, unit) => sum + unit.hp, 0);
-  const won = playerHp > enemyHp;
-  const damage = won ? 0 : Math.min(25, 2 + Math.floor(run.stage / 2) + combat.actors.filter((actor) => actor.team === 'enemy' && actor.hp > 0).reduce((sum, unit) => sum + unit.star, 0));
+  const friendly = combat.actors.filter(actor => actor.team === 'player');
+  const rival = combat.actors.filter(actor => actor.team === 'enemy');
+  const totalHp = actors => actors.reduce((total, unit) => total + unit.hp, 0);
+  const totalMaxHp = actors => actors.reduce((total, unit) => total + unit.maxHp, 0);
+  const playerHp = totalHp(friendly);
+  const enemyHp = totalHp(rival);
+  const timedOut = combat.tick >= maxTicks && playerHp > 0 && enemyHp > 0;
+  const comparison = timedOut ? playerHp * totalMaxHp(rival) - enemyHp * totalMaxHp(friendly) : playerHp - enemyHp;
+  const won = comparison > 0;
+  const draw = comparison === 0;
+  const damage = won || draw ? 0 : Math.min(25, 2 + Math.floor(run.stage / 2)
+    + rival.filter(actor => actor.hp > 0).reduce((sum, unit) => sum + unit.star, 0));
   run.hp = Math.max(0, run.hp - damage);
-  if (won) { run.wins += 1; opponent.hp = Math.max(0, opponent.hp - 12); }
-  else { run.losses += 1; }
-  const income = 5 + (won ? 1 : 0) + Math.min(Math.floor(run.gold / 10), 5);
+  if (won) {
+    run.wins += 1;
+    opponent.hp = Math.max(0, opponent.hp - 12);
+  } else if (!draw) run.losses += 1;
+  const prior = run.streak ?? 0;
+  run.streak = draw ? 0 : won ? Math.max(0, prior) + 1 : Math.min(0, prior) - 1;
+  const streak = Math.abs(run.streak);
+  const payout = {
+    base: 5, win: Number(won), interest: Math.min(Math.floor(run.gold / 10), 5),
+    streak: Number(streak >= 2) + Number(streak >= 4) + Number(streak >= 6),
+  };
+  const income = payout.base + payout.win + payout.interest + payout.streak;
   run.gold += income;
   run.phase = 'result';
-  run.result = { won, damage, income, playerHp, enemyHp, ticks: combat.tick, opponentId: opponent.id };
-  run.log.unshift(won ? `Chiến thắng · +${income} vàng.` : `Thất bại · -${damage} HP, +${income} vàng.`);
-  run.log = run.log.slice(0, 30);
-  gameEvents.emit('chess_combat_finished', { won, damage, income, ticks: combat.tick });
+  run.result = { won, draw, damage, income, payout, playerHp, enemyHp, ticks: combat.tick, opponentId: opponent.id };
+  record(run, won ? `Chiến thắng · +${income} vàng.` : draw ? `Hòa · +${income} vàng.` : `Thất bại · -${damage} HP, +${income} vàng.`);
+  gameEvents.emit('chess_combat_finished', { won, draw, damage, income, ticks: combat.tick });
   return run;
 }
 

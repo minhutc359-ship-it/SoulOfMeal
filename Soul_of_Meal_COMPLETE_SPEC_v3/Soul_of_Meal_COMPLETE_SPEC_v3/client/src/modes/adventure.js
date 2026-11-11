@@ -464,6 +464,8 @@ function stepBattle(state) {
   gameEvents.setTick(battle.tick);
   for (const actor of battle.actors) {
     if (!actor.alive) continue;
+    actor.previousX = actor.x;
+    actor.previousY = actor.y;
     stepActor(battle, actor);
   }
   const alivePlayers = battle.actors.some((actor) => actor.team === 'player' && actor.alive);
@@ -478,6 +480,8 @@ function stepBattle(state) {
       actor.action = null;
       actor.x = actor.homeX;
       actor.y = actor.homeY;
+      actor.previousX = actor.x;
+      actor.previousY = actor.y;
       actor.moving = false;
       actor.cooldown = Math.max(actor.cooldown, 10);
     }

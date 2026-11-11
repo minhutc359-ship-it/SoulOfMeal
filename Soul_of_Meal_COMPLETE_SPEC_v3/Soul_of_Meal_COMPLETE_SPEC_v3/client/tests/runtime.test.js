@@ -946,3 +946,19 @@ test('the walk to Đèn Mộc clears the tree corner from the forest entrance', 
   assert.equal(state.walkPath.length, 0);
   assert.equal(nearestInteraction(state, save, maps)?.id, lantern.id);
 });
+
+test('Auto Chess preparation and loss streak payout follow the match state', async () => {
+  const { units } = await readJson('examples/auto_chess/units.json');
+  const shop = await readJson('examples/auto_chess/shop_odds.json');
+  let run = createChessRun(units, shop, 21);
+  assert.equal(run.preparationSeconds, 30);
+  run.preparationSeconds = 0;
+  run.gold = 30;
+  run = startChessCombat(run);
+  assert.deepEqual(run.result.payout, { base: 5, win: 0, interest: 3, streak: 0 });
+  run = advanceChessRound(run, units, shop);
+  assert.equal(run.preparationSeconds, 30);
+  run = startChessCombat(run);
+  assert.equal(run.streak, -2);
+  assert.equal(run.result.payout.streak, 1);
+});

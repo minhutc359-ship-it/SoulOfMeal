@@ -27,6 +27,7 @@ export const ELEMENT_ART = Object.freeze({
 });
 
 export function sceneArt(id) { return `${ORIGINAL}/scenes/${id}.webp`; }
+export function chapterArt(number) { return `${ORIGINAL}/chronicle/chapter-${number}.webp`; }
 export function actorArt(id) { return ACTORS.includes(id) ? `${ORIGINAL}/actors/${id}.webp` : null; }
 export function propArt(id) { return `${ORIGINAL}/props/${id}.webp`; }
 export function originalCardArt(id) { return CARD_IDS.has(id) ? `${ORIGINAL}/cards/${id}.webp` : null; }
@@ -41,6 +42,7 @@ export async function preloadGameAssets(renderer) {
   const imagePaths = [
     ...ADVENTURE_SCENES.map(sceneArt),
     ...ACTORS.map(actorArt),
+    ...['tcg_table', 'chess_court'].map(sceneArt),
     ...PROPS.map(propArt),
     ...Object.keys(HERO_NAMES).map(cutinArt),
     ...COMBAT_EFFECTS.map(combatArt),

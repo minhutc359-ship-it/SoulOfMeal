@@ -11,6 +11,7 @@ const proxy = apiTarget ? { '/api/v1': { target: apiTarget } } : undefined;
 
 export default defineConfig({
   root: project,
+  cacheDir: resolve(client, 'node_modules/.vite'),
   base: './',
   publicDir: false,
   define: {

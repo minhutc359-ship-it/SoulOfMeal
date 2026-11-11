@@ -47,7 +47,7 @@ export class ChessReplay {
     this.trackApproachingAttacks();
     this.impacts = this.impacts.filter((impact) => impact.end > this.elapsed);
     for (const actor of this.actors.values()) {
-      const fraction = this.reducedMotion ? 1 : Math.min(1, delta * 15);
+      const fraction = this.reducedMotion ? 1 : 1 - Math.exp(-delta * 19);
       actor.viewX += (actor.x - actor.viewX) * fraction;
       actor.viewY += (actor.y - actor.viewY) * fraction;
       actor.player.advance(delta * 1000);
@@ -62,7 +62,7 @@ export class ChessReplay {
     const context = canvas.getContext('2d');
     context.fillStyle = '#182d27';
     context.fillRect(0, 0, 760, 480);
-    this.renderer.drawImage(context, sceneArt('arena'), 0, 0, 760, 480);
+    this.renderer.drawImage(context, sceneArt('chess_court'), 0, 0, 760, 480);
     context.fillStyle = '#0d262577';
     context.fillRect(135, 46, 490, 396);
     for (let column = 0; column < 7; column += 1) {
@@ -150,9 +150,11 @@ export class ChessReplay {
       const dx = to.x - from.x;
       const dy = to.y - from.y;
       const progress = Math.max(0, 1 - (contact - this.elapsed) / ATTACK_LEAD);
+      const ranged = ['mage', 'ranged', 'support'].includes(source.job);
+      if (!ranged && progress < .6) continue;
       drawElementEffect(context, this.renderer, source.element, 'trail', {
         x: from.x + dx * progress, y: from.y + dy * progress - 21,
-        size: 60, angle: Math.atan2(dy, dx), opacity: .86,
+        size: ranged ? 55 : 69, angle: Math.atan2(dy, dx), opacity: .86,
       });
     }
   }

@@ -50,6 +50,13 @@ Khi chạy với [máy chủ ASP.NET Core và PostgreSQL](../server/README.md), 
 - **Bữa Tiệc Tái Sinh.** Mang ký ức về làng, gặp Lilia, nêm nước dùng rồi dọn bàn. Nói chuyện với Lilia để mở cảnh kết. Có thể trở lại các vùng đã mở và xem lại hội thoại trong Nhật ký.
 - **Tiếp tục giao tranh.** Trận được ghi khi vào trận, sang đợt, mở hoặc kết thúc báo đòn, tạm dừng và có kết quả. Khi tải lại, trận đang diễn ra trở về mốc đã ghi và chờ **Tiếp tục**. Kết quả chưa nhận thưởng vẫn xuất hiện. Tài khoản đồng bộ các mốc lên máy chủ khi báo **Đã lưu**.
 
+## Thao tác trong game
+
+- **Adventure.** Bản đồ nhỏ đánh dấu vị trí người chơi, lối đi và mục tiêu nhiệm vụ hiện tại. Trên màn hình cảm ứng, dùng cần điều khiển hoặc chạm đích để đi. Mở **Nhật ký hành trình** để đọc lại các cảnh đã mở kèm minh họa sáu chương.
+- **TCG.** Chạm lá phép để chọn, rồi chạm chủ soái hoặc Vị Linh địch trên bàn, hoặc chọn trong danh sách. Bấm **Thi triển** mới tiêu mana. Nút **Hủy chọn** quay về tay bài. Cả hai phía hiển thị hai ô bẫy úp, tên bẫy hiện khi lật. Nhật ký mở trong trận.
+- **Auto Chess.** Hai nửa bàn cùng hiển thị theo hướng của bản phát lại. Mua quân rồi kéo từ ghế hoặc chạm quân và ô để đặt. Kéo quân từ bàn về ghế để rút, kéo lên ô có quân để đổi chỗ. Đồng hồ luyện tập 30 giây chạy trong màn chơi và tạm dừng khi mở hộp thoại. Khi hết giờ hoặc bấm khóa, trận bắt đầu sau một giây. Phát lại hỗ trợ tạm dừng và tốc độ 2×. Kết quả ghi riêng thu nhập cơ bản, thưởng thắng, lãi và chuỗi.
+- **Giảm chuyển động.** Tùy chọn trong **Cài đặt** giảm chuyển cảnh, hiệu ứng lật bẫy và chuyển động minh họa mà luật giao tranh vẫn chạy theo tick.
+
 ## Hồ sơ Vị Linh
 
 Chạm chân dung trong Adventure hoặc mở **Vị Linh** ở thanh điều hướng. **Thông tin** hiển thị HP, ATK, DEF, tốc độ và mức tăng trước khi nâng cấp. **Kỹ năng** hiển thị tuyệt kỹ, năng lượng và thời gian hồi. **Trang bị** có bốn món để chế tác, đeo hoặc tháo về kho. Mỗi món chỉ có một bản, có thể chuyển giữa các Vị Linh. **Quan hệ** dùng tinh hoa để tặng quà và mở ký ức khi đạt mức Tin cậy.

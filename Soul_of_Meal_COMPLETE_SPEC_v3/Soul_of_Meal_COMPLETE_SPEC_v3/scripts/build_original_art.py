@@ -25,7 +25,7 @@ PROPS = (
     "chest_closed", "chest_open", "portal", "table",
 )
 ELEMENTS = ("fire", "water", "wood", "light", "shadow")
-SCENES = ("home", "village", "forest", "arena", "harbor", "caldera", "sanctum")
+SCENES = ("home", "village", "forest", "arena", "harbor", "caldera", "sanctum", "tcg_table", "chess_court")
 CARD_ART = tuple(f"card_demo_{index:02d}" for index in (7, *range(10, 19)))
 DIRECTIONS = ("N", "E", "S", "W")
 CLIPS = {
@@ -239,6 +239,18 @@ def export_art(sources, assets, selection):
         elif source_id == "combat_effects":
             for effect, image in zip(COMBAT_EFFECTS, cells(source, 2, 2)):
                 export_cutout(assets / "original" / "effects" / f"{effect}.webp", image, (384, 384), 88)
+        elif source_id == "chronicle":
+            target = assets / "original" / "chronicle"
+            target.mkdir(parents=True, exist_ok=True)
+            with Image.open(source) as page:
+                if page.width % 3 or page.height % 2:
+                    raise ValueError("Expected a chronicle atlas with 3 equal columns and 2 equal rows")
+                width, height = page.width // 3, page.height // 2
+                for index in range(6):
+                    x, y = (index % 3) * width, (index // 3) * height
+                    panel = page.crop((x, y, x + width, y + height)).convert("RGB")
+                    panel.thumbnail((640, 640), Image.Resampling.LANCZOS)
+                    panel.save(target / f"chapter-{index + 1}.webp", quality=84, method=6)
         elif source_id == "extras":
             for actor, image in zip(ACTORS, cells(source, 4, 1)):
                 export_cutout(assets / "original" / "actors" / f"{actor}.webp", image, (330, 330))
@@ -264,13 +276,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("sources", type=Path, help="Directory of newly generated source sheets named by asset ID")
     parser.add_argument("--assets", type=Path, default=Path("client/assets"))
-    ids = (*HEROES, "travel", "extras", "props", "effects", "cards", *SCENES, BOSS, *STANDALONE_PROPS, "combat_effects")
+    ids = (*HEROES, "travel", "extras", "props", "effects", "cards", *SCENES, "chronicle", BOSS, *STANDALONE_PROPS, "combat_effects")
     parser.add_argument("ids", nargs="*", metavar="ASSET_ID")
     args = parser.parse_args()
     unknown = set(args.ids) - set(ids)
     if unknown:
         parser.error(f"unknown asset IDs: {sorted(unknown)}")
-    default_ids = tuple(asset_id for asset_id in ids if asset_id not in (BOSS, *STANDALONE_PROPS, "combat_effects", "harbor", "caldera", "sanctum")
+    default_ids = tuple(asset_id for asset_id in ids if asset_id not in (BOSS, *STANDALONE_PROPS, "combat_effects", "chronicle", "harbor", "caldera", "sanctum", "tcg_table", "chess_court")
                         or (args.sources / f"{asset_id}.png").is_file())
     export_art(args.sources, args.assets, args.ids or default_ids)
 

@@ -148,6 +148,24 @@
       "alpha": true,
       "source_file": "hollow_cauldron.png",
       "source_sha256": "ad8708fcc868a28f6fa7720011bb3f020026d27d7a4bb1563921d63c1f1e5e73"
+    },
+    "chronicle": {
+      "prompt": "Generate brand-new original Soul of Meal art for a Vietnamese culinary fantasy web game. One color manga illustration atlas, STRICTLY 3 columns by 2 rows of six equal independent square panels touching the edges with zero gutters, no grid outlines, each panel has its own scene cut exactly at thirds and half of canvas. Landscape 3:2 canvas. All artwork full-bleed. Polished hand-drawn 2D anime fantasy manga, cinematic compositions with crisp ink lines, watercolor backgrounds and warm honey-gold highlights, vivid local material references, exactly six scenes. Top left: by a sunlit old Vietnamese village kitchen, friendly Lilia with blond bob and rose flour apron shows young adult red-orange-haired flame-swordswoman with amber eyes and red-gold battle-chef uniform a steaming phở broth pot. Top center: emerald bamboo forest with round white steamed bun mascot with white chef cap and rosy cheeks, green-haired healer in leaf motifs touches a mossy jade altar with TWO hanging green/gold lanterns. Top right: Vietnamese fishing harbor blue hour, young adult silver-blue-haired water mage in layered blue robes stands on stone quay beside glowing spiral conch and rising waves, boats and karst islands. Bottom left: volcanic spice forge under orange sparks and old terracotta tiles, red-orange-haired fire swordswoman in recognizable red-gold attire studies a brass valve with radiant furnace in distance. Bottom center: violet Vietnamese communal temple with the dark-haired purple-clad coffee spirit and a threatening bronze lotus cooking cauldron holding a floating violet crescent, soft amethyst steam. Bottom right: warm village reunion feast with Lilia, the familiar red-haired flame swordswoman and round white bun mascot sharing steaming soup and herbs under gold lanterns, peaceful smiling faces. Keep subjects centered within their panel with visible environmental context, individual scenes must crop cleanly, no faces at tile edges. No text, no captions, no speech bubbles, no logos, no watermarks, no existing anime IP, no 3D.",
+      "alpha": false,
+      "source_file": "chronicle.png",
+      "source_sha256": "eb14c122ff3ab1ea1a42e4688a865c7382f38464acc29683ff6852833e674bd1"
+    },
+    "tcg_table": {
+      "prompt": "Create original Soul of Meal playable webgame background plate, wide 16:9, a polished magical Vietnamese culinary-fantasy trading card tabletop from perfectly straight top down. Dark rich walnut planks and smoked emerald jade inset, elegant antique brass and cream lacquer rim, soft orange lantern light and little decorative anise leaves ONLY at the extreme corners. Two mirror-symmetric muted areas for opposing cards, lower friendly muted jade tinted and upper muted maroon tinted, broad flat open areas, extremely restrained linework and gentle contrasts across central 80%. Detailed hand painted 2D anime background with rich material finish. Center thin brass inlay dividing sides, no outlined card slots, cards, people, tools in the central area, readable writing, controls, UI, logos, watermarks, perspective tilt, neon, fire or intense saturation. Must be beautiful but underlay behind real text and DOM cards.",
+      "alpha": false,
+      "source_file": "tcg_table.png",
+      "source_sha256": "22d4432e5af30ed3bc7392e04f71e884029cdc1e3a46f918b712bde42edaf2a2"
+    },
+    "chess_court": {
+      "prompt": "Create original Soul of Meal 16:9 game backdrop for an Auto Chess arena, straight overhead, delightful polished anime fantasy Vietnamese guild courtyard at late afternoon, faded sage and slate floor, subtle handpainted square masonry but no visible grid lines, small antique brass trim, soft dappled leaf shade, warm woven lanterns and wooden window eaves in top corners and hanging plants only at the very edges. Central 90% broad flat matte cool green stone, high contrast for miniature chibi game characters and colored team grid painted separately by real code. No characters, objects in the middle, hard repeated checkerboard pattern, grid overlay, text, logos, UI, existing game style or watermarks. Delicate painterly ink brush and cream-gold lighting with rich midtone detail at the borders only, no black vignette.",
+      "alpha": false,
+      "source_file": "chess_court.png",
+      "source_sha256": "f4309b2a4bbd3828deee47af611719d44f3e94eac2a184717a18c974443406b3"
     }
   },
   "generator": "OpenAI ImageGen, built-in image generation",

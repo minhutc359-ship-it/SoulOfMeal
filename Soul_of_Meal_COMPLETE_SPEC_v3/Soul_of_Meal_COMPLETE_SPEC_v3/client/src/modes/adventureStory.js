@@ -1,4 +1,4 @@
-import { FINALE_DIALOGUES } from './adventureFinale.js';
+import { FINALE_CHAPTERS, FINALE_DIALOGUES } from './adventureFinale.js';
 
 export const FIRST_CHAPTER = 'Hương Vị Đầu Tiên';
 export const SECOND_CHAPTER = 'Bí Mật Rừng Nguyên Liệu';
@@ -116,3 +116,23 @@ export const CHAPTER_DIALOGUES = Object.freeze({
     ],
   },
 });
+
+const CHRONICLE = [
+  { number: 1, title: FIRST_CHAPTER, opening: 'opening', ending: 'ending' },
+  { number: 2, title: SECOND_CHAPTER, opening: 'forestOpening', ending: 'forestEnding' },
+  { number: 3, title: THIRD_CHAPTER, opening: 'harborOpening', ending: 'harborEnding' },
+  ...FINALE_CHAPTERS,
+];
+
+export function chapterForScene(scene) {
+  return CHRONICLE.find(chapter => chapter.opening === scene || chapter.ending === scene);
+}
+
+export function adventureChronicle({ adventure }) {
+  const { quest, chapterTwo, chapterThree, finale } = adventure;
+  const stages = [quest, chapterTwo.stage, chapterThree.stage, finale[4].stage, finale[5].stage, finale[6].stage];
+  return CHRONICLE.map(({ number, title, opening, ending }, index) => ({
+    number, title, stage: stages[index],
+    scenes: stages[index] === 'not_started' ? [] : stages[index] === 'completed' ? [opening, ending] : [opening],
+  }));
+}
