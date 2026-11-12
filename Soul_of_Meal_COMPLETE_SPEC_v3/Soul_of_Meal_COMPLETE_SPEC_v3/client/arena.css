@@ -1,0 +1,253 @@
+/* Tournament surfaces in the Soul of Meal shell. */
+.shell:is([data-screen="tcg"], [data-screen="chess"]) .main {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(5px, 1dvh, 10px);
+  padding: clamp(5px, 1dvh, 12px) max(10px, env(safe-area-inset-right)) clamp(5px, 1dvh, 12px) max(10px, env(safe-area-inset-left));
+  color: #fff1d4;
+  background: radial-gradient(ellipse at 20% 0%, #30473b, #101f1c 65%);
+  --frame: #a18154;
+  --caption: #daccb1;
+}
+.shell:is([data-screen="tcg"], [data-screen="chess"]) .main > * { width: min(100%, 1240px); }
+.shell:is([data-screen="tcg"], [data-screen="chess"]) .game-bar { padding-block: 3px; }
+.shell:is([data-screen="tcg"], [data-screen="chess"]) .game-resources { display: none; }
+.shell:is([data-screen="tcg"], [data-screen="chess"]) .game-bar .shell-icon { margin-left: auto; }
+.match-header { display: flex; justify-content: space-between; align-items: center; flex: none; gap: 8px; }
+.match-header h1 { margin: 0; color: #fff1d1; font: 700 clamp(21px, 3vw, 37px)/1.1 var(--display); }
+.match-menu { position: relative; z-index: 6; }
+.match-menu summary {
+  display: grid; place-items: center; list-style: none; width: 42px; min-height: 33px; border-radius: 7px;
+  background: #172721; border: 1px solid var(--frame); color: #ffe3ac; font: 800 26px/1 system-ui, sans-serif; cursor: pointer;
+}
+.match-menu summary::-webkit-details-marker { display: none; }
+.match-menu summary:focus-visible { outline: 2px solid #ffe3ac; outline-offset: 2px; }
+.match-menu[open] summary { background: #62492d; }
+.match-menu > div {
+  position: absolute; inset: calc(100% + 4px) 0 auto auto; display: grid; min-width: 150px; padding: 4px;
+  border-radius: 8px; border: 1px solid var(--frame); background: #182c26; box-shadow: 0 10px 28px #08130fc9;
+}
+.match-menu button { min-height: 36px; padding: 5px 10px; border: 0; background: none; color: #fff1d4; text-align: left; font-size: 12px; cursor: pointer; }
+.match-menu button:hover { background: #354639; }
+.match-menu button:disabled { opacity: .55; cursor: default; }
+.match-layout { display: grid; flex: 1; min-height: min-content; grid-template-columns: minmax(0, 1.55fr) minmax(310px, 1fr); gap: clamp(6px, 1.1vw, 14px); }
+.match-layout > * { min-width: 0; }
+.match-command, .chess-bench, .chess-hud {
+  background: linear-gradient(145deg, #263d32, #152823 60%);
+  border: 1px solid var(--frame); border-radius: 9px; box-shadow: inset 0 1px #ffe2a323, 0 6px 20px #08151051;
+}
+.match-command { display: grid; gap: 6px; align-self: start; padding: clamp(6px, 1.05vw, 12px); }
+.match-actions { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.match-command .button {
+  min-height: 38px; padding: 4px 9px; border: 1px solid #ffe3a6; border-radius: 7px;
+  background: linear-gradient(#ffdf99, #dca45c); color: #342417; font-size: 12px;
+}
+.match-command .button.light { background: #172924; color: #fff0d1; border-color: #a48354; }
+.match-command .button.danger { background: #713c35; color: #ffe6d6; border-color: #ae7862; }
+.match-command .button[aria-pressed="true"] { background: #3b5946; border-color: #c4d8a1; }
+.match-command .button:disabled { opacity: .65; }
+.match-command .notice, .match-hint { margin: 0; font-size: 11px; }
+.match-hint { color: var(--caption); }
+.match-layout .element-fire { --unit-color: #f08a60; }
+.match-layout .element-water { --unit-color: #7cc8dd; }
+.match-layout .element-wood { --unit-color: #9acd91; }
+.match-layout .element-light { --unit-color: #f5cf73; }
+.match-layout .element-shadow { --unit-color: #c1a0ea; }
+
+.tcg-match .duel-field {
+  display: grid; grid-template-rows: auto minmax(64px, 1fr) auto minmax(64px, 1fr) auto; gap: clamp(3px, .7dvh, 8px);
+  min-height: 0; padding: clamp(6px, 1.15vw, 14px); background-size: 100% 100%;
+  box-shadow: inset 0 0 24px #2a1c15a1, 0 7px 24px #0914119e;
+}
+.tcg-match .duel-top, .tcg-match .duel-bottom { position: relative; gap: 6px; min-height: 45px; padding: 4px 7px 8px; background: linear-gradient(90deg, #284639f5, #111e1bf7); }
+.tcg-match .duel-top { background: linear-gradient(90deg, #57363bee, #281a20f5); }
+.duel-crest { flex: none; display: grid; place-items: center; width: 29px; height: 29px; overflow: hidden; border-radius: 50%; border: 1px solid #c49364; color: #ffd0ad; background: #59392f; }
+.duel-crest img { width: 100%; height: 100%; object-fit: contain; }
+.duel-identity { min-width: 0; margin-right: auto; }
+.duel-field .duel-identity strong { color: #fff2d7; font-size: 12px; }
+.duel-field .duel-identity small { margin-top: 2px; color: #ebd6ba; font-size: 10px; }
+.tcg-match .commander-hp { display: flex; align-items: baseline; gap: 3px; line-height: 1; font-size: clamp(17px, 2.8vw, 27px); font-variant-numeric: tabular-nums; }
+.tcg-match .commander-hp small { margin: 0; font-size: 9px; }
+.tcg-match .trap-slots { flex: none; margin: 0; gap: 2px; }
+.tcg-match .trap-slots i { width: clamp(12px, 1.8vw, 18px); }
+.commander-meter {
+  position: absolute; inset: auto 6px 2px; width: calc(100% - 12px); height: 5px; border: 0;
+  color: #82cbaa; background: #0c1714; pointer-events: none;
+}
+.duel-top .commander-meter { color: #f29a7c; }
+.commander-meter::-webkit-meter-bar { background: #0c1714; border: 0; }
+.commander-meter::-webkit-meter-optimum-value { background: currentColor; }
+.commander-meter::-moz-meter-bar { background: currentColor; }
+.tcg-match .duel-field .unit-row { min-height: 0; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 0; gap: clamp(3px, .6vw, 8px); }
+.tcg-match .duel-field .unit-row > * { min-height: 0; padding: 2px 3px; }
+.tcg-match .duel-field .empty-slot { place-items: center; background: #142d2652; border-color: #d1d4b474; box-shadow: inset 0 0 12px #121d1985; }
+.tcg-match .duel-field .enemy-row .empty-slot { background: #3c232347; border-color: #d8a48382; }
+.tcg-match .empty-slot::before { content: ''; width: 10px; height: 10px; border: 1px solid #e8d5a557; transform: rotate(45deg); }
+.tcg-match .duel-field .tcg-unit {
+  isolation: isolate; grid-template-rows: minmax(0, 1fr) auto auto; align-content: stretch; gap: 0;
+  background: radial-gradient(ellipse at 50% 52%, #526048, #233e31 65%, #182c23);
+  border-color: var(--unit-color, #b89560); color: #fff2d8;
+}
+.tcg-match .duel-field .enemy-row .tcg-unit { background: radial-gradient(ellipse at 50% 52%, #665146, #483031 63%, #2d1b1e); }
+.tcg-match .duel-field .tcg-unit:is(.tcg-attacking, .tcg-blocking, [aria-pressed="true"]) { box-shadow: inset 0 0 0 2px #efc47c, 0 0 9px #eec87e82; }
+.tcg-match .duel-field .tcg-unit-avatar { position: relative; width: min(100%, 140px); height: 100%; min-height: 0; margin: 0 auto; }
+.tcg-match .tcg-unit-avatar .board-chibi { position: absolute; width: 123%; height: 133%; top: -15%; left: -11.5%; }
+.tcg-match .tcg-unit > b, .lane-stats { font-size: clamp(9px, 1.1vw, 12px); }
+.lane-stats { color: #f4ce96; }
+.lane-stats b:last-child { color: #b3dfba; }
+.tcg-match .duel-field .lane-state {
+  position: absolute; top: 3px; left: 3px; padding: 2px 4px; border-radius: 3px; background: #132721e8; color: #fff1d7; font-weight: 800; font-size: 9px;
+}
+.tcg-match .duel-field :is(.tcg-attacking, .tcg-blocking) .lane-state { display: block; background: #f1cd8c; color: #302518; }
+.tcg-match .stack-strip { justify-content: center; gap: 3px 9px; padding: 4px; border: 1px solid #b18b58; font-size: 10px; line-height: 1.25; }
+.tcg-match .tcg-stack-top, .tcg-match .trap-reveal { margin: 2px 0 0; padding: 3px 5px; text-align: center; font-size: 10px; }
+.tcg-match .trap-reveal img { width: 16px; height: 16px; object-fit: contain; vertical-align: middle; margin-right: 4px; }
+.match-layout .hand-heading, .match-layout .shop-heading, .match-layout .bench-heading { margin: 0; color: #fff0cf; font-size: 13px; }
+.match-layout :is(.hand-heading, .shop-heading, .bench-heading) span { color: var(--caption); font-size: 10px; }
+.tcg-match .hand-row { gap: 5px; padding: 2px 2px 5px; scrollbar-width: thin; scrollbar-color: #a98756 #112620; }
+.tcg-match .hand-card { position: relative; flex: 0 0 clamp(65px, 23.7%, 112px); }
+.main .tcg-match .tcg-hand-dock .playing-card, .chess-match .shop-unit {
+  position: relative; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 0; min-height: 0; width: 100%;
+  height: clamp(99px, 19dvh, 158px); padding: 0; overflow: hidden; text-align: left;
+  border: 1px solid var(--unit-color, #aa8f6a); border-radius: 7px; color: #fff3db;
+  background: radial-gradient(ellipse at 50% 28%, #465948, #23312a 70%);
+}
+.main .tcg-match .tcg-hand-dock .playing-card.selected { background: #705333; border-color: #ffeab3; box-shadow: inset 0 0 0 2px #ffeab3; }
+.tcg-match .playing-card:hover { transform: none; filter: brightness(1.15); }
+.tcg-match .playing-card:disabled, .chess-match .shop-unit:disabled { opacity: .67; }
+.main .tcg-match .tcg-hand-dock .card-thumb, .shop-art { height: 100%; margin: 0; background: none; overflow: hidden; min-height: 0; }
+.tcg-match .card-thumb img, .shop-art img { width: 100%; height: 100%; object-fit: contain; display: block; filter: drop-shadow(0 3px 2px #121b16b8); }
+.card-copy { width: 100%; z-index: 1; padding: 4px 5px; border-top: 1px solid #c6a16c65; background: #12201cf5; }
+.match-layout .card-copy :is(b, strong) { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; color: #fff1d1; font-size: 11px; line-height: 1.12; }
+.match-layout .card-copy small { display: block; margin-top: 2px; color: var(--unit-color, #ead9b5); font-size: 9px; line-height: 1.15; }
+.match-layout .playing-card .card-cost, .match-layout .shop-unit .shop-price {
+  position: absolute; top: 3px; left: 3px; right: auto; width: auto; height: 21px; min-width: 21px;
+  display: grid; place-items: center; padding: 0 4px; border-radius: 5px; border: 1px solid #d3ac72; color: #fff2c9; background: #172822ed; font-size: 10px;
+}
+.main .tcg-match .hand-inspect {
+  position: absolute; top: 2px; right: 2px; min-width: 26px; min-height: 26px; padding: 0;
+  border-radius: 50%; background: #152823ed; border-color: #d3ac72; color: #fff2c9; font: 700 14px Georgia, serif;
+}
+.tcg-match .match-actions > .button:not(.light) { flex: 1; }
+.main .tcg-match .spell-confirm { width: 100%; margin: 0; }
+.tcg-match .spell-confirm .target-select { width: 100%; color: #fff1d6; font-weight: 700; }
+.tcg-match .spell-confirm select { max-width: none; width: 100%; min-height: 26px; padding: 3px; }
+.tcg-match .tcg-defense { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; margin: 0; padding: 6px; color: #fff1d8; background: #243b31; border-color: #9f8157; }
+.tcg-match .tcg-defense-header span { color: #ffd59c; }
+.tcg-match .tcg-block-grid { overflow-y: auto; }
+
+.chess-hud { flex: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 3px; }
+.chess-hud > div { min-width: 0; display: flex; justify-content: center; align-items: baseline; gap: 5px; padding: 4px 2px; }
+.chess-hud > div + div { border-left: 1px solid #bca17152; }
+.chess-hud small { color: var(--caption); font-size: 10px; }
+.chess-hud b { font-size: clamp(12px, 2vw, 22px); line-height: 1; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chess-hud .chess-gold { color: #ffda86; }
+.chess-hud .clock-urgent { color: #ffd4bf; padding-inline: 4px; border-radius: 4px; }
+.chess-stage { display: flex; flex-direction: column; gap: 5px; min-height: 0; }
+.chess-match .chess-formation {
+  flex: 1; display: grid; grid-template-rows: auto minmax(80px, 1fr) auto minmax(93px, 1fr) auto; gap: 2px; min-height: 0;
+  padding: 5px clamp(5px, 2vw, 24px); box-shadow: inset 0 0 24px #12231caa, 0 6px 20px #09140fb2;
+}
+.main .chess-match .chess-grid { grid-template-rows: repeat(4, minmax(0, 1fr)); min-height: 0; gap: 2px; padding: 2px; border: 0; }
+.main .chess-match .chess-formation .chess-cell { isolation: isolate; height: auto; min-height: 0; border-color: #c2cf9c7d; border-radius: 3px; background: #31534175; box-shadow: inset 0 0 8px #182b1f60; }
+.main .chess-match .chess-cell:nth-child(odd) { background: #49674d67; }
+.main .chess-match .chess-formation .rival-cell { background: #4f313161; border-color: #d7ac8b72; }
+.main .chess-match .chess-formation .occupied { border-color: var(--unit-color, #c2d0a8); background: #28443689; }
+.main .chess-match .chess-formation .rival-cell.occupied { background: #57353191; }
+.chess-match .chess-cell :is(.board-chibi, .chess-portrait) {
+  position: absolute; inset: auto auto -18% 50%; translate: -50% 0; height: 185%; width: min(145%, 122px); object-fit: contain;
+}
+.chess-match .chess-cell .chess-portrait { bottom: 0; height: 115%; width: 100%; }
+.chess-match .chess-cell small { z-index: 1; font-size: 9px; }
+.formation-label { display: flex; align-items: center; justify-content: space-between; gap: 5px; min-height: 18px; padding: 2px 6px; border-radius: 4px; background: #192e25e8; font-size: 11px; font-weight: 800; }
+.formation-label > span { color: #c7e5bc; white-space: nowrap; }
+.rival-label { background: #422b29ed; }
+.rival-label > span { color: #ffd7b3; }
+.formation-divider { display: flex; align-items: center; gap: 4px; color: #ffe3a5; font-size: 8px; line-height: 1; }
+.formation-divider i { font-style: normal; }
+.formation-divider::before, .formation-divider::after { content: ''; flex: 1; height: 1px; background: #f5d18f; }
+.rival-lineup { display: none; }
+.chess-bench { flex: none; display: grid; gap: 3px; padding: 4px; }
+.chess-match .bench-row { grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 3px; }
+.main .chess-match :is(.bench-slot, .bench-unit) {
+  position: relative; display: grid; place-items: center; height: clamp(26px, 4.6dvh, 45px); min-height: 0; padding: 0;
+  border: 1px solid #a799657d; border-radius: 4px; background: #142722;
+}
+.chess-match .bench-slot { border-style: dashed; }
+.main .chess-match .bench-unit .chess-portrait { width: 100%; height: 100%; object-fit: contain; background: none; }
+.chess-match .bench-unit small { position: absolute; inset: auto 1px 1px auto; color: #ffe3a5; background: #162520eb; font-size: 9px; }
+.chess-match .shop-row { gap: 4px; }
+.chess-match .shop-unit { height: clamp(68px, 15.5dvh, 142px); justify-items: stretch; }
+.chess-match .shop-unit.merge-offer { box-shadow: inset 0 0 0 2px #fbd68d; }
+.chess-match .shop-unit.shop-empty { place-items: center; grid-template: 1fr / 1fr; text-align: center; background: #172923; }
+.chess-match .shop-unit.shop-empty span { color: var(--caption); }
+.chess-match .shop-tools, .chess-match .chess-ready { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.chess-match .shop-tools .button { min-width: 0; padding-inline: 3px; }
+.chess-match .chess-ready:not(.has-board-selection) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr); }
+.chess-match .result-box { margin: 0; color: #25372f; }
+.chess-replay-stage { display: grid; place-items: center; min-height: 0; height: 100%; border: 1px solid var(--frame); border-radius: 8px; overflow: hidden; background: #152721; }
+.main .chess-match .chess-replay { width: 100%; height: 100%; max-height: 100%; margin: 0; object-fit: contain; }
+.chess-match .replay-controls { display: grid; gap: 8px; }
+.chess-match .replay-controls progress { width: 100%; accent-color: #edc072; }
+
+@media (pointer: coarse) {
+  .match-menu button, .match-command .button { min-height: 44px; }
+}
+@media (max-width: 760px) and (orientation: portrait), (max-height: 580px) and (orientation: landscape) {
+  .chess-match .chess-formation { grid-template-rows: auto auto minmax(78px, 1fr) auto; }
+  .chess-match .enemy-formation { display: none; }
+  .rival-lineup { display: flex; flex: 1; justify-content: end; gap: 2px; min-width: 0; }
+  .rival-lineup .chess-portrait { width: min(12%, 22px); height: 19px; object-fit: contain; background: #211d1c85; }
+  .tcg-match .duel-field .tcg-unit:not(.tcg-attacking, .tcg-blocking) .lane-state { display: block; clip-path: inset(50%); }
+  .tcg-match .tcg-unit[data-ready="true"]:not(.tcg-attacking, .tcg-blocking)::after {
+    content: ''; position: absolute; top: 3px; left: 3px; width: 5px; height: 5px; border-radius: 50%;
+    background: #aee0b0; box-shadow: 0 0 0 1px #152720; pointer-events: none;
+  }
+}
+@media (max-width: 760px) and (orientation: portrait) {
+  .match-layout { grid-template-columns: minmax(0, 1fr); align-content: start; }
+  .match-header h1 { font-size: 23px; }
+  .tcg-match .duel-field { grid-template-rows: auto minmax(47px, 1fr) auto minmax(47px, 1fr) auto; }
+  .tcg-match .duel-top, .tcg-match .duel-bottom { min-height: 39px; padding-inline: 5px; }
+  .duel-crest { width: 24px; height: 24px; }
+  .tcg-match[data-targeting="true"] :is(.hand-heading, .hand-row) { display: none; }
+  .tcg-match .tcg-defense { max-height: 28dvh; }
+  .chess-hud > div { display: grid; justify-items: center; gap: 2px; padding: 3px 0; }
+  .chess-match .chess-formation { min-height: clamp(125px, 21dvh, 192px); }
+  .chess-match .bench-heading strong { font-size: 11px; }
+  .chess-match .shop-unit { height: clamp(63px, 13dvh, 102px); }
+  .chess-match .shop-tools .button { min-height: 34px; }
+  .chess-match .chess-controls { padding: 5px; gap: 5px; }
+  .chess-match .chess-replay-stage { height: clamp(166px, 47dvh, 290px); }
+}
+@media (max-height: 620px) and (orientation: landscape) {
+  .shell:is([data-screen="tcg"], [data-screen="chess"]) .game-bar { min-height: 34px; }
+  .shell:is([data-screen="tcg"], [data-screen="chess"]) .game-bar .profile-chip { display: none; }
+  .shell:is([data-screen="tcg"], [data-screen="chess"]) .game-bar :is(.brand, .shell-icon) { min-height: 29px; }
+  .match-layout { grid-template-columns: minmax(0, 1.3fr) minmax(245px, 1fr); gap: 6px; }
+  .match-header h1 { font-size: 21px; }
+  .match-menu summary { min-height: 29px; }
+  .tcg-match .duel-field { grid-template-rows: auto minmax(42px, 1fr) auto minmax(42px, 1fr) auto; padding: 5px; align-self: stretch; }
+  .tcg-match .duel-top, .tcg-match .duel-bottom { min-height: 31px; padding: 2px 5px 6px; gap: 4px; }
+  .duel-crest { width: 21px; height: 21px; }
+  .duel-field .duel-identity small { font-size: 9px; }
+  .tcg-match .commander-hp { font-size: 17px; }
+  .main .tcg-match .tcg-hand-dock .playing-card { height: clamp(73px, 24dvh, 117px); }
+  .match-command .button { min-height: 32px; }
+  .tcg-match .tcg-defense { max-height: max(132px, calc(100dvh - 158px)); }
+  .chess-hud { padding: 2px; }
+  .chess-hud > div { padding: 2px; }
+  .chess-match .chess-formation { padding: 3px 6px; }
+  .chess-match .shop-unit { height: clamp(60px, 20dvh, 106px); }
+  .chess-match .chess-replay-stage { max-height: calc(100dvh - 156px); }
+}
+@media (max-height: 610px) and (orientation: portrait), (max-height: 355px) and (orientation: landscape) {
+  .shell:is([data-screen="tcg"], [data-screen="chess"]) { grid-template-rows: minmax(0, 1fr) auto; }
+  .shell:is([data-screen="tcg"], [data-screen="chess"]) .game-bar { display: none; }
+}
+@media (max-height: 610px) and (orientation: portrait) {
+  .tcg-match .duel-field { grid-template-rows: auto minmax(41px, 1fr) auto minmax(41px, 1fr) auto; }
+  .main .tcg-match .tcg-hand-dock .playing-card { height: 87px; }
+  .chess-match .chess-controls { padding: 4px; gap: 4px; }
+  .chess-match .shop-unit { height: 63px; }
+}

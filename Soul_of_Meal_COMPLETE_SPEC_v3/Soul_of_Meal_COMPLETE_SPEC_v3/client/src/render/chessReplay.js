@@ -70,15 +70,17 @@ export class ChessReplay {
     context.fillStyle = '#182d27';
     context.fillRect(0, 0, 760, 480);
     this.renderer.drawImage(context, sceneArt('chess_court'), 0, 0, 760, 480);
-    context.fillStyle = '#0d262577';
-    context.fillRect(135, 46, 490, 396);
     for (let column = 0; column < 7; column += 1) {
       for (let row = 0; row < 8; row += 1) {
         const { x, y } = boardPoint(column, row);
-        context.strokeStyle = row < 4 ? '#b5ecd071' : '#ffc29469';
-        context.strokeRect(x - 34, y - 26, 68, 49);
+        context.fillStyle = row < 4 ? '#16352c69' : '#4f282763';
+        context.fillRect(x - 44, y - 24, 88, 47);
+        context.strokeStyle = row < 4 ? '#b5ecd067' : '#ffc29466';
+        context.strokeRect(x - 44, y - 24, 88, 47);
       }
     }
+    context.fillStyle = '#f6d095';
+    context.fillRect(60, boardPoint(0, 4).y + 23, 640, 2);
     for (const actor of [...this.actors.values()].sort((a, b) => b.viewY - a.viewY)) {
       const standing = actor.hp > 0;
       if (!standing && (this.reducedMotion || !(actor.fallUntil > this.elapsed))) continue;
@@ -89,13 +91,21 @@ export class ChessReplay {
       const clip = rig?.clips[animation.requestedClipId];
       const timing = actor.timing?.id === animation.requestedClipId ? actor.timing : null;
       const phase = rigMotion(clip, animation.motionPhase, timing, this.elapsed * 1000);
-      const drawn = (clip && rig.draw(context, { id: animation.requestedClipId, phase }, x, y + 9, animation.direction, .4, opacity))
-        || this.renderer.drawSprite(context, actor.id, animation, x, y + 9, { scale: .36, opacity });
+      if (standing) {
+        context.beginPath();
+        context.ellipse(x, y + 11, 23, 6, 0, 0, Math.PI * 2);
+        context.fillStyle = '#14271fcc';
+        context.fill();
+        context.strokeStyle = actor.team === 'player' ? '#afe4b5bf' : '#ffae89bf';
+        context.stroke();
+      }
+      const drawn = (clip && rig.draw(context, { id: animation.requestedClipId, phase }, x, y + 9, animation.direction, .51, opacity))
+        || this.renderer.drawSprite(context, actor.id, animation, x, y + 9, { scale: .43, opacity });
       if (!drawn) {
         const asset = actorArt(actor.id);
         const image = this.renderer.images.get(asset);
         if (image?.naturalWidth) {
-          const scale = Math.min(45 / image.naturalWidth, 44 / image.naturalHeight);
+          const scale = Math.min(55 / image.naturalWidth, 53 / image.naturalHeight);
           const width = image.naturalWidth * scale;
           const height = image.naturalHeight * scale;
           context.save();
@@ -106,9 +116,9 @@ export class ChessReplay {
       }
       if (!standing) continue;
       context.fillStyle = '#151f1c';
-      context.fillRect(x - 23, y - 46, 46, 5);
+      context.fillRect(x - 19, y + 17, 38, 5);
       context.fillStyle = actor.team === 'player' ? '#a6e3a5' : '#ff977b';
-      context.fillRect(x - 22, y - 45, 44 * actor.hp / actor.maxHp, 3);
+      context.fillRect(x - 18, y + 18, 36 * actor.hp / actor.maxHp, 3);
     }
     if (!this.reducedMotion) this.drawApproachingAttacks(context);
     for (const effect of this.impacts) {
@@ -182,5 +192,5 @@ export class ChessReplay {
 }
 
 function boardPoint(x, y) {
-  return { x: 171 + x * 70, y: 72 + (7 - y) * 49 };
+  return { x: 104 + x * 92, y: 72 + (7 - y) * 49 };
 }

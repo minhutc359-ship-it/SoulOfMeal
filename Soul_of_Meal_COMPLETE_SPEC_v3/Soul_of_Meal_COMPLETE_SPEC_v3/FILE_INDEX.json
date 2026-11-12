@@ -774,8 +774,8 @@
     },
     {
       "path": "client/index.html",
-      "bytes": 670,
-      "sha256": "c9c7cf1be028085253000c93b1bfce783da9ef326f707c7d77b42beec059c575"
+      "bytes": 717,
+      "sha256": "4ef0f84137c7860ae4d77da3d47f02d419d815139d7ee8f095964d31cd547d39"
     },
     {
       "path": "client/package.json",
@@ -794,8 +794,8 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 122710,
-      "sha256": "8f7ed333586769b317e31e13697e77dec9e2571e284245476a5cdfce9622722c"
+      "bytes": 124804,
+      "sha256": "6c324bc3a9b01948ac72d25919b8e4d5ec0c9b1a9ac4e5e417808f847de4dbee"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -1489,8 +1489,8 @@
     },
     {
       "path": "client/src/render/chessReplay.js",
-      "bytes": 8623,
-      "sha256": "103576edc5fefe21e66a2659e03b089d39c1cfc148c3a61d834b6f7c90919106"
+      "bytes": 9050,
+      "sha256": "38f44b531fb974bbb8819afde0e19ba436e9732cff06bc1d20cc85f2b09d7082"
     },
     {
       "path": "scripts/build_battle_poses.py",
@@ -2941,6 +2941,11 @@
       "path": "client/src/render/adventureStage.js",
       "bytes": 1419,
       "sha256": "c3a3d03a9789a587d6f9ed13c353714be7832f80f9d2b129df261fa4d2e4da8a"
+    },
+    {
+      "path": "client/arena.css",
+      "bytes": 19246,
+      "sha256": "014fc8b3273cfbb977f2b3a8237c7480f35909cb03658de379315cc73b1ab07a"
     }
   ]
 }
