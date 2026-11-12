@@ -135,6 +135,9 @@ body { height: 100%; min-height: 0; overflow: hidden; background: var(--night); 
 .main .topline h1 { margin-bottom: 3px; font-size: clamp(24px, 3vw, 38px); }
 .main .topline .eyebrow { color: #e6c797; }
 .main .topline .subtitle { color: #e1d8c8; font-size: 13px; }
+.release-update { max-width: 36ch; margin-top: 12px; padding: 8px 12px; border-radius: 8px; background: #12211fe8; color: #fff1cf; }
+.release-update p { margin: 0 0 6px; font-size: .9rem; }
+.release-update .button { min-height: 44px; }
 .shell-status { position: absolute; z-index: 2; top: 59px; right: 16px; padding: 7px 10px; background: #15221e; color: #fff6df; border-radius: 6px; font-size: 12px; }
 .shell-status:empty { display: none; }
 
@@ -433,9 +436,10 @@ button.tcg-unit { cursor: pointer; color: var(--ink); font: inherit; font-size: 
 .tcg-block-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(145px, 100%), 1fr)); gap: 6px; margin: 7px 0; }
 .tcg-block-grid label { display: grid; gap: 3px; align-content: space-between; font-size: 11px; }
 .tcg-block-grid select { width: 100%; min-height: 32px; color: var(--ink); border: 1px solid #ae936d; border-radius: 5px; background: var(--white); }
-.tcg-defense > .button { padding: 6px 10px; font-size: 12px; }
+.tcg-defense-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.tcg-defense-actions .button { padding: 6px 10px; font-size: 12px; }
 @media (pointer: coarse) {
-  .tcg-block-grid select, .tcg-defense > .button { min-height: 44px; }
+  .tcg-block-grid select, .tcg-defense-actions .button { min-height: 44px; }
 }
 .tcg-damage {
   position: absolute; top: 8%; left: 50%; z-index: 3; pointer-events: none;

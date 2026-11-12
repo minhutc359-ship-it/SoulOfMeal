@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "catalog_version": "client-p0-v1",
+  "map_id": "env_village_merchant",
+  "runtime_key": "village_merchant",
+  "display_name": "Tiệm Nguyên Liệu",
+  "world": {
+    "width": 960,
+    "height": 540,
+    "player_radius": 14,
+    "spawn": {
+      "x": 480,
+      "y": 439
+    }
+  },
+  "collision": {
+    "obstacles": [
+      {
+        "id": "village_merchant_furniture",
+        "type": "rect",
+        "x": 0,
+        "y": 0,
+        "width": 960,
+        "height": 275
+      }
+    ]
+  },
+  "transitions": [
+    {
+      "id": "room_exit",
+      "type": "door",
+      "from": "village_merchant",
+      "to": "village",
+      "spawn": {
+        "x": 728,
+        "y": 252
+      },
+      "label": "Ra quảng trường"
+    }
+  ],
+  "interactables": [
+    {
+      "id": "village_merchant_station",
+      "kind": "room_service",
+      "action": "supplies",
+      "label": "Quầy nguyên liệu",
+      "x": 480,
+      "y": 308,
+      "radius": 57,
+      "offer": {
+        "gold": 30,
+        "essence": 5
+      }
+    },
+    {
+      "id": "room_exit",
+      "kind": "room_door",
+      "action": "room_exit",
+      "label": "Ra quảng trường",
+      "x": 480,
+      "y": 490,
+      "radius": 38
+    }
+  ],
+  "visuals": [
+    {
+      "id": "village_merchant_station",
+      "kind": "room_station",
+      "x": 480,
+      "y": 308,
+      "label": "QUẦY NGUYÊN LIỆU",
+      "element": "light"
+    },
+    {
+      "id": "room_exit",
+      "kind": "room_station",
+      "x": 480,
+      "y": 490,
+      "label": "RA QUẢNG TRƯỜNG",
+      "element": "light"
+    }
+  ]
+}

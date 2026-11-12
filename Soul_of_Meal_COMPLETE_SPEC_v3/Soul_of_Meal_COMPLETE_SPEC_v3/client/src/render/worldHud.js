@@ -56,7 +56,7 @@ export function drawWorldMinimap(canvas, map, player, interactions, objective) {
     const x = item.x * sx;
     const y = item.y * sy;
     const active = item.action === objective;
-    ctx.fillStyle = active ? '#ffdc83' : item.kind === 'portal' ? '#8dc6b4' : '#aab7a6';
+    ctx.fillStyle = active ? '#ffdc83' : ['portal', 'room_door'].includes(item.kind) ? '#8dc6b4' : '#aab7a6';
     const size = active ? 7 : 3;
     ctx.fillRect(x - size / 2, y - size / 2, size, size);
   }

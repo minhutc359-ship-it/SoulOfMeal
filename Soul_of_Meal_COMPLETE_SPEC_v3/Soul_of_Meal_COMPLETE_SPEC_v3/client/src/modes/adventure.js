@@ -5,6 +5,7 @@ import { adventureBalance as balance, adventureEncounters, ADVENTURE_TICK_RATE }
 import { FOREST_CLUES, FOREST_CLUE_IDS, FOREST_LANTERNS, HARBOR_CLUES, HARBOR_CLUE_IDS } from './adventureStory.js';
 import { FINALE_CHAPTERS, FINALE_ROUTES, finaleChapterComplete } from './adventureFinale.js';
 import { adventureSpiritStats, spiritProfile } from './spiritProgress.js';
+import { buyVillageSupplies, VILLAGE_ROOMS } from './villageRooms.js';
 
 export const WORLD = { width: 960, height: 540 };
 const RANGE_EPSILON = 1e-6;
@@ -50,6 +51,7 @@ export function createAdventureState(save) {
     input: { x: 0, y: 0 },
     battle,
     lastMessage: battle ? (battle.phase === 'battle_running' ? 'Trận đã được khôi phục. Chọn Tiếp tục để chơi.' : 'Kết quả trận đã được khôi phục.') :
+      VILLAGE_ROOMS.includes(save.adventure.map) ? 'Chạm quầy để tương tác hoặc chạm lối ra để về quảng trường.' :
       save.adventure.map === 'harbor' ? 'Hải Vực Hương Biển. Mở nhật ký để xem bước tiếp theo.' :
       save.adventure.quest === 'completed' ? 'Mở nhật ký để tiếp tục hành trình.' :
       save.adventure.forestCleared ? 'Trở về làng để báo tin cho Lilia.' :
@@ -116,10 +118,15 @@ export function nearestInteraction(state, save, maps) {
 
 export function availableAdventureInteractions(mapId, save, maps) {
   const { quest, chestOpened, forestCleared, forestClues, chapterTwo, chapterThree } = save.adventure;
-  const items = getAdventureMap(maps, mapId)?.interactables ?? [];
+  const map = getAdventureMap(maps, mapId);
+  const items = map?.interactables ?? [];
   const investigating = quest === 'completed' && chapterTwo.stage === 'accepted';
   const chapter = FINALE_CHAPTERS.find(item => item.map === mapId);
   return items.filter(({ action, kind }) => {
+    if (kind === 'room_door') {
+      const destination = map.transitions?.find(door => door.id === action)?.to;
+      return Boolean(getAdventureMap(maps, destination));
+    }
     if (Object.hasOwn(FINALE_ROUTES, action)) {
       const { map, after } = FINALE_ROUTES[action];
       return (!after || finaleChapterComplete(save.adventure, after)) && Boolean(getAdventureMap(maps, map));
@@ -151,12 +158,25 @@ export function availableAdventureInteractions(mapId, save, maps) {
   });
 }
 
+export function purchaseAdventureSupplies(state, save, maps) {
+  const target = nearestInteraction(state, save, maps);
+  return buyVillageSupplies(save, state.map === 'village_merchant' && target?.id === 'supplies' ? target.offer : null);
+}
+
 export function interactAdventure(state, save, maps) {
   const target = nearestInteraction(state, save, maps);
   if (!target) {
     state.lastMessage = 'Không có điểm tương tác nào trong tầm với.';
     return { state, save, changed: false };
   }
+  if (target.kind === 'room_door') {
+    const map = getAdventureMap(maps, state.map).transitions.find(door => door.id === target.id).to;
+    const result = transitionMap(state, save, map, maps);
+    state.lastMessage = getAdventureMap(maps, map).display_name + '.';
+    gameEvents.emit('route_changed', { map }, { map_id: map });
+    return result;
+  }
+  if (target.kind === 'room_service') return { state, save, changed: false, service: target.id, offer: target.offer };
   const updated = structuredClone(save);
   const chapterTwo = updated.adventure.chapterTwo;
   const chapterThree = updated.adventure.chapterThree;
@@ -521,6 +541,7 @@ function stepActor(battle, actor) {
       if (target?.alive) {
         gameEvents.emit('projectile_spawned', {
           element: actor.element, travel_ticks: action.travel,
+          clip_id: action.clip ?? (action.sourceKind === 'ultimate' ? 'ultimate_01' : 'attack_a'),
           source: { x: actor.x, y: actor.y }, target: { x: target.x, y: target.y },
         }, battleContext(battle, actor.actor_id, target.actor_id));
       }
@@ -583,6 +604,9 @@ function startAction(battle, actor, target, profile, sourceKind) {
 
 function resolveAction(battle, actor, action) {
   if (action.kind === 'heal' || action.kind === 'shield') {
+    gameEvents.emit('support_cast_released', {
+      element: actor.element, clip_id: action.clip ?? 'ultimate_01',
+    }, battleContext(battle, actor.actor_id));
     for (const ally of battle.actors.filter((item) => item.alive && item.team === actor.team)) {
       const amount = Math.floor(ally.maxHp * action.ratio);
       if (action.kind === 'heal') {
@@ -603,9 +627,10 @@ function resolveAction(battle, actor, action) {
   const targets = action.kind === 'area'
     ? [...battle.actors, ...battle.stoves].filter((item) => item.alive && item.team !== actor.team)
     : target ? [target] : [];
+  const clipId = action.clip ?? (action.sourceKind === 'ultimate' ? 'ultimate_01' : 'attack_a');
   for (const victim of targets) {
     const coefficient = action.kind === 'execute' && victim.hp <= victim.maxHp * .35 ? action.executeCoefficient : action.coefficient;
-    applyBattleHit(battle, actor, victim, coefficient ?? 10000, action.sourceKind);
+    applyBattleHit(battle, actor, victim, coefficient ?? 10000, action.sourceKind, clipId, action.travel);
     if (action.kind === 'slow') victim.slowUntil = battle.tick + action.duration;
   }
   if (actor.team === 'player' && action.sourceKind === 'basic') actor.energy = Math.min(100, actor.energy + balance.basicEnergy);
@@ -685,7 +710,7 @@ export function bossTelegraphTargets(battle, boss) {
     .slice(0, phase.targets);
 }
 
-function applyBattleHit(battle, source, target, coefficientBp, sourceKind) {
+function applyBattleHit(battle, source, target, coefficientBp, sourceKind, clipId, travelTicks) {
   const damage = Math.max(1, Math.floor(source.atk * coefficientBp / 10000 * 100 / (100 + target.def)));
   const absorbed = Math.min(damage, target.shield ?? 0);
   target.shield = (target.shield ?? 0) - absorbed;
@@ -700,6 +725,8 @@ function applyBattleHit(battle, source, target, coefficientBp, sourceKind) {
     hit_id: `${battle.tick}:${source.actor_id}:${target.actor_id}`, damage, hp_damage: hpDamage, absorbed,
     source_kind: sourceKind, element: source.element, timed: true, guarded: Boolean(guarded),
   };
+  if (clipId) payload.clip_id = clipId;
+  if (travelTicks) payload.travel_ticks = travelTicks;
   const hit = gameEvents.emit('hit_resolved', payload, battleContext(battle, source.actor_id, target.actor_id));
   battle.events.push(hit);
   if (absorbed > 0 && target.shield === 0) {

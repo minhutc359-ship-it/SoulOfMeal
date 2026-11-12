@@ -1,6 +1,7 @@
 import { restoreChapterThree, restoreChapterTwo, restoreForestClues } from '../modes/adventureStory.js';
 import { restoreFinale } from '../modes/adventureFinale.js';
 import { restoreSpiritProgress } from '../modes/spiritProgress.js';
+import { VILLAGE_ROOMS } from '../modes/villageRooms.js';
 
 export const SAVE_KEY = 'soul-of-meal.save.v2';
 export const SAVE_VERSION = 2;
@@ -44,6 +45,7 @@ export function migrateSave(input) {
     harbor: adventure.chapterTwo.stage === 'completed',
     caldera: adventure.chapterThree.stage === 'completed',
     sanctum: adventure.finale[4].stage === 'completed',
+    ...Object.fromEntries(VILLAGE_ROOMS.map(key => [key, true])),
   };
   if (!Object.hasOwn(mapAllowed, adventure.map) || !mapAllowed[adventure.map]) {
     Object.assign(adventure, { map: fresh.adventure.map, x: fresh.adventure.x, y: fresh.adventure.y });

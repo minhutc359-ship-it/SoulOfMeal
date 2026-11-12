@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "catalog_version": "client-p0-v1",
+  "map_id": "env_village_kitchen",
+  "runtime_key": "village_kitchen",
+  "display_name": "Nhà Bếp",
+  "world": {
+    "width": 960,
+    "height": 540,
+    "player_radius": 14,
+    "spawn": {
+      "x": 480,
+      "y": 439
+    }
+  },
+  "collision": {
+    "obstacles": [
+      {
+        "id": "village_kitchen_furniture",
+        "type": "rect",
+        "x": 0,
+        "y": 0,
+        "width": 960,
+        "height": 275
+      }
+    ]
+  },
+  "transitions": [
+    {
+      "id": "room_exit",
+      "type": "door",
+      "from": "village_kitchen",
+      "to": "village",
+      "spawn": {
+        "x": 148,
+        "y": 256
+      },
+      "label": "Ra quảng trường"
+    }
+  ],
+  "interactables": [
+    {
+      "id": "village_kitchen_station",
+      "kind": "room_service",
+      "action": "gear",
+      "label": "Bàn chế tác",
+      "x": 480,
+      "y": 308,
+      "radius": 57
+    },
+    {
+      "id": "room_exit",
+      "kind": "room_door",
+      "action": "room_exit",
+      "label": "Ra quảng trường",
+      "x": 480,
+      "y": 490,
+      "radius": 38
+    }
+  ],
+  "visuals": [
+    {
+      "id": "village_kitchen_station",
+      "kind": "room_station",
+      "x": 480,
+      "y": 308,
+      "label": "BÀN CHẾ TÁC",
+      "element": "fire"
+    },
+    {
+      "id": "room_exit",
+      "kind": "room_station",
+      "x": 480,
+      "y": 490,
+      "label": "RA QUẢNG TRƯỜNG",
+      "element": "light"
+    }
+  ]
+}

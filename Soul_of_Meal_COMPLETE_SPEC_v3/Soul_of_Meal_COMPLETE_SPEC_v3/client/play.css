@@ -109,8 +109,10 @@
   justify-items: end;
   width: clamp(80px, 17%, 148px);
   gap: 3px;
+  pointer-events: none;
 }
 .map-toggle {
+  pointer-events: auto;
   min-height: 30px;
   border: 1px solid #e5ba73;
   border-radius: 6px;
@@ -322,8 +324,18 @@ button.enemy-hp { border: 1px solid #f3c788; border-radius: 7px; background: #44
   .duel-field .stack-strip { padding: 4px 6px; gap: 4px; }
   .duel-field .trap-reveal { padding: 2px 6px; margin-top: 3px; font-size: 11px; }
   .duel-field .trap-reveal img { width: 23px; height: 23px; }
-  .tcg-hand-dock .tcg-defense { padding: 5px; }
-  .tcg-hand-dock .tcg-block-grid { grid-template-columns: repeat(auto-fit, minmax(min(104px, 100%), 1fr)); margin: 3px 0; }
+  .tcg-hand-dock .tcg-defense {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    max-block-size: max(162px, calc(100dvh - 168px));
+    padding: 5px;
+  }
+  .tcg-hand-dock .tcg-block-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(104px, 100%), 1fr));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin: 3px 0;
+  }
   .main .chess-formation { padding: 3px; }
   .main .chess-formation .chess-grid { padding: 2px; gap: 2px; }
   .main .chess-formation .chess-cell { height: clamp(15px, calc((100dvh - 273px) / 8), 36px); }
