@@ -74,7 +74,7 @@
       "name": "hand_far",
       "parent": "arm_far",
       "x": 0,
-      "y": -14,
+      "y": -12,
       "rotation": 34
     },
     {
@@ -88,15 +88,15 @@
       "name": "hand_near",
       "parent": "arm_near",
       "x": 0,
-      "y": -14,
+      "y": -12,
       "rotation": 62
     },
     {
       "name": "weapon",
       "parent": "hand_near",
       "x": 0,
-      "y": -13,
-      "rotation": -75
+      "y": -12,
+      "rotation": -98
     },
     {
       "name": "detail",
@@ -223,8 +223,8 @@
           "hand_far": {
             "x": 0,
             "y": -7.0,
-            "width": 12.46,
-            "height": 18
+            "width": 11.59,
+            "height": 16.74
           }
         },
         "torso": {
@@ -271,8 +271,8 @@
           "hand_near": {
             "x": 0,
             "y": -7.0,
-            "width": 12.98,
-            "height": 18
+            "width": 12.07,
+            "height": 16.74
           }
         }
       }
@@ -978,7 +978,7 @@
           "rotate": [
             {"time": 0.0, "value": 0},
             {"time": 0.354, "value": -16},
-            {"time": 0.7316, "value": -60},
+            {"time": 0.7316, "value": -42},
             {"time": 0.9204, "value": -36.0},
             {"time": 1.18, "value": 0}
           ]

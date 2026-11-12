@@ -74,7 +74,7 @@
       "name": "hand_far",
       "parent": "arm_far",
       "x": 0,
-      "y": -13,
+      "y": -11,
       "rotation": 25
     },
     {
@@ -88,15 +88,15 @@
       "name": "hand_near",
       "parent": "arm_near",
       "x": 0,
-      "y": -13,
+      "y": -11,
       "rotation": 61
     },
     {
       "name": "weapon",
       "parent": "hand_near",
       "x": 0,
-      "y": -12,
-      "rotation": -66
+      "y": -11,
+      "rotation": -79
     },
     {
       "name": "detail",
@@ -223,8 +223,8 @@
           "hand_far": {
             "x": 0,
             "y": -6.5,
-            "width": 8.01,
-            "height": 17
+            "width": 7.45,
+            "height": 15.81
           }
         },
         "torso": {
@@ -271,8 +271,8 @@
           "hand_near": {
             "x": 0,
             "y": -6.5,
-            "width": 10.13,
-            "height": 17
+            "width": 9.42,
+            "height": 15.81
           }
         }
       }
@@ -304,11 +304,11 @@
         },
         "hair": {
           "rotate": [
-            {"time": 0.0, "value": 0},
-            {"time": 0.25, "value": 4},
-            {"time": 0.5, "value": 2},
-            {"time": 0.75, "value": -4},
-            {"time": 1.0, "value": 0}
+            {"time": 0.0, "value": 0.0},
+            {"time": 0.25, "value": 2.72},
+            {"time": 0.5, "value": 1.36},
+            {"time": 0.75, "value": -2.72},
+            {"time": 1.0, "value": 0.0}
           ]
         },
         "ribbon": {
@@ -371,11 +371,11 @@
         },
         "hair": {
           "rotate": [
-            {"time": 0.0, "value": 3},
-            {"time": 0.165, "value": 10},
-            {"time": 0.33, "value": -2},
-            {"time": 0.495, "value": 12},
-            {"time": 0.66, "value": 3}
+            {"time": 0.0, "value": 2.04},
+            {"time": 0.165, "value": 6.8},
+            {"time": 0.33, "value": -1.36},
+            {"time": 0.495, "value": 8.16},
+            {"time": 0.66, "value": 2.04}
           ]
         },
         "ribbon": {
@@ -465,11 +465,11 @@
         },
         "hair": {
           "rotate": [
-            {"time": 0.0, "value": 3},
-            {"time": 0.125, "value": 10},
-            {"time": 0.25, "value": -2},
-            {"time": 0.375, "value": 12},
-            {"time": 0.5, "value": 3}
+            {"time": 0.0, "value": 2.04},
+            {"time": 0.125, "value": 6.8},
+            {"time": 0.25, "value": -1.36},
+            {"time": 0.375, "value": 8.16},
+            {"time": 0.5, "value": 2.04}
           ]
         },
         "ribbon": {

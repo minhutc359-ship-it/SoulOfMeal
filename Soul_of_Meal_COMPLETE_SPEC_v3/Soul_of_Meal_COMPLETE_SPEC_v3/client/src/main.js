@@ -13,6 +13,7 @@ import { ADVENTURE_TICK_RATE, adventureBalance, adventureEncounters } from './mo
 import { adventureSpiritStats, canAffordSpiritCost, changeSpiritProgress, MAX_SPIRIT_RANK, SPIRIT_BONDS, SPIRIT_GEAR, SPIRIT_GIFTS, SPIRIT_MEMORIES, SPIRIT_RANKS, spiritProfile } from './modes/spiritProgress.js';
 import { BattleEffects } from './render/battleEffects.js';
 import { BattleRigClock, loadSpiritRigs } from './render/spiritRig.js';
+import { adventureViewport, battleActorPoint, SPIRIT_RIG_SCALE } from './render/adventureStage.js';
 import { GameAudio } from './core/audio.js';
 import { resolveSoundScene } from './core/soundScenes.js';
 import { adventureJournal } from './modes/adventureJournal.js';
@@ -33,9 +34,7 @@ const app = document.querySelector('#app');
 const stageHost = document.querySelector('#web-stage');
 const systemMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const compactBattle = window.matchMedia('(max-height: 620px) and (orientation: landscape)');
-const FULL_ARENA = Object.freeze({ height: WORLD.height, top: 0 });
-const WIDE_ARENA = Object.freeze({ height: 360, top: 100 });
-const SPIRIT_RIG_SCALE = .88;
+const portraitBattle = window.matchMedia('(max-width: 760px) and (orientation: portrait)');
 let webStage;
 const pinnedRelease = pinnedContentRelease(new URL(location.href));
 const accountApi = import.meta.env?.SOM_ACCOUNTS ? createAccountApi() : null;
@@ -96,7 +95,8 @@ function handleAdventureRigEvent({ type, payload, source_id }, battle, clock) {
   if (!strike && !support && type !== 'projectile_spawned') return;
   const actor = battle.actors.find(item => item.actor_id === source_id);
   if (!actor || !clock.contact(battle, payload.clip_id)) return;
-  const point = clock.rig.effectPoint(payload.clip_id, actor.x, actor.y, actor.direction, SPIRIT_RIG_SCALE,
+  const { x, y } = battleActorPoint(actor, 1, battle.bossTelegraph?.safeX);
+  const point = clock.rig.effectPoint(payload.clip_id, x, y, actor.direction, SPIRIT_RIG_SCALE,
     app.dataset.motion === 'reduced');
   if (strike) {
     runtime.effects.add('strike', payload.element, .24, { ...point, angle: actor.direction === 'W' ? Math.PI : 0 });
@@ -821,9 +821,9 @@ function onWorldPointer(event) {
   if (app.querySelector('dialog[open]')) return;
   const canvas = event.currentTarget;
   const rect = canvas.getBoundingClientRect();
-  const x = (event.clientX - rect.left) / rect.width * WORLD.width;
   const battle = runtime.adventure.battle;
-  const view = battle && compactBattle.matches ? WIDE_ARENA : FULL_ARENA;
+  const view = adventureViewport(battle, compactBattle.matches, portraitBattle.matches);
+  const x = view.left + (event.clientX - rect.left) / rect.width * view.width;
   const y = view.top + (event.clientY - rect.top) / rect.height * view.height;
   if (battle) {
     const stove = battle.stoves.find(target => target.alive
@@ -854,16 +854,17 @@ function drawAdventureFrame(deltaSeconds) {
   if (!canvas) return;
   const context = canvas.getContext('2d');
   const adventure = runtime.adventure;
-  const view = adventure.battle && compactBattle.matches ? WIDE_ARENA : FULL_ARENA;
+  const view = adventureViewport(adventure.battle, compactBattle.matches, portraitBattle.matches);
   const ratio = Math.min(2, window.devicePixelRatio || 1);
-  const width = Math.round(WORLD.width * ratio);
+  const width = Math.round(view.width * ratio);
   const height = Math.round(view.height * ratio);
   if (canvas.width !== width || canvas.height !== height) {
     canvas.width = width;
     canvas.height = height;
   }
+  const scaleX = width / view.width;
   const scaleY = height / view.height;
-  context.setTransform(width / WORLD.width, 0, 0, scaleY, 0, -view.top * scaleY);
+  context.setTransform(scaleX, 0, 0, scaleY, -view.left * scaleX, -view.top * scaleY);
   const camera = resolveCameraViewport(adventure.x, adventure.y, { width: 960, height: 540 }, WORLD.width, WORLD.height);
   const cameraContext = { ...camera };
   if (adventure.walkPath?.length && !adventure.battle && runtime.heldKeys.size === 0 && !runtime.worldStick) {
@@ -935,7 +936,7 @@ function drawAdventureFrame(deltaSeconds) {
   canvas.dataset.animationClip = heroAnimation?.requestedClipId ?? 'idle';
   canvas.dataset.animationFallback = String(heroAnimation?.missingClip ?? true);
   canvas.dataset.battleRig = adventure.battle && spriteRenderer.rigs.has(HERO_ID) ? 'bunbo' : '';
-  if (adventure.battle) drawBattleScene(context, adventure);
+  if (adventure.battle) drawBattleScene(context, adventure.battle, view);
   else {
     context.save();
     context.translate(-cameraContext.x, -cameraContext.y);
@@ -1067,8 +1068,7 @@ function drawFitted(context, path, x, baseline, width, height) {
   spriteRenderer.drawImage(context, path, x - w / 2, baseline - h, w, h);
 }
 
-function drawBattleScene(context, adventure) {
-  const battle = adventure.battle;
+function drawBattleScene(context, battle, view) {
   context.fillStyle = '#283f33';
   context.fillRect(0, 0, 960, 540);
   spriteRenderer.drawImage(context, sceneArt(adventureEncounters[battle.encounter ?? 'forest'].scene ?? 'arena'), 0, 0, 960, 540);
@@ -1087,31 +1087,34 @@ function drawBattleScene(context, adventure) {
       drawElementEffect(context, spriteRenderer, 'shadow', 'impact', { x: boss.x, y: boss.y + 5, size: 198, opacity });
     } else drawBossWarning(context, boss.x, boss.y + 2, 230, opacity);
     for (const target of bossTelegraphTargets(battle, boss)) {
+      const { x, y } = battleActorPoint(target, 1, safeX);
       if (boss.element === 'shadow') {
         const element = battle.bossTelegraph.warded ? 'light' : 'shadow';
-        drawElementEffect(context, spriteRenderer, element, 'impact', { x: target.x, y: target.y + 2, size: 96, opacity });
+        drawElementEffect(context, spriteRenderer, element, 'impact', { x, y: y + 2, size: 96, opacity });
       } else if (counter === 'retreat') {
-        drawElementEffect(context, spriteRenderer, 'water', 'impact', { x: target.x, y: target.y + 2, size: 79, opacity });
-      } else drawBossWarning(context, target.x, target.y + 2, 79, opacity);
+        drawElementEffect(context, spriteRenderer, 'water', 'impact', { x, y: y + 2, size: 79, opacity });
+      } else drawBossWarning(context, x, y + 2, 79, opacity);
     }
   }
-  const blend = battle.paused || battle.phase !== 'battle_running' || app.dataset.motion === 'reduced'
-    ? 1 : Math.min(1, Math.max(0, (battle.accumulator ?? 0) * ADVENTURE_TICK_RATE));
-  for (const actor of [...battle.actors, ...battle.stoves].sort((a, b) => a.y - b.y)) {
+  const reducedMotion = app.dataset.motion === 'reduced';
+  const interpolate = !battle.paused && battle.phase === 'battle_running' && !reducedMotion;
+  const fraction = interpolate ? Math.min(1, Math.max(0, (battle.accumulator ?? 0) * ADVENTURE_TICK_RATE)) : 0;
+  const blend = interpolate ? fraction : 1;
+  const actors = [...battle.actors, ...battle.stoves]
+    .map(actor => ({ actor, ...battleActorPoint(actor, blend, battle.bossTelegraph?.safeX) })).sort((a, b) => a.y - b.y);
+  for (const { actor, x, y } of actors) {
     if (actor.stove) {
       if (actor.alive) drawBossStove(context, actor, battle.stoveTargetId === actor.actor_id);
     } else {
-      const fromX = actor.previousX ?? actor.x;
-      const fromY = actor.previousY ?? actor.y;
       const animation = runtime.animations.getActorState(actor.actor_id)?.animation;
       const clock = runtime.rigClocks.get(actor.id);
-      const rigMotion = clock?.motion(battle, actor, animation);
+      const rigMotion = clock?.frame(battle, actor, animation, fraction);
       drawActor(context, actor, animation,
         actor.boss && ['stoves', 'sequence'].includes(battle.bossTelegraph?.counter),
-        fromX + (actor.x - fromX) * blend, fromY + (actor.y - fromY) * blend, rigMotion);
+        x, y, rigMotion);
     }
   }
-  runtime.effects.draw(context, battle, app.dataset.motion === 'reduced');
+  runtime.effects.draw(context, battle, reducedMotion, view, fraction, blend);
 }
 
 function drawTideWarning(context, safeX, opacity) {
@@ -1170,17 +1173,20 @@ function drawActor(context, actor, animation, guarded, x, y, rigMotion) {
       (actor.boss ? 150 : 77) * pose.scaleX, (actor.boss ? 128 : 78) * pose.scaleY);
   }
   if (actor.shield || guarded) {
-    const options = { x, y: y - (guarded ? 66 : 39), size: guarded ? 210 : 113, opacity: .72 };
+    const options = { x, y: y - (guarded ? 66 : 47), size: guarded ? 210 : 123, opacity: guarded ? .56 : .43 };
     if (!drawEffectTexture(context, spriteRenderer, combatArt('shield_bubble'), options)) {
       drawElementEffect(context, spriteRenderer, 'light', 'impact', options);
     }
   }
-  const barY = y - (actor.boss ? 140 : drawn ? 104 : 89);
-  const barWidth = actor.boss ? 94 : 50;
-  context.fillStyle = '#182726';
-  context.fillRect(x - barWidth / 2, barY, barWidth, 6);
-  context.fillStyle = actor.team === 'player' ? '#b4e09c' : '#ff865e';
-  context.fillRect(x - barWidth / 2 + 1, barY + 1, (barWidth - 2) * actor.hp / actor.maxHp, 4);
+  if (actor.alive) {
+    const ally = actor.team === 'player';
+    const barY = ally ? y + 8 : y - (actor.boss ? 140 : drawn ? 104 : 89);
+    const barWidth = ally ? 37 : actor.boss ? 94 : 50;
+    context.fillStyle = '#182726';
+    context.fillRect(x - barWidth / 2, barY, barWidth, 6);
+    context.fillStyle = ally ? elementColors[actor.element] ?? '#b4e09c' : '#ff865e';
+    context.fillRect(x - barWidth / 2 + 1, barY + 1, (barWidth - 2) * actor.hp / actor.maxHp, 4);
+  }
   context.restore();
 }
 

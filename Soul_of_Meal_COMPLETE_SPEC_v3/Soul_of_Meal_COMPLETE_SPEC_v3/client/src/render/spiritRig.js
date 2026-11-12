@@ -6,6 +6,14 @@ const CLIPS = ['idle', 'walk', 'run', 'attack_a', 'attack_b', 'skill_01', 'ultim
 const clamp = value => Math.max(0, Math.min(1, value));
 const keyTime = key => key.time ?? 0;
 
+function trackSlope(from, to, property) {
+  return ((to[property] ?? 0) - (from[property] ?? 0)) / (keyTime(to) - keyTime(from));
+}
+
+function tangent(before, after) {
+  return before * after > 0 ? 2 * before * after / (before + after) : 0;
+}
+
 function trackValue(keys, time, property) {
   if (!keys?.length || time < keyTime(keys[0])) return 0;
   const end = keys.findIndex(key => keyTime(key) > time);
@@ -13,7 +21,14 @@ function trackValue(keys, time, property) {
   const from = keys[end - 1];
   const to = keys[end];
   const start = from[property] ?? 0;
-  return start + ((to[property] ?? 0) - start) * (time - keyTime(from)) / (keyTime(to) - keyTime(from));
+  const span = keyTime(to) - keyTime(from);
+  const t = (time - keyTime(from)) / span;
+  const slope = trackSlope(from, to, property);
+  const enter = end > 1 ? tangent(trackSlope(keys[end - 2], from, property), slope) : 0;
+  const exit = end + 1 < keys.length ? tangent(slope, trackSlope(to, keys[end + 1], property)) : 0;
+  // Stop at changes of direction and carry speed across the other key poses.
+  return start + ((to[property] ?? 0) - start) * t * t * (3 - 2 * t)
+    + span * t * (1 - t) * (enter * (1 - t) - exit * t);
 }
 
 export class SpiritRig {
@@ -38,7 +53,7 @@ export class SpiritRig {
           || region.some(value => !Number.isInteger(value) || value < 0)
           || !region[2] || !region[3] || region[0] + region[2] > image.naturalWidth
           || region[1] + region[3] > image.naturalHeight) throw new Error('Invalid rig attachment');
-      return { attachment, region, bone };
+      return { attachment, region, bone, name: slot.name };
     });
     this.clips = Object.fromEntries(Object.entries(data.animations).map(([id, animation]) => {
       const duration = Math.max(...Object.values(animation.bones).flatMap(tracks =>
@@ -52,17 +67,35 @@ export class SpiritRig {
       return [id, { duration, contact: cue?.time, socket, tracks: animation.bones }];
     }));
     if (CLIPS.some(id => !Object.hasOwn(this.clips, id))) throw new Error('Incomplete spirit rig');
+    this.feet = this.slots.filter(slot => slot.name === 'leg_near' || slot.name === 'leg_far');
+    this.floor = this.feet.length ? this.lowestFoot(this.pose(this.clips.idle, 0)) : 0;
   }
 
-  pose(clip, phase = 0) {
+  lowestFoot(pose) {
+    return Math.min(...this.feet.map(({ bone, attachment }) => {
+      const joint = pose[bone];
+      const sole = attachment.y - attachment.height / 2 + 1;
+      return joint.y + attachment.x * Math.sin(joint.angle) + sole * Math.cos(joint.angle);
+    }));
+  }
+
+  pose(clip, phase = 0, transition) {
     const time = clip.duration * clamp(phase);
+    const fromTime = transition && transition.clip.duration * clamp(transition.phase);
     const pose = [];
     for (const [index, bone] of this.bones.entries()) {
       const parent = pose[this.parents[index]];
       const track = clip.tracks[bone.name];
-      const x = (bone.x ?? 0) + trackValue(track?.translate, time, 'x');
-      const y = (bone.y ?? 0) + trackValue(track?.translate, time, 'y');
-      const angle = ((bone.rotation ?? 0) + trackValue(track?.rotate, time, 'value')) * RAD + (parent?.angle ?? 0);
+      const from = transition?.clip.tracks[bone.name];
+      const sample = (kind, property) => {
+        const value = trackValue(track?.[kind], time, property);
+        if (!transition) return value;
+        const previous = trackValue(from?.[kind], fromTime, property);
+        return previous + (value - previous) * transition.mix;
+      };
+      const x = (bone.x ?? 0) + sample('translate', 'x');
+      const y = (bone.y ?? 0) + sample('translate', 'y');
+      const angle = ((bone.rotation ?? 0) + sample('rotate', 'value')) * RAD + (parent?.angle ?? 0);
       const cos = parent ? Math.cos(parent.angle) : 1;
       const sin = parent ? Math.sin(parent.angle) : 0;
       pose.push({ x: (parent?.x ?? 0) + x * cos - y * sin, y: (parent?.y ?? 0) + x * sin + y * cos, angle });
@@ -70,10 +103,23 @@ export class SpiritRig {
     return pose;
   }
 
+  groundedPose(clip, motion) {
+    const { transition } = motion;
+    const pose = this.pose(clip, motion.phase, transition);
+    const locomotion = id => id === 'walk' || id === 'run';
+    const ground = Number(locomotion(motion.id)) * (transition?.mix ?? 1)
+      + Number(locomotion(transition?.id)) * (1 - (transition?.mix ?? 1));
+    if (ground && this.feet.length) {
+      const correction = (this.floor - this.lowestFoot(pose)) * ground;
+      for (const joint of pose) joint.y += correction;
+    }
+    return pose;
+  }
+
   draw(ctx, motion, x, y, direction, scale, opacity = 1) {
     const clip = this.clips[motion.id];
     if (!clip) return false;
-    const pose = this.pose(clip, motion.phase);
+    const pose = this.groundedPose(clip, motion);
     ctx.save();
     if (opacity !== 1) ctx.globalAlpha *= opacity;
     ctx.translate(x, y);
@@ -125,13 +171,14 @@ export class BattleRigClock {
     return true;
   }
 
-  motion(battle, actor, animation) {
+  motion(battle, actor, animation, tickFraction = 0) {
+    const tick = battle.tick + tickFraction;
     if (this.lastContact?.battle !== battle) this.lastContact = null;
     if (this.defeat?.battle !== battle || actor.alive) this.defeat = null;
     if (!actor.alive) {
       this.defeat ??= { battle, tick: battle.tick };
       const phase = battle.phase === 'battle_end' || animation?.motionPhase == null
-        ? 1 : clamp((battle.tick - this.defeat.tick) / this.tickRate / this.rig.clips.defeat.duration);
+        ? 1 : clamp((tick - this.defeat.tick) / this.tickRate / this.rig.clips.defeat.duration);
       return { id: 'defeat', phase };
     }
     const fallback = { id: animation?.requestedClipId ?? (actor.alive ? 'idle' : 'defeat'), phase: animation?.motionPhase ?? 0 };
@@ -143,20 +190,41 @@ export class BattleRigClock {
       if (clip?.contact) {
         const tickMs = 1000 / this.tickRate;
         const timing = { start: (action.launchTick - action.windup) * tickMs, contact: action.launchTick * tickMs };
-        const phase = rigMotion(clip, 0, timing, battle.tick * tickMs);
+        const phase = rigMotion(clip, 0, timing, (battle.tick === action.launchTick ? battle.tick : tick) * tickMs);
         return phase < 1 ? { id, phase } : { id: 'idle', phase: 0 };
       }
     }
     const previous = this.lastContact;
     if (previous && actor.alive && battle.phase === 'battle_running' && animation.requestedClipId !== 'hit') {
       const { id, clip, tick } = previous;
-      const time = clip.contact + (battle.tick - tick) / this.tickRate;
+      const elapsed = battle.tick === tick ? 0 : battle.tick + tickFraction - tick;
+      const time = clip.contact + elapsed / this.tickRate;
       if (battle.tick >= tick && time < clip.duration) return { id, phase: time / clip.duration };
     }
     if (actor.moving && !['walk', 'run'].includes(fallback.id)) {
-      return { id: 'run', phase: battle.tick / this.tickRate / this.rig.clips.run.duration % 1 };
+      return { id: 'run', phase: tick / this.tickRate / this.rig.clips.run.duration % 1 };
     }
     return fallback;
+  }
+
+  frame(battle, actor, animation, tickFraction = 0) {
+    const motion = this.motion(battle, actor, animation, tickFraction);
+    const now = battle.tick + tickFraction;
+    if (this.lastFrame?.battle !== battle || this.lastFrame.wave !== battle.wave
+        || animation?.motionPhase == null || battle.phase === 'battle_end') {
+      this.transition = null;
+    } else if (this.lastFrame.motion.id !== motion.id) {
+      const from = this.lastFrame.motion;
+      const clip = this.rig.clips[from.id];
+      this.transition = clip ? { id: from.id, clip, phase: from.phase, start: now } : null;
+    }
+    this.lastFrame = { battle, wave: battle.wave, motion };
+    if (this.transition) {
+      const mix = clamp((now - this.transition.start) / (this.tickRate * .11));
+      if (mix < 1) return { ...motion, transition: { ...this.transition, mix: mix * mix * (3 - 2 * mix) } };
+      this.transition = null;
+    }
+    return motion;
   }
 }
 

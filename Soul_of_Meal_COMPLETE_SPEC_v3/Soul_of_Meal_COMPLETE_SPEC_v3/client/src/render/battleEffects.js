@@ -1,6 +1,7 @@
 import { combatArt, cutinArt, ELEMENT_ART, HERO_NAMES } from './spriteAssets.js';
 import { drawEffectTexture, drawElementEffect } from './elementEffects.js';
 import { findBattleTarget } from '../modes/adventure.js';
+import { adventureViewport, battleActorPoint } from './adventureStage.js';
 
 export class BattleEffects {
   constructor(renderer) {
@@ -11,14 +12,17 @@ export class BattleEffects {
   handle({ type, payload, source_id, target_id, tick, battle_id }, battle, origin) {
     if (!battle || battle_id !== battle.id) return;
     if (type === 'battle_started' || type === 'wave_completed') this.effects = [];
-    const source = battle.actors.find((actor) => actor.actor_id === source_id);
-    const target = findBattleTarget(battle, target_id);
-    const element = payload.element ?? source?.element;
+    const attacker = battle.actors.find((actor) => actor.actor_id === source_id);
+    const defender = findBattleTarget(battle, target_id);
+    const safeX = battle.bossTelegraph?.safeX;
+    const source = attacker && battleActorPoint(attacker, 1, safeX);
+    const target = defender && battleActorPoint(defender, 1, safeX);
+    const element = payload.element ?? attacker?.element;
 
     if (type === 'projectile_spawned') {
       this.add('projectile', element, payload.travel_ticks / 30 + .14, {
-        from: origin ?? { x: payload.source.x, y: payload.source.y - 42 },
-        to: payload.target, targetId: target_id, tick, travelTicks: payload.travel_ticks,
+        from: origin ?? { x: source?.x ?? payload.source.x, y: (source?.y ?? payload.source.y) - 42 },
+        to: target ?? payload.target, targetId: target_id, tick, travelTicks: payload.travel_ticks,
       });
     } else if (type === 'attack_started' && source && target && !payload.travel_ticks) {
       const dx = target.x - source.x;
@@ -35,7 +39,7 @@ export class BattleEffects {
     } else if (type === 'boss_cast_released' && source && ['shadow', 'water'].includes(element)) {
       this.add('impact', element, .9, { x: source.x, y: source.y - 64, strong: true });
     } else if (type === 'boss_cast_released' && source) {
-      const flipX = source.direction !== 'E';
+      const flipX = attacker.direction !== 'E';
       this.add('boss_cleave', element, .48, { x: source.x + (flipX ? -66 : 66), y: source.y - 54, flipX });
     } else if (type === 'boss_stove_destroyed' && target) {
       this.add('impact', element, .65, { x: target.x, y: target.y - 32, text: 'Bếp vỡ', strong: true });
@@ -51,7 +55,7 @@ export class BattleEffects {
         : type === 'shield_applied' ? 'Hộ thuẫn +' + payload.amount
           : payload.hp_damage ? '−' + payload.hp_damage : payload.guarded ? 'Hộ thuẫn bếp' : 'Chặn đòn';
       this.add('impact', element, .72, {
-        x: target.x, y: target.y - (target.stove ? 27 : 45), text, guarded: payload.guarded,
+        x: target.x, y: target.y - (defender.stove ? 27 : 42), text, guarded: payload.guarded,
         strong: type !== 'hit_resolved' || ['ultimate', 'boss_telegraph'].includes(payload.source_kind),
       });
     }
@@ -66,7 +70,7 @@ export class BattleEffects {
     this.effects = this.effects.filter((effect) => effect.elapsed < effect.duration);
   }
 
-  draw(context, battle, reducedMotion) {
+  draw(context, battle, reducedMotion, view = adventureViewport(false), fraction = 0, blend = 1) {
     let cutin;
     for (const effect of this.effects) {
       const progress = effect.elapsed / effect.duration;
@@ -75,12 +79,12 @@ export class BattleEffects {
       if (effect.type === 'cutin') {
         cutin = effect;
       } else if (effect.type === 'projectile') {
-        const travel = (battle.tick - effect.tick) / effect.travelTicks;
+        const travel = (battle.tick - effect.tick + fraction) / effect.travelTicks;
         if (travel >= 1) continue;
         const tracked = findBattleTarget(battle, effect.targetId);
-        const target = tracked?.alive ? tracked : effect.to;
+        const target = tracked?.alive ? battleActorPoint(tracked, blend, battle.bossTelegraph?.safeX) : effect.to;
         const dx = target.x - effect.from.x;
-        const dy = target.y - (target.stove ? 26 : 42) - effect.from.y;
+        const dy = target.y - (tracked?.stove ? 26 : 42) - effect.from.y;
         const x = effect.from.x + dx * travel;
         const y = effect.from.y + dy * travel - Math.sin(Math.PI * travel) * 20;
         drawElementEffect(context, this.renderer, effect.element, 'trail', {
@@ -94,10 +98,10 @@ export class BattleEffects {
         }
       } else {
         const strike = effect.type === 'strike';
-        const size = strike ? 88 : effect.strong ? 144 : effect.type === 'cast' ? 104 : 85;
+        const size = strike ? 88 : effect.strong ? 128 : effect.type === 'cast' ? 96 : 72;
         const growth = reducedMotion ? 1 : .78 + progress * .42;
         drawElementEffect(context, this.renderer, effect.element, strike ? 'trail' : 'impact', {
-          x: effect.x, y: effect.y, size: size * growth, opacity: fade, angle: effect.angle,
+          x: effect.x, y: effect.y, size: size * growth, opacity: fade * (effect.strong ? .78 : .72), angle: effect.angle,
         });
         if (effect.strong && !reducedMotion) {
           drawElementEffect(context, this.renderer, effect.element, 'impact', {
@@ -119,27 +123,32 @@ export class BattleEffects {
         context.restore();
       }
     }
-    if (cutin && !reducedMotion) this.drawCutin(context, cutin, cutin.elapsed / cutin.duration);
+    if (cutin && !reducedMotion) this.drawCutin(context, cutin, cutin.elapsed / cutin.duration, view);
   }
 
-  drawCutin(context, effect, progress) {
+  drawCutin(context, effect, progress, view) {
     const palette = ELEMENT_ART[effect.element] ?? ELEMENT_ART.light;
     const image = this.renderer.images.get(cutinArt(effect.id));
-    const width = image?.naturalWidth ? 435 * image.naturalWidth / image.naturalHeight : 0;
+    const center = view.top + view.height / 2;
+    const height = Math.min(435, view.height);
+    const band = Math.min(309, view.height * .82);
+    const width = image?.naturalWidth ? height * image.naturalWidth / image.naturalHeight : 0;
+    const textX = view.left + 45;
     context.save();
     context.globalAlpha = Math.min(1, progress * 12, (1 - progress) * 8);
     const gradient = context.createLinearGradient(0, 0, 960, 0);
     gradient.addColorStop(0, '#210c18ed');
     gradient.addColorStop(1, palette.dark + 'dd');
     context.fillStyle = gradient;
-    context.fillRect(0, 110, 960, 309);
-    if (width) this.renderer.drawImage(context, cutinArt(effect.id), 744 - width / 2 + (1 - progress) * 42, 53, width, 435);
+    context.fillRect(view.left, center - band / 2, view.width, band);
+    if (width) this.renderer.drawImage(context, cutinArt(effect.id), view.left + view.width * .78 - width / 2 + (1 - progress) * 42,
+      center - height / 2, width, height);
     context.fillStyle = palette.color;
     context.font = '700 20px system-ui';
-    context.fillText(HERO_NAMES[effect.id].toLocaleUpperCase('vi'), 52, 246);
+    context.fillText(HERO_NAMES[effect.id].toLocaleUpperCase('vi'), textX, center - 24);
     context.fillStyle = '#fff1cd';
     context.font = '800 43px Georgia';
-    context.fillText(effect.text, 52, 301, 500);
+    context.fillText(effect.text, textX, center + 31, view.width * .53);
     context.restore();
   }
 }

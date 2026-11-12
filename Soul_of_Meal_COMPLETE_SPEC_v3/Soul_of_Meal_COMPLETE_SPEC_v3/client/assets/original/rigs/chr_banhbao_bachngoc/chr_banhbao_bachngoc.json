@@ -31,15 +31,15 @@
     {
       "name": "leg_far",
       "parent": "pelvis",
-      "x": -13,
-      "y": 0,
+      "x": -11,
+      "y": 2,
       "rotation": -9
     },
     {
       "name": "leg_near",
       "parent": "pelvis",
-      "x": 13,
-      "y": 0,
+      "x": 11,
+      "y": 2,
       "rotation": 9
     },
     {
@@ -74,13 +74,13 @@
       "name": "hand_far",
       "parent": "arm_far",
       "x": 0,
-      "y": -8,
+      "y": -6,
       "rotation": 28
     },
     {
       "name": "arm_near",
       "parent": "torso",
-      "x": 15,
+      "x": 18,
       "y": 16,
       "rotation": 10
     },
@@ -88,14 +88,14 @@
       "name": "hand_near",
       "parent": "arm_near",
       "x": 0,
-      "y": -8,
+      "y": -6,
       "rotation": 54
     },
     {
       "name": "weapon",
       "parent": "hand_near",
       "x": 0,
-      "y": -9,
+      "y": -6,
       "rotation": -140
     },
     {
@@ -190,17 +190,17 @@
         "leg_far": {
           "leg_far": {
             "x": 0,
-            "y": -7.0,
-            "width": 16.31,
-            "height": 16
+            "y": -8,
+            "width": 18.35,
+            "height": 18
           }
         },
         "leg_near": {
           "leg_near": {
             "x": 0,
-            "y": -7.0,
-            "width": 17.15,
-            "height": 16
+            "y": -8,
+            "width": 19.29,
+            "height": 18
           }
         },
         "arm_far": {
@@ -215,8 +215,8 @@
           "hand_far": {
             "x": 0,
             "y": -5.0,
-            "width": 8.08,
-            "height": 14
+            "width": 7.51,
+            "height": 13.02
           }
         },
         "head": {
@@ -271,8 +271,8 @@
           "hand_near": {
             "x": 0,
             "y": -5.0,
-            "width": 9.15,
-            "height": 14
+            "width": 8.51,
+            "height": 13.02
           }
         }
       }
@@ -389,20 +389,20 @@
         },
         "leg_near": {
           "rotate": [
-            {"time": 0.0, "value": -19},
+            {"time": 0.0, "value": -13},
             {"time": 0.165, "value": 0},
-            {"time": 0.33, "value": 19},
+            {"time": 0.33, "value": 13},
             {"time": 0.495, "value": 0},
-            {"time": 0.66, "value": -19}
+            {"time": 0.66, "value": -13}
           ]
         },
         "leg_far": {
           "rotate": [
-            {"time": 0.0, "value": 19},
+            {"time": 0.0, "value": 13},
             {"time": 0.165, "value": 0},
-            {"time": 0.33, "value": -19},
+            {"time": 0.33, "value": -13},
             {"time": 0.495, "value": 0},
-            {"time": 0.66, "value": 19}
+            {"time": 0.66, "value": 13}
           ]
         },
         "arm_near": {
@@ -483,20 +483,20 @@
         },
         "leg_near": {
           "rotate": [
-            {"time": 0.0, "value": -31},
+            {"time": 0.0, "value": -20},
             {"time": 0.125, "value": 0},
-            {"time": 0.25, "value": 31},
+            {"time": 0.25, "value": 20},
             {"time": 0.375, "value": 0},
-            {"time": 0.5, "value": -31}
+            {"time": 0.5, "value": -20}
           ]
         },
         "leg_far": {
           "rotate": [
-            {"time": 0.0, "value": 31},
+            {"time": 0.0, "value": 20},
             {"time": 0.125, "value": 0},
-            {"time": 0.25, "value": -31},
+            {"time": 0.25, "value": -20},
             {"time": 0.375, "value": 0},
-            {"time": 0.5, "value": 31}
+            {"time": 0.5, "value": 20}
           ]
         },
         "arm_near": {

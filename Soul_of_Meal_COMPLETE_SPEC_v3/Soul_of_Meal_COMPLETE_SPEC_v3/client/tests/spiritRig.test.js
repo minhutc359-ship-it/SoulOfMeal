@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { BattleRigClock, SpiritRig, rigMotion } from '../src/render/spiritRig.js';
 import { HERO_ID, HERO_NAMES } from '../src/render/spriteAssets.js';
+import { adventureViewport, battleActorPoint } from '../src/render/adventureStage.js';
 
 function openRig(id) {
   const dir = id === HERO_ID ? 'bunbo' : id;
@@ -86,4 +87,45 @@ test('a restored ranged action recovers after launch, and defeat remains at the 
   assert.deepEqual(clock.motion(battle, actor, animation), { id: 'defeat', phase: 0 });
   battle.tick += 40;
   assert.deepEqual(clock.motion(battle, actor, { requestedClipId: 'idle', motionPhase: .9 }), { id: 'defeat', phase: 1 });
+});
+
+test('the party plants a foot during gait and enters an attack from the previous pose', () => {
+  for (const id of Object.keys(HERO_NAMES)) {
+    const spirit = openRig(id);
+    for (const gait of ['walk', 'run']) {
+      for (let frame = 0; frame <= 16; frame++) {
+        const pose = spirit.groundedPose(spirit.clips[gait], { id: gait, phase: frame / 16 });
+        assert.ok(Math.abs(spirit.lowestFoot(pose) - spirit.floor) < 1e-9);
+      }
+    }
+  }
+  const clock = new BattleRigClock(rig, 30);
+  const battle = { tick: 20, wave: 0, phase: 'battle_running' };
+  const actor = { alive: true, moving: true };
+  const animation = { requestedClipId: 'run', motionPhase: .38 };
+  const run = clock.frame(battle, actor, animation);
+  battle.tick++;
+  actor.moving = false;
+  actor.action = { clip: 'attack_a', launchTick: 28, windup: 7 };
+  const windup = clock.frame(battle, actor, animation);
+  assert.equal(windup.transition.mix, 0);
+  assert.deepEqual(rig.groundedPose(rig.clips.attack_a, windup), rig.groundedPose(rig.clips.run, run));
+  battle.tick = actor.action.launchTick;
+  const contact = clock.frame(battle, actor, animation, .5);
+  assert.equal(contact.transition, undefined);
+  assert.equal(contact.phase, rig.clips.attack_a.contact / rig.clips.attack_a.duration);
+});
+
+test('portrait arena separates melee silhouettes and keeps the retreat boundary accurate', () => {
+  const view = adventureViewport(true, false, true);
+  assert.ok(view.left > 0 && view.width < 960);
+  assert.deepEqual(adventureViewport(false, false, true), { left: 0, top: 0, width: 960, height: 540 });
+  const player = { team: 'player', x: 460, y: 337 };
+  const fighter = { ...player, role: 'fighter', homeX: 280, homeY: 338 };
+  const guard = { ...player, role: 'guardian', homeX: 326, homeY: 295 };
+  const assassin = { ...player, role: 'assassin', homeX: 244, homeY: 396 };
+  assert.ok(battleActorPoint(fighter).x < battleActorPoint(guard).x - 40);
+  assert.ok(battleActorPoint(assassin).y > battleActorPoint(guard).y + 80);
+  assert.ok(battleActorPoint(fighter, 1, 450).x > 450);
+  assert.deepEqual(battleActorPoint({ team: 'enemy', x: 600, y: 333 }), { x: 600, y: 333 });
 });
