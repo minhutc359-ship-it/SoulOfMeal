@@ -669,8 +669,8 @@
     },
     {
       "path": "docs/03_engineering/ADVENTURE_RULES_REFERENCE.md",
-      "bytes": 3522,
-      "sha256": "d7f1cdea6cdad8de5010ef69aaed0b995fd73fb33df577ea4a80c4bc7b5b6725"
+      "bytes": 3859,
+      "sha256": "44a2570f9e5b3644fdffa2582d491468096ab571e96c7b7eb72ec75f1a8bceff"
     },
     {
       "path": "game_rules/adventure.py",
@@ -794,13 +794,13 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 121892,
-      "sha256": "1b54494a8586e6cd873b12edfc2dba3afb60933742a0fbdc97b14730d9246951"
+      "bytes": 122302,
+      "sha256": "5b4fe7f7cb61b15d0b01f5bf3eb60cf622f0a392d4e956e0d8b7f191098a98f7"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 41570,
-      "sha256": "cb487b049216d5d8ac9f8b1af06dd9755b63a5ea227856f204a7a2a53b527918"
+      "bytes": 41915,
+      "sha256": "559c03ee44f66fd3a083f99e5f2ffa50c91e05ec8577d2b0f1f2e116ff7c8aa3"
     },
     {
       "path": "client/src/modes/autoChess.js",
@@ -1264,8 +1264,8 @@
     },
     {
       "path": "client/src/render/spriteRenderer.js",
-      "bytes": 7249,
-      "sha256": "5291195b1868d2c2a4089335f9f30aa15ea57a740512c8bdeb286da5e586c59c"
+      "bytes": 7276,
+      "sha256": "356b370fe4663f36afa5907da699daf4c1cade190d17449b6986c272328d238d"
     },
     {
       "path": "examples/maps/forest.json",
@@ -1484,13 +1484,13 @@
     },
     {
       "path": "client/src/render/battleEffects.js",
-      "bytes": 7624,
-      "sha256": "563d6c53c00188d5c81f494696bcbeab400a95eec86437afc61cb47eac49bc08"
+      "bytes": 7672,
+      "sha256": "0cf721c0d638b3bba3bf591c5848264a59323fa09832a81c84a2746af41af2eb"
     },
     {
       "path": "client/src/render/chessReplay.js",
-      "bytes": 7939,
-      "sha256": "6e00ca99185470a5a7efc125bdd33d7db1a8e4c2b7803aa987f93187d9aa826e"
+      "bytes": 8623,
+      "sha256": "103576edc5fefe21e66a2659e03b089d39c1cfc148c3a61d834b6f7c90919106"
     },
     {
       "path": "scripts/build_battle_poses.py",
@@ -2179,13 +2179,13 @@
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_PLAYTEST.md",
-      "bytes": 11924,
-      "sha256": "98f15d252344f6ce093a2c64f7d831ea60e2a572e43c5c69c4307b21f1f07e59"
+      "bytes": 14241,
+      "sha256": "b312b2a652cfac1f6bf86972d7989cc1c7969e27dcca73942caef451909d85e9"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_SOURCES.json",
-      "bytes": 45191,
-      "sha256": "52094a6fb6307f4ee76428eeb7a73a3a53d1f4293e82bad70df9d705db6c056d"
+      "bytes": 54904,
+      "sha256": "7439b113438355268edc5bcc2736b65cd38c24fab98a5d3e5f126e3854d89a61"
     },
     {
       "path": "scripts/build_element_sfx.py",
@@ -2209,8 +2209,8 @@
     },
     {
       "path": "docs/04_qa/PLAYTEST_CONCEPT_GAP.md",
-      "bytes": 6395,
-      "sha256": "57a2e01fc609a07c29d3c229a62f4d2448c5c2cd1ec9de71820ddc8506190837"
+      "bytes": 6309,
+      "sha256": "fac2c29c2f693783bef332f52061bed965490053f772d0f8bd14df49e4787e0f"
     },
     {
       "path": "client/assets/original/scenes/title.webp",
@@ -2669,8 +2669,8 @@
     },
     {
       "path": "client/src/render/boardSprites.js",
-      "bytes": 2089,
-      "sha256": "9b78a3993fcbf0c50588fcc4e25947ed294146a00b1def290a706381f157259c"
+      "bytes": 2666,
+      "sha256": "62b0c676ac27a6977e175b95654ee274214c4958eb8046a9d2f96cff9e6712d4"
     },
     {
       "path": "client/tests/boardSprites.test.js",
@@ -2778,16 +2778,6 @@
       "sha256": "4b3daa9aca9b38390792ae3dfda9602dbcb4de0bb8ab37a26a9f245d5edb2791"
     },
     {
-      "path": "client/src/render/bunboBattleRig.js",
-      "bytes": 6126,
-      "sha256": "6a2c04eaae1585c11cb12592300fa8a8e269c82764df2e8c0f86431716a73b04"
-    },
-    {
-      "path": "client/tests/bunboBattleRig.test.js",
-      "bytes": 2581,
-      "sha256": "32b265be83466c575b90d79c73b41378abef948a9a986b4d7c9b4271369bf3bc"
-    },
-    {
       "path": "client/tests/mp3AudioBank.test.js",
       "bytes": 2565,
       "sha256": "48b71a63bd2b47e44736b3b9120b83eb6e2de5e2eb99ee64997cc4c4d8c262a6"
@@ -2799,8 +2789,8 @@
     },
     {
       "path": "scripts/bunbo_rig.py",
-      "bytes": 2606,
-      "sha256": "34c0e11c577d2fbd018ef1ec0526df398d211c17f38a627999afe5d980526c01"
+      "bytes": 5021,
+      "sha256": "242684ad564bc8e37e156a545c8ba3307e4afee3130887c5b83b7ce8669a0d3d"
     },
     {
       "path": "client/assets/original/scenes/village_guild.webp",
@@ -2876,6 +2866,76 @@
       "path": "tests/test_web_release.py",
       "bytes": 1658,
       "sha256": "ef3e9c2384f2841379afe39078f074fb9647b421c4d978761bb98b764e33e713"
+    },
+    {
+      "path": "client/assets/original/rigs/chr_banhbao_bachngoc/chr_banhbao_bachngoc.json",
+      "bytes": 34432,
+      "sha256": "51806a8c9033e2a27f85018790fc5fda6038e8cfc07b1280c05259a5eef20aeb"
+    },
+    {
+      "path": "client/assets/original/rigs/chr_banhbao_bachngoc/parts.webp",
+      "bytes": 106256,
+      "sha256": "5717d194a8032565b1921a676bc996b2c437f81a9da91d1ce3f669370fa534b8"
+    },
+    {
+      "path": "client/assets/original/rigs/chr_banhbao_bachngoc/regions.json",
+      "bytes": 633,
+      "sha256": "9090684cdcff289832127c0affd90f856b1da2cd6299b116a07832d7dc1a92a2"
+    },
+    {
+      "path": "client/assets/original/rigs/chr_caphe_davu/chr_caphe_davu.json",
+      "bytes": 34580,
+      "sha256": "b8841db964f7ce6954e67dee378543876b27b99b1441e3c417e6360bb087289d"
+    },
+    {
+      "path": "client/assets/original/rigs/chr_caphe_davu/parts.webp",
+      "bytes": 88178,
+      "sha256": "74026558cc228d77ccc4d4d5f5ea85e29abe8e4066a9575aaa1ac9742cab3118"
+    },
+    {
+      "path": "client/assets/original/rigs/chr_caphe_davu/regions.json",
+      "bytes": 631,
+      "sha256": "5d3254d2196c79b5d9411823d69e571ebf9b8f6b4db840124d98287604cb1faa"
+    },
+    {
+      "path": "client/assets/original/rigs/chr_goicuon_diepnhi/chr_goicuon_diepnhi.json",
+      "bytes": 34515,
+      "sha256": "f389c6653a14a471876e59bbcb34aba36ff535528ff573070d87ef1b0d5fd7fc"
+    },
+    {
+      "path": "client/assets/original/rigs/chr_goicuon_diepnhi/parts.webp",
+      "bytes": 114062,
+      "sha256": "3099a449bfa7488f5de1ee791b659aae308c6b8205e2c82c069123fbb168b38b"
+    },
+    {
+      "path": "client/assets/original/rigs/chr_goicuon_diepnhi/regions.json",
+      "bytes": 632,
+      "sha256": "6a27d172ac77d8e67c97d9f4e6950fa53a0a30059f6dff828634613869b89232"
+    },
+    {
+      "path": "client/assets/original/rigs/chr_pho_lamvu/chr_pho_lamvu.json",
+      "bytes": 34404,
+      "sha256": "2728b79523247539b07170be279daa60b7a199f1094bc83533d4b326d9473813"
+    },
+    {
+      "path": "client/assets/original/rigs/chr_pho_lamvu/parts.webp",
+      "bytes": 111566,
+      "sha256": "1dc9be2eace9a0f79373d199bdf65dd3f76655c06e94034b0173001d91c8435a"
+    },
+    {
+      "path": "client/assets/original/rigs/chr_pho_lamvu/regions.json",
+      "bytes": 633,
+      "sha256": "db340b6aae094c2b279de5eef0a8b7bdc2bce36d61a3a07db3cf51fdd713557e"
+    },
+    {
+      "path": "client/src/render/spiritRig.js",
+      "bytes": 8267,
+      "sha256": "c3fb564e7eb93eefa8a1a684c5538288f6e22cfc01e409e10fda598af8c430f0"
+    },
+    {
+      "path": "client/tests/spiritRig.test.js",
+      "bytes": 4909,
+      "sha256": "f1a5d9ac5905f251895beb4eb466ae82cc743858ac616d5763681906a7333fe8"
     }
   ]
 }

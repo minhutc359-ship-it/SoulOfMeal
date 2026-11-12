@@ -1,0 +1,1283 @@
+{
+  "skeleton": {
+    "spine": "4.2.00",
+    "images": "./images/",
+    "x": -91,
+    "y": -25,
+    "width": 183,
+    "height": 156
+  },
+  "bones": [
+    {
+      "name": "root",
+      "x": 0,
+      "y": 0,
+      "rotation": 0
+    },
+    {
+      "name": "pelvis",
+      "parent": "root",
+      "x": 0,
+      "y": 15,
+      "rotation": 0
+    },
+    {
+      "name": "torso",
+      "parent": "pelvis",
+      "x": 0,
+      "y": 0,
+      "rotation": 0
+    },
+    {
+      "name": "leg_far",
+      "parent": "pelvis",
+      "x": -13,
+      "y": 0,
+      "rotation": -9
+    },
+    {
+      "name": "leg_near",
+      "parent": "pelvis",
+      "x": 13,
+      "y": 0,
+      "rotation": 9
+    },
+    {
+      "name": "head",
+      "parent": "torso",
+      "x": 0,
+      "y": 29,
+      "rotation": 0
+    },
+    {
+      "name": "hair",
+      "parent": "head",
+      "x": -8,
+      "y": 28,
+      "rotation": 0
+    },
+    {
+      "name": "ribbon",
+      "parent": "torso",
+      "x": -13,
+      "y": 8,
+      "rotation": 0
+    },
+    {
+      "name": "arm_far",
+      "parent": "torso",
+      "x": -23,
+      "y": 17,
+      "rotation": -24
+    },
+    {
+      "name": "hand_far",
+      "parent": "arm_far",
+      "x": 0,
+      "y": -8,
+      "rotation": 28
+    },
+    {
+      "name": "arm_near",
+      "parent": "torso",
+      "x": 15,
+      "y": 16,
+      "rotation": 10
+    },
+    {
+      "name": "hand_near",
+      "parent": "arm_near",
+      "x": 0,
+      "y": -8,
+      "rotation": 54
+    },
+    {
+      "name": "weapon",
+      "parent": "hand_near",
+      "x": 0,
+      "y": -9,
+      "rotation": -140
+    },
+    {
+      "name": "detail",
+      "parent": "torso",
+      "x": 7,
+      "y": 12,
+      "rotation": 0
+    },
+    {
+      "name": "effect_tip",
+      "parent": "weapon",
+      "x": 1.86,
+      "y": 37.59,
+      "rotation": 0
+    }
+  ],
+  "slots": [
+    {
+      "name": "ribbon",
+      "bone": "ribbon",
+      "attachment": "ribbon"
+    },
+    {
+      "name": "leg_far",
+      "bone": "leg_far",
+      "attachment": "leg_far"
+    },
+    {
+      "name": "leg_near",
+      "bone": "leg_near",
+      "attachment": "leg_near"
+    },
+    {
+      "name": "arm_far",
+      "bone": "arm_far",
+      "attachment": "arm_far"
+    },
+    {
+      "name": "hand_far",
+      "bone": "hand_far",
+      "attachment": "hand_far"
+    },
+    {
+      "name": "head",
+      "bone": "head",
+      "attachment": "head"
+    },
+    {
+      "name": "hair",
+      "bone": "hair",
+      "attachment": "hair"
+    },
+    {
+      "name": "torso",
+      "bone": "torso",
+      "attachment": "torso"
+    },
+    {
+      "name": "detail",
+      "bone": "detail",
+      "attachment": "detail"
+    },
+    {
+      "name": "arm_near",
+      "bone": "arm_near",
+      "attachment": "arm_near"
+    },
+    {
+      "name": "weapon",
+      "bone": "weapon",
+      "attachment": "weapon"
+    },
+    {
+      "name": "hand_near",
+      "bone": "hand_near",
+      "attachment": "hand_near"
+    }
+  ],
+  "skins": [
+    {
+      "name": "default",
+      "attachments": {
+        "ribbon": {
+          "ribbon": {
+            "x": -12,
+            "y": -3,
+            "width": 24.71,
+            "height": 24
+          }
+        },
+        "leg_far": {
+          "leg_far": {
+            "x": 0,
+            "y": -7.0,
+            "width": 16.31,
+            "height": 16
+          }
+        },
+        "leg_near": {
+          "leg_near": {
+            "x": 0,
+            "y": -7.0,
+            "width": 17.15,
+            "height": 16
+          }
+        },
+        "arm_far": {
+          "arm_far": {
+            "x": 0,
+            "y": -4.5,
+            "width": 10.88,
+            "height": 13
+          }
+        },
+        "hand_far": {
+          "hand_far": {
+            "x": 0,
+            "y": -5.0,
+            "width": 8.08,
+            "height": 14
+          }
+        },
+        "head": {
+          "head": {
+            "x": 0,
+            "y": 0,
+            "width": 68.6,
+            "height": 62
+          }
+        },
+        "hair": {
+          "hair": {
+            "x": 0,
+            "y": 7,
+            "width": 35.9,
+            "height": 29
+          }
+        },
+        "torso": {
+          "torso": {
+            "x": 0,
+            "y": 5,
+            "width": 34.67,
+            "height": 13
+          }
+        },
+        "detail": {
+          "detail": {
+            "x": 0,
+            "y": -5.0,
+            "width": 12.12,
+            "height": 15
+          }
+        },
+        "arm_near": {
+          "arm_near": {
+            "x": 0,
+            "y": -4.5,
+            "width": 10.25,
+            "height": 13
+          }
+        },
+        "weapon": {
+          "weapon": {
+            "x": 0,
+            "y": 16.5,
+            "width": 18.61,
+            "height": 43
+          }
+        },
+        "hand_near": {
+          "hand_near": {
+            "x": 0,
+            "y": -5.0,
+            "width": 9.15,
+            "height": 14
+          }
+        }
+      }
+    }
+  ],
+  "events": {
+    "effect_contact": {}
+  },
+  "animations": {
+    "idle": {
+      "bones": {
+        "torso": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.25, "value": 1},
+            {"time": 0.5, "value": 0},
+            {"time": 0.75, "value": -1},
+            {"time": 1.0, "value": 0}
+          ]
+        },
+        "head": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.25, "value": -1},
+            {"time": 0.5, "value": 0},
+            {"time": 0.75, "value": 2},
+            {"time": 1.0, "value": 0}
+          ]
+        },
+        "hair": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.25, "value": 4},
+            {"time": 0.5, "value": 2},
+            {"time": 0.75, "value": -4},
+            {"time": 1.0, "value": 0}
+          ]
+        },
+        "ribbon": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.25, "value": -7},
+            {"time": 0.5, "value": -2},
+            {"time": 0.75, "value": 7},
+            {"time": 1.0, "value": 0}
+          ]
+        },
+        "detail": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.25, "value": 4},
+            {"time": 0.5, "value": 0},
+            {"time": 0.75, "value": -5},
+            {"time": 1.0, "value": 0}
+          ]
+        },
+        "hand_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.25, "value": 3},
+            {"time": 0.5, "value": 1},
+            {"time": 0.75, "value": -3},
+            {"time": 1.0, "value": 0}
+          ]
+        },
+        "root": {
+          "translate": [
+            {"time": 0.0, "x": 0, "y": 0},
+            {"time": 0.25, "x": 0, "y": 1},
+            {"time": 0.5, "x": 0, "y": 1},
+            {"time": 0.75, "x": 0, "y": 0},
+            {"time": 1.0, "x": 0, "y": 0}
+          ]
+        }
+      }
+    },
+    "walk": {
+      "bones": {
+        "torso": {
+          "rotate": [
+            {"time": 0.0, "value": -4},
+            {"time": 0.165, "value": -6},
+            {"time": 0.33, "value": -4},
+            {"time": 0.495, "value": -6},
+            {"time": 0.66, "value": -4}
+          ]
+        },
+        "head": {
+          "rotate": [
+            {"time": 0.0, "value": 2.0},
+            {"time": 0.165, "value": 4},
+            {"time": 0.33, "value": 2.0},
+            {"time": 0.495, "value": 4},
+            {"time": 0.66, "value": 2.0}
+          ]
+        },
+        "hair": {
+          "rotate": [
+            {"time": 0.0, "value": 3},
+            {"time": 0.165, "value": 10},
+            {"time": 0.33, "value": -2},
+            {"time": 0.495, "value": 12},
+            {"time": 0.66, "value": 3}
+          ]
+        },
+        "ribbon": {
+          "rotate": [
+            {"time": 0.0, "value": -8},
+            {"time": 0.165, "value": 12},
+            {"time": 0.33, "value": 4},
+            {"time": 0.495, "value": 18},
+            {"time": 0.66, "value": -8}
+          ]
+        },
+        "leg_near": {
+          "rotate": [
+            {"time": 0.0, "value": -19},
+            {"time": 0.165, "value": 0},
+            {"time": 0.33, "value": 19},
+            {"time": 0.495, "value": 0},
+            {"time": 0.66, "value": -19}
+          ]
+        },
+        "leg_far": {
+          "rotate": [
+            {"time": 0.0, "value": 19},
+            {"time": 0.165, "value": 0},
+            {"time": 0.33, "value": -19},
+            {"time": 0.495, "value": 0},
+            {"time": 0.66, "value": 19}
+          ]
+        },
+        "arm_near": {
+          "rotate": [
+            {"time": 0.0, "value": 7.22},
+            {"time": 0.165, "value": 0},
+            {"time": 0.33, "value": -7.22},
+            {"time": 0.495, "value": 0},
+            {"time": 0.66, "value": 7.22}
+          ]
+        },
+        "arm_far": {
+          "rotate": [
+            {"time": 0.0, "value": -8.55},
+            {"time": 0.165, "value": 0},
+            {"time": 0.33, "value": 8.55},
+            {"time": 0.495, "value": 0},
+            {"time": 0.66, "value": -8.55}
+          ]
+        },
+        "hand_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.165, "value": 4},
+            {"time": 0.33, "value": -2},
+            {"time": 0.495, "value": 5},
+            {"time": 0.66, "value": 0}
+          ]
+        },
+        "root": {
+          "translate": [
+            {"time": 0.0, "x": 0, "y": 0},
+            {"time": 0.165, "x": 0, "y": 5},
+            {"time": 0.33, "x": 0, "y": 0},
+            {"time": 0.495, "x": 0, "y": 5},
+            {"time": 0.66, "x": 0, "y": 0}
+          ]
+        }
+      }
+    },
+    "run": {
+      "bones": {
+        "torso": {
+          "rotate": [
+            {"time": 0.0, "value": -11},
+            {"time": 0.125, "value": -13},
+            {"time": 0.25, "value": -11},
+            {"time": 0.375, "value": -13},
+            {"time": 0.5, "value": -11}
+          ]
+        },
+        "head": {
+          "rotate": [
+            {"time": 0.0, "value": 5.5},
+            {"time": 0.125, "value": 11},
+            {"time": 0.25, "value": 5.5},
+            {"time": 0.375, "value": 11},
+            {"time": 0.5, "value": 5.5}
+          ]
+        },
+        "hair": {
+          "rotate": [
+            {"time": 0.0, "value": 3},
+            {"time": 0.125, "value": 10},
+            {"time": 0.25, "value": -2},
+            {"time": 0.375, "value": 12},
+            {"time": 0.5, "value": 3}
+          ]
+        },
+        "ribbon": {
+          "rotate": [
+            {"time": 0.0, "value": -8},
+            {"time": 0.125, "value": 12},
+            {"time": 0.25, "value": 4},
+            {"time": 0.375, "value": 18},
+            {"time": 0.5, "value": -8}
+          ]
+        },
+        "leg_near": {
+          "rotate": [
+            {"time": 0.0, "value": -31},
+            {"time": 0.125, "value": 0},
+            {"time": 0.25, "value": 31},
+            {"time": 0.375, "value": 0},
+            {"time": 0.5, "value": -31}
+          ]
+        },
+        "leg_far": {
+          "rotate": [
+            {"time": 0.0, "value": 31},
+            {"time": 0.125, "value": 0},
+            {"time": 0.25, "value": -31},
+            {"time": 0.375, "value": 0},
+            {"time": 0.5, "value": 31}
+          ]
+        },
+        "arm_near": {
+          "rotate": [
+            {"time": 0.0, "value": 11.78},
+            {"time": 0.125, "value": 0},
+            {"time": 0.25, "value": -11.78},
+            {"time": 0.375, "value": 0},
+            {"time": 0.5, "value": 11.78}
+          ]
+        },
+        "arm_far": {
+          "rotate": [
+            {"time": 0.0, "value": -13.950000000000001},
+            {"time": 0.125, "value": 0},
+            {"time": 0.25, "value": 13.950000000000001},
+            {"time": 0.375, "value": 0},
+            {"time": 0.5, "value": -13.950000000000001}
+          ]
+        },
+        "hand_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.125, "value": 4},
+            {"time": 0.25, "value": -2},
+            {"time": 0.375, "value": 5},
+            {"time": 0.5, "value": 0}
+          ]
+        },
+        "root": {
+          "translate": [
+            {"time": 0.0, "x": 0, "y": 0},
+            {"time": 0.125, "x": 0, "y": 5},
+            {"time": 0.25, "x": 0, "y": 0},
+            {"time": 0.375, "x": 0, "y": 5},
+            {"time": 0.5, "x": 0, "y": 0}
+          ]
+        }
+      }
+    },
+    "attack_a": {
+      "bones": {
+        "torso": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.195, "value": 7},
+            {"time": 0.403, "value": -11},
+            {"time": 0.507, "value": -7},
+            {"time": 0.65, "value": 0}
+          ]
+        },
+        "head": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.195, "value": -7},
+            {"time": 0.403, "value": 6},
+            {"time": 0.507, "value": 4},
+            {"time": 0.65, "value": 0}
+          ]
+        },
+        "hair": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.195, "value": -13},
+            {"time": 0.403, "value": 16},
+            {"time": 0.507, "value": 10},
+            {"time": 0.65, "value": 0}
+          ]
+        },
+        "ribbon": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.195, "value": -18},
+            {"time": 0.403, "value": 24},
+            {"time": 0.507, "value": 14},
+            {"time": 0.65, "value": 0}
+          ]
+        },
+        "leg_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.195, "value": -7},
+            {"time": 0.403, "value": 12},
+            {"time": 0.507, "value": 10},
+            {"time": 0.65, "value": 0}
+          ]
+        },
+        "leg_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.195, "value": 12},
+            {"time": 0.403, "value": -15},
+            {"time": 0.507, "value": -6},
+            {"time": 0.65, "value": 0}
+          ]
+        },
+        "arm_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.195, "value": -19},
+            {"time": 0.403, "value": 54},
+            {"time": 0.507, "value": 20},
+            {"time": 0.65, "value": 0}
+          ]
+        },
+        "hand_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.195, "value": -16},
+            {"time": 0.403, "value": -12},
+            {"time": 0.507, "value": -7.199999999999999},
+            {"time": 0.65, "value": 0}
+          ]
+        },
+        "weapon": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.195, "value": 25},
+            {"time": 0.403, "value": -24},
+            {"time": 0.507, "value": -14.399999999999999},
+            {"time": 0.65, "value": 0}
+          ]
+        },
+        "arm_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.195, "value": -13},
+            {"time": 0.403, "value": -4},
+            {"time": 0.507, "value": -2.4},
+            {"time": 0.65, "value": 0}
+          ]
+        },
+        "hand_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.195, "value": 8},
+            {"time": 0.403, "value": 12},
+            {"time": 0.507, "value": 9},
+            {"time": 0.65, "value": 0}
+          ]
+        },
+        "detail": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.195, "value": -14},
+            {"time": 0.403, "value": -10},
+            {"time": 0.507, "value": -6.0},
+            {"time": 0.65, "value": 0}
+          ]
+        },
+        "root": {
+          "translate": [
+            {"time": 0.0, "x": 0, "y": 0},
+            {"time": 0.195, "x": -4, "y": -3},
+            {"time": 0.403, "x": 5, "y": 2},
+            {"time": 0.507, "x": 2.5, "y": 4},
+            {"time": 0.65, "x": 0, "y": 0}
+          ]
+        }
+      },
+      "events": [
+        {"time": 0.403, "name": "effect_contact"}
+      ]
+    },
+    "attack_b": {
+      "bones": {
+        "torso": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.21, "value": 7},
+            {"time": 0.434, "value": -11},
+            {"time": 0.546, "value": -7},
+            {"time": 0.7, "value": 0}
+          ]
+        },
+        "head": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.21, "value": -7},
+            {"time": 0.434, "value": 6},
+            {"time": 0.546, "value": 4},
+            {"time": 0.7, "value": 0}
+          ]
+        },
+        "hair": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.21, "value": -13},
+            {"time": 0.434, "value": 16},
+            {"time": 0.546, "value": 10},
+            {"time": 0.7, "value": 0}
+          ]
+        },
+        "ribbon": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.21, "value": -18},
+            {"time": 0.434, "value": 24},
+            {"time": 0.546, "value": 14},
+            {"time": 0.7, "value": 0}
+          ]
+        },
+        "leg_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.21, "value": -7},
+            {"time": 0.434, "value": 12},
+            {"time": 0.546, "value": 10},
+            {"time": 0.7, "value": 0}
+          ]
+        },
+        "leg_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.21, "value": 12},
+            {"time": 0.434, "value": -15},
+            {"time": 0.546, "value": -6},
+            {"time": 0.7, "value": 0}
+          ]
+        },
+        "arm_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.21, "value": -24},
+            {"time": 0.434, "value": 62},
+            {"time": 0.546, "value": 28},
+            {"time": 0.7, "value": 0}
+          ]
+        },
+        "hand_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.21, "value": -16},
+            {"time": 0.434, "value": -7},
+            {"time": 0.546, "value": -4.2},
+            {"time": 0.7, "value": 0}
+          ]
+        },
+        "weapon": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.21, "value": 25},
+            {"time": 0.434, "value": -28},
+            {"time": 0.546, "value": -16.8},
+            {"time": 0.7, "value": 0}
+          ]
+        },
+        "arm_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.21, "value": -13},
+            {"time": 0.434, "value": -8},
+            {"time": 0.546, "value": -4.8},
+            {"time": 0.7, "value": 0}
+          ]
+        },
+        "hand_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.21, "value": 8},
+            {"time": 0.434, "value": 12},
+            {"time": 0.546, "value": 9},
+            {"time": 0.7, "value": 0}
+          ]
+        },
+        "detail": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.21, "value": -14},
+            {"time": 0.434, "value": -16},
+            {"time": 0.546, "value": -9.6},
+            {"time": 0.7, "value": 0}
+          ]
+        },
+        "root": {
+          "translate": [
+            {"time": 0.0, "x": 0, "y": 0},
+            {"time": 0.21, "x": -4, "y": -3},
+            {"time": 0.434, "x": 5, "y": 2},
+            {"time": 0.546, "x": 2.5, "y": 4},
+            {"time": 0.7, "x": 0, "y": 0}
+          ]
+        }
+      },
+      "events": [
+        {"time": 0.434, "name": "effect_contact"}
+      ]
+    },
+    "skill_01": {
+      "bones": {
+        "torso": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.282, "value": 7},
+            {"time": 0.5828, "value": -6},
+            {"time": 0.7332, "value": -7},
+            {"time": 0.94, "value": 0}
+          ]
+        },
+        "head": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.282, "value": -7},
+            {"time": 0.5828, "value": 6},
+            {"time": 0.7332, "value": 4},
+            {"time": 0.94, "value": 0}
+          ]
+        },
+        "hair": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.282, "value": -13},
+            {"time": 0.5828, "value": 16},
+            {"time": 0.7332, "value": 10},
+            {"time": 0.94, "value": 0}
+          ]
+        },
+        "ribbon": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.282, "value": -18},
+            {"time": 0.5828, "value": 24},
+            {"time": 0.7332, "value": 14},
+            {"time": 0.94, "value": 0}
+          ]
+        },
+        "leg_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.282, "value": -7},
+            {"time": 0.5828, "value": 12},
+            {"time": 0.7332, "value": 10},
+            {"time": 0.94, "value": 0}
+          ]
+        },
+        "leg_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.282, "value": 12},
+            {"time": 0.5828, "value": -15},
+            {"time": 0.7332, "value": -6},
+            {"time": 0.94, "value": 0}
+          ]
+        },
+        "arm_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.282, "value": -27},
+            {"time": 0.5828, "value": 40},
+            {"time": 0.7332, "value": 24},
+            {"time": 0.94, "value": 0}
+          ]
+        },
+        "hand_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.282, "value": -16},
+            {"time": 0.5828, "value": -24},
+            {"time": 0.7332, "value": -14.399999999999999},
+            {"time": 0.94, "value": 0}
+          ]
+        },
+        "weapon": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.282, "value": 25},
+            {"time": 0.5828, "value": -17},
+            {"time": 0.7332, "value": -10.2},
+            {"time": 0.94, "value": 0}
+          ]
+        },
+        "arm_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.282, "value": -13},
+            {"time": 0.5828, "value": -4},
+            {"time": 0.7332, "value": -2.4},
+            {"time": 0.94, "value": 0}
+          ]
+        },
+        "hand_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.282, "value": 8},
+            {"time": 0.5828, "value": 12},
+            {"time": 0.7332, "value": 9},
+            {"time": 0.94, "value": 0}
+          ]
+        },
+        "detail": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.282, "value": -14},
+            {"time": 0.5828, "value": -11},
+            {"time": 0.7332, "value": -6.6},
+            {"time": 0.94, "value": 0}
+          ]
+        },
+        "root": {
+          "translate": [
+            {"time": 0.0, "x": 0, "y": 0},
+            {"time": 0.282, "x": -4, "y": -3},
+            {"time": 0.5828, "x": 5, "y": 2},
+            {"time": 0.7332, "x": 2.5, "y": 4},
+            {"time": 0.94, "x": 0, "y": 0}
+          ]
+        }
+      },
+      "events": [
+        {"time": 0.5828, "name": "effect_contact"}
+      ]
+    },
+    "ultimate_01": {
+      "bones": {
+        "torso": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.354, "value": 10},
+            {"time": 0.7316, "value": -6},
+            {"time": 0.9204, "value": -7},
+            {"time": 1.18, "value": 0}
+          ]
+        },
+        "head": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.354, "value": -7},
+            {"time": 0.7316, "value": 6},
+            {"time": 0.9204, "value": 4},
+            {"time": 1.18, "value": 0}
+          ]
+        },
+        "hair": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.354, "value": -13},
+            {"time": 0.7316, "value": 16},
+            {"time": 0.9204, "value": 10},
+            {"time": 1.18, "value": 0}
+          ]
+        },
+        "ribbon": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.354, "value": -18},
+            {"time": 0.7316, "value": 24},
+            {"time": 0.9204, "value": 14},
+            {"time": 1.18, "value": 0}
+          ]
+        },
+        "leg_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.354, "value": -7},
+            {"time": 0.7316, "value": 12},
+            {"time": 0.9204, "value": 10},
+            {"time": 1.18, "value": 0}
+          ]
+        },
+        "leg_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.354, "value": 12},
+            {"time": 0.7316, "value": -15},
+            {"time": 0.9204, "value": -6},
+            {"time": 1.18, "value": 0}
+          ]
+        },
+        "arm_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.354, "value": -24},
+            {"time": 0.7316, "value": 54},
+            {"time": 0.9204, "value": 43},
+            {"time": 1.18, "value": 0}
+          ]
+        },
+        "hand_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.354, "value": -16},
+            {"time": 0.7316, "value": -46},
+            {"time": 0.9204, "value": -27.599999999999998},
+            {"time": 1.18, "value": 0}
+          ]
+        },
+        "weapon": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.354, "value": 38},
+            {"time": 0.7316, "value": -49},
+            {"time": 0.9204, "value": -29.4},
+            {"time": 1.18, "value": 0}
+          ]
+        },
+        "arm_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.354, "value": -13},
+            {"time": 0.7316, "value": -40},
+            {"time": 0.9204, "value": -24.0},
+            {"time": 1.18, "value": 0}
+          ]
+        },
+        "hand_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.354, "value": 8},
+            {"time": 0.7316, "value": 32},
+            {"time": 0.9204, "value": 9},
+            {"time": 1.18, "value": 0}
+          ]
+        },
+        "detail": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.354, "value": -14},
+            {"time": 0.7316, "value": -21},
+            {"time": 0.9204, "value": -12.6},
+            {"time": 1.18, "value": 0}
+          ]
+        },
+        "root": {
+          "translate": [
+            {"time": 0.0, "x": 0, "y": 0},
+            {"time": 0.354, "x": -4, "y": -3},
+            {"time": 0.7316, "x": 5, "y": 8},
+            {"time": 0.9204, "x": 2.5, "y": 4},
+            {"time": 1.18, "x": 0, "y": 0}
+          ]
+        }
+      },
+      "events": [
+        {"time": 0.7316, "name": "effect_contact"}
+      ]
+    },
+    "hit": {
+      "bones": {
+        "pelvis": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.0975, "value": 13},
+            {"time": 0.195, "value": 9},
+            {"time": 0.2925, "value": 4},
+            {"time": 0.39, "value": 0}
+          ]
+        },
+        "head": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.0975, "value": 10},
+            {"time": 0.195, "value": 8},
+            {"time": 0.2925, "value": 3},
+            {"time": 0.39, "value": 0}
+          ]
+        },
+        "hair": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.0975, "value": -15},
+            {"time": 0.195, "value": -8},
+            {"time": 0.2925, "value": 4},
+            {"time": 0.39, "value": 0}
+          ]
+        },
+        "arm_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.0975, "value": -18},
+            {"time": 0.195, "value": -8},
+            {"time": 0.2925, "value": 2},
+            {"time": 0.39, "value": 0}
+          ]
+        },
+        "arm_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.0975, "value": -14},
+            {"time": 0.195, "value": -6},
+            {"time": 0.2925, "value": 0},
+            {"time": 0.39, "value": 0}
+          ]
+        },
+        "ribbon": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.0975, "value": 23},
+            {"time": 0.195, "value": 8},
+            {"time": 0.2925, "value": -3},
+            {"time": 0.39, "value": 0}
+          ]
+        },
+        "root": {
+          "translate": [
+            {"time": 0.0, "x": 0, "y": 0},
+            {"time": 0.0975, "x": -6, "y": -3},
+            {"time": 0.195, "x": -4, "y": -2},
+            {"time": 0.2925, "x": -2, "y": 0},
+            {"time": 0.39, "x": 0, "y": 0}
+          ]
+        }
+      }
+    },
+    "victory": {
+      "bones": {
+        "torso": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.25, "value": 4},
+            {"time": 0.5, "value": -8},
+            {"time": 0.75, "value": -3},
+            {"time": 1.0, "value": 0}
+          ]
+        },
+        "head": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.25, "value": -5},
+            {"time": 0.5, "value": 4},
+            {"time": 0.75, "value": 2},
+            {"time": 1.0, "value": 0}
+          ]
+        },
+        "hair": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.25, "value": -12},
+            {"time": 0.5, "value": 16},
+            {"time": 0.75, "value": -5},
+            {"time": 1.0, "value": 0}
+          ]
+        },
+        "arm_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.25, "value": -8},
+            {"time": 0.5, "value": 70},
+            {"time": 0.75, "value": 36},
+            {"time": 1.0, "value": 0}
+          ]
+        },
+        "arm_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.25, "value": 8},
+            {"time": 0.5, "value": 49},
+            {"time": 0.75, "value": 21},
+            {"time": 1.0, "value": 0}
+          ]
+        },
+        "hand_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.25, "value": 8},
+            {"time": 0.5, "value": -30},
+            {"time": 0.75, "value": -16},
+            {"time": 1.0, "value": 0}
+          ]
+        },
+        "weapon": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.25, "value": 8},
+            {"time": 0.5, "value": -35},
+            {"time": 0.75, "value": -18},
+            {"time": 1.0, "value": 0}
+          ]
+        },
+        "ribbon": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.25, "value": 7},
+            {"time": 0.5, "value": 25},
+            {"time": 0.75, "value": -6},
+            {"time": 1.0, "value": 0}
+          ]
+        },
+        "root": {
+          "translate": [
+            {"time": 0.0, "x": 0, "y": 0},
+            {"time": 0.25, "x": 0, "y": -2},
+            {"time": 0.5, "x": 0, "y": 11},
+            {"time": 0.75, "x": 0, "y": 3},
+            {"time": 1.0, "x": 0, "y": 0}
+          ]
+        }
+      }
+    },
+    "defeat": {
+      "bones": {
+        "pelvis": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.185, "value": 9},
+            {"time": 0.37, "value": 24},
+            {"time": 0.555, "value": 44},
+            {"time": 0.74, "value": 56}
+          ]
+        },
+        "head": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.185, "value": 0},
+            {"time": 0.37, "value": 7},
+            {"time": 0.555, "value": 13},
+            {"time": 0.74, "value": 13}
+          ]
+        },
+        "hair": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.185, "value": -6},
+            {"time": 0.37, "value": -12},
+            {"time": 0.555, "value": -18},
+            {"time": 0.74, "value": -25}
+          ]
+        },
+        "arm_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.185, "value": -11},
+            {"time": 0.37, "value": -33},
+            {"time": 0.555, "value": -43},
+            {"time": 0.74, "value": -48}
+          ]
+        },
+        "arm_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.185, "value": 10},
+            {"time": 0.37, "value": 9},
+            {"time": 0.555, "value": 6},
+            {"time": 0.74, "value": 5}
+          ]
+        },
+        "leg_near": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.185, "value": 5},
+            {"time": 0.37, "value": 14},
+            {"time": 0.555, "value": 33},
+            {"time": 0.74, "value": 48}
+          ]
+        },
+        "leg_far": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.185, "value": -3},
+            {"time": 0.37, "value": -14},
+            {"time": 0.555, "value": -20},
+            {"time": 0.74, "value": -25}
+          ]
+        },
+        "weapon": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.185, "value": 11},
+            {"time": 0.37, "value": 22},
+            {"time": 0.555, "value": 36},
+            {"time": 0.74, "value": 43}
+          ]
+        },
+        "ribbon": {
+          "rotate": [
+            {"time": 0.0, "value": 0},
+            {"time": 0.185, "value": 14},
+            {"time": 0.37, "value": 17},
+            {"time": 0.555, "value": 20},
+            {"time": 0.74, "value": 20}
+          ]
+        },
+        "root": {
+          "translate": [
+            {"time": 0.0, "x": 0, "y": 0},
+            {"time": 0.185, "x": -4, "y": -1},
+            {"time": 0.37, "x": -9, "y": -7},
+            {"time": 0.555, "x": -13, "y": -11},
+            {"time": 0.74, "x": -17, "y": -7}
+          ]
+        }
+      }
+    }
+  }
+}

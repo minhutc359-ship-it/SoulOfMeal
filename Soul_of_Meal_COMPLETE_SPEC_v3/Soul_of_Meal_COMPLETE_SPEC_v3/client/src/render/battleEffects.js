@@ -8,7 +8,7 @@ export class BattleEffects {
     this.effects = [];
   }
 
-  handle({ type, payload, source_id, target_id, tick, battle_id }, battle) {
+  handle({ type, payload, source_id, target_id, tick, battle_id }, battle, origin) {
     if (!battle || battle_id !== battle.id) return;
     if (type === 'battle_started' || type === 'wave_completed') this.effects = [];
     const source = battle.actors.find((actor) => actor.actor_id === source_id);
@@ -17,7 +17,8 @@ export class BattleEffects {
 
     if (type === 'projectile_spawned') {
       this.add('projectile', element, payload.travel_ticks / 30 + .14, {
-        from: payload.source, to: payload.target, targetId: target_id, tick, travelTicks: payload.travel_ticks,
+        from: origin ?? { x: payload.source.x, y: payload.source.y - 42 },
+        to: payload.target, targetId: target_id, tick, travelTicks: payload.travel_ticks,
       });
     } else if (type === 'attack_started' && source && target && !payload.travel_ticks) {
       const dx = target.x - source.x;
@@ -79,9 +80,9 @@ export class BattleEffects {
         const tracked = findBattleTarget(battle, effect.targetId);
         const target = tracked?.alive ? tracked : effect.to;
         const dx = target.x - effect.from.x;
-        const dy = target.y - effect.from.y;
+        const dy = target.y - (target.stove ? 26 : 42) - effect.from.y;
         const x = effect.from.x + dx * travel;
-        const y = effect.from.y - 42 + dy * travel + (target.stove ? 16 * travel : 0) - Math.sin(Math.PI * travel) * 20;
+        const y = effect.from.y + dy * travel - Math.sin(Math.PI * travel) * 20;
         drawElementEffect(context, this.renderer, effect.element, 'trail', {
           x, y, size: 96, angle: Math.atan2(dy, dx), opacity: .95,
         });
