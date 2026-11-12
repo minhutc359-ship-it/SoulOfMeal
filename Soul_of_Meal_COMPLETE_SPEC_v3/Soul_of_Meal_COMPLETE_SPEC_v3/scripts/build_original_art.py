@@ -26,7 +26,8 @@ PROPS = (
     "chest_closed", "chest_open", "portal", "table",
 )
 ELEMENTS = ("fire", "water", "wood", "light", "shadow")
-SCENES = ("home", "village", "forest", "arena", "harbor", "caldera", "sanctum", "tcg_table", "chess_court")
+VILLAGE_INTERIORS = ("village_kitchen", "village_guild", "village_merchant")
+SCENES = ("home", "village", "forest", "arena", "harbor", "caldera", "sanctum", "tcg_table", "chess_court", *VILLAGE_INTERIORS)
 CARD_ART = tuple(f"card_demo_{index:02d}" for index in (7, *range(10, 19)))
 DIRECTIONS = ("N", "E", "S", "W")
 CLIPS = {
@@ -291,7 +292,8 @@ def export_art(sources, assets, selection):
             path = assets / "original" / "scenes" / f"{source_id}.webp"
             path.parent.mkdir(parents=True, exist_ok=True)
             with Image.open(source) as scene:
-                ImageOps.fit(scene.convert("RGB"), (1280, 720), Image.Resampling.LANCZOS).save(path, quality=79, method=6)
+                size, quality = ((960, 540), 85) if source_id in VILLAGE_INTERIORS else ((1280, 720), 79)
+                ImageOps.fit(scene.convert("RGB"), size, Image.Resampling.LANCZOS).save(path, quality=quality, method=6)
 
 
 def main():
@@ -304,7 +306,7 @@ def main():
     unknown = set(args.ids) - set(ids)
     if unknown:
         parser.error(f"unknown asset IDs: {sorted(unknown)}")
-    default_ids = tuple(asset_id for asset_id in ids if asset_id not in (BOSS, *MONSTERS, *STANDALONE_PROPS, "combat_effects", "chronicle", "harbor", "caldera", "sanctum", "tcg_table", "chess_court")
+    default_ids = tuple(asset_id for asset_id in ids if asset_id not in (BOSS, *MONSTERS, *STANDALONE_PROPS, "combat_effects", "chronicle", "harbor", "caldera", "sanctum", "tcg_table", "chess_court", *VILLAGE_INTERIORS)
                         or (args.sources / f"{asset_id}.png").is_file())
     export_art(args.sources, args.assets, args.ids or default_ids)
 

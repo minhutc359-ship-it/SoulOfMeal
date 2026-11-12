@@ -1,11 +1,12 @@
 import { validateAnimationManifest } from './clipPlayer.js';
+import { VILLAGE_ROOMS } from '../modes/villageRooms.js';
 
 const ORIGINAL = './assets/original';
 export const HERO_ID = 'chr_bunbo_holinh';
 export const TRAVEL_HERO = HERO_ID + '_travel';
 export const MONSTER_IDS = ['mob_mushroom_01', 'mob_pepper_01'];
 export const BOSS_ID = 'boss_bep_truong';
-const ADVENTURE_SCENES = ['village', 'forest', 'arena', 'harbor', 'caldera', 'sanctum'];
+const ADVENTURE_SCENES = ['village', 'forest', 'arena', 'harbor', 'caldera', 'sanctum', ...VILLAGE_ROOMS];
 const ENCOUNTER_PROPS = ['boss_stove', 'empty_bowl_seal', 'tidal_conch', 'hollow_cauldron'];
 const COMBAT_EFFECTS = ['boss_warning', 'boss_cleave', 'shield_bubble', 'shield_break'];
 

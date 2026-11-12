@@ -1,6 +1,7 @@
 import { ClipPlayer } from './clipPlayer.js';
 import { actorArt, ELEMENT_ART, sceneArt } from './spriteAssets.js';
 import { drawElementEffect } from './elementEffects.js';
+import { rigMotion } from './spiritRig.js';
 
 const ATTACK_LEAD = .20;
 const FALL_DURATION = .36;
@@ -83,7 +84,13 @@ export class ChessReplay {
       if (!standing && (this.reducedMotion || !(actor.fallUntil > this.elapsed))) continue;
       const opacity = standing ? 1 : (actor.fallUntil - this.elapsed) / FALL_DURATION;
       const { x, y } = boardPoint(actor.viewX, actor.viewY);
-      const drawn = this.renderer.drawSprite(context, actor.id, actor.player.snapshot(), x, y + 9, { scale: .36, opacity });
+      const animation = actor.player.snapshot();
+      const rig = this.renderer.rigs?.get(actor.id);
+      const clip = rig?.clips[animation.requestedClipId];
+      const timing = actor.timing?.id === animation.requestedClipId ? actor.timing : null;
+      const phase = rigMotion(clip, animation.motionPhase, timing, this.elapsed * 1000);
+      const drawn = (clip && rig.draw(context, { id: animation.requestedClipId, phase }, x, y + 9, animation.direction, .4, opacity))
+        || this.renderer.drawSprite(context, actor.id, animation, x, y + 9, { scale: .36, opacity });
       if (!drawn) {
         const asset = actorArt(actor.id);
         const image = this.renderer.images.get(asset);
@@ -130,6 +137,8 @@ export class ChessReplay {
     actor.preparedHit = eventIndex;
     if (target.x !== actor.x) actor.player.setDirection(target.x > actor.x ? 'E' : 'W');
     const clip = actor.attackCount++ % 2 === 0 ? 'attack_a' : 'attack_b';
+    const contact = this.combat.events[eventIndex].tick * this.duration / this.combat.tick;
+    actor.timing = { id: clip, start: (contact - ATTACK_LEAD) * 1000, contact: contact * 1000 };
     actor.player.play(clip, { force: true });
     return clip;
   }

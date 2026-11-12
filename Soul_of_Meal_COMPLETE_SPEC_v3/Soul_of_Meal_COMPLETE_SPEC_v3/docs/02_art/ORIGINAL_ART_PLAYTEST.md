@@ -53,7 +53,7 @@ Tranh dùng ở màn chơi khách. Nguồn PNG được tạo bằng công cụ 
 
 ## Rig Bún Bò Hỏa Linh
 
-Trận Chương 1 dùng bộ rig 16 xương, 12 lớp hình và 10 clip. Tay, chân, tóc, dây áo và hỏa đao có khớp riêng. Rig phản chiếu hướng tây trong trận. Bản đồ dùng bộ khung PNG bốn hướng của nhân vật. Khi asset rig tải lỗi, trận dùng atlas chiến đấu sẵn có.
+Các trận Adventure dùng bộ rig 16 xương, 12 lớp hình và 10 clip. Tay, chân, tóc, dây áo và hỏa đao có khớp riêng. Rig phản chiếu hướng tây trong trận. Bản đồ dùng bộ khung PNG bốn hướng của nhân vật. Khi asset rig tải lỗi, trận dùng atlas chiến đấu sẵn có.
 
 `hit_resolved` xác nhận thời điểm trúng đòn. Client lấy vị trí đầu đao tại mốc `blade_contact` để vẽ vệt Hỏa và phát tiếng chém. Sát thương, vị trí mục tiêu và điểm lưu trận do mô phỏng quản lý.
 
@@ -66,3 +66,27 @@ python3 scripts/build_compatibility_audio.py
 ```
 
 Bộ xuất chứa `bunbo.json` và 12 PNG trong thư mục `images/`, theo định dạng Spine 4.2. Client dùng Canvas để chạy rig. Gói âm thanh tạo bằng FFmpeg chỉ được tải trên trình duyệt có Web Audio và thiếu giải mã Ogg Vorbis.
+
+## Rig đội hình Vị Linh
+
+Bốn rig bổ sung dùng atlas WebP 448×336, mỗi rig có 12 lớp gắn xương và 10 clip. Các ảnh tách lớp bám pose gốc trong `original_battle/poses`. Phở có trượng nước và dải lụa, Gỏi Cuốn có quạt lá và dây hoa, Bánh Bao có mũ, khăn và thìa, Cà Phê có hai dao với mốc hiệu ứng riêng cho mỗi tay.
+
+| Nhân vật | ID thư mục | Xương | Mốc trình bày |
+|---|---|---:|---|
+| Phở Lam Vũ | `chr_pho_lamvu` | 15 | Đạn xuất hiện ở đầu trượng theo tick phóng |
+| Gỏi Cuốn Diệp Nhi | `chr_goicuon_diepnhi` | 15 | Đạn và hiệu ứng mở hồi máu lấy đầu quạt làm neo |
+| Bánh Bao Bạch Ngọc | `chr_banhbao_bachngoc` | 15 | Tiếng đòn thường theo va chạm, hiệu ứng mở khiên lấy đầu thìa làm neo |
+| Cà Phê Dạ Vũ | `chr_caphe_davu` | 16 | Hai đòn luân phiên lấy hai đầu dao làm neo |
+
+Adventure, TCG và Auto Chess dùng chung rig cho năm ID Vị Linh. TCG và Chess phát hoạt ảnh ở mốc trình bày của trận hoặc replay. Bản đồ khám phá tiếp tục dùng bộ bốn hướng của Bún Bò. Rig chiến đấu dùng hướng đông và phản chiếu hướng tây. Khi tải rig lỗi, nhân vật dùng atlas pose sẵn có. Logic giao tranh quyết định sát thương, hồi máu và hộ thuẫn theo tick của trận.
+
+```bash
+python3 scripts/bunbo_rig.py --character chr_pho_lamvu --export /path/to/pho-editor
+python3 scripts/bunbo_rig.py --character chr_pho_lamvu --pack /path/to/pho-sheet.png
+```
+
+Dùng ID trong bảng cho ba nhân vật còn lại, hoặc bỏ `--character` để xuất Bún Bò. File JSON trong mỗi thư mục rig chứa các xương, slot và keyframe. Bộ xuất có 12 PNG riêng để gắn ảnh trong editor. Pose được xem trên hai nền sáng và tối. Mỗi clip được lấy mẫu 17 tư thế theo hai hướng trong khung TCG 96×96. Bộ đọc Spine 4.2 đã nhận các JSON xuất, với đầy đủ tên PNG tương ứng. Duyệt mỹ thuật, quyền sử dụng, kiểm tra nhánh tay/vũ khí phản chiếu và thao tác nhập trên Spine Editor đang chờ. Prompt và mã nguồn ảnh được ghi trong [manifest nguồn](ORIGINAL_ART_SOURCES.json).
+
+## Nội thất Làng Ẩm Thực
+
+Ba nền anime mới phục vụ đi bộ trong Nhà Bếp, Hội Quán và Tiệm Nguyên Liệu. Map định nghĩa riêng vùng sàn, cửa, quầy và điểm trở về làng. Xuất bằng `python3 scripts/build_original_art.py /path/to/sheets village_kitchen village_guild village_merchant`. Tên sheet, prompt và SHA-256 nằm trong [manifest nguồn](ORIGINAL_ART_SOURCES.json). Duyệt mỹ thuật và quyền sử dụng đang chờ.

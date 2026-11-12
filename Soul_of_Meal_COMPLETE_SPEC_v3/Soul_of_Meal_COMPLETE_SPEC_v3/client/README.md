@@ -19,6 +19,20 @@ Trên máy tính, dùng WASD hoặc phím mũi tên để di chuyển, E để t
 
 Khi chạy với [máy chủ ASP.NET Core và PostgreSQL](../server/README.md), màn mở đầu có nút **Tài khoản**. Bản lưu của tài khoản có thể mở trên thiết bị khác. Chế độ khách tiếp tục lưu riêng trên trình duyệt.
 
+## Cập nhật và quay lại bản phát hành trước
+
+Tạo bản Vite rồi xuất sang một thư mục web riêng. Ví dụ chạy tại thư mục chứa `client/`:
+
+```bash
+npm --prefix client run build
+python3 scripts/publish_web_release.py publish client/dist /path/to/web-root
+python3 scripts/publish_web_release.py activate BUILD_ID /path/to/web-root
+```
+
+Lệnh đầu tiên của script trả mã build và chuyển con trỏ `release.json` sau khi đã kiểm tra các file. Lệnh `activate` dùng mã đã in để chuyển về bản có sẵn. Phục vụ thư mục web ở cùng origin với API nếu bật tài khoản. Entry công khai là `/client/`. Nên phục vụ `release.json` và thư mục launcher `/client/` với cache revalidation, còn `/releases/BUILD_ID/` có thể cache lâu vì nội dung bất biến. Giữ các thư mục build cũ trong thời gian còn phiên chơi.
+
+Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phiên đó. Sảnh hiện nút **Cập nhật** khi con trỏ thay đổi và cho áp dụng sau khi kết thúc trận đang lưu. Bản tài khoản chờ ghi tiến trình xong trước khi chuyển build. Lỗi kiểm tra cập nhật giữ phiên hiện tại có thể chơi tiếp.
+
 ## Lối chơi
 
 - **Adventure** · Chơi chương mở đầu **Hương Vị Đầu Tiên**. Gặp Lilia, mở rương, tìm hai manh mối Thất Vị trong rừng, đánh hai đợt và trở về làng nhận thưởng, xem cảnh kết. Dùng **Dẫn đường** trên bản đồ hoặc trong **Nhật ký hành trình**. Nhật ký lưu manh mối đã tìm và cho đọc lại đối thoại đã mở. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
@@ -54,6 +68,7 @@ Khi chạy với [máy chủ ASP.NET Core và PostgreSQL](../server/README.md), 
 
 - **Giao tranh Adventure.** Năm tuyệt kỹ nằm dưới sân đấu. Mỗi ô hiển thị năng lượng, trạng thái sẵn sàng, thời gian hồi và trạng thái gục. Cột đối thủ chứa HP boss, báo chiêu và nút đối phó. Khi dẫn đường, bản đồ nhỏ vẽ tuyến còn lại và sân đánh dấu điểm đến.
 - **Adventure.** Bản đồ nhỏ đánh dấu vị trí người chơi, lối đi và mục tiêu nhiệm vụ hiện tại. Trên màn hình cảm ứng, dùng cần điều khiển hoặc chạm đích để đi. Mở **Nhật ký hành trình** để đọc lại các cảnh đã mở kèm minh họa sáu chương.
+- **Làng Ẩm Thực.** Chạm cửa hoặc đi đến trước Nhà Bếp, Hội Quán hay Tiệm Nguyên Liệu rồi nhấn E. Bàn chế tác mở kho trang bị. Bàn nhiệm vụ mở nhật ký. Tiệm đổi 30 vàng lấy 5 tinh hoa theo cân bằng thử nghiệm. Nút **Ra quảng trường** đưa nhân vật về đúng cửa. Bản lưu nhớ cả vị trí bên trong.
 - **TCG.** Chạm lá phép để chọn, rồi chạm chủ soái hoặc Vị Linh địch trên bàn, hoặc chọn trong danh sách. Nút **Thi triển** và **Hủy chọn** xuất hiện ở đầu khu tay bài. Khi bot tấn công, khu này chuyển sang chọn quân chặn. Nút **Bài trên tay** mở danh sách lá bài trong lúc chọn. Cả hai phía hiển thị hai ô bẫy úp, tên bẫy hiện khi lật. Nhật ký mở trong trận.
 - **Auto Chess.** Hai nửa bàn cùng hiển thị theo hướng của bản phát lại. Mua quân rồi kéo từ ghế hoặc chạm quân và ô để đặt. Kéo quân từ bàn về ghế để rút, kéo lên ô có quân để đổi chỗ. Chọn quân để hiện nút **Bán quân** hoặc **Rút về ghế**. Đồng hồ luyện tập 30 giây tạm dừng khi mở hộp thoại. Khi hết giờ hoặc bấm **Chiến đấu**, trận bắt đầu sau một giây. Ở khung ngang thấp, chạm **Hiệp lực** để xem các mốc hệ. Phát lại hỗ trợ tạm dừng và tốc độ 2×. Kết quả hiển thị thu nhập và nút sang vòng ở khu điều khiển.
 - **Giảm chuyển động.** Tùy chọn trong **Cài đặt** giảm chuyển cảnh, hiệu ứng lật bẫy và chuyển động minh họa mà luật giao tranh vẫn chạy theo tick.
