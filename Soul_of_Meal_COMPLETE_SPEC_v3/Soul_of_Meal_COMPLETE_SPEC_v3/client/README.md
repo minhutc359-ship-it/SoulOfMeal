@@ -52,10 +52,13 @@ Khi chạy với [máy chủ ASP.NET Core và PostgreSQL](../server/README.md), 
 
 ## Thao tác trong game
 
+- **Giao tranh Adventure.** Năm tuyệt kỹ nằm dưới sân đấu. Mỗi ô hiển thị năng lượng, trạng thái sẵn sàng, thời gian hồi và trạng thái gục. Cột đối thủ chứa HP boss, báo chiêu và nút đối phó. Khi dẫn đường, bản đồ nhỏ vẽ tuyến còn lại và sân đánh dấu điểm đến.
 - **Adventure.** Bản đồ nhỏ đánh dấu vị trí người chơi, lối đi và mục tiêu nhiệm vụ hiện tại. Trên màn hình cảm ứng, dùng cần điều khiển hoặc chạm đích để đi. Mở **Nhật ký hành trình** để đọc lại các cảnh đã mở kèm minh họa sáu chương.
 - **TCG.** Chạm lá phép để chọn, rồi chạm chủ soái hoặc Vị Linh địch trên bàn, hoặc chọn trong danh sách. Nút **Thi triển** và **Hủy chọn** xuất hiện ở đầu khu tay bài. Khi bot tấn công, khu này chuyển sang chọn quân chặn. Nút **Bài trên tay** mở danh sách lá bài trong lúc chọn. Cả hai phía hiển thị hai ô bẫy úp, tên bẫy hiện khi lật. Nhật ký mở trong trận.
 - **Auto Chess.** Hai nửa bàn cùng hiển thị theo hướng của bản phát lại. Mua quân rồi kéo từ ghế hoặc chạm quân và ô để đặt. Kéo quân từ bàn về ghế để rút, kéo lên ô có quân để đổi chỗ. Chọn quân để hiện nút **Bán quân** hoặc **Rút về ghế**. Đồng hồ luyện tập 30 giây tạm dừng khi mở hộp thoại. Khi hết giờ hoặc bấm **Chiến đấu**, trận bắt đầu sau một giây. Ở khung ngang thấp, chạm **Hiệp lực** để xem các mốc hệ. Phát lại hỗ trợ tạm dừng và tốc độ 2×. Kết quả hiển thị thu nhập và nút sang vòng ở khu điều khiển.
 - **Giảm chuyển động.** Tùy chọn trong **Cài đặt** giảm chuyển cảnh, hiệu ứng lật bẫy và chuyển động minh họa mà luật giao tranh vẫn chạy theo tick.
+
+Đòn thường, đạn rời tay, va chạm, hộ thuẫn và tuyệt kỹ có tín hiệu âm thanh riêng. Bước chân đổi theo quãng đường đã đi và bề mặt. TCG phát vệt đòn theo hệ từ quân ra đòn tới mục tiêu. Auto Chess phát tiếng vung hoặc phóng trước mốc va chạm trong bản phát lại.
 
 Nấm Lạc Vị và Tiêu Tinh có sprite chibi cho đứng, đi, tấn công, trúng đòn và gục. Quân có atlas dùng cùng tạo hình trên sân TCG, bàn Auto Chess và bản phát lại. Chuyển động và hình va chạm bám sự kiện giao tranh.
 
@@ -101,7 +104,8 @@ Adventure chạy mô phỏng ở 30 Hz. Chuỗi `attack_started` / `cast_started
 
 - Cả năm Vị Linh dùng sprite anime chibi mới, với chân dung và cut-in riêng. Bún Bò Hỏa Linh có bộ sprite đi bản đồ bốn hướng. Boss Hỏa Diệm có bộ sprite hướng tây, pháp ấn báo mục tiêu và hiệu ứng chém riêng. Adventure, TCG và Auto Chess dùng chung nhận diện nhân vật.
 - Tranh làng, rừng, sân đấu, đạo cụ, quái và thẻ phép/bẫy được vẽ riêng cho bản chơi thử. Xem [danh mục, nguồn art và cách tái tạo](../docs/02_art/ORIGINAL_ART_PLAYTEST.md).
-- Nhạc và âm thanh môi trường có thể tái tạo bằng `python3 scripts/build_music.py`. Tái tạo âm thanh năm hệ bằng `python3 scripts/build_element_sfx.py` với FFmpeg.
+- Rig biến dạng 2D đọc clip và atlas hiện có. Năm Vị Linh, hai quái và bộ di chuyển Bún Bò dùng các mốc chân, hông, thân và đầu để bổ sung chuyển động giữa các pose. Nghiệm thu Spine và chuyển động độc lập từng chi vẫn còn mở.
+- Nhạc và âm thanh môi trường có thể tái tạo bằng `python3 scripts/build_music.py`. Dùng `python3 scripts/build_element_sfx.py` để tái tạo đòn năm hệ và `python3 scripts/build_combat_audio.py` cho bộ tuyệt kỹ, bước chân và tín hiệu giao tranh. Các lệnh xuất OGG cần FFmpeg.
 
 ## Kiểm thử và phạm vi
 

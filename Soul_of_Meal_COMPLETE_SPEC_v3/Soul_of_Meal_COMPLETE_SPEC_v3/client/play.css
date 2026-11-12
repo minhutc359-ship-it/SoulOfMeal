@@ -19,6 +19,88 @@
   translate: -50% -50%;
   box-shadow: 0 8px 30px #10242080;
 }
+.main .adventure-layout.in-battle {
+  grid-template-areas: "world enemy" "party enemy";
+  grid-template-rows: auto 1fr;
+  gap: 8px;
+}
+.in-battle .world-panel { grid-area: world; }
+.main .in-battle .world-panel { background: #1c2b27; border-color: #aa8453; }
+.in-battle .side-stack { grid-area: enemy; }
+.main .in-battle .canvas-wrap { max-width: calc((100dvh - 304px) * 16 / 9); }
+.main .battle-target {
+  background: linear-gradient(145deg, #293a35, #182622);
+  color: #fff3d8;
+  border-color: #aa8453;
+}
+.battle-target h2 { margin-bottom: 6px; }
+.battle-target .controls-hint { color: #e7d7bb; margin: 5px 0; }
+.battle-target .meter.enemy { background: #111b1a; margin: 5px 0; }
+.battle-target .battle-controls { align-items: center; gap: 5px; margin-top: 8px; }
+.battle-controls .key-hint { color: #e2cfae; font-size: 10px; }
+.battle-target .telegraph { border: 1px solid #f2a072; background: #522c28; color: #ffe6c4; }
+.battle-target .boss-counter p { color: inherit; }
+.main .battle-party {
+  grid-area: party;
+  min-width: 0;
+  padding: 6px;
+  color: #fff0d0;
+  background: linear-gradient(120deg, #233832, #152623);
+  border-color: #aa8453;
+}
+.main .battle-party .actor-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }
+.main .battle-party .skill-card {
+  display: grid;
+  grid-template-columns: 29px minmax(0, 1fr);
+  gap: 4px;
+  min-width: 0;
+  padding: 4px;
+  border: 1px solid #9d805780;
+  border-radius: 7px;
+  background: #2a4139;
+  text-align: left;
+}
+.main .battle-party .party-avatar { width: 29px; height: 29px; }
+.main .battle-party .skill-info strong {
+  display: block;
+  min-height: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.battle-party .meter { background: #10221c; height: 3px; }
+.main .battle-party .skill-button {
+  grid-column: 1 / -1;
+  min-height: 37px;
+  display: grid;
+  grid-template-columns: 13px minmax(0, 1fr);
+  align-items: center;
+  justify-items: start;
+  gap: 1px 4px;
+  padding: 4px;
+  line-height: 1.18;
+  text-align: left;
+}
+.battle-party .skill-button .skill-art { display: none; }
+.main .battle-party .skill-button .key-tag { display: block; grid-row: 1 / 3; padding: 0 2px; }
+.main .battle-party .skill-button small { grid-column: 2; margin: 0; font-size: 9px; }
+.battle-party .skill-button:disabled { opacity: 1; background: #243733; color: #e8d9b7; }
+.battle-party .skill-card.skill-ready { border-color: #ffda88; box-shadow: inset 0 0 9px #d7934239; }
+.battle-party .skill-ready .skill-button { color: #2a2014; }
+@media (pointer: coarse) {
+  .main .battle-party .skill-button { min-height: 44px; }
+}
+@media (max-width: 760px) and (orientation: portrait) {
+  .main .adventure-layout.in-battle { grid-template-areas: "world" "party" "enemy"; }
+  .main .in-battle .canvas-wrap { max-width: none; }
+  .main .battle-party .actor-list { gap: 3px; }
+  .main .battle-party .skill-card { grid-template-columns: 21px minmax(0, 1fr); padding: 3px; gap: 2px; }
+  .main .battle-party .party-avatar { width: 21px; height: 24px; }
+  .main .battle-party .skill-button { grid-template-columns: minmax(0, 1fr); padding-inline: 2px; font-size: 9px; }
+  .main .battle-party .skill-button .key-tag { display: none; }
+  .main .battle-party .skill-button small { grid-column: 1; }
+}
 .minimap-widget {
   position: absolute;
   top: 8px;
@@ -74,6 +156,7 @@
 
 .tactical-layout .tcg-board { display: grid; gap: 10px; }
 .duel-field {
+  position: relative;
   min-width: 0;
   padding: 10px;
   border: 1px solid #b58b56;
@@ -81,6 +164,10 @@
   background: #36291e url('./assets/original/scenes/tcg_table.webp') center / cover;
   color: #fff1d5;
 }
+.duel-effects { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; }
+.tcg-hit { display: contents; }
+.tcg-hit .tcg-impact, .tcg-hit .tcg-damage { animation-delay: var(--contact-delay, 0ms); }
+.tcg-hit .tcg-impact { opacity: 0; animation-fill-mode: forwards; }
 .duel-field .duel-top, .duel-field .duel-bottom { padding: 7px 10px; background: #171e1de8; border: 1px solid #aa875c; }
 .duel-field .duel-top { background: #3b2428ea; }
 .duel-field .duel-top small, .duel-field .duel-bottom small { color: #f3dcb6; }
@@ -213,18 +300,16 @@ button.enemy-hp { border: 1px solid #f3c788; border-radius: 7px; background: #44
   .chess-primary-actions .button { line-height: 1.15; }
   .chess-synergy .synergy-list { margin-top: 5px; }
   .chess-synergy .synergy-row { padding: 3px 4px; font-size: 11px; }
-  .main .party-panel .actor-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; }
-  .main .party-panel .combatant { display: flex; flex-direction: column; text-align: center; min-width: 0; padding: 4px 0; border: 0; }
-  .main .party-panel .skill-info { width: 100%; }
-  .main .party-panel .skill-info strong { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; min-height: 2.2em; font-size: 10px; line-height: 1.1; }
-  .main .party-panel .skill-button { display: grid; justify-items: center; gap: 1px; height: auto; min-height: 44px; width: 100%; padding: 3px; font-size: 10px; text-align: center; }
-  .main .party-panel .skill-button small { margin: 0; }
-  .main .party-panel .combatant > small { display: none; }
-  .main .party-panel .skill-art, .main .party-panel .key-tag { display: none; }
+  .main .party-panel:not(.battle-party) .actor-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; }
+  .main .party-panel:not(.battle-party) .combatant { display: flex; flex-direction: column; text-align: center; min-width: 0; padding: 4px 0; border: 0; }
+  .main .party-panel:not(.battle-party) .skill-info { width: 100%; }
+  .main .party-panel:not(.battle-party) .skill-info strong { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; min-height: 2.2em; font-size: 10px; line-height: 1.1; }
+  .main .party-panel:not(.battle-party) .combatant > small { display: none; }
 }
 
 @media (max-height: 620px) and (orientation: landscape) {
   .main .adventure-layout .canvas-wrap { max-width: calc((100dvh - 212px) * 16 / 9); }
+  .main .adventure-layout.in-battle .canvas-wrap { max-width: calc((100dvh - 250px) * 960 / 360); }
   .main .tactical-layout .tcg-board { grid-template-columns: minmax(0, 1.15fr) minmax(220px, .95fr); }
   .main .chess-workspace { grid-template-columns: minmax(0, 1.14fr) minmax(245px, 1fr); }
   .duel-field { align-self: start; padding: 5px; }

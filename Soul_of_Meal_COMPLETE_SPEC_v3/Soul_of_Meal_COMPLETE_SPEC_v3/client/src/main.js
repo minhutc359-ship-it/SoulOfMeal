@@ -18,6 +18,7 @@ import { adventureJournal } from './modes/adventureJournal.js';
 import { adventureChronicle, CHAPTER_DIALOGUES } from './modes/adventureStory.js';
 import { bindWorldStick, drawWorldMinimap } from './render/worldHud.js';
 import { BoardSprites } from './render/boardSprites.js';
+import { DuelEffects } from './render/duelEffects.js';
 import { ChessReplay } from './render/chessReplay.js';
 import { renderEntry } from './shell/entry.js';
 import { createAccountApi, accountErrorMessage } from './core/accountApi.js';
@@ -28,6 +29,9 @@ import { openStoryDialog } from './shell/storyDialog.js';
 const app = document.querySelector('#app');
 const stageHost = document.querySelector('#web-stage');
 const systemMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const compactBattle = window.matchMedia('(max-height: 620px) and (orientation: landscape)');
+const FULL_ARENA = Object.freeze({ height: WORLD.height, top: 0 });
+const WIDE_ARENA = Object.freeze({ height: 360, top: 100 });
 let webStage;
 const accountApi = import.meta.env?.SOM_ACCOUNTS ? createAccountApi() : null;
 const runtime = {
@@ -42,27 +46,38 @@ runtime.tcg = runtime.save.modes.tcg;
 runtime.chess = runtime.save.modes.chess;
 runtime.effects = new BattleEffects(spriteRenderer);
 const boardSprites = new BoardSprites(spriteRenderer);
+const duelEffects = new DuelEffects(spriteRenderer);
 runtime.audio = new GameAudio(runtime.save.settings);
 void runtime.audio.loadSoundtracks();
 window.addEventListener('click', () => runtime.audio.unlock(), { capture: true });
 window.addEventListener('keydown', () => runtime.audio.unlock(), { once: true, capture: true });
 gameEvents.addEventListener('game-event', ({ detail }) => {
   runtime.effects.handle(detail, runtime.adventure.battle);
-  if (detail.payload.source_kind !== 'auto_chess_attack') runtime.audio.handle(detail);
   if (detail.type === 'hit_resolved' && detail.rules_version === 'client-tcg-v1') {
     const { element, target_player, target_lane, damage } = detail.payload;
     const now = performance.now();
-    if (detail.source_id) boardSprites.cue(tcgSpriteKey(detail.battle_id, detail.source_id), 'attack_a', now, detail.action_seq);
-    if (detail.target_id) boardSprites.cue(tcgSpriteKey(detail.battle_id, detail.target_id), 'hit', now, detail.action_seq);
+    const contact = duelEffects.queue(app.querySelector('.duel-field'), detail, now, app.dataset.motion === 'reduced');
+    if (runtime.page === 'tcg') {
+      const clip = detail.action_seq % 2 === 0 ? 'attack_a' : 'attack_b';
+      if (detail.payload.effect_kind === 'spell') runtime.audio.handle({ type: 'spell_launched', payload: { element } });
+      else {
+        runtime.audio.handle({ type: 'attack_started', payload: { element, clip_id: clip } });
+        if (contact > now && detail.source_id) boardSprites.cue(tcgSpriteKey(detail.battle_id, detail.source_id), clip, now, detail.action_seq);
+      }
+    }
+    if (detail.target_id) boardSprites.cue(tcgSpriteKey(detail.battle_id, detail.target_id), 'hit', contact, detail.action_seq);
     const prior = runtime.tcgImpacts.get(detail.target_id);
     const sameAction = prior?.matchId === detail.battle_id && prior?.actionSeq === detail.action_seq;
     const impact = {
       element, matchId: detail.battle_id, actionSeq: detail.action_seq,
       damage: (sameAction ? prior.damage : 0) + damage,
-      expires: now + 680,
+      contact,
+      expires: contact + 650,
     };
     runtime.tcgImpacts.set(detail.target_id, impact);
     if (Number.isInteger(target_lane)) runtime.tcgImpacts.set(tcgLaneId(target_player, target_lane), impact);
+  } else if (detail.payload.source_kind !== 'auto_chess_attack') {
+    runtime.audio.handle(detail);
   }
 });
 
@@ -155,6 +170,7 @@ function replaceProfile(save) {
   runtime.deckDraft = null;
   runtime.tcgImpacts.clear();
   boardSprites.clear();
+  duelEffects.clear();
   runtime.effects = new BattleEffects(spriteRenderer);
   runtime.animations?.retainActors([]);
   runtime.audio.setSettings(save.settings);
@@ -264,7 +280,11 @@ function navigate(page) {
   runtime.heldKeys.clear();
   runtime.worldStick = null;
   setAdventureInput(runtime.adventure, 0, 0);
-  if (runtime.page !== page) boardSprites.clear();
+  if (runtime.page !== page) {
+    boardSprites.clear();
+    duelEffects.clear();
+    runtime.tcgImpacts.clear();
+  }
   runtime.page = page;
   runtime.notice = '';
   syncStage();
@@ -378,13 +398,16 @@ function renderAdventure() {
   const actorRows = save.roster.map((member, index) => {
     const actor = battle?.actors.find((candidate) => candidate.actor_id === member.id) ?? adventureSpiritStats(member, spiritProfile(save, member.id));
     const skill = adventureBalance.ultimates[actor.id];
-    return `<div class="combatant skill-card" data-actor="${actor.id}">
+    return `<div class="combatant skill-card" data-actor="${actor.id}" data-primed="${actor.energy >= 100}">
       <button type="button" class="party-avatar" data-profile-id="${escapeAttr(actor.id)}" aria-label="Hồ sơ ${escapeAttr(characterNames[actor.id])}"><img src="${escapeAttr(actorArt(actor.id))}" alt=""></button>
       <div class="skill-info"><strong>${escapeHtml(characterNames[actor.id])}</strong>
         <div class="meter" aria-label="Sinh lực"><i data-hp style="width:${actor.hp / actor.maxHp * 100}%"></i></div>
         <div class="meter energy" aria-label="Năng lượng"><i data-energy style="width:${actor.energy}%"></i></div>
       </div>
-      ${battle ? `<button class="button skill-button" data-ultimate="${actor.id}" title="${escapeAttr(skill.description)}" disabled><span class="key-tag">${index + 1}</span><img class="skill-art" src="${effectArt(actor.element, 'impact')}" alt="">${escapeHtml(skill.name)}<small data-charge>${actor.energy}%</small></button>` : `<small>${escapeHtml(skill.name)}</small>`}
+      ${battle ? `<button class="button skill-button" data-ultimate="${actor.id}" title="${escapeAttr(skill.description)}" disabled>
+        <span class="key-tag" aria-hidden="true">${index + 1}</span><img class="skill-art" src="${effectArt(actor.element, 'impact')}" alt="">
+        <span class="skill-name">${escapeHtml(skill.name)}</span><small data-charge>${actor.energy}%</small>
+      </button>` : `<small>${escapeHtml(skill.name)}</small>`}
     </div>`;
   }).join('');
   const resultPanel = battle?.phase === 'battle_end' ? `<div class="result-box ${battle.result}">
@@ -403,21 +426,25 @@ function renderAdventure() {
     <button class="button light stove-button" data-stove="boss_stove_${index + 1}" aria-pressed="false">
       <img src="${propArt('boss_stove')}" alt=""><span><b>${index + 6} · Bếp ${index + 1}</b><small data-stove-hp></small></span>
     </button>`).join('');
+  const party = `<section class="panel party-panel ${battle ? 'battle-party' : ''}" aria-label="${battle ? 'Tuyệt kỹ đội hình' : 'Đội hình Vị Linh'}">
+    ${battle ? '' : '<h2>Đội hình Vị Linh</h2>'}<div class="actor-list">${actorRows}</div></section>`;
   shell(`
     ${pageHeader('Phiêu lưu', escapeHtml(mapTitle), '', 'home')}
-    <div class="game-layout adventure-layout"><section class="panel world-panel">
+    <div class="game-layout adventure-layout ${battle ? 'in-battle' : ''}"><section class="panel world-panel">
       <div class="canvas-wrap"><canvas id="adventure-canvas" width="960" height="540" aria-label="Bản đồ phiêu lưu tương tác"></canvas>
       ${battle ? '' : `<div class="minimap-widget">
         <button class="map-toggle" type="button" data-map-toggle aria-controls="world-minimap" aria-expanded="${runtime.showMinimap}">Bản đồ</button>
         <canvas id="world-minimap" width="180" height="102" aria-hidden="true" ${runtime.showMinimap ? '' : 'hidden'}></canvas>
       </div><div class="world-stick" data-world-stick aria-hidden="true"><i></i></div>`}
       <span class="phase-pill world-phase ${battle ? 'combat' : ''}">${battle ? battle.phase === 'battle_end' ? 'Kết quả' : `Đợt ${battle.wave + 1}/${encounter.waves.length}` : 'Khám phá'}</span></div>
-      <p class="controls-hint" data-adventure-message role="status">${escapeHtml(adventure.lastMessage)}</p>
-      <div class="action-row">${battle ? battleControls : `<button class="button" data-interact ${!target ? 'disabled' : ''}>${escapeHtml(actionLabel)}</button><span class="key-hint">WASD hoặc chạm để đi · E để tương tác</span>`}</div>
+      ${battle ? '' : `<p class="controls-hint" data-adventure-message role="status">${escapeHtml(adventure.lastMessage)}</p>
+        <div class="action-row"><button class="button" data-interact ${!target ? 'disabled' : ''}>${escapeHtml(actionLabel)}</button><span class="key-hint">WASD hoặc chạm để đi · E để tương tác</span></div>`}
       ${resultPanel}
     </section>
     <aside class="side-stack">
       ${battle ? `<section class="panel battle-target"><h2 data-enemy-name>Đối thủ</h2><div class="meter enemy"><i data-enemy-hp></i></div>
+        <p class="controls-hint" data-adventure-message role="status">${escapeHtml(adventure.lastMessage)}</p>
+        ${battleControls ? `<div class="action-row battle-controls">${battleControls}</div>` : ''}
         <div class="telegraph" data-telegraph hidden><div class="telegraph-heading"><b data-telegraph-name></b><span data-telegraph-seconds></span></div>
           <progress data-telegraph-time aria-label="Thời gian trước đòn boss"></progress>
           <div class="stove-controls" data-stove-controls hidden><p>Phá 2 bếp để hạ hộ thuẫn và ngắt chiêu.</p><div class="stove-buttons">${stoveControls}</div></div>
@@ -434,8 +461,8 @@ function renderAdventure() {
           <div class="action-row">${guideAction ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
             <button class="button light" data-page="journey">Nhật ký hành trình</button></div>
         </section>`}
-      <section class="panel party-panel"><h2>Đội hình Vị Linh</h2><div class="actor-list">${actorRows}</div></section>
-    </aside></div>
+      ${battle ? '' : party}
+    </aside>${battle ? party : ''}</div>
   `);
   app.querySelector('[data-interact]')?.addEventListener('click', doAdventureInteract);
   app.querySelectorAll('[data-profile-id]').forEach(button => button.addEventListener('click', () => {
@@ -541,9 +568,15 @@ function updateBattleHud(battle) {
     card.querySelector('[data-hp]').style.width = actor.hp / actor.maxHp * 100 + '%';
     card.querySelector('[data-energy]').style.width = actor.energy + '%';
     const button = card.querySelector('[data-ultimate]');
-    button.disabled = battle.paused || battle.bossTelegraph?.retreating || !actor.alive || actor.energy < 100 || Boolean(actor.action)
-      || actor.ultimateReadyTick > battle.tick || battle.phase !== 'battle_running';
-    button.querySelector('[data-charge]').textContent = actor.energy + '%';
+    const cooldown = Math.max(0, Math.ceil((actor.ultimateReadyTick - battle.tick) / ADVENTURE_TICK_RATE));
+    const primed = actor.alive && actor.energy >= 100 && battle.phase === 'battle_running';
+    if (primed && card.dataset.primed === 'false' && !battle.paused) runtime.audio.play('sfx_skill_ready', { gain: .62 });
+    if (card.dataset.primed !== String(primed)) card.dataset.primed = String(primed);
+    button.disabled = battle.paused || battle.bossTelegraph?.retreating || !primed || Boolean(actor.action) || cooldown > 0;
+    const charge = button.querySelector('[data-charge]');
+    const label = !actor.alive ? 'Đã gục' : cooldown ? `Hồi ${cooldown} s` : actor.action?.sourceKind === 'ultimate'
+      ? 'Đang thi triển' : button.disabled ? `${actor.energy}%` : 'Sẵn sàng';
+    if (charge.textContent !== label) charge.textContent = label;
     card.classList.toggle('skill-ready', !button.disabled);
   }
   const enemy = battle.actors.find((actor) => actor.boss) ?? battle.actors.find((actor) => actor.team === 'enemy' && actor.alive);
@@ -663,8 +696,9 @@ function onWorldPointer(event) {
   const canvas = event.currentTarget;
   const rect = canvas.getBoundingClientRect();
   const x = (event.clientX - rect.left) / rect.width * WORLD.width;
-  const y = (event.clientY - rect.top) / rect.height * WORLD.height;
   const battle = runtime.adventure.battle;
+  const view = battle && compactBattle.matches ? WIDE_ARENA : FULL_ARENA;
+  const y = view.top + (event.clientY - rect.top) / rect.height * view.height;
   if (battle) {
     const stove = battle.stoves.find(target => target.alive
       && Math.abs(target.x - x) <= 39 && y >= target.y - 73 && y <= target.y + 10);
@@ -693,10 +727,17 @@ function drawAdventureFrame(deltaSeconds) {
   const canvas = app.querySelector('#adventure-canvas');
   if (!canvas) return;
   const context = canvas.getContext('2d');
-  const ratio = Math.min(2, window.devicePixelRatio || 1);
-  if (canvas.width !== Math.round(960 * ratio)) { canvas.width = Math.round(960 * ratio); canvas.height = Math.round(540 * ratio); }
-  context.setTransform(canvas.width / 960, 0, 0, canvas.height / 540, 0, 0);
   const adventure = runtime.adventure;
+  const view = adventure.battle && compactBattle.matches ? WIDE_ARENA : FULL_ARENA;
+  const ratio = Math.min(2, window.devicePixelRatio || 1);
+  const width = Math.round(WORLD.width * ratio);
+  const height = Math.round(view.height * ratio);
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+  }
+  const scaleY = height / view.height;
+  context.setTransform(width / WORLD.width, 0, 0, scaleY, 0, -view.top * scaleY);
   const camera = resolveCameraViewport(adventure.x, adventure.y, { width: 960, height: 540 }, WORLD.width, WORLD.height);
   const cameraContext = { ...camera };
   if (adventure.walkPath?.length && !adventure.battle && runtime.heldKeys.size === 0 && !runtime.worldStick) {
@@ -733,14 +774,9 @@ function drawAdventureFrame(deltaSeconds) {
   const oldY = adventure.y;
   const playbackDelta = adventure.battle?.paused ? 0 : deltaSeconds * (adventure.battle?.speed ?? 1);
   stepAdventure(adventure, runtime.save, playbackDelta, runtime.maps);
-  if (!adventure.battle && Math.hypot(adventure.x - oldX, adventure.y - oldY) > .3) {
-    runtime.stepSoundTime = (runtime.stepSoundTime ?? 0) + deltaSeconds;
-    if (runtime.stepSoundTime >= .34) {
-      runtime.stepSoundTime -= .34;
-      runtime.audio.play('sfx_footstep');
-    }
-  }
-  syncAdventureAnimations(adventure);
+  const moved = Math.hypot(adventure.x - oldX, adventure.y - oldY);
+  if (!adventure.battle && moved > 0) runtime.audio.footstep(adventure.map, moved);
+  syncAdventureAnimations(adventure, moved > .1);
   runtime.animations.advance(playbackDelta * 1000);
   runtime.effects.advance(playbackDelta);
   if (adventure.battle) {
@@ -776,7 +812,7 @@ function drawAdventureFrame(deltaSeconds) {
   else {
     context.save();
     context.translate(-cameraContext.x, -cameraContext.y);
-    drawWorldScene(context, adventure, runtime.save);
+    drawWorldScene(context, adventure, runtime.save, moved > .25);
     context.restore();
     const minimap = app.querySelector('#world-minimap:not([hidden])');
     const map = getAdventureMap(runtime.maps, adventure.map);
@@ -785,7 +821,7 @@ function drawAdventureFrame(deltaSeconds) {
   }
 }
 
-function syncAdventureAnimations(adventure) {
+function syncAdventureAnimations(adventure, moved) {
   const views = [];
   if (adventure.battle) {
     for (const actor of adventure.battle.actors) {
@@ -803,19 +839,29 @@ function syncAdventureAnimations(adventure) {
       x: view.x,
       y: view.y,
       direction: view.direction,
-      speed: view.speed ?? (Math.hypot(adventure.input.x, adventure.input.y) > 0 ? 1.5 : 0),
+      speed: view.speed ?? (moved ? 1.5 : 0),
       alive: view.alive,
     });
   }
   runtime.animations.retainActors(views.map((view) => view.actorId));
 }
 
-function drawWorldScene(context, adventure, save) {
+function drawWorldScene(context, adventure, save, moving) {
   const map = getAdventureMap(runtime.maps, adventure.map);
   context.fillStyle = ({ village: '#b79864', forest: '#466a52', harbor: '#52677c', caldera: '#55423c', sanctum: '#382944' })[adventure.map] ?? '#466a52';
   context.fillRect(0, 0, 960, 540);
   spriteRenderer.drawImage(context, sceneArt(map?.runtime_key ?? 'village'), 0, 0, 960, 540);
   drawMapVisuals(context, map, save);
+  if (adventure.walkTarget) {
+    drawElementEffect(context, spriteRenderer, 'light', 'impact', {
+      x: adventure.walkTarget.x, y: adventure.walkTarget.y + 1, size: 30, opacity: .66,
+    });
+  }
+  if (moving && app.dataset.motion !== 'reduced') {
+    drawElementEffect(context, spriteRenderer, adventure.map === 'forest' ? 'wood' : 'light', 'trail', {
+      x: adventure.x, y: adventure.y + 1, size: 32, opacity: .20,
+    });
+  }
   drawPlayer(context, adventure.x, adventure.y, runtime.animations.getActorState(HERO_ID)?.animation);
 }
 
@@ -1089,7 +1135,9 @@ function tcgLaneId(player, lane) { return `lane:p${player}:${lane}`; }
 function tcgImpact(id) {
   const impact = runtime.tcgImpacts.get(id);
   if (!impact || impact.matchId !== runtime.tcg.battleId || impact.expires <= performance.now()) return '';
-  return `<img class="tcg-impact" src="${effectArt(impact.element, 'impact')}" alt=""><span class="tcg-damage" aria-hidden="true">−${impact.damage}</span>`;
+  const delay = Math.round(impact.contact - performance.now());
+  return `<span class="tcg-hit" style="--contact-delay:${delay}ms" aria-hidden="true">
+    <img class="tcg-impact" src="${effectArt(impact.element, 'impact')}" alt=""><span class="tcg-damage">−${impact.damage}</span></span>`;
 }
 
 function renderTcg() {
@@ -1139,13 +1187,14 @@ function renderTcg() {
       <div class="duel-field">
       <div class="duel-top"><div><strong>Chủ soái đối thủ</strong><small>${bot.deck.length} lá bộ bài · ${bot.hand.length} lá tay · ${bot.mana}/${bot.maxMana} mana</small></div>
         ${tcgTrapSlots(bot.traps.length)}
-        ${spell ? `<button type="button" class="commander-hp enemy-hp spell-target" data-spell-target="commander" aria-pressed="${runtime.selectedTarget === 'commander'}">${bot.hp} HP${tcgImpact('commander:p1')}</button>` : `<div class="commander-hp enemy-hp">${bot.hp}<small> / 8000 HP</small>${tcgImpact('commander:p1')}</div>`}</div>
+        ${spell ? `<button type="button" class="commander-hp enemy-hp spell-target" data-duel-id="commander:p1" data-spell-target="commander" aria-pressed="${runtime.selectedTarget === 'commander'}">${bot.hp} HP${tcgImpact('commander:p1')}</button>` : `<div class="commander-hp enemy-hp" data-duel-id="commander:p1">${bot.hp}<small> / 8000 HP</small>${tcgImpact('commander:p1')}</div>`}</div>
       <div class="unit-row enemy-row">${tcgLanes(bot.units, false, declared, blocked, Boolean(spell))}</div>
       <div class="stack-strip"><span>Vòng ${match.round} · ${phaseLabel}</span><b>${match.activePlayer === 0 ? 'Lượt của bạn' : 'Lượt đối thủ'}</b><span>${match.priority === 0 ? 'Ưu tiên: bạn' : 'Ưu tiên: đối thủ'}</span><span>${user.attackUsedRound === match.round ? 'Hết lượt đánh' : match.activePlayer === 0 ? 'Còn lượt đánh' : 'Đối thủ tấn công'}</span></div>
       ${stackTop ? `<p class="tcg-stack-top">Xử lý trước: <strong>${escapeHtml(cardName(stackTop.card))}</strong> · ${match.stack.length} chờ</p>` : ''}
       ${trapReveal ? `<div class="trap-reveal" role="status"><img src="${escapeAttr(cardArt(trapReveal.card))}" alt="">Bẫy lật mở · ${escapeHtml(cardName(trapReveal.card))}</div>` : ''}
       <div class="unit-row friendly-row">${tcgLanes(user.units, true, declared, blocked)}</div>
-      <div class="duel-bottom"><div><strong>Người Kết Vị</strong><small>${user.units.length}/5 Vị Linh · ${user.deck.length} lá bộ bài</small></div>${tcgTrapSlots(user.traps.length)}<div class="commander-hp">${user.hp}<small> / 8000 HP</small>${tcgImpact('commander:p0')}</div></div>
+      <div class="duel-bottom"><div><strong>Người Kết Vị</strong><small>${user.units.length}/5 Vị Linh · ${user.deck.length} lá bộ bài</small></div>${tcgTrapSlots(user.traps.length)}<div class="commander-hp" data-duel-id="commander:p0">${user.hp}<small> / 8000 HP</small>${tcgImpact('commander:p0')}</div></div>
+      <canvas class="duel-effects" aria-hidden="true" hidden></canvas>
       </div><div class="tcg-hand-dock">
       ${spellControls}
       ${defending ? tcgDefensePanel(incoming, user.units) : `<div class="hand-heading"><strong>${opening ? 'Chọn các lá muốn đổi' : 'Bài trên tay'}</strong><span>${user.mana}/${user.maxMana} mana</span></div>
@@ -1265,13 +1314,14 @@ function tcgLanes(units, friendly, declared, blocked, targeting = false) {
     const css = `tcg-unit ${friendly ? 'friendly' : ''} ${selected || attacking ? 'tcg-attacking' : ''} ${blocking ? 'tcg-blocking' : ''}`;
     const portrait = `<img src="${escapeAttr(cardArt(unit))}" alt="">`;
     const chibi = boardChibi(unit.character_id, tcgSpriteKey(runtime.tcg.battleId, unit.instance_id), friendly ? 'E' : 'W', portrait);
+    const identity = `data-duel-id="${escapeAttr(unit.instance_id)}"`;
     const content = `<span class="tcg-unit-avatar">${chibi}</span><b>${escapeHtml(cardName(unit))}</b><span>${unit.atk} / ${unit.current_def}</span><small>${badge}</small>${tcgImpact(unit.instance_id)}`;
     if (targeting) {
-      return `<button type="button" class="${css} spell-target" data-spell-target="${escapeAttr(unit.instance_id)}" aria-pressed="${runtime.selectedTarget === unit.instance_id}">${content}</button>`;
+      return `<button type="button" class="${css} spell-target" ${identity} data-spell-target="${escapeAttr(unit.instance_id)}" aria-pressed="${runtime.selectedTarget === unit.instance_id}">${content}</button>`;
     }
     return selectable
-      ? `<button type="button" class="${css}" data-tcg-attacker="${escapeAttr(unit.instance_id)}" aria-pressed="${selected}">${content}</button>`
-      : `<div class="${css}">${content}</div>`;
+      ? `<button type="button" class="${css}" ${identity} data-tcg-attacker="${escapeAttr(unit.instance_id)}" aria-pressed="${selected}">${content}</button>`
+      : `<div class="${css}" ${identity}>${content}</div>`;
   }).join('');
 }
 
@@ -1818,7 +1868,12 @@ function animate(now) {
     else updateChessClock(delta);
   }
   if (runtime.page === 'tcg' || (runtime.page === 'chess' && !runtime.chessReplay)) {
-    boardSprites.paint(app, delta, performance.now(), app.dataset.motion === 'reduced');
+    const reducedMotion = app.dataset.motion === 'reduced';
+    boardSprites.paint(app, delta, now, reducedMotion);
+    if (runtime.page === 'tcg') {
+      duelEffects.paint(app.querySelector('.duel-effects'), runtime.tcg?.battleId, now, reducedMotion,
+        event => runtime.audio.handle(event));
+    }
   }
   requestAnimationFrame(animate);
 }

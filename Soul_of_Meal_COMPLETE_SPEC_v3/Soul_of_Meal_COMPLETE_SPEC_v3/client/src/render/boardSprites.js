@@ -1,4 +1,5 @@
 import { ClipPlayer } from './clipPlayer.js';
+import { rigSample } from './chibiRig.js';
 
 export class BoardSprites {
   constructor(renderer) {
@@ -9,9 +10,12 @@ export class BoardSprites {
   }
 
   cue(key, clip, now, actionSeq) {
-    const prior = this.cues.get(key);
-    if (prior?.actionSeq === actionSeq && prior.clip === 'hit') return;
-    this.cues.set(key, { clip, now, actionSeq });
+    const cues = this.cues.get(key) ?? [];
+    if (!cues.some(cue => cue.clip === clip && cue.actionSeq === actionSeq)) {
+      cues.push({ clip, now, actionSeq });
+      cues.sort((a, b) => a.now - b.now);
+      this.cues.set(key, cues);
+    }
   }
 
   paint(host, delta, now, reducedMotion) {
@@ -26,13 +30,13 @@ export class BoardSprites {
       }
       actor.clip.setDirection(direction);
       actor.clip.reducedMotion = reducedMotion;
-      const cue = this.cues.get(key);
-      if (cue && cue !== actor.cue && !reducedMotion && now - cue.now < 550) {
-        actor.cue = cue;
-        actor.clip.play(cue.clip, { force: true });
+      const cues = this.cues.get(key);
+      while (cues?.length && cues[0].now <= now) {
+        const cue = cues.shift();
+        if (!reducedMotion && now - cue.now < 550) actor.clip.play(cue.clip, { force: true });
       }
       const frame = actor.clip.advance(delta * 1000);
-      const signature = frame.frameId + ':' + Boolean(frame.flipX);
+      const signature = `${frame.frameId}:${frame.flipX}:${rigSample(id, frame)}`;
       if (this.frames.get(canvas) === signature) continue;
       const context = canvas.getContext('2d');
       if (!context) continue;
@@ -42,7 +46,7 @@ export class BoardSprites {
       }
     }
     for (const key of this.actors.keys()) if (!current.has(key)) this.actors.delete(key);
-    for (const [key, cue] of this.cues) if (now - cue.now >= 550) this.cues.delete(key);
+    for (const [key, cues] of this.cues) if (!cues.length || now - cues.at(-1).now >= 550) this.cues.delete(key);
   }
 
   clear() {

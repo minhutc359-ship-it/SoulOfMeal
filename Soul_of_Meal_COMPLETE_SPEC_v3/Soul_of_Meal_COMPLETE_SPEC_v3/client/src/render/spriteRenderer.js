@@ -1,3 +1,5 @@
+import { drawRiggedSprite } from './chibiRig.js';
+
 /**
  * Soul of Meal - Sprite & Asset Renderer
  * Quản lý tải và vẽ sprite animation, map tiles, VFX và card art.
@@ -138,7 +140,7 @@ export class SpriteRenderer {
       ctx.translate(x, y);
       if (flipX) ctx.scale(-1, 1);
       if (opacity < 1.0) ctx.globalAlpha = Math.max(0, opacity);
-      ctx.drawImage(
+      if (!drawRiggedSprite(ctx, entry.image, frame, characterId, animation, scale, [anchorX, anchorY], flipX)) ctx.drawImage(
         entry.image,
         frame.x,
         frame.y,

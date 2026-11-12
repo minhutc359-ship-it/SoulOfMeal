@@ -28,7 +28,7 @@ export class ChessReplay {
     for (const actor of this.actors.values()) actor.player.reducedMotion = reducedMotion;
   }
 
-  advance(delta, onImpact) {
+  advance(delta, onCue) {
     this.elapsed = Math.min(this.duration + .42, this.elapsed + delta);
     const tick = Math.min(this.combat.tick, Math.floor(this.elapsed * this.combat.tick / this.duration));
     while (this.combat.events[this.eventIndex]?.tick <= tick) {
@@ -47,10 +47,10 @@ export class ChessReplay {
         target.player.play(target.hp ? 'hit' : 'defeat', { force: true });
         if (target.hp <= 0) target.fallUntil = this.elapsed + FALL_DURATION;
         this.impacts.push({ targetId: target.actorId, damage: event.payload.damage, element: source.element, end: this.elapsed + .38 });
-        onImpact({ type: 'hit_resolved', payload: { element: source.element } });
+        onCue({ type: 'hit_resolved', payload: { element: source.element } });
       }
     }
-    this.trackApproachingAttacks();
+    this.trackApproachingAttacks(onCue);
     this.impacts = this.impacts.filter((impact) => impact.end > this.elapsed);
     for (const actor of this.actors.values()) {
       const fraction = this.reducedMotion ? 1 : 1 - Math.exp(-delta * 19);
@@ -131,9 +131,10 @@ export class ChessReplay {
     if (target.x !== actor.x) actor.player.setDirection(target.x > actor.x ? 'E' : 'W');
     const clip = actor.attackCount++ % 2 === 0 ? 'attack_a' : 'attack_b';
     actor.player.play(clip, { force: true });
+    return clip;
   }
 
-  trackApproachingAttacks() {
+  trackApproachingAttacks(onCue) {
     this.approaching = [];
     const preparing = new Set();
     for (let index = this.eventIndex; index < this.combat.events.length; index += 1) {
@@ -145,7 +146,11 @@ export class ChessReplay {
       const target = this.actors.get(event.target_id);
       if (!source || !target || source.hp <= 0 || target.hp <= 0 || preparing.has(source.actorId)) continue;
       preparing.add(source.actorId);
-      this.prepareAttack(source, target, index);
+      const clip = this.prepareAttack(source, target, index);
+      if (clip) onCue({
+        type: ['mage', 'ranged', 'support'].includes(source.job) ? 'spell_launched' : 'attack_started',
+        payload: { element: source.element, clip_id: clip },
+      });
       this.approaching.push({ source, target, contact });
     }
   }

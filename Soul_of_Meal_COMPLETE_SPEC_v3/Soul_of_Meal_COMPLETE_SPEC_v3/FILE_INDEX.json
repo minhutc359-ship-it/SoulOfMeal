@@ -299,8 +299,8 @@
     },
     {
       "path": "docs/02_art/LICENSE_AND_PROVENANCE.md",
-      "bytes": 3099,
-      "sha256": "81154fd447b845a70b0b3a0179842090e35d311d982defc1701eb4ca6c3f095d"
+      "bytes": 3457,
+      "sha256": "745eab8db26f09e750319b3645f04c09ee46daadcca3516da411e94e41fee430"
     },
     {
       "path": "docs/02_art/SPRITE_PIPELINE.md",
@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 13924,
-      "sha256": "b9500739b4fff2c7254fce6fb5c7b0c9022aa227ef153f59cf4785f1a038665d"
+      "bytes": 15045,
+      "sha256": "20e35950f86a0200b3f30cc6b7e064d24e8ae2ee2cf77bf3954b3e698619917b"
     },
     {
       "path": "client/index.html",
@@ -794,8 +794,8 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 111849,
-      "sha256": "ff54ff5dc88fad7436dd7db05cfde95162c4829c686ee5cf78617137c47673fa"
+      "bytes": 115102,
+      "sha256": "c970b80ddef5d1641337397b085ce44660ca9d3486bd8eeedb7a7dc238fbe1bc"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -824,8 +824,8 @@
     },
     {
       "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
-      "bytes": 14558,
-      "sha256": "3a3d712d9a20f7efbe96119ac0672ca34a663b29665918109b1611b428a8dff5"
+      "bytes": 15039,
+      "sha256": "6ec261a6f4e92e57a9086045269ce5bd081951c5443359be84492a33e58ee7c0"
     },
     {
       "path": "client/src/render/actorViewRegistry.js",
@@ -839,8 +839,8 @@
     },
     {
       "path": "client/src/render/clipPlayer.js",
-      "bytes": 7683,
-      "sha256": "7e84c664de2d51e11487d10635ff710d2c522e2d91db00682abc6e69c4749798"
+      "bytes": 7909,
+      "sha256": "1b433c02e8dffaac945bb2e1558f35ba2b6756867259746bb086a8ad03d5e17f"
     },
     {
       "path": "client/tests/animation.test.js",
@@ -1264,8 +1264,8 @@
     },
     {
       "path": "client/src/render/spriteRenderer.js",
-      "bytes": 7092,
-      "sha256": "31e2b4781449dd6a37f8303fd4a8a9da486b162336448ed5f7e1ec0db7dc4d83"
+      "bytes": 7249,
+      "sha256": "5291195b1868d2c2a4089335f9f30aa15ea57a740512c8bdeb286da5e586c59c"
     },
     {
       "path": "examples/maps/forest.json",
@@ -1294,8 +1294,8 @@
     },
     {
       "path": "client/tests/spriteRenderer.test.js",
-      "bytes": 2371,
-      "sha256": "61a83a7c904dd6dcdbfb6cdb941a59d589455e7c72078d7efb4fafc874ec7ba2"
+      "bytes": 3899,
+      "sha256": "a35ad994b97692da7123cfe5728052b125274e45432c20b41805c016103b6185"
     },
     {
       "path": "client/assets/audio/battle_theme.ogg",
@@ -1474,8 +1474,8 @@
     },
     {
       "path": "client/src/core/audio.js",
-      "bytes": 5571,
-      "sha256": "0b393dc4ff2f4fdc4f7bdf1c663fc0c0490dca5a69771e08d06edb9b88742fc6"
+      "bytes": 6748,
+      "sha256": "a9941b7929f0fed93b446716a60048e7c47c4ced7116472bbddb00b6cd9af772"
     },
     {
       "path": "client/src/modes/adventureBalance.js",
@@ -1484,13 +1484,13 @@
     },
     {
       "path": "client/src/render/battleEffects.js",
-      "bytes": 7337,
-      "sha256": "22d513d7f5f3d1b3744bc268ee181256a1304e54f764d030618becab95760a34"
+      "bytes": 7624,
+      "sha256": "563d6c53c00188d5c81f494696bcbeab400a95eec86437afc61cb47eac49bc08"
     },
     {
       "path": "client/src/render/chessReplay.js",
-      "bytes": 7706,
-      "sha256": "bbb95594ca61cb759bc644a57ea73499e9a17ae4c7ca36b317453a99ccc31222"
+      "bytes": 7939,
+      "sha256": "6e00ca99185470a5a7efc125bdd33d7db1a8e4c2b7803aa987f93187d9aa826e"
     },
     {
       "path": "scripts/build_battle_poses.py",
@@ -2409,8 +2409,8 @@
     },
     {
       "path": "client/tests/soundScenes.test.js",
-      "bytes": 3478,
-      "sha256": "55bf33cdbad4685ff0d29a75b05a328d755396c2b5cbf8c503b49c5abc8c11d9"
+      "bytes": 5437,
+      "sha256": "bc4921cf8a2b086574e89165105a3a23f03bbdaba74f9f81bd50b88d38c051d6"
     },
     {
       "path": "examples/characters/boss_bep_truong/identity.json",
@@ -2534,13 +2534,13 @@
     },
     {
       "path": "client/play.css",
-      "bytes": 18007,
-      "sha256": "a8545f15ff48f9a89b94e96c704732af714ae45c266a48aab1e7ebadfab00bf5"
+      "bytes": 21501,
+      "sha256": "57b5edc2f76fdd5f3caeec5cb41d316bfbf6c76e0d22a82f5e47a94faa1262c1"
     },
     {
       "path": "client/src/render/worldHud.js",
-      "bytes": 2317,
-      "sha256": "694849819a1ee4fda6db1e474e5c94eef836c83cb238cd917ed69099099c45f8"
+      "bytes": 2579,
+      "sha256": "6fe6356502199b5cb263d330d49bab627418927562f4f9f67150b6a2189a9072"
     },
     {
       "path": "client/tests/ux.test.js",
@@ -2669,13 +2669,88 @@
     },
     {
       "path": "client/src/render/boardSprites.js",
-      "bytes": 1896,
-      "sha256": "c4e2e1ca2fca3c588fc00282c8fbcb6a9eb98e044afc5a8fc9479d838a26065d"
+      "bytes": 2089,
+      "sha256": "9b78a3993fcbf0c50588fcc4e25947ed294146a00b1def290a706381f157259c"
     },
     {
       "path": "client/tests/boardSprites.test.js",
-      "bytes": 2036,
-      "sha256": "0f9af2c25009257915847bd1c54c77c7d5083257b124c3851f45f436563205d1"
+      "bytes": 4341,
+      "sha256": "edb29fc0e288a9df956ed08452773008b24bf4ed0de583be469ccf818b8b27be"
+    },
+    {
+      "path": "client/assets/audio/sfx_boss_break.ogg",
+      "bytes": 5124,
+      "sha256": "78625a443406b8e9f20b9003a0632831013dad9b44e070449c3afcd141c8699f"
+    },
+    {
+      "path": "client/assets/audio/sfx_boss_warning.ogg",
+      "bytes": 5398,
+      "sha256": "f68acfbddb7074881592382faf1b453361b3920b5ae1e9bebd477b2719773351"
+    },
+    {
+      "path": "client/assets/audio/sfx_element_fire_ultimate.ogg",
+      "bytes": 8732,
+      "sha256": "3635bb542aca0294066c2b9f4ab284d2b02a31a68ee19f507ce1d098f81e77c6"
+    },
+    {
+      "path": "client/assets/audio/sfx_element_light_ultimate.ogg",
+      "bytes": 8104,
+      "sha256": "1b03cb79d4aa87a0b49832800a73717afee492230fa0a3c2e2098c2fd7a9517b"
+    },
+    {
+      "path": "client/assets/audio/sfx_element_shadow_ultimate.ogg",
+      "bytes": 9021,
+      "sha256": "9d5e4aca9130e87212189aed59aede08b59b81ccdb95c55593f3de7cbba4fc15"
+    },
+    {
+      "path": "client/assets/audio/sfx_element_water_ultimate.ogg",
+      "bytes": 8331,
+      "sha256": "8475339e0b4ff322d7f2a4a06a12a9fb2aab7d368ddc0a9a892607dea66bf090"
+    },
+    {
+      "path": "client/assets/audio/sfx_element_wood_ultimate.ogg",
+      "bytes": 8556,
+      "sha256": "82a989d8d49e32a34fa7fbf7eeb67720090c3148befb7f3191e4a72af6492f46"
+    },
+    {
+      "path": "client/assets/audio/sfx_footstep_leaves_a.ogg",
+      "bytes": 4514,
+      "sha256": "1e36f8c521ef781b1e94b7e2a1dc19230ebea33fa0630fb8cefa23d233eda750"
+    },
+    {
+      "path": "client/assets/audio/sfx_footstep_leaves_b.ogg",
+      "bytes": 4518,
+      "sha256": "2b29ec1008501c48d5ae5687c9abf8eb2dc71e9c305080612b66c84b51c14a58"
+    },
+    {
+      "path": "client/assets/audio/sfx_footstep_stone_b.ogg",
+      "bytes": 4532,
+      "sha256": "af56f07dbd1b617d4c254e09b7b5c1c58b8b8883e0f759e6944643d1a5d7e5c5"
+    },
+    {
+      "path": "client/assets/audio/sfx_guard_contact.ogg",
+      "bytes": 4601,
+      "sha256": "76e09c6d19736069ca84e5a07fe31d89730767122455f3eb863330201d901d92"
+    },
+    {
+      "path": "client/assets/audio/sfx_skill_ready.ogg",
+      "bytes": 4678,
+      "sha256": "af3128ccf95e9926ba9877d294d7ec635264d7fa5363ed1310a645d263e36572"
+    },
+    {
+      "path": "client/src/render/chibiRig.js",
+      "bytes": 3127,
+      "sha256": "78363a1cf4d4ee5239b634aa040e95678a04fe184f1c0f2e879f4f853c85d913"
+    },
+    {
+      "path": "client/src/render/duelEffects.js",
+      "bytes": 2534,
+      "sha256": "fde4ed988486024d4cd5e7262cf6de8ad893d65a3d7fa731d3ef28a11d3b644c"
+    },
+    {
+      "path": "scripts/build_combat_audio.py",
+      "bytes": 3045,
+      "sha256": "500d555b26ffac72953df8d5cfa5d5637c3853fedb09e343aecde2ba4bd10efe"
     }
   ]
 }

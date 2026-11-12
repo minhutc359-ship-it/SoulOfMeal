@@ -6,9 +6,9 @@ const CUES = {
   quest_completed: 'sfx_victory', trap_revealed: 'sfx_cast_fire',
   unit_summoned: 'sfx_ui_confirm', chess_unit_bought: 'sfx_ui_confirm',
   chess_units_merged: 'sfx_cast_fire', heal_resolved: 'sfx_ui_confirm',
-  shield_applied: 'sfx_ui_confirm', boss_phase_changed: 'sfx_cast_fire',
+  shield_applied: 'sfx_ui_confirm', boss_phase_changed: 'sfx_boss_warning',
   shield_broken: 'sfx_element_light_impact', boss_cast_released: 'sfx_impact_fire',
-  boss_stove_destroyed: 'sfx_impact_fire', boss_cast_interrupted: 'sfx_ui_confirm',
+  boss_stove_destroyed: 'sfx_impact_fire', boss_cast_interrupted: 'sfx_boss_break',
   clue_discovered: 'sfx_ui_confirm',
   lantern_ward_activated: 'sfx_element_light_cast',
 };
@@ -105,37 +105,59 @@ export class GameAudio {
 
   setSettings(settings) {
     this.settings = settings;
-    for (const [audio, channel] of this.active) audio.volume = this.volume(channel);
+    for (const [audio, gain] of this.active) audio.volume = Math.min(1, this.volume('sfx') * gain);
     this.updateLoops();
   }
 
+  footstep(surface, distance) {
+    if (this.stepSurface !== surface) {
+      this.stepSurface = surface;
+      this.stepDistance = 0;
+      this.stepSide = 0;
+    }
+    this.stepDistance += distance;
+    if (this.stepDistance < 48) return;
+    this.stepDistance %= 48;
+    this.stepSide ^= 1;
+    const cue = surface === 'forest'
+      ? (this.stepSide ? 'sfx_footstep_leaves_a' : 'sfx_footstep_leaves_b')
+      : (this.stepSide ? 'sfx_footstep' : 'sfx_footstep_stone_b');
+    this.play(cue, { gain: .54 });
+  }
+
   handle({ type, payload }) {
-    if (['hit_resolved', 'heal_resolved', 'shield_applied'].includes(type)) this.play(elementalCue(payload.element, 'impact', CUES[type] ?? 'sfx_hit'));
-    else if (type === 'attack_started') this.play(payload.clip_id === 'attack_b' ? 'sfx_slash_b' : 'sfx_slash_a');
-    else if (type === 'cast_started') this.play(elementalCue(payload.element, 'cast', 'sfx_cast_fire'));
-    else if (type === 'boss_phase_changed' && ['shadow', 'water'].includes(payload.element)) this.play(elementalCue(payload.element, 'cast'));
-    else if (type === 'boss_cast_released' && ['shadow', 'water'].includes(payload.element)) this.play(elementalCue(payload.element, 'impact'));
-    else if (type === 'battle_finished' && (payload.winner_team === 'player' || payload.winner === 0)) this.play('sfx_victory');
+    if (type === 'hit_resolved' && (payload.guarded || (payload.absorbed > 0 && payload.hp_damage === 0))) {
+      this.play('sfx_guard_contact', { gain: .76 });
+    } else if (['hit_resolved', 'heal_resolved', 'shield_applied'].includes(type)) {
+      const strong = payload.source_kind === 'ultimate' || payload.source_kind === 'boss_telegraph';
+      this.play(elementalCue(payload.element, 'impact', CUES[type] ?? 'sfx_hit'), {
+        gain: strong ? 1.15 : .84, priority: strong,
+      });
+    } else if (type === 'attack_started' && !payload.travel_ticks) {
+      this.play(payload.clip_id === 'attack_b' ? 'sfx_slash_b' : 'sfx_slash_a', { gain: .57 });
+    } else if (type === 'projectile_spawned' || type === 'spell_launched') {
+      this.play(elementalCue(payload.element, 'cast', 'sfx_cast_fire'), { gain: .61 });
+    } else if (type === 'cast_started') {
+      this.play(elementalCue(payload.element, 'ultimate', 'sfx_ultimate_fire'), { gain: 1.14, priority: true });
+    } else if (type === 'boss_phase_changed' || type === 'boss_cast_interrupted') {
+      this.play(CUES[type], { gain: 1.12, priority: true });
+    } else if (type === 'boss_cast_released' && ['shadow', 'water'].includes(payload.element)) this.play(elementalCue(payload.element, 'impact'));
+    else if (type === 'battle_finished' && (payload.winner_team === 'player' || payload.winner === 'player' || payload.winner === 0)) this.play('sfx_victory', { priority: true });
     else if (CUES[type]) this.play(CUES[type]);
   }
 
-  play(id) {
-    if (!this.unlocked || !this.volume('sfx') || this.active.size >= 12) return;
+  play(id, { gain = 1, priority = false } = {}) {
+    if (!this.unlocked || !this.volume('sfx') || this.active.size >= (priority ? 12 : 10)) return;
     const now = performance.now();
     if (now - (this.lastPlayed.get(id) ?? -Infinity) < 110) return;
     this.lastPlayed.set(id, now);
-    const audio = this.create(id, 'sfx');
+    const audio = new Audio(AUDIO_PATH + id + '.ogg');
+    audio.volume = Math.min(1, this.volume('sfx') * gain);
     const release = () => this.active.delete(audio);
-    this.active.set(audio, 'sfx');
+    this.active.set(audio, gain);
     audio.addEventListener('ended', release, { once: true });
     audio.addEventListener('error', release, { once: true });
     audio.play().catch(release);
-  }
-
-  create(id, channel) {
-    const audio = new Audio(AUDIO_PATH + id + '.ogg');
-    audio.volume = this.volume(channel);
-    return audio;
   }
 
   volume(channel) {

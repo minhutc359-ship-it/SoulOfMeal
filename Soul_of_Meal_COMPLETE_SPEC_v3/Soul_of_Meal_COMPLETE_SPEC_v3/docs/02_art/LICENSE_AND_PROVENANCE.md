@@ -14,6 +14,7 @@
 | `client/assets/characters/chr_bunbo_holinh/battle/poses/`, `golden/bunbo_battle.webp` | Original generated anime chibi poses based on the Soul of Meal identity (orange ponytail, spice flower, cream and red chef-warrior coat, flame knife). The prompt specified eight isolated poses in a transparent 4×2 grid with shared ground line. | Draft. Eight source RGBA poses checked for bounds and uniqueness. Identity, continuity and commercial rights review pending. |
 | `client/assets/cinematic/*.webp` | Original generated key art. Prompts specified a chibi heroine in a Vietnamese-inspired lantern market, a top-down village courtyard, a forest clearing, a transparent airborne ultimate pose and two isolated forest imps. | Draft. Commercial rights review pending. |
 | `client/assets/audio/*_theme.ogg`, `forest_wind.ogg` | Original melodies and synthesized ambience defined in `scripts/build_music.py`. | Playback and loudness on target devices pending. |
+| `sfx_element_*_ultimate.ogg`, `sfx_footstep_leaves_*.ogg`, `sfx_footstep_stone_b.ogg`, `sfx_guard_contact.ogg`, `sfx_skill_ready.ogg`, `sfx_boss_warning.ogg`, `sfx_boss_break.ogg` | Original sound synthesis in `scripts/build_combat_audio.py`. FFmpeg encodes the generated samples. | OGG decode passed. Listening and mix review on target devices pending. |
 
 The anime chibi art uses the visual direction requested for Soul of Meal. Characters and assets are original to this project. No art or audio from the reference game is included in these additions.
 

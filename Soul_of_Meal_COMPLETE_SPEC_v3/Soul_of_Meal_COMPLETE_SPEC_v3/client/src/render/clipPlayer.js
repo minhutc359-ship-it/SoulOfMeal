@@ -129,6 +129,7 @@ export class ClipPlayer {
   snapshot() {
     if (!this.current) return null;
     const frameIndex = Math.min(this.frameIndex ?? 0, this.current.frames.length - 1);
+    const cycles = this.elapsedMs * this.current.fps / (1000 * this.current.frames.length);
     return {
       clipId: this.current.clipId,
       requestedClipId: this.current.requestedClipId,
@@ -137,6 +138,8 @@ export class ClipPlayer {
       loop: this.current.loop,
       fps: this.current.fps,
       anchor: this.current.anchor,
+      direction: this.direction,
+      motionPhase: this.reducedMotion ? null : this.current.loop ? cycles % 1 : Math.min(1, cycles),
       flipX: this.current.flipX ?? false,
       missingClip: this.missingClip,
       completed: this.completed,

@@ -44,6 +44,14 @@ export function drawWorldMinimap(canvas, map, player, interactions, objective) {
   for (const item of map.collision.obstacles) {
     ctx.fillRect(item.x * sx, item.y * sy, item.width * sx, item.height * sy);
   }
+  if (player.walkPath?.length) {
+    ctx.beginPath();
+    ctx.moveTo(player.x * sx, player.y * sy);
+    for (const point of player.walkPath) ctx.lineTo(point.x * sx, point.y * sy);
+    ctx.strokeStyle = '#eac271';
+    ctx.lineWidth = 1.25;
+    ctx.stroke();
+  }
   for (const item of interactions) {
     const x = item.x * sx;
     const y = item.y * sy;

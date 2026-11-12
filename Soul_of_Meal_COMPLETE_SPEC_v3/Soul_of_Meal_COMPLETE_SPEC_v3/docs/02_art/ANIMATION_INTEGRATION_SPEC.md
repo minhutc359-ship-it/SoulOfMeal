@@ -55,6 +55,8 @@ Only `type`, `seq`, `tick`, and `payload` are consistently supplied by the bus. 
 
 The browser entry point exposes the adapter as `window.soulOfMealAnimation`. The Canvas playtest routes battle effects and audio from the internal bus in `main.js`, with Auto Chess audio following replay timing. A presentation consumer using the adapter’s `presentation-event` should route `detail.actions` once per cue.
 
+The Canvas playtest uses a 2D deformation rig for the five starting Vị Linh, the two animated mobs and Bún Bò's travel atlas. The renderer samples clip progress and deforms the atlas between four anchored body regions. It retains the original frames, pivot and facing. Reduced motion uses the undeformed frame. TCG flight, contact and impact audio share a presentation clock, and Auto Chess reads windup and contact from the replay. The simulation owns HP and reward changes.
+
 ### Events currently emitted by the browser runtime
 
 | Mode | Current event types | Available useful data / caveat |

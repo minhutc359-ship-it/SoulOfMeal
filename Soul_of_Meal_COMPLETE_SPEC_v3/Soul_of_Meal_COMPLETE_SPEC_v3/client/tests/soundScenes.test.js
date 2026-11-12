@@ -64,3 +64,41 @@ test('scene changes stop the prior loop and bad files fall back without another 
   player.setSettings({ music: 0, ambience: 50 });
   assert.equal(created[4].pauses, 1);
 });
+
+test('battle cues distinguish the windup, release, impact, guard and elemental ultimates', async () => {
+  const player = new GameAudio({});
+  const cues = [];
+  player.play = (cue) => cues.push(cue);
+  player.handle({ type: 'attack_started', payload: { clip_id: 'attack_b', travel_ticks: 0 } });
+  player.handle({ type: 'attack_started', payload: { element: 'water', travel_ticks: 6 } });
+  player.handle({ type: 'projectile_spawned', payload: { element: 'water' } });
+  player.handle({ type: 'hit_resolved', payload: { element: 'water' } });
+  player.handle({ type: 'hit_resolved', payload: { element: 'water', hp_damage: 0, absorbed: 15 } });
+  player.handle({ type: 'boss_phase_changed', payload: { element: 'shadow' } });
+  player.handle({ type: 'boss_cast_interrupted', payload: {} });
+  player.handle({ type: 'battle_finished', payload: { winner: 'player' } });
+  assert.deepEqual(cues, [
+    'sfx_slash_b', 'sfx_element_water_cast', 'sfx_element_water_impact', 'sfx_guard_contact',
+    'sfx_boss_warning', 'sfx_boss_break', 'sfx_victory',
+  ]);
+  for (const element of ['fire', 'water', 'wood', 'light', 'shadow']) {
+    player.handle({ type: 'cast_started', payload: { element } });
+    assert.equal(cues.at(-1), `sfx_element_${element}_ultimate`);
+  }
+  await Promise.all(cues.map(cue => readFile(new URL(`../assets/audio/${cue}.ogg`, import.meta.url))));
+});
+
+test('footsteps require distance, alternate takes, and restart the cadence on a new surface', () => {
+  const player = new GameAudio({});
+  const cues = [];
+  player.play = (cue) => cues.push(cue);
+  player.footstep('village', 47);
+  assert.deepEqual(cues, []);
+  player.footstep('village', 2);
+  player.footstep('village', 48);
+  player.footstep('forest', 47);
+  assert.deepEqual(cues, ['sfx_footstep', 'sfx_footstep_stone_b']);
+  player.footstep('forest', 1);
+  player.footstep('forest', 48);
+  assert.deepEqual(cues.slice(-2), ['sfx_footstep_leaves_a', 'sfx_footstep_leaves_b']);
+});

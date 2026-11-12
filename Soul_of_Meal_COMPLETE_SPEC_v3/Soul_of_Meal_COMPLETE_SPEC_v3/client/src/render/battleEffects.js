@@ -98,6 +98,12 @@ export class BattleEffects {
         drawElementEffect(context, this.renderer, effect.element, strike ? 'trail' : 'impact', {
           x: effect.x, y: effect.y, size: size * growth, opacity: fade, angle: effect.angle,
         });
+        if (effect.strong && !reducedMotion) {
+          drawElementEffect(context, this.renderer, effect.element, 'impact', {
+            x: effect.x, y: effect.y, size: size * (1.08 + progress * .43),
+            angle: .2 + progress * .4, opacity: fade * .35,
+          });
+        }
         if (!effect.text) continue;
         context.save();
         context.globalAlpha = fade;
