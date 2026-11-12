@@ -1,6 +1,9 @@
+import { validateAnimationManifest } from './clipPlayer.js';
+
 const ORIGINAL = './assets/original';
 export const HERO_ID = 'chr_bunbo_holinh';
 export const TRAVEL_HERO = HERO_ID + '_travel';
+export const MONSTER_IDS = ['mob_mushroom_01', 'mob_pepper_01'];
 export const BOSS_ID = 'boss_bep_truong';
 const ADVENTURE_SCENES = ['village', 'forest', 'arena', 'harbor', 'caldera', 'sanctum'];
 const ENCOUNTER_PROPS = ['boss_stove', 'empty_bowl_seal', 'tidal_conch', 'hollow_cauldron'];
@@ -14,7 +17,7 @@ export const HERO_NAMES = Object.freeze({
   chr_caphe_davu: 'Cà Phê Dạ Vũ',
 });
 
-const ACTORS = [...Object.keys(HERO_NAMES), 'npc_lilia', 'mob_mushroom_01', 'mob_pepper_01', BOSS_ID];
+const ACTORS = [...Object.keys(HERO_NAMES), 'npc_lilia', ...MONSTER_IDS, BOSS_ID];
 const CARD_IDS = new Set([7, 10, 11, 12, 13, 14, 15, 16, 17, 18].map((id) => 'card_demo_' + String(id).padStart(2, '0')));
 const PROPS = ['house_kitchen', 'house_guild', 'house_merchant', 'tree', 'chest_closed', 'chest_open', 'portal', 'table', ...ENCOUNTER_PROPS];
 
@@ -48,10 +51,16 @@ export async function preloadGameAssets(renderer) {
     ...COMBAT_EFFECTS.map(combatArt),
     ...Object.keys(ELEMENT_ART).flatMap((id) => [effectArt(id, 'trail'), effectArt(id, 'impact')]),
   ];
-  const loadSprites = [TRAVEL_HERO, BOSS_ID, ...Object.keys(HERO_NAMES)].map(async (id) => {
+  const requiredSprites = [TRAVEL_HERO, BOSS_ID, ...Object.keys(HERO_NAMES)];
+  const loadSprites = [...requiredSprites, ...MONSTER_IDS].map(async (id) => {
     const path = `${ORIGINAL}/atlases/${id}`;
     const entry = await renderer.loadCharacter(id, path + '.webp', path + '.json');
-    return [id, entry.loaded ? entry.manifest : null];
+    const manifest = entry.manifest;
+    const frames = new Set(Object.keys(manifest?.frames ?? {}));
+    if (entry.loaded && manifest?.character_id === id && manifest.clips?.idle
+        && frames.size && validateAnimationManifest(manifest, frames).valid) return [id, manifest];
+    renderer.sheets?.delete(id);
+    return [id, null];
   });
 
   const [sprites, images] = await Promise.all([
@@ -59,9 +68,9 @@ export async function preloadGameAssets(renderer) {
     Promise.all(imagePaths.map(async path => [path, await renderer.loadImage(path)])),
   ]);
   const required = new Set([...ADVENTURE_SCENES.map(sceneArt), ...ENCOUNTER_PROPS.map(propArt)]);
-  if (sprites.some(([, manifest]) => !manifest?.clips?.idle || !Object.keys(manifest.frames ?? {}).length)
+  if (sprites.some(([id, manifest]) => !manifest && requiredSprites.includes(id))
       || images.some(([path, image]) => required.has(path) && !image)) {
     throw new Error('Không tải được bản đồ hoặc hoạt ảnh bắt buộc. Kiểm tra kết nối rồi thử lại.');
   }
-  return Object.fromEntries(sprites);
+  return Object.fromEntries(sprites.filter(([, manifest]) => manifest));
 }

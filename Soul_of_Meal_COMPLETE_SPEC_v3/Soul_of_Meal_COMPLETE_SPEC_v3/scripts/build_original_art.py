@@ -17,6 +17,7 @@ HEROES = {
     "caphe": "chr_caphe_davu",
 }
 BOSS = "boss_bep_truong"
+MONSTERS = ("mob_mushroom_01", "mob_pepper_01")
 STANDALONE_PROPS = {"boss_stove": 208, "empty_bowl_seal": 320, "tidal_conch": 320, "hollow_cauldron": 448}
 ACTORS = ("npc_lilia", "mob_mushroom_01", "mob_pepper_01", BOSS)
 COMBAT_EFFECTS = ("boss_warning", "boss_cleave", "shield_bubble", "shield_break")
@@ -50,6 +51,15 @@ BOSS_CLIPS = {
     "boss_release": ((4, 0), 5, False),
     "hit": ((6, 0), 8, False),
     "defeat": ((7,), 1, True),
+}
+MONSTER_CLIPS = {
+    "idle": ((0, 7), 3, True),
+    "walk": ((1, 0, 2), 8, True),
+    "run": ((1, 2), 11, True),
+    "attack_a": ((3, 4, 0), 9, False),
+    "attack_b": ((3, 4, 7), 9, False),
+    "hit": ((5, 0), 8, False),
+    "defeat": ((6,), 2, True),
 }
 FRAME_SIZE = 256
 ATLAS_FRAME = 160
@@ -183,16 +193,26 @@ def export_character(source, assets, character_id, travel=False):
                 },
             }
     else:
-        facing = "W" if character_id == BOSS else "E"
-        clips = BOSS_CLIPS if character_id == BOSS else CLIPS
+        facing = "W" if character_id == BOSS or character_id in MONSTERS else "E"
+        clips = BOSS_CLIPS if character_id == BOSS else MONSTER_CLIPS if character_id in MONSTERS else CLIPS
         source_directions = {facing: {"frames": [f"poses/{frame_id}.png" for frame_id in frame_ids]}}
         runtime_clips = {
             name: clip([frame_ids[index] for index in indexes], fps, loop, facing)
             for name, (indexes, fps, loop) in clips.items()
         }
-        if character_id != BOSS:
+        if character_id != BOSS and character_id not in MONSTERS:
             export_cutout(assets / "original" / "actors" / f"{character_id}.webp", images[0], (330, 330))
             export_cutout(assets / "original" / "cutins" / f"{character_id}.webp", images[6], (470, 470), 87)
+
+    identity = {}
+    if character_id in MONSTERS:
+        identity = {
+            "identity_reference": f"original/actors/{character_id}.webp",
+            "clip_review": "pending",
+            "authored_facing": "W",
+            "opposite_facing": "mirrored_playtest",
+            "runtime_clips": runtime_clips,
+        }
 
     source_manifest = {
         "character_id": character_id,
@@ -203,6 +223,7 @@ def export_character(source, assets, character_id, travel=False):
         "rights_status": "pending_review",
         "identity_review": "pending",
         "animations": {"keyposes": {"fps": 8, "loop": False, "directions": source_directions}},
+        **identity,
     }
     manifest_path = source_root / "source.sprite.json"
     write_json(manifest_path, source_manifest)
@@ -222,6 +243,7 @@ def export_character(source, assets, character_id, travel=False):
         "atlas": atlas_path.name,
         "frames": coordinates,
         "clips": runtime_clips,
+        **({"mirror_east_west": True} if character_id in MONSTERS else {}),
     })
 
 
@@ -230,8 +252,8 @@ def export_art(sources, assets, selection):
         source = sources / f"{source_id}.png"
         if source_id in HEROES or source_id == "travel":
             export_character(source, assets, HEROES[source_id] if source_id in HEROES else HEROES["bunbo"], source_id == "travel")
-        elif source_id == BOSS:
-            export_character(source, assets, BOSS)
+        elif source_id == BOSS or source_id in MONSTERS:
+            export_character(source, assets, source_id)
         elif source_id in STANDALONE_PROPS:
             size = STANDALONE_PROPS[source_id]
             with Image.open(source) as prop:
@@ -276,13 +298,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("sources", type=Path, help="Directory of newly generated source sheets named by asset ID")
     parser.add_argument("--assets", type=Path, default=Path("client/assets"))
-    ids = (*HEROES, "travel", "extras", "props", "effects", "cards", *SCENES, "chronicle", BOSS, *STANDALONE_PROPS, "combat_effects")
+    ids = (*HEROES, "travel", "extras", "props", "effects", "cards", *SCENES, "chronicle", BOSS, *MONSTERS, *STANDALONE_PROPS, "combat_effects")
     parser.add_argument("ids", nargs="*", metavar="ASSET_ID")
     args = parser.parse_args()
     unknown = set(args.ids) - set(ids)
     if unknown:
         parser.error(f"unknown asset IDs: {sorted(unknown)}")
-    default_ids = tuple(asset_id for asset_id in ids if asset_id not in (BOSS, *STANDALONE_PROPS, "combat_effects", "chronicle", "harbor", "caldera", "sanctum", "tcg_table", "chess_court")
+    default_ids = tuple(asset_id for asset_id in ids if asset_id not in (BOSS, *MONSTERS, *STANDALONE_PROPS, "combat_effects", "chronicle", "harbor", "caldera", "sanctum", "tcg_table", "chess_court")
                         or (args.sources / f"{asset_id}.png").is_file())
     export_art(args.sources, args.assets, args.ids or default_ids)
 

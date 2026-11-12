@@ -107,7 +107,7 @@ export class SpriteRenderer {
    */
   drawSprite(ctx, characterId, animation, x, y, {
     scale = 1.0,
-    flipX = false,
+    flipX = animation?.flipX ?? false,
     opacity = 1.0,
   } = {}) {
     const entry = this.sheets.get(characterId);

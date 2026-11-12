@@ -448,11 +448,9 @@ button.tcg-unit { cursor: pointer; color: var(--ink); font: inherit; font-size: 
   15%, 62% { opacity: 1; }
   100% { opacity: 0; transform: translate(-50%, -95%); }
 }
-.tcg-damage.static { animation: tcg-damage-static .65s steps(1, end) both; }
-@media (prefers-reduced-motion: reduce) {
-  .tcg-damage { animation: tcg-damage-static .65s steps(1, end) both; }
-}
-@keyframes tcg-damage-static { from { opacity: 1; } to { opacity: 0; } }
+#app[data-motion="reduced"] .tcg-impact { display: none; }
+#app[data-motion="reduced"] .tcg-damage { animation: tcg-damage-static .65s steps(1, end) both !important; }
+@keyframes tcg-damage-static { from { visibility: visible; } to { visibility: hidden; } }
 
 .boss-counter { padding-top: 7px; }
 .boss-counter p { color: var(--ink); font-size: 12px; font-weight: 700; margin: 0 0 6px; }

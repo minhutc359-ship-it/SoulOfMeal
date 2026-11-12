@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { BattleEffects } from '../src/render/battleEffects.js';
 import { validateAnimationManifest } from '../src/render/clipPlayer.js';
-import { actorArt, BOSS_ID, combatArt, cutinArt, ELEMENT_ART, effectArt, HERO_ID, HERO_NAMES, originalCardArt, preloadGameAssets, TRAVEL_HERO } from '../src/render/spriteAssets.js';
+import { actorArt, BOSS_ID, combatArt, cutinArt, ELEMENT_ART, effectArt, HERO_ID, HERO_NAMES, MONSTER_IDS, originalCardArt, preloadGameAssets, TRAVEL_HERO } from '../src/render/spriteAssets.js';
 
 const assetFile = (path) => new URL('../' + path.slice(2), import.meta.url);
 
@@ -25,9 +25,9 @@ test('the playtest preloads original art for the entire roster and all direction
     },
   });
 
-  assert.deepEqual(Object.keys(manifests).sort(), [TRAVEL_HERO, BOSS_ID, ...Object.keys(HERO_NAMES)].sort());
+  assert.deepEqual(Object.keys(manifests).sort(), [TRAVEL_HERO, BOSS_ID, ...MONSTER_IDS, ...Object.keys(HERO_NAMES)].sort());
   for (const [hero, manifest] of Object.entries(manifests)) {
-    if (hero === TRAVEL_HERO || hero === BOSS_ID) continue;
+    if (!Object.hasOwn(HERO_NAMES, hero)) continue;
     assert.equal(Object.keys(manifest.clips).length, 10);
     assert.ok(paths.has(actorArt(hero)) && paths.has(cutinArt(hero)));
     assert.ok(manifest.clips.ultimate_01.directions.E.frames.length >= 3);
@@ -35,6 +35,14 @@ test('the playtest preloads original art for the entire roster and all direction
   assert.deepEqual(Object.keys(manifests[TRAVEL_HERO].clips.walk.directions).sort(), ['E', 'N', 'S', 'W']);
   assert.ok(manifests[BOSS_ID].clips.skill_01.directions.W.frames.length >= 2);
   assert.ok(manifests[BOSS_ID].clips.defeat.directions.W.frames.length);
+  for (const id of MONSTER_IDS) {
+    const manifest = manifests[id];
+    assert.equal(Object.keys(manifest.frames).length, 8);
+    assert.equal(manifest.mirror_east_west, true);
+    for (const action of ['idle', 'walk', 'attack_a', 'hit', 'defeat']) {
+      assert.ok(manifest.clips[action].directions.W.frames.length > 0);
+    }
+  }
   for (const key of ['boss_warning', 'boss_cleave', 'shield_bubble', 'shield_break']) assert.ok(paths.has(combatArt(key)));
   for (const index of [7, 10, 11, 12, 13, 14, 15, 16, 17, 18]) {
     await readAsset(originalCardArt('card_demo_' + String(index).padStart(2, '0')));
@@ -98,11 +106,33 @@ test('loading can be retried after required map art is missing', async () => {
       if (missing && path.endsWith('/sanctum.webp')) return null;
       return {};
     },
-    async loadCharacter() {
-      return { loaded: true, manifest: { clips: { idle: {} }, frames: { idle_01: {} } } };
+    async loadCharacter(_id, _image, manifestPath) {
+      return { loaded: true, manifest: JSON.parse(await readFile(assetFile(manifestPath))) };
     },
   };
   await assert.rejects(preloadGameAssets(renderer), /Không tải được bản đồ hoặc hoạt ảnh/);
   missing = false;
   assert.ok((await preloadGameAssets(renderer))[HERO_ID]);
+});
+
+test('a missing or invalid monster atlas keeps its portrait available in all modes', async () => {
+  const sheets = new Map();
+  const renderer = {
+    sheets,
+    async loadImage() { return {}; },
+    async loadCharacter(id, _image, manifestPath) {
+      const manifest = JSON.parse(await readFile(assetFile(manifestPath)));
+      if (id === MONSTER_IDS[0]) manifest.frames = {};
+      const entry = { loaded: id !== MONSTER_IDS[1], manifest };
+      sheets.set(id, entry);
+      return entry;
+    },
+  };
+  const manifests = await preloadGameAssets(renderer);
+  assert.ok(manifests[HERO_ID]);
+  for (const id of MONSTER_IDS) {
+    assert.equal(manifests[id], undefined);
+    assert.equal(sheets.has(id), false);
+    assert.ok(await readFile(assetFile(actorArt(id))));
+  }
 });

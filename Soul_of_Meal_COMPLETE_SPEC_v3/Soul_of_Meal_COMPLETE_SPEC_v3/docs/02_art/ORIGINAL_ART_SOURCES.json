@@ -166,6 +166,20 @@
       "alpha": false,
       "source_file": "chess_court.png",
       "source_sha256": "f4309b2a4bbd3828deee47af611719d44f3e94eac2a184717a18c974443406b3"
+    },
+    "mob_mushroom_01": {
+      "prompt": "Create an original Soul of Meal transparent RGBA production sprite key-pose sheet, using the attached original green mushroom mascot as character-identity reference only. EXACTLY eight complete individual chibi sprites on an equal FOUR-COLUMN TWO-ROW grid, all facing LEFT three-quarter (toward viewer-left) with fixed size and matching ground anchors within their own cell. Keep the large moss green cap with warm cream polka dots, small vine curl and leaves above cap, warm cream face with russet eyes, teal blue neckerchief trailing behind, beige body, green foliage outfit and little leaf swirl on belly. Approximately 1.5 heads tall, short feet and hands. High-quality painted anime chibi art with dark soft edges and controlled highlights, same as original. Row 1 from left to right: alert neutral idle, left foot walk, right foot walk, crouched cap-headbutt wind-up. Row 2 from left to right: leaping forward cap headbutt contact (no surrounding impact), recoils with closed eyes and one foot lifted, dizzy crouched defeat but all anatomy visible, lively breathing idle with slightly puffed cheek and scarf lifted a little. Transparent alpha gaps around and between cells, 12% padding per pose, no silhouettes crossing a cell boundary. No panels, labels, words, effects, smoke, grid lines, logos, ground shadows or backgrounds. Landscape grid, 8 full bodies only.",
+      "alpha": true,
+      "source_file": "mob_mushroom_01.png",
+      "source_sha256": "1abbe1bb53f6db7e7a25356e0a5f9c31c61de48e55857d8188920db6d016b850",
+      "identity_reference": "client/assets/original/actors/mob_mushroom_01.webp"
+    },
+    "mob_pepper_01": {
+      "prompt": "Create an original Soul of Meal transparent RGBA production sprite key-pose sheet, using the attached original red pepper pugilist as character-identity reference only. EXACTLY eight complete individual chibi sprites on an equal FOUR-COLUMN TWO-ROW grid, all facing LEFT three-quarter (toward viewer-left) with fixed body size and matching ground anchors within their own cell. Keep red pepper head, olive stem curling over crown, two green leaf brows, amber brown eyes, gold swirl cheek and belly, red short legs, green leaf collar, brown copper knuckle wraps on both hands and small dark red fabric behind. Compact 1.6 heads tall. High-quality painted anime chibi art with dark soft edges and controlled highlights, matches original character. Row 1 from left to right: guard idle, left foot walk, right foot walk, draw back fist wind-up. Row 2 from left to right: punch outward left at contact (no fire, cast VFX separate), recoils with shut eyes, kneeling winded defeat but all anatomy visible, lively breathing guard idle with slight leaf movement. Transparent alpha gaps around and between cells, 12% padding per pose, no silhouettes crossing a cell boundary. No panels, labels, text, fire, effects, grid lines, logos, ground shadows or backgrounds. Landscape grid, 8 full bodies only.",
+      "alpha": true,
+      "source_file": "mob_pepper_01.png",
+      "source_sha256": "cca30d18f69b03da71389f4d275285831bdc558d772d3e740e8d4ce738db1a71",
+      "identity_reference": "client/assets/original/actors/mob_pepper_01.webp"
     }
   },
   "generator": "OpenAI ImageGen, built-in image generation",

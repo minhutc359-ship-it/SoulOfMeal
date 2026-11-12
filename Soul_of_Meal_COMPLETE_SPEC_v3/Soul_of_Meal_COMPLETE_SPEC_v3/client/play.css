@@ -7,6 +7,18 @@
 }
 
 .world-phase { pointer-events: none; }
+.main .world-panel { position: relative; }
+.world-panel > .action-row:empty { display: none; }
+.world-panel > .result-box {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  width: min(88%, 360px);
+  margin: 0;
+  translate: -50% -50%;
+  box-shadow: 0 8px 30px #10242080;
+}
 .minimap-widget {
   position: absolute;
   top: 8px;
@@ -82,7 +94,6 @@
 .duel-field .tcg-unit.tcg-blocking { background: #cfebd7; border-color: #60b490; }
 .duel-field .tcg-unit > b { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
 .duel-field .stack-strip { flex-wrap: wrap; background: #212922ed; border-block: 1px solid #b2915e; }
-.duel-field .tcg-defense { color: var(--ink); }
 .duel-field .tcg-stack-top { color: #ffe4b5; }
 .trap-slots { display: inline-flex; gap: 4px; margin-left: auto; }
 .trap-slots i { display: inline-grid; place-items: center; width: 21px; aspect-ratio: 3/4; border: 1px dashed #bba286; border-radius: 4px; }
@@ -93,6 +104,7 @@
 button.enemy-hp { border: 1px solid #f3c788; border-radius: 7px; background: #442931; padding: 4px 7px; }
 .spell-confirm .target-select { color: #563824; flex-wrap: wrap; }
 .spell-confirm select { min-height: 36px; }
+.tcg-hand-dock .spell-confirm { margin: 0 0 6px; }
 .tcg-hand-dock { min-width: 0; }
 .tcg-hand-dock .hand-heading { margin-top: 0; }
 .tcg-hand-dock .hand-row { scroll-snap-type: x proximity; }
@@ -139,6 +151,10 @@ button.enemy-hp { border: 1px solid #f3c788; border-radius: 7px; background: #44
 .chess-synergy .synergy-row { flex: 1 1 95px; border: 1px solid #d5c29f; }
 .chess-synergy .synergy-row small { display: none; }
 .chess-command .interest-preview { font-size: 11px; font-weight: 700; }
+.chess-command .chess-synergy-button { display: none; }
+.chess-command .result-box { margin-top: 0; }
+.chess-main .chess-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 3px 10px; }
+.chess-heading .chess-selection-hint { grid-column: 1 / -1; }
 [data-drop-state="valid"] { outline: 2px solid #88c473; outline-offset: -2px; }
 [data-drop-state="swap"] { outline: 2px solid #ffdb8f; outline-offset: -2px; }
 [data-drop-state="blocked"] { outline: 2px solid #ff8f7c; outline-offset: -2px; }
@@ -146,44 +162,109 @@ button.enemy-hp { border: 1px solid #f3c788; border-radius: 7px; background: #44
 .replay-controls progress { width: clamp(55px, 22%, 145px); accent-color: #9f6231; }
 
 @media (max-width: 740px) and (orientation: portrait) {
-  .chess-workspace { grid-template-columns: 1fr; }
-  .chess-command .bench-unit, .chess-command .bench-slot { min-height: 40px; }
-  .chess-formation .chess-cell { height: clamp(28px, 9vw, 44px); }
+  .chess-workspace { grid-template-columns: 1fr; gap: 6px; }
+  .main .chess-topbar { margin-bottom: 6px; }
+  .main .chess-topbar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .main .chess-topbar .resource { min-width: 0; white-space: normal; text-align: center; }
+  .chess-formation .chess-cell { height: clamp(22px, calc((100dvh - 625px) / 8), 35px); }
   .duel-field { padding: 6px; }
-  .duel-field .unit-row { padding: 5px 0; }
+  .duel-field .unit-row { min-height: 62px; padding: 5px 0; }
   .duel-field .tcg-unit, .duel-field .empty-slot { min-height: 52px; padding: 2px; }
-  .duel-field .tcg-unit-avatar { width: 25px; height: 25px; margin-bottom: 0; }
+}
+
+@media (max-width: 740px) and (orientation: portrait), (max-height: 620px) and (orientation: landscape) {
+  .shell:is([data-screen="adventure"], [data-screen="tcg"], [data-screen="chess"]) .main { padding-block: 6px; }
+  .shell:is([data-screen="adventure"], [data-screen="tcg"], [data-screen="chess"]) .topline { margin-bottom: 6px; }
+  .shell:is([data-screen="adventure"], [data-screen="tcg"], [data-screen="chess"]) .topline :is(.eyebrow, .button) { display: none; }
+  .shell:is([data-screen="adventure"], [data-screen="tcg"], [data-screen="chess"]) .topline h1 { margin: 0; font-size: 22px; }
+  .main .adventure-layout .side-stack { max-height: none; overflow: visible; }
+  .main .side-stack .panel { padding: 8px; }
+  .main .side-stack .panel h2 { font-size: 15px; margin: 0 0 4px; }
+  .world-panel > .controls-hint { margin-top: 5px; }
+  .world-panel > .action-row { margin-bottom: 0; }
+  .duel-field .tcg-unit-avatar { width: 32px; height: 32px; margin-bottom: 0; }
   .duel-field .tcg-unit small { display: none; }
   .duel-field .stack-strip { gap: 4px; padding: 5px; }
+  .main .tcg-hand-dock .hand-row { padding-block: 4px; }
+  .main .tcg-hand-dock .playing-card { min-height: 100px; padding: 6px; gap: 3px; }
+  .main .tcg-hand-dock .card-thumb { height: 38px; margin: 4px 0 0; }
+  .main .tcg-hand-dock .playing-card strong { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  .main .tcg-hand-dock .notice { margin: 4px 0; padding: 5px 7px; }
+  .main .tcg-hand-dock .action-row { margin-top: 6px; }
+  .main .tcg-hand-dock .spell-confirm { margin-top: 0; }
+  .tcg-hand-dock .action-row .button { padding: 6px 8px; font-size: 11px; }
+  .main .tcg-hand-dock .mode-shortcuts .button { padding-inline: 5px; font-size: 10px; }
+  .tcg-hand-dock .tcg-defense { margin-top: 0; }
+  .chess-topbar { gap: 4px; }
+  .main .chess-topbar .resource { padding: 3px 5px; font-size: 11px; }
+  .main .chess-main .panel-heading { margin-bottom: 3px; }
+  .main .chess-main .panel-heading h2 { margin-bottom: 2px; font-size: 15px; }
+  .chess-main .panel-heading p { font-size: 11px; }
+  .chess-command .bench-heading, .chess-command .shop-heading { margin: 4px 0; }
+  .chess-command .bench-heading { margin-top: 0; }
+  .main .chess-command .bench-unit, .main .chess-command .bench-slot { min-height: 31px; }
+  .main .chess-command .shop-unit { position: relative; min-height: 55px; padding: 3px; align-content: start; }
+  .chess-command .shop-unit .chess-portrait { width: 26px; height: 26px; margin-right: 9px; }
+  .chess-command .shop-unit[data-buy] > span { position: absolute; top: 3px; right: 3px; font-size: 9px; }
+  .chess-command .shop-unit small { display: none; }
+  .main .chess-command .action-row { margin-top: 5px; gap: 4px; }
+  .main .chess-command .action-row .button { padding: 6px 7px; font-size: 11px; }
+  .chess-command .chess-primary-actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: stretch; }
+  .chess-primary-actions .button { line-height: 1.15; }
+  .chess-synergy .synergy-list { margin-top: 5px; }
+  .chess-synergy .synergy-row { padding: 3px 4px; font-size: 11px; }
   .main .party-panel .actor-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; }
-  .main .party-panel .combatant { display: flex; flex-direction: column; text-align: center; min-width: 0; border-bottom: 0; }
+  .main .party-panel .combatant { display: flex; flex-direction: column; text-align: center; min-width: 0; padding: 4px 0; border: 0; }
   .main .party-panel .skill-info { width: 100%; }
-  .main .party-panel .skill-info strong { font-size: 9px; line-height: 1.1; }
-  .main .party-panel .skill-button { display: grid; justify-items: center; gap: 1px; height: auto; min-height: 46px; max-width: 100%; padding: 3px; font-size: 9px; }
+  .main .party-panel .skill-info strong { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; min-height: 2.2em; font-size: 10px; line-height: 1.1; }
+  .main .party-panel .skill-button { display: grid; justify-items: center; gap: 1px; height: auto; min-height: 44px; width: 100%; padding: 3px; font-size: 10px; text-align: center; }
+  .main .party-panel .skill-button small { margin: 0; }
+  .main .party-panel .combatant > small { display: none; }
   .main .party-panel .skill-art, .main .party-panel .key-tag { display: none; }
 }
 
 @media (max-height: 620px) and (orientation: landscape) {
+  .main .adventure-layout .canvas-wrap { max-width: calc((100dvh - 212px) * 16 / 9); }
   .main .tactical-layout .tcg-board { grid-template-columns: minmax(0, 1.15fr) minmax(220px, .95fr); }
   .main .chess-workspace { grid-template-columns: minmax(0, 1.14fr) minmax(245px, 1fr); }
-  .duel-field { padding: 5px; }
+  .duel-field { align-self: start; padding: 5px; }
   .duel-field .duel-top, .duel-field .duel-bottom { padding: 4px 6px; gap: 4px; }
+  .duel-field .duel-top small, .duel-field .duel-bottom small { font-size: 10px; line-height: 1.15; margin-top: 2px; }
+  .duel-field .commander-hp small { display: inline; margin: 0 0 0 3px; }
   .duel-field .unit-row { padding: 4px 0; }
+  .main .duel-field .tcg-unit, .main .duel-field .empty-slot { min-height: 42px; }
+  .duel-field .commander-hp { font-size: 20px; }
   .duel-field .stack-strip { padding: 4px 6px; gap: 4px; }
-  .duel-field .tcg-defense { padding: 5px; }
-  .duel-field .tcg-block-grid { grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr)); margin: 3px 0; }
+  .duel-field .trap-reveal { padding: 2px 6px; margin-top: 3px; font-size: 11px; }
+  .duel-field .trap-reveal img { width: 23px; height: 23px; }
+  .tcg-hand-dock .tcg-defense { padding: 5px; }
+  .tcg-hand-dock .tcg-block-grid { grid-template-columns: repeat(auto-fit, minmax(min(104px, 100%), 1fr)); margin: 3px 0; }
   .main .chess-formation { padding: 3px; }
   .main .chess-formation .chess-grid { padding: 2px; gap: 2px; }
-  .main .chess-formation .chess-cell { height: clamp(17px, calc((100dvh - 175px) / 8), 35px); }
-  .main .chess-command .shop-unit { min-height: 56px; }
-  .main .chess-command .bench-unit, .main .chess-command .bench-slot { min-height: 28px; }
-  .main .chess-replay { max-height: max(125px, calc(100dvh - 191px)); }
-  .main .chess-command .synergy-row { padding: 3px 4px; }
+  .main .chess-formation .chess-cell { height: clamp(15px, calc((100dvh - 273px) / 8), 36px); }
+  .main .chess-replay { max-height: max(105px, calc(100dvh - 227px)); }
   .story-dialog { width: min(760px, calc(100vw - 24px)); }
   .story-dialog:has(.story-manga) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 8px; }
   .story-dialog[open]:has(.story-manga) { display: grid; }
   .story-dialog .story-heading, .story-dialog .story-actions { grid-column: 1 / -1; }
   .story-dialog .story-manga, .story-dialog .story-line { margin: 0; }
+}
+
+@media (max-height: 440px) and (orientation: landscape) {
+  .main .panel:is(.chess-main, .chess-command) { padding: 5px; }
+  .main .adventure-layout .side-stack { gap: 5px; }
+  .main .adventure-layout .side-stack .panel { padding: 5px; }
+  .main .tcg-hand-dock .playing-card { min-height: 86px; }
+  .main .tcg-hand-dock .playing-card strong { font-size: 10px; }
+  .main .tcg-hand-dock .playing-card small { font-size: 9px; }
+  .main .tcg-hand-dock .card-thumb { height: 26px; }
+  .main .tcg-hand-dock .hand-inspect { padding-block: 2px; }
+  .tcg-hand-dock .mode-shortcuts { display: grid; grid-template-columns: repeat(auto-fit, minmax(45px, 1fr)); padding-top: 3px; }
+  .main .tcg-hand-dock .mode-shortcuts .button { white-space: normal; line-height: 1.15; padding: 4px; }
+  .chess-command .mode-shortcuts { padding-top: 3px; }
+  .main .chess-command .mode-shortcuts .button { font-size: 10px; padding-inline: 5px; }
+  .chess-command .chess-synergy { display: none; }
+  .chess-command .chess-synergy-button { display: inline-block; }
 }
 
 @keyframes scene-enter { from { opacity: .75; transform: translateY(5px); } to { opacity: 1; transform: none; } }
@@ -204,3 +285,8 @@ button.enemy-hp { border: 1px solid #f3c788; border-radius: 7px; background: #44
 .chess-opponent { margin: 0 0 4px; color: #624634; font-size: 11px; font-weight: 750; }
 .shop-unit.merge-offer { border-color: #bf8b48; box-shadow: inset 0 0 0 1px #e9bb65; }
 .shop-unit.merge-offer em { color: #784b21; font-size: 9px; font-style: normal; font-weight: 800; }
+
+.board-chibi { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.duel-field .tcg-unit-avatar:has(.board-chibi) { background: radial-gradient(ellipse at 50% 76%, #7a725a55, transparent 57%); overflow: visible; }
+.chess-formation .chess-cell .board-chibi { width: min(92%, 50px); height: 100%; min-height: 0; }
+.chess-formation .chess-cell:has(.board-chibi) { grid-template-rows: minmax(0, 1fr); align-content: stretch; }

@@ -137,6 +137,7 @@ export class ClipPlayer {
       loop: this.current.loop,
       fps: this.current.fps,
       anchor: this.current.anchor,
+      flipX: this.current.flipX ?? false,
       missingClip: this.missingClip,
       completed: this.completed,
     };
@@ -160,7 +161,10 @@ export class ClipPlayer {
   #readClip(clipId) {
     const clip = this.manifest?.clips?.[clipId];
     if (!clip) return null;
-    const direction = clip.directions?.[this.direction] ?? Object.values(clip.directions ?? {})[0];
+    const mirroredDirection = this.direction === 'E' ? 'W' : this.direction === 'W' ? 'E' : null;
+    const exact = clip.directions?.[this.direction];
+    const mirror = !exact && mirroredDirection && this.manifest.mirror_east_west && clip.directions?.[mirroredDirection];
+    const direction = exact ?? (mirror || Object.values(clip.directions ?? {})[0]);
     if (!direction?.frames?.length) return null;
     return {
       clipId,
@@ -168,6 +172,7 @@ export class ClipPlayer {
       fps: clip.fps,
       loop: clip.loop,
       anchor: direction.anchor_normalized ?? [0.5, 0.9],
+      flipX: Boolean(mirror),
     };
   }
 }

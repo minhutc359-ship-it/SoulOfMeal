@@ -23,6 +23,11 @@ export class ChessReplay {
     this.approaching = [];
   }
 
+  setReducedMotion(reducedMotion) {
+    this.reducedMotion = reducedMotion;
+    for (const actor of this.actors.values()) actor.player.reducedMotion = reducedMotion;
+  }
+
   advance(delta, onImpact) {
     this.elapsed = Math.min(this.duration + .42, this.elapsed + delta);
     const tick = Math.min(this.combat.tick, Math.floor(this.elapsed * this.combat.tick / this.duration));
@@ -31,13 +36,14 @@ export class ChessReplay {
       const event = this.combat.events[index];
       const source = this.actors.get(event.source_id);
       if (event.type === 'move') {
+        if (event.x !== source.x) source.player.setDirection(event.x > source.x ? 'E' : 'W');
         source.x = event.x;
         source.y = event.y;
         source.player.play('walk', { restart: false });
       } else if (event.type === 'hit_resolved') {
         const target = this.actors.get(event.target_id);
         target.hp = event.payload.hp;
-        this.prepareAttack(source, index);
+        this.prepareAttack(source, target, index);
         target.player.play(target.hp ? 'hit' : 'defeat', { force: true });
         if (target.hp <= 0) target.fallUntil = this.elapsed + FALL_DURATION;
         this.impacts.push({ targetId: target.actorId, damage: event.payload.damage, element: source.element, end: this.elapsed + .38 });
@@ -119,9 +125,10 @@ export class ChessReplay {
     }
   }
 
-  prepareAttack(actor, eventIndex) {
+  prepareAttack(actor, target, eventIndex) {
     if (actor.preparedHit === eventIndex) return;
     actor.preparedHit = eventIndex;
+    if (target.x !== actor.x) actor.player.setDirection(target.x > actor.x ? 'E' : 'W');
     const clip = actor.attackCount++ % 2 === 0 ? 'attack_a' : 'attack_b';
     actor.player.play(clip, { force: true });
   }
@@ -138,7 +145,7 @@ export class ChessReplay {
       const target = this.actors.get(event.target_id);
       if (!source || !target || source.hp <= 0 || target.hp <= 0 || preparing.has(source.actorId)) continue;
       preparing.add(source.actorId);
-      this.prepareAttack(source, index);
+      this.prepareAttack(source, target, index);
       this.approaching.push({ source, target, contact });
     }
   }

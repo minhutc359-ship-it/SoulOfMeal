@@ -53,9 +53,11 @@ Khi chạy với [máy chủ ASP.NET Core và PostgreSQL](../server/README.md), 
 ## Thao tác trong game
 
 - **Adventure.** Bản đồ nhỏ đánh dấu vị trí người chơi, lối đi và mục tiêu nhiệm vụ hiện tại. Trên màn hình cảm ứng, dùng cần điều khiển hoặc chạm đích để đi. Mở **Nhật ký hành trình** để đọc lại các cảnh đã mở kèm minh họa sáu chương.
-- **TCG.** Chạm lá phép để chọn, rồi chạm chủ soái hoặc Vị Linh địch trên bàn, hoặc chọn trong danh sách. Bấm **Thi triển** mới tiêu mana. Nút **Hủy chọn** quay về tay bài. Cả hai phía hiển thị hai ô bẫy úp, tên bẫy hiện khi lật. Nhật ký mở trong trận.
-- **Auto Chess.** Hai nửa bàn cùng hiển thị theo hướng của bản phát lại. Mua quân rồi kéo từ ghế hoặc chạm quân và ô để đặt. Kéo quân từ bàn về ghế để rút, kéo lên ô có quân để đổi chỗ. Đồng hồ luyện tập 30 giây chạy trong màn chơi và tạm dừng khi mở hộp thoại. Khi hết giờ hoặc bấm khóa, trận bắt đầu sau một giây. Phát lại hỗ trợ tạm dừng và tốc độ 2×. Kết quả ghi riêng thu nhập cơ bản, thưởng thắng, lãi và chuỗi.
+- **TCG.** Chạm lá phép để chọn, rồi chạm chủ soái hoặc Vị Linh địch trên bàn, hoặc chọn trong danh sách. Nút **Thi triển** và **Hủy chọn** xuất hiện ở đầu khu tay bài. Khi bot tấn công, khu này chuyển sang chọn quân chặn. Nút **Bài trên tay** mở danh sách lá bài trong lúc chọn. Cả hai phía hiển thị hai ô bẫy úp, tên bẫy hiện khi lật. Nhật ký mở trong trận.
+- **Auto Chess.** Hai nửa bàn cùng hiển thị theo hướng của bản phát lại. Mua quân rồi kéo từ ghế hoặc chạm quân và ô để đặt. Kéo quân từ bàn về ghế để rút, kéo lên ô có quân để đổi chỗ. Chọn quân để hiện nút **Bán quân** hoặc **Rút về ghế**. Đồng hồ luyện tập 30 giây tạm dừng khi mở hộp thoại. Khi hết giờ hoặc bấm **Chiến đấu**, trận bắt đầu sau một giây. Ở khung ngang thấp, chạm **Hiệp lực** để xem các mốc hệ. Phát lại hỗ trợ tạm dừng và tốc độ 2×. Kết quả hiển thị thu nhập và nút sang vòng ở khu điều khiển.
 - **Giảm chuyển động.** Tùy chọn trong **Cài đặt** giảm chuyển cảnh, hiệu ứng lật bẫy và chuyển động minh họa mà luật giao tranh vẫn chạy theo tick.
+
+Nấm Lạc Vị và Tiêu Tinh có sprite chibi cho đứng, đi, tấn công, trúng đòn và gục. Quân có atlas dùng cùng tạo hình trên sân TCG, bàn Auto Chess và bản phát lại. Chuyển động và hình va chạm bám sự kiện giao tranh.
 
 ## Hồ sơ Vị Linh
 
@@ -109,4 +111,4 @@ python3 -m unittest discover -s tests -v
 python3 scripts/validate_package.py .
 ```
 
-Battle Adventure và Auto Chess vẫn dùng Canvas 2D. Cả ba chế độ dùng bot. Chế độ tài khoản đồng bộ bản luyện tập lên PostgreSQL, còn luật chiến đấu vẫn chạy trên client. Các phần còn cần hoàn thiện trước phát hành gồm rig/animation đầy đủ cho cả đội, duyệt mỹ thuật và quyền sử dụng, voice, benchmark renderer WebGL trên thiết bị thật, cân bằng dài hạn và nội dung các chương sau. Bản chơi thử lưu manh mối, mốc nhiệm vụ/phần thưởng, ván TCG và vòng Auto Chess. Bản lưu cũ đã qua boss giữ bước tiếp theo. Adventure bắt đầu lại cuộc chạm trán nếu tải lại giữa trận.
+Battle Adventure và Auto Chess dùng Canvas 2D. Cả ba chế độ dùng bot. Tài khoản đồng bộ bản luyện tập lên PostgreSQL. Client xử lý luật chiến đấu. Các phần còn cần hoàn thiện trước phát hành gồm rig và hoạt ảnh đầy đủ, duyệt mỹ thuật và quyền sử dụng, voice, benchmark WebGL trên thiết bị thật và cân bằng dài hạn. Bản chơi thử lưu manh mối, mốc nhiệm vụ, phần thưởng, checkpoint Adventure, ván TCG và vòng Auto Chess. Khi tải lại Adventure giữa trận, game khôi phục mốc đã lưu và chờ người chơi bấm **Tiếp tục**.

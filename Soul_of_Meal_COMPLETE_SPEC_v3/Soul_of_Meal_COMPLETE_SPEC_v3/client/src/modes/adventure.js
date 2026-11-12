@@ -7,6 +7,7 @@ import { FINALE_CHAPTERS, FINALE_ROUTES, finaleChapterComplete } from './adventu
 import { adventureSpiritStats, spiritProfile } from './spiritProgress.js';
 
 export const WORLD = { width: 960, height: 540 };
+const RANGE_EPSILON = 1e-6;
 const PLAYER_SPEED = 190;
 
 const VILLAGE_QUEST_REWARD = { gold: 80, experience: 100 };
@@ -537,7 +538,7 @@ function stepActor(battle, actor) {
   const dy = target.y - actor.y;
   const distance = Math.hypot(dx, dy);
   actor.direction = dx < 0 ? 'W' : 'E';
-  if (distance > profile.range) {
+  if (distance - profile.range > RANGE_EPSILON) {
     if (actor.stationary) return;
     const speed = (actor.speed ?? balance.approachSpeed) * (actor.slowUntil > battle.tick ? .55 : 1);
     const step = Math.min(speed, distance - profile.range);

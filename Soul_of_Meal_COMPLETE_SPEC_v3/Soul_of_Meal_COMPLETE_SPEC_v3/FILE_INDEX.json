@@ -39,8 +39,8 @@
     },
     {
       "path": ".agents/skills/soul-of-meal-sprite/scripts/validate_sprite.py",
-      "bytes": 3640,
-      "sha256": "0a23b8f01eee45ce625a5ab8c9de5e66bf382c20fcd1057dbad340835e190931"
+      "bytes": 3644,
+      "sha256": "c69bbcbe2ce6be0a8094f2b5d4b68cd839000ef9585ae9a5098cd4790f42dd68"
     },
     {
       "path": ".agents/skills/soul-of-meal-sprite/templates/identity.template.json",
@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 13465,
-      "sha256": "5cabae09e188dcf805646d2329bfe0c348c8beb996c2c026628ff87207b1425c"
+      "bytes": 13924,
+      "sha256": "b9500739b4fff2c7254fce6fb5c7b0c9022aa227ef153f59cf4785f1a038665d"
     },
     {
       "path": "client/index.html",
@@ -794,13 +794,13 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 109561,
-      "sha256": "0dae2da014e9a4803502b856726eb523cc5f685fd98818f7c4c60fe85ca730b0"
+      "bytes": 111849,
+      "sha256": "ff54ff5dc88fad7436dd7db05cfde95162c4829c686ee5cf78617137c47673fa"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 40250,
-      "sha256": "64d41eb7673dd4a17639b60e748c678e9e3d0f59c99418b5f8e0014d3352d282"
+      "bytes": 40294,
+      "sha256": "f9959740add24e7acf30653f52c0fe538d134e37d65e7268a11a1f4153383a51"
     },
     {
       "path": "client/src/modes/autoChess.js",
@@ -819,8 +819,8 @@
     },
     {
       "path": "client/tests/runtime.test.js",
-      "bytes": 48055,
-      "sha256": "5b59f41ddd2aea01f0ca572ab80572679d4a71dbd344b1e742a82ce9f1ace44b"
+      "bytes": 48553,
+      "sha256": "ce8775a62509e55a496903f0ee6cb229ab0081cf3b4369030ee896bb8101e868"
     },
     {
       "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
@@ -839,8 +839,8 @@
     },
     {
       "path": "client/src/render/clipPlayer.js",
-      "bytes": 7354,
-      "sha256": "8a9192453a01cc0de84b073637371f2254e850785c6c15a17f68d479d6691159"
+      "bytes": 7683,
+      "sha256": "7e84c664de2d51e11487d10635ff710d2c522e2d91db00682abc6e69c4749798"
     },
     {
       "path": "client/tests/animation.test.js",
@@ -1259,13 +1259,13 @@
     },
     {
       "path": "client/src/render/spriteAssets.js",
-      "bytes": 3443,
-      "sha256": "88c47a5fa5c65f900baafdd2ad761e11199063d13c3d16bc341e32d07b083ef4"
+      "bytes": 3905,
+      "sha256": "b650033f9a433f8b926807159465d45a3b1c8a9f5e3a510bf259a029af220c6b"
     },
     {
       "path": "client/src/render/spriteRenderer.js",
-      "bytes": 7072,
-      "sha256": "afa0a148e30befadb66a984708bfca4dbcc4897d5f8de89c25009d54c963a8f8"
+      "bytes": 7092,
+      "sha256": "31e2b4781449dd6a37f8303fd4a8a9da486b162336448ed5f7e1ec0db7dc4d83"
     },
     {
       "path": "examples/maps/forest.json",
@@ -1489,8 +1489,8 @@
     },
     {
       "path": "client/src/render/chessReplay.js",
-      "bytes": 7328,
-      "sha256": "97933ff5226f1a2ff53b3f502ad24da8fae58441ce8c08cedd2240430a783a6c"
+      "bytes": 7706,
+      "sha256": "bbb95594ca61cb759bc644a57ea73499e9a17ae4c7ca36b317453a99ccc31222"
     },
     {
       "path": "scripts/build_battle_poses.py",
@@ -2174,18 +2174,18 @@
     },
     {
       "path": "client/tests/originalArt.test.js",
-      "bytes": 4927,
-      "sha256": "526e51d261f8f617704bb9bab031beff33d9e62b8e8d159ff6e9ac626607ec8f"
+      "bytes": 6090,
+      "sha256": "c358eb73b95269e94732bac7ccef3893e63e5198177f80f313a9a75faa420c73"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_PLAYTEST.md",
-      "bytes": 9457,
-      "sha256": "e1d97ebaa355f306ea61432c8a2be130f4223aebc691525f67d27225b99ef7b8"
+      "bytes": 10089,
+      "sha256": "c1b51e6832b43e800760eb18387e32c0d318e0c5871affdc818f263fc2619126"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_SOURCES.json",
-      "bytes": 38150,
-      "sha256": "0efc75c0ffa274e8829ec8015d943a91fd13d942b71c0a0ba809ec8f4ca0e59c"
+      "bytes": 41383,
+      "sha256": "44169bd0def1e477119303a49f9c81132fb99c337c9f5babee27414c75932e32"
     },
     {
       "path": "scripts/build_element_sfx.py",
@@ -2194,8 +2194,8 @@
     },
     {
       "path": "scripts/build_original_art.py",
-      "bytes": 12838,
-      "sha256": "525766e2fec71d3f4630905a7ef1996aaffb818edd65ffa638ee1edcf6323e03"
+      "bytes": 13725,
+      "sha256": "005a5664b7a420b03eb7e4edc76bcc65ca8d479b12939c50bddf085925f6b597"
     },
     {
       "path": "docs/00_foundation/decisions/D-018.md",
@@ -2209,8 +2209,8 @@
     },
     {
       "path": "docs/04_qa/PLAYTEST_CONCEPT_GAP.md",
-      "bytes": 5209,
-      "sha256": "9bcbe65c86d68b6911980094e55fe9018d44cd7a2952e3d1f284ed7aa6aa4abc"
+      "bytes": 5837,
+      "sha256": "6020d822ac34029114e4cf50a2d2af26e725da1715dbde995acf38907e9a230a"
     },
     {
       "path": "client/assets/original/scenes/title.webp",
@@ -2224,8 +2224,8 @@
     },
     {
       "path": "client/shell.css",
-      "bytes": 21796,
-      "sha256": "ee1866f78c339048cdbd92e69613d5cdd8e111f05584212acd859c5a5d9ae7d9"
+      "bytes": 21788,
+      "sha256": "43a9387d1ed803100df19eb4a9cb6d8459bcb9485823fc7052cb58248b6a2947"
     },
     {
       "path": "client/src/shell/entry.js",
@@ -2234,8 +2234,8 @@
     },
     {
       "path": "client/src/shell/webStage.ts",
-      "bytes": 3096,
-      "sha256": "066cfb03fbc5a9f169e122160dc78f81904f9a8760dcf290573f07adc6dc2b14"
+      "bytes": 3122,
+      "sha256": "1e23ba554876a66c8a8d27c5fd3758b02b46fc63adf6626df65168cf34897397"
     },
     {
       "path": "client/tsconfig.json",
@@ -2534,8 +2534,8 @@
     },
     {
       "path": "client/play.css",
-      "bytes": 12122,
-      "sha256": "ac321aa3d9f50c3762d5292c79d47b82fc6e403e0e28b77e709ee72c647239a5"
+      "bytes": 18007,
+      "sha256": "a8545f15ff48f9a89b94e96c704732af714ae45c266a48aab1e7ebadfab00bf5"
     },
     {
       "path": "client/src/render/worldHud.js",
@@ -2546,6 +2546,136 @@
       "path": "client/tests/ux.test.js",
       "bytes": 2437,
       "sha256": "2113f653c0be922769e613b2b587de8f4b8128b25b9d1c9a52867f503c14e14b"
+    },
+    {
+      "path": "client/assets/characters/mob_mushroom_01/original_battle/poses/mob_mushroom_01_pose_00.png",
+      "bytes": 60474,
+      "sha256": "81268f0d9e8360487d5d8a728393776676ee94501b7b1c0546560f3b3c7ecdee"
+    },
+    {
+      "path": "client/assets/characters/mob_mushroom_01/original_battle/poses/mob_mushroom_01_pose_01.png",
+      "bytes": 60692,
+      "sha256": "0faf65da10609922de360f9efabaa8f8139339ba7d26a5e5be2e3b59853c5d46"
+    },
+    {
+      "path": "client/assets/characters/mob_mushroom_01/original_battle/poses/mob_mushroom_01_pose_02.png",
+      "bytes": 59913,
+      "sha256": "4d55bb5d94d70cf2fe5aff0f86ec05f2f14022959ed578dab4e250ffebf68a53"
+    },
+    {
+      "path": "client/assets/characters/mob_mushroom_01/original_battle/poses/mob_mushroom_01_pose_03.png",
+      "bytes": 57192,
+      "sha256": "97673ca489771d6b267dc9bc4b8899f86b875a97c0ed74e7fbdc28a3ad78d1c6"
+    },
+    {
+      "path": "client/assets/characters/mob_mushroom_01/original_battle/poses/mob_mushroom_01_pose_04.png",
+      "bytes": 61049,
+      "sha256": "e1baccff46d519bcb23f87f26c51185e52255a55481fa2f40466dacad82aaf19"
+    },
+    {
+      "path": "client/assets/characters/mob_mushroom_01/original_battle/poses/mob_mushroom_01_pose_05.png",
+      "bytes": 61843,
+      "sha256": "7a91e1d5d9845f78d3cb4a061ad88a499a94014c3bacd0e7d0f44c2b09c5bd01"
+    },
+    {
+      "path": "client/assets/characters/mob_mushroom_01/original_battle/poses/mob_mushroom_01_pose_06.png",
+      "bytes": 55385,
+      "sha256": "4458734c793acdd44bcff27544f3ca5a1745969c73268900885114145e5f0078"
+    },
+    {
+      "path": "client/assets/characters/mob_mushroom_01/original_battle/poses/mob_mushroom_01_pose_07.png",
+      "bytes": 59282,
+      "sha256": "7ab3d66c7f7083abc33778ecd4636a6984555ad2a36028d07602bb40870b4d0d"
+    },
+    {
+      "path": "client/assets/characters/mob_mushroom_01/original_battle/qa.json",
+      "bytes": 216,
+      "sha256": "7d2fdb61bbfd52058dcff3f58c6968ac10691ad6eb9d578795f3ecb6f8334e0f"
+    },
+    {
+      "path": "client/assets/characters/mob_mushroom_01/original_battle/source.sprite.json",
+      "bytes": 3313,
+      "sha256": "c51f3f1706f522b0d1a988902977341e10a564d734686ce9b22031ab6aace334"
+    },
+    {
+      "path": "client/assets/characters/mob_pepper_01/original_battle/poses/mob_pepper_01_pose_00.png",
+      "bytes": 48819,
+      "sha256": "113394c5fd62f2ae7489fa77143f596e5eab16463c011063351a3af8240012a3"
+    },
+    {
+      "path": "client/assets/characters/mob_pepper_01/original_battle/poses/mob_pepper_01_pose_01.png",
+      "bytes": 47322,
+      "sha256": "b6802367cdae0357134aa45cd3ae5292fdc24be767fd9525fc746581835d0db8"
+    },
+    {
+      "path": "client/assets/characters/mob_pepper_01/original_battle/poses/mob_pepper_01_pose_02.png",
+      "bytes": 47093,
+      "sha256": "1f4b13939fed229fb4d263efe3df198b73710aa75c49ca51db4eb3b1c347a824"
+    },
+    {
+      "path": "client/assets/characters/mob_pepper_01/original_battle/poses/mob_pepper_01_pose_03.png",
+      "bytes": 48059,
+      "sha256": "ca23305aa01e9660d749fb024372a9a4822899bc4b66ac74c4635f667273eb80"
+    },
+    {
+      "path": "client/assets/characters/mob_pepper_01/original_battle/poses/mob_pepper_01_pose_04.png",
+      "bytes": 48751,
+      "sha256": "c9034b4b51ce59dad13f6199b5232b6bdf54fadfeabd498337970ca25f97d017"
+    },
+    {
+      "path": "client/assets/characters/mob_pepper_01/original_battle/poses/mob_pepper_01_pose_05.png",
+      "bytes": 48315,
+      "sha256": "dae7e98c39c95f333055c854e2aa77b097f512759d89e6c52f1c61dc657f8015"
+    },
+    {
+      "path": "client/assets/characters/mob_pepper_01/original_battle/poses/mob_pepper_01_pose_06.png",
+      "bytes": 45723,
+      "sha256": "439564ffdc2dc20d8a72d37e1102bb5330c1f79983d709ffe41f7aadcc969f0b"
+    },
+    {
+      "path": "client/assets/characters/mob_pepper_01/original_battle/poses/mob_pepper_01_pose_07.png",
+      "bytes": 49861,
+      "sha256": "1781e7b4ec419c62d651480d832a98c7b06eb4581d33084112e2f38fb9ac49a5"
+    },
+    {
+      "path": "client/assets/characters/mob_pepper_01/original_battle/qa.json",
+      "bytes": 214,
+      "sha256": "46a19e66f22b198a8953c86a73369a25675db64a3881bc4ac349a3a0dc937743"
+    },
+    {
+      "path": "client/assets/characters/mob_pepper_01/original_battle/source.sprite.json",
+      "bytes": 3261,
+      "sha256": "feebaf4d0e907d59116da44b9b047f5925673962d52a6c02b593b432667336c2"
+    },
+    {
+      "path": "client/assets/original/atlases/mob_mushroom_01.json",
+      "bytes": 3290,
+      "sha256": "f991eb297b728f998319e3829ac607d3e0742ae112ee398b9805066b2a904c05"
+    },
+    {
+      "path": "client/assets/original/atlases/mob_mushroom_01.webp",
+      "bytes": 55732,
+      "sha256": "77427dba8d8710c4e55c012c0af82be1d11f8b586b93af92a11703992f515682"
+    },
+    {
+      "path": "client/assets/original/atlases/mob_pepper_01.json",
+      "bytes": 3238,
+      "sha256": "d947c7cb78e7db876165a01a32748105215d7eed758a95534401c82a5fa3b90f"
+    },
+    {
+      "path": "client/assets/original/atlases/mob_pepper_01.webp",
+      "bytes": 49706,
+      "sha256": "7fb92015ef3411974583d4126de5398a6bb2074f2ff75aa19cad81238ef31663"
+    },
+    {
+      "path": "client/src/render/boardSprites.js",
+      "bytes": 1896,
+      "sha256": "c4e2e1ca2fca3c588fc00282c8fbcb6a9eb98e044afc5a8fc9479d838a26065d"
+    },
+    {
+      "path": "client/tests/boardSprites.test.js",
+      "bytes": 2036,
+      "sha256": "0f9af2c25009257915847bd1c54c77c7d5083257b124c3851f45f436563205d1"
     }
   ]
 }

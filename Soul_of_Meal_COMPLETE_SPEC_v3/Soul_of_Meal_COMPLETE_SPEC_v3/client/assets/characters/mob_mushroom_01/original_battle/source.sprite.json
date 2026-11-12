@@ -1,0 +1,155 @@
+{
+  "character_id": "mob_mushroom_01",
+  "skin_id": "default",
+  "frame_size_px": [
+    256,
+    256
+  ],
+  "source_sheet_sha256": "1abbe1bb53f6db7e7a25356e0a5f9c31c61de48e55857d8188920db6d016b850",
+  "ground_anchor": [
+    0.5,
+    0.8984375
+  ],
+  "rights_status": "pending_review",
+  "identity_review": "pending",
+  "animations": {
+    "keyposes": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "W": {
+          "frames": [
+            "poses/mob_mushroom_01_pose_00.png",
+            "poses/mob_mushroom_01_pose_01.png",
+            "poses/mob_mushroom_01_pose_02.png",
+            "poses/mob_mushroom_01_pose_03.png",
+            "poses/mob_mushroom_01_pose_04.png",
+            "poses/mob_mushroom_01_pose_05.png",
+            "poses/mob_mushroom_01_pose_06.png",
+            "poses/mob_mushroom_01_pose_07.png"
+          ]
+        }
+      }
+    }
+  },
+  "identity_reference": "original/actors/mob_mushroom_01.webp",
+  "clip_review": "pending",
+  "authored_facing": "W",
+  "opposite_facing": "mirrored_playtest",
+  "runtime_clips": {
+    "idle": {
+      "fps": 3,
+      "loop": true,
+      "directions": {
+        "W": {
+          "frames": [
+            "mob_mushroom_01_pose_00",
+            "mob_mushroom_01_pose_07"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "walk": {
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "W": {
+          "frames": [
+            "mob_mushroom_01_pose_01",
+            "mob_mushroom_01_pose_00",
+            "mob_mushroom_01_pose_02"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "run": {
+      "fps": 11,
+      "loop": true,
+      "directions": {
+        "W": {
+          "frames": [
+            "mob_mushroom_01_pose_01",
+            "mob_mushroom_01_pose_02"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "attack_a": {
+      "fps": 9,
+      "loop": false,
+      "directions": {
+        "W": {
+          "frames": [
+            "mob_mushroom_01_pose_03",
+            "mob_mushroom_01_pose_04",
+            "mob_mushroom_01_pose_00"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "attack_b": {
+      "fps": 9,
+      "loop": false,
+      "directions": {
+        "W": {
+          "frames": [
+            "mob_mushroom_01_pose_03",
+            "mob_mushroom_01_pose_04",
+            "mob_mushroom_01_pose_07"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "hit": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "W": {
+          "frames": [
+            "mob_mushroom_01_pose_05",
+            "mob_mushroom_01_pose_00"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "defeat": {
+      "fps": 2,
+      "loop": true,
+      "directions": {
+        "W": {
+          "frames": [
+            "mob_mushroom_01_pose_06"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    }
+  }
+}

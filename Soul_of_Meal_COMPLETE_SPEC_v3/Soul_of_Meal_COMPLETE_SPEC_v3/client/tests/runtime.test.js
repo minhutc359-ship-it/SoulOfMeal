@@ -962,3 +962,12 @@ test('Auto Chess preparation and loss streak payout follow the match state', asy
   assert.equal(run.streak, -2);
   assert.equal(run.result.payout.streak, 1);
 });
+
+test('Adventure melee attacks start when movement lands on the attack range boundary', () => {
+  const save = createDefaultSave();
+  const state = createAdventureState(save);
+  beginBattle(state, save, 'forest');
+  const mob = state.battle.actors.find(actor => actor.id === 'mob_mushroom_01');
+  for (let i = 0; i < 65 && !mob.attackCount; i++) stepAdventure(state, save, 1 / 30);
+  assert.ok(mob.attackCount > 0, 'a rounded movement coordinate must not trap the attacker outside its range');
+});

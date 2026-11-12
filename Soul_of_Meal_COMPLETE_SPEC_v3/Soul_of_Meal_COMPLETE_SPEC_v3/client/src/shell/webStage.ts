@@ -74,7 +74,7 @@ export function mountWebStage(host: HTMLElement) {
       scene.draw();
     } else {
       host.dataset.renderer = '';
-      game.scene.sleep('backdrop');
+      if (scene.sys.isActive()) game.scene.sleep('backdrop');
     }
   }
 
