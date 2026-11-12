@@ -180,6 +180,24 @@
       "source_file": "mob_pepper_01.png",
       "source_sha256": "cca30d18f69b03da71389f4d275285831bdc558d772d3e740e8d4ce738db1a71",
       "identity_reference": "client/assets/original/actors/mob_pepper_01.webp"
+    },
+    "village_kitchen": {
+      "prompt": "Create one background image for a Vietnamese culinary fantasy web RPG, Soul of Meal. Vietnamese fantasy village kitchen and forge where Vị Linh equipment is crafted. Warm ember coral and copper, back-wall clay cooking stove at far left, hanging bronze cookware and mortar, herb bunches, glimmering tiny sparks. One broad wooden workbench centered near the back wall, where a small chibi character can walk up to its front edge. Painted high-detail 2D anime chibi RPG environment, soft golden lantern light, outlined wood and stone, readable shapes. Wide 16:9 landscape frame. Fixed top-down 3/4 view with floor shown as a broad open rectilinear area. Back wall and all furniture contained in the TOP 42 percent. The entire lower 55 percent is completely clear walkable warm wood floor, with subtle plank detail and a small entrance mat centered at the bottom edge. A chibi player, walk markers, and UI will be added on the floor by the game engine. No characters, animals, captions, writing, icons, logos, UI, frame, or watermark. Full bleed playable room background, no giant perspective foreground objects.",
+      "alpha": false,
+      "source_file": "village_kitchen.png",
+      "source_sha256": "64b2afab08c8425f201af812f338501a016d9f69f799d798e9558830a3968627"
+    },
+    "village_merchant": {
+      "prompt": "Create one background image for a Vietnamese culinary fantasy web RPG, Soul of Meal. Vietnamese fantasy village spice and ingredient shop. Amber lanterns, indigo and muted turmeric accents, ceramic spice jars, cloth bags and baskets on back-wall shelves. Single wooden shop counter centered near the back wall. Cozy amber interior with green and ochre detail. Painted high-detail 2D anime chibi RPG environment, soft golden lantern light, outlined wood and stone, readable shapes. Wide 16:9 landscape frame. Fixed top-down 3/4 view with floor shown as a broad open rectilinear area. Back wall and all furniture contained in the TOP 42 percent. The entire lower 55 percent is completely clear walkable warm wood floor, with subtle plank detail and a small entrance mat centered at the bottom edge. A chibi player, walk markers, and UI will be added on the floor by the game engine. No characters, animals, captions, writing, icons, logos, UI, frame, or watermark. Full bleed playable room background, no giant perspective foreground objects.",
+      "alpha": false,
+      "source_file": "village_merchant.png",
+      "source_sha256": "9ca5efdcfac7c3d8b707b091104dc0fae43e77bc9d7efc03108d5f54c045657f"
+    },
+    "village_guild": {
+      "prompt": "Create one background image for a Vietnamese culinary fantasy web RPG, Soul of Meal. Vietnamese fantasy village quest guild. Jade and honey-gold accents, illustrated hanging maps and pale paper quest slips with texture only, lanterns, carved wooden beams, a central reception desk near the back wall with a green and cream runner. Warm orderly quiet mood. Painted high-detail 2D anime chibi RPG environment, soft golden lantern light, outlined wood and stone, readable shapes. Wide 16:9 landscape frame. Fixed top-down 3/4 view with floor shown as a broad open rectilinear area. Back wall and all furniture contained in the TOP 42 percent. The entire lower 55 percent is completely clear walkable warm wood floor, with subtle plank detail and a small entrance mat centered at the bottom edge. A chibi player, walk markers, and UI will be added on the floor by the game engine. No characters, animals, captions, writing, icons, logos, UI, frame, or watermark. Full bleed playable room background, no giant perspective foreground objects.",
+      "alpha": false,
+      "source_file": "village_guild.png",
+      "source_sha256": "b695e5aa0780b229ced4505e93ed043ed9dae53fef9834033ee7c3ed179d0f36"
     }
   },
   "generator": "OpenAI ImageGen, built-in image generation",

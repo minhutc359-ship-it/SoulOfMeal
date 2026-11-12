@@ -19,10 +19,16 @@
     ]
   },
   "transitions": [
+    {"id": "village_merchant_door", "type": "door", "from": "village", "to": "village_merchant", "spawn": {"x": 480, "y": 439}, "label": "Tiệm Nguyên Liệu"},
+    {"id": "village_guild_door", "type": "door", "from": "village", "to": "village_guild", "spawn": {"x": 480, "y": 439}, "label": "Hội Quán"},
+    {"id": "village_kitchen_door", "type": "door", "from": "village", "to": "village_kitchen", "spawn": {"x": 480, "y": 439}, "label": "Nhà Bếp"},
     { "id": "portal_ingredient_forest", "type": "door", "from": "village", "to": "forest", "targetMap": "forest", "spawn": { "x": 82, "y": 420 }, "label": "Cổng Rừng Nguyên Liệu" },
     { "id": "village_harbor_route", "type": "door", "from": "village", "to": "harbor", "spawn": { "x": 114, "y": 425 }, "label": "Hải Vực Hương Biển" }
   ],
   "interactables": [
+    {"id": "village_merchant_door", "kind": "room_door", "action": "village_merchant_door", "label": "Tiệm Nguyên Liệu", "x": 728, "y": 240, "radius": 47},
+    {"id": "village_guild_door", "kind": "room_door", "action": "village_guild_door", "label": "Hội Quán", "x": 488, "y": 230, "radius": 47},
+    {"id": "village_kitchen_door", "kind": "room_door", "action": "village_kitchen_door", "label": "Nhà Bếp", "x": 148, "y": 244, "radius": 47},
     { "id": "npc_lilia", "kind": "npc", "action": "lilia", "label": "Lilia", "x": 235, "y": 260, "radius": 62 },
     { "id": "village_supply_chest_p0", "kind": "chest", "action": "chest", "label": "Rương nguyên liệu", "x": 680, "y": 355, "radius": 62 },
     { "id": "portal_ingredient_forest", "kind": "portal", "action": "portal", "label": "Cổng Rừng Nguyên Liệu", "x": 878, "y": 260, "radius": 62 },
@@ -32,6 +38,9 @@
     { "id": "feast_table", "kind": "finale_objective", "action": "feast_table", "label": "Dọn bàn tiệc", "x": 381, "y": 414, "radius": 50 }
   ],
   "visuals": [
+    {"id": "village_merchant_door", "kind": "room_entrance", "x": 728, "y": 240, "element": "light"},
+    {"id": "village_guild_door", "kind": "room_entrance", "x": 488, "y": 230, "element": "wood"},
+    {"id": "village_kitchen_door", "kind": "room_entrance", "x": 148, "y": 244, "element": "fire"},
     { "id": "building_kitchen", "kind": "house", "x": 60, "y": 105, "width": 176, "height": 118, "palette": "coral" },
     { "id": "building_guild", "kind": "house", "x": 400, "y": 90, "width": 176, "height": 118, "palette": "sage" },
     { "id": "building_merchant", "kind": "house", "x": 640, "y": 100, "width": 176, "height": 118, "palette": "gold" },

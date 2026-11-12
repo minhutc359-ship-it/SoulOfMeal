@@ -1,6 +1,7 @@
 import { FIRST_CHAPTER, SECOND_CHAPTER, THIRD_CHAPTER, FOREST_CLUES, FOREST_CLUE_IDS, FOREST_LANTERNS, HARBOR_CLUES, HARBOR_CLUE_IDS } from './adventureStory.js';
 
 import { FINALE_CHAPTERS, finaleRoute } from './adventureFinale.js';
+import { ROOM_EXIT, VILLAGE_ROOMS } from './villageRooms.js';
 
 const STEPS = Object.freeze([
   'Gặp Lilia ở quảng trường',
@@ -11,10 +12,19 @@ const STEPS = Object.freeze([
 ]);
 
 export function adventureJournal(save) {
-  const { quest, chestOpened, forestCleared, forestClues, map, chapterTwo, chapterThree } = save.adventure;
+  if (VILLAGE_ROOMS.includes(save.adventure.map)) {
+    const journal = outdoorJournal({ ...save.adventure, map: 'village' });
+    return journal.action || journal.nextChapterAction
+      ? { ...journal, action: ROOM_EXIT } : journal;
+  }
+  return outdoorJournal(save.adventure);
+}
+
+function outdoorJournal(adventure) {
+  const { quest, chestOpened, forestCleared, forestClues, map, chapterTwo, chapterThree } = adventure;
   const inForest = map === 'forest';
   const clues = FOREST_CLUE_IDS.filter(id => forestClues.includes(id)).map(id => FOREST_CLUES[id]);
-  if (chapterThree.stage === 'completed') return finaleJournal(save.adventure, clues);
+  if (chapterThree.stage === 'completed') return finaleJournal(adventure, clues);
   if (chapterTwo.stage === 'completed' && (chapterThree.stage !== 'not_started' || map === 'harbor')) {
     const titles = ['Gặp Phở Lam Vũ ở bến', 'Kiểm tra lưới và vệt triều', 'Dập tiếng Tù Và Hải Triều', 'Báo tin cho Phở Lam Vũ'];
     const nextClue = HARBOR_CLUE_IDS.find(id => !chapterThree.clues.includes(id));

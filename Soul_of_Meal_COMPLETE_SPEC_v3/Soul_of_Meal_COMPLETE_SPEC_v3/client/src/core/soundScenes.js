@@ -1,3 +1,5 @@
+import { VILLAGE_ROOMS } from '../modes/villageRooms.js';
+
 export const DEFAULT_SOUNDTRACKS = Object.freeze({
   login: 'village_theme.ogg',
   village: 'village_theme.ogg',
@@ -19,7 +21,7 @@ export function resolveSoundScene(page, adventure) {
       return adventure.battle.actors.some(actor => actor.boss) ? 'epic_boss_battle' : 'adventure_battle';
     }
     if (adventure.map === 'forest') return 'forest';
-    return adventure.map === 'village' ? 'village' : 'adventure';
+    return adventure.map === 'village' || VILLAGE_ROOMS.includes(adventure.map) ? 'village' : 'adventure';
   }
   return 'village';
 }

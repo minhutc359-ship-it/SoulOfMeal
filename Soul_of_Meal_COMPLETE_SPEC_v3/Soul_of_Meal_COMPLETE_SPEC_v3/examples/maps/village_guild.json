@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "catalog_version": "client-p0-v1",
+  "map_id": "env_village_guild",
+  "runtime_key": "village_guild",
+  "display_name": "Hội Quán",
+  "world": {
+    "width": 960,
+    "height": 540,
+    "player_radius": 14,
+    "spawn": {
+      "x": 480,
+      "y": 439
+    }
+  },
+  "collision": {
+    "obstacles": [
+      {
+        "id": "village_guild_furniture",
+        "type": "rect",
+        "x": 0,
+        "y": 0,
+        "width": 960,
+        "height": 275
+      }
+    ]
+  },
+  "transitions": [
+    {
+      "id": "room_exit",
+      "type": "door",
+      "from": "village_guild",
+      "to": "village",
+      "spawn": {
+        "x": 488,
+        "y": 242
+      },
+      "label": "Ra quảng trường"
+    }
+  ],
+  "interactables": [
+    {
+      "id": "village_guild_station",
+      "kind": "room_service",
+      "action": "journal",
+      "label": "Bàn nhiệm vụ",
+      "x": 480,
+      "y": 308,
+      "radius": 57
+    },
+    {
+      "id": "room_exit",
+      "kind": "room_door",
+      "action": "room_exit",
+      "label": "Ra quảng trường",
+      "x": 480,
+      "y": 490,
+      "radius": 38
+    }
+  ],
+  "visuals": [
+    {
+      "id": "village_guild_station",
+      "kind": "room_station",
+      "x": 480,
+      "y": 308,
+      "label": "BÀN NHIỆM VỤ",
+      "element": "wood"
+    },
+    {
+      "id": "room_exit",
+      "kind": "room_station",
+      "x": 480,
+      "y": 490,
+      "label": "RA QUẢNG TRƯỜNG",
+      "element": "light"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { adventureCheckpoint, createAdventureState, interactAdventure, nearestInteraction, availableAdventureInteractions, setAdventureInput, stepAdventure, activateUltimate, activateLanternWard, retreatFromTide, activateBossCounter, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, leaveAdventureDefeat, WORLD, resolveCameraViewport } from './modes/adventure.js';
+import { adventureCheckpoint, createAdventureState, interactAdventure, nearestInteraction, availableAdventureInteractions, purchaseAdventureSupplies, setAdventureInput, stepAdventure, activateUltimate, activateLanternWard, retreatFromTide, activateBossCounter, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, leaveAdventureDefeat, WORLD, resolveCameraViewport } from './modes/adventure.js';
 import { createTcgMatch, playTcgCard, passTcgPriority, runBotPriority, runTcgBot, attackTcg, assignTcgBlockers, declaredTcgAttackers, endTcgTurn, mulliganTcg, surrenderTcg, validateDeck } from './modes/tcg.js';
 import { advanceChessRound, benchChessUnit, buyChessOffer, createChessRun, moveChessUnit, nextChessOpponent, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat, toggleChessLock, buyChessExperience, chessTraits, CHESS_PREPARATION_SECONDS, CHESS_TRAITS } from './modes/autoChess.js';
 import { gameEvents } from './core/events.js';
@@ -16,6 +16,7 @@ import { BattleRigClock, loadBunBoRig } from './render/bunboBattleRig.js';
 import { GameAudio } from './core/audio.js';
 import { resolveSoundScene } from './core/soundScenes.js';
 import { adventureJournal } from './modes/adventureJournal.js';
+import { ROOM_EXIT, VILLAGE_ROOMS } from './modes/villageRooms.js';
 import { adventureChronicle, CHAPTER_DIALOGUES } from './modes/adventureStory.js';
 import { bindWorldStick, drawWorldMinimap } from './render/worldHud.js';
 import { BoardSprites } from './render/boardSprites.js';
@@ -24,6 +25,7 @@ import { ChessReplay } from './render/chessReplay.js';
 import { renderEntry } from './shell/entry.js';
 import { createAccountApi, accountErrorMessage } from './core/accountApi.js';
 import { createCloudSave } from './core/cloudSave.js';
+import { activeContentRelease, pinnedContentRelease } from './core/contentRelease.js';
 import { openAccountDialog } from './shell/accountDialog.js';
 import { openStoryDialog } from './shell/storyDialog.js';
 
@@ -35,6 +37,7 @@ const FULL_ARENA = Object.freeze({ height: WORLD.height, top: 0 });
 const WIDE_ARENA = Object.freeze({ height: 360, top: 100 });
 const BUN_BO_RIG_SCALE = .88;
 let webStage;
+const pinnedRelease = pinnedContentRelease(new URL(location.href));
 const accountApi = import.meta.env?.SOM_ACCOUNTS ? createAccountApi() : null;
 const runtime = {
   page: 'title', save: loadSave(), adventure: null, cards: null, deck: null, units: null, maps: null,
@@ -55,7 +58,7 @@ window.addEventListener('click', () => runtime.audio.unlock(), { capture: true }
 window.addEventListener('keydown', () => runtime.audio.unlock(), { once: true, capture: true });
 gameEvents.addEventListener('game-event', ({ detail }) => {
   const battle = runtime.adventure.battle;
-  const rigAttack = runtime.bunboRig && battle?.encounter === 'forest'
+  const rigAttack = runtime.bunboRig && battle
     && detail.battle_id === battle.id && detail.source_id === HERO_ID;
   const delayedSlash = rigAttack && detail.type === 'attack_started' && !detail.payload.travel_ticks;
   if (!delayedSlash) runtime.effects.handle(detail, battle);
@@ -106,6 +109,7 @@ const contentFiles = [
   'cards/cards.catalog.json', 'cards/starter_deck.json',
   'auto_chess/units.json', 'auto_chess/shop_odds.json',
   'maps/village.json', 'maps/forest.json', 'maps/harbor.json', 'maps/caldera.json', 'maps/sanctum.json',
+  ...VILLAGE_ROOMS.map(key => 'maps/' + key + '.json'),
 ];
 
 async function loadContent(report) {
@@ -398,12 +402,72 @@ function renderHome() {
         <h1>Hành Trình<br>Vị Linh</h1>
         <p>${headline}</p>
         <button class="entry-action" data-page="adventure">${quest === 'not_started' ? 'Vào làng' : 'Tiếp tục phiêu lưu'} <b aria-hidden="true">›</b></button>
+        ${pinnedRelease ? `<div class="release-update" data-content-update hidden>
+          <p role="status">Có bản phát hành khác sẵn sàng.</p>
+          <button type="button" class="button light" data-apply-release>Cập nhật</button>
+        </div>` : ''}
       </div>
       <div class="lobby-modes" role="group" aria-label="Chọn lối chơi">
         <button class="lobby-mode" data-page="tcg"><img src="${originalCardArt('card_demo_10')}" alt=""><span><strong>Thẻ chiến thuật</strong><small>${runtime.tcg && !runtime.tcg.result ? 'Tiếp tục ván đấu' : 'Đấu thẻ với bot'}</small></span><b aria-hidden="true">›</b></button>
         <button class="lobby-mode" data-page="chess"><img src="${sceneArt('chess_court')}" alt=""><span><strong>Auto Chess</strong><small>${runtime.chess && runtime.chess.phase !== 'finished' ? 'Tiếp tục vòng ' + runtime.chess.round : 'Đấu cờ với bot'}</small></span><b aria-hidden="true">›</b></button>
       </div>
     </section>`);
+  void checkForContentUpdate();
+}
+
+function openMatches() {
+  return [
+    runtime.adventure.battle && 'Phiêu lưu',
+    runtime.tcg && !runtime.tcg.result && 'Đấu thẻ',
+    runtime.chess && runtime.chess.phase !== 'finished' && 'Đấu cờ',
+  ].filter(Boolean);
+}
+
+async function checkForContentUpdate() {
+  const panel = app.querySelector('[data-content-update]');
+  if (!pinnedRelease || !panel || panel.dataset.checking) return;
+  panel.dataset.checking = 'true';
+  try {
+    const next = await activeContentRelease(pinnedRelease.root);
+    if (!panel.isConnected) return;
+    panel.hidden = next.build === pinnedRelease.build;
+    if (panel.hidden) return;
+    const button = panel.querySelector('[data-apply-release]');
+    const pending = openMatches();
+    panel.querySelector('[role="status"]').textContent = pending.length
+      ? `Có bản cập nhật. Hoàn tất ${pending.join(', ')} để áp dụng.` : 'Có bản cập nhật sẵn sàng.';
+    button.disabled = pending.length > 0;
+    button.onclick = () => applyContentUpdate(panel, button);
+  } catch {
+    // A failed release check leaves the current scene usable.
+  } finally {
+    delete panel.dataset.checking;
+  }
+}
+
+async function applyContentUpdate(panel, button) {
+  if (openMatches().length) return;
+  button.disabled = true;
+  const status = panel.querySelector('[role="status"]');
+  status.textContent = 'Đang kiểm tra bản cập nhật…';
+  try {
+    const next = await activeContentRelease(pinnedRelease.root);
+    if (!panel.isConnected || runtime.page !== 'home') return;
+    if (next.build === pinnedRelease.build) {
+      panel.hidden = true;
+      return;
+    }
+    saveNow();
+    if (runtime.cloud && !await runtime.cloud.flush()) {
+      status.textContent = 'Tiến trình chưa được lưu. Kiểm tra tài khoản trong Cài đặt rồi thử lại.';
+      return;
+    }
+    if (panel.isConnected && runtime.page === 'home' && !openMatches().length) location.replace(next.entry);
+  } catch {
+    status.textContent = 'Chưa tải được bản cập nhật. Hãy thử lại.';
+  } finally {
+    button.disabled = false;
+  }
 }
 
 function renderAdventure() {
@@ -413,6 +477,7 @@ function renderAdventure() {
   const target = nearestInteraction(adventure, save, runtime.maps);
   const journal = adventureJournal(save);
   const guideAction = journal.action ?? journal.nextChapterAction;
+  const inRoom = VILLAGE_ROOMS.includes(adventure.map);
   const encounter = adventureEncounters[battle?.encounter ?? 'forest'];
   const mapTitle = getAdventureMap(runtime.maps, adventure.map)?.display_name ?? 'Làng Ẩm Thực';
   runtime.worldStick = null;
@@ -480,7 +545,8 @@ function renderAdventure() {
           <p data-tide-threat></p><button class="button light" data-tide-retreat type="button">R · Lùi về vùng khô</button></div>` : ''}
         </section>` : `<section class="panel"><h2>${journal.title}</h2>
           <p class="quest-objective">${journal.labels[journal.step]?.title ?? journal.nextChapterLabel ?? (journal.completedCampaign ? 'Hành Trình Vị Linh đã hoàn thành' : 'Chương đã hoàn thành')}</p>
-          <div class="action-row">${guideAction ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
+          <div class="action-row">${inRoom ? '<button class="button" data-leave-room>Ra quảng trường</button>'
+            : guideAction ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
             <button class="button light" data-page="journey">Nhật ký hành trình</button></div>
         </section>`}
       ${battle ? '' : party}
@@ -493,6 +559,10 @@ function renderAdventure() {
     navigate('roster');
   }));
   app.querySelector('[data-guide-objective]')?.addEventListener('click', () => guideToObjective(guideAction));
+  app.querySelector('[data-leave-room]')?.addEventListener('click', () => {
+    const exit = availableAdventureInteractions(adventure.map, save, runtime.maps).find(item => item.action === ROOM_EXIT);
+    if (exit) queueWorldPath(exit, ROOM_EXIT);
+  });
   app.querySelector('[data-lantern-ward]')?.addEventListener('click', () => {
     if (activateLanternWard(adventure)) updateBattleHud(battle);
   });
@@ -558,7 +628,7 @@ function renderAdventureJournal() {
         <dl>${journal.clues.map(clue => `<dt>${clue.title}</dt><dd>${clue.note}</dd>`).join('')}</dl>
       </details>` : ''}
       <div class="action-row">
-        ${guideAction && !adventure.battle ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
+        ${guideAction && !adventure.battle ? `<button class="button" data-guide-objective>${guideAction === ROOM_EXIT ? 'Dẫn đến lối ra' : 'Dẫn đường'}</button>` : ''}
         <button class="button light" data-page="adventure">Về bản đồ</button>
       </div>
     </section>
@@ -683,7 +753,7 @@ function doAdventureInteract() {
   const result = interactAdventure(runtime.adventure, runtime.save, runtime.maps);
   runtime.adventure = result.state;
   runtime.save = result.save;
-  if (result.changed || result.dialogue) {
+  if (result.changed || result.dialogue || result.service) {
     runtime.heldKeys.clear();
     setAdventureInput(runtime.adventure, 0, 0);
     runtime.adventure.walkPath = [];
@@ -691,8 +761,37 @@ function doAdventureInteract() {
     runtime.adventure.tapInteraction = null;
   }
   if (result.changed) saveNow();
+  if (result.service) return openVillageService(result.service, result.offer);
   render();
   if (result.dialogue) openStoryDialog(app, result.dialogue);
+}
+
+function openVillageService(service, offer) {
+  if (service === 'gear') {
+    runtime.rosterTab = 'gear';
+    return navigate('roster');
+  }
+  if (service === 'journal') return navigate('journey');
+  if (service !== 'supplies' || !offer) return;
+  const affordable = runtime.save.player.gold >= offer.gold;
+  const dialog = openInfoDialog('Tiệm Nguyên Liệu', `
+    <p>Đổi vàng lấy tinh hoa dùng để nâng cấp, chế tác và tặng quà Vị Linh.</p>
+    <p><b>${escapeHtml(offer.essence)} tinh hoa</b> · ${escapeHtml(offer.gold)} vàng</p>
+    <button type="button" class="button" data-buy-supplies ${affordable ? '' : 'disabled'}>${affordable ? 'Đổi nguyên liệu' : 'Chưa đủ vàng'}</button>`);
+  dialog.querySelector('[data-buy-supplies]').addEventListener('click', () => {
+    const purchase = purchaseAdventureSupplies(runtime.adventure, runtime.save, runtime.maps);
+    if (purchase.purchased) {
+      runtime.save = purchase.save;
+      runtime.adventure.lastMessage = `Đã đổi ${offer.gold} vàng lấy ${offer.essence} tinh hoa.`;
+      saveNow();
+      runtime.audio.play('sfx_ui_confirm');
+    } else {
+      runtime.adventure.lastMessage = 'Không thể đổi nguyên liệu. Kiểm tra số vàng và vị trí.';
+    }
+    dialog.close();
+    renderAdventure();
+    app.querySelector('[data-interact]')?.focus({ preventScroll: true });
+  }, { once: true });
 }
 
 function useUltimate(actorId) {
@@ -714,7 +813,7 @@ function claimAdventureBattle() {
 }
 
 function onWorldPointer(event) {
-  if (app.querySelector('.story-dialog[open]')) return;
+  if (app.querySelector('dialog[open]')) return;
   const canvas = event.currentTarget;
   const rect = canvas.getBoundingClientRect();
   const x = (event.clientX - rect.left) / rect.width * WORLD.width;
@@ -830,7 +929,7 @@ function drawAdventureFrame(deltaSeconds) {
   const heroAnimation = runtime.animations.getActorState(HERO_ID)?.animation;
   canvas.dataset.animationClip = heroAnimation?.requestedClipId ?? 'idle';
   canvas.dataset.animationFallback = String(heroAnimation?.missingClip ?? true);
-  canvas.dataset.battleRig = adventure.battle?.encounter === 'forest' && runtime.bunboRig ? 'bunbo' : '';
+  canvas.dataset.battleRig = adventure.battle && runtime.bunboRig ? 'bunbo' : '';
   if (adventure.battle) drawBattleScene(context, adventure);
   else {
     context.save();
@@ -847,9 +946,8 @@ function drawAdventureFrame(deltaSeconds) {
 function syncAdventureAnimations(adventure, moved) {
   const views = [];
   if (adventure.battle) {
-    const hasBunBoRig = adventure.battle.encounter === 'forest' && runtime.bunboRig;
     for (const actor of adventure.battle.actors) {
-      const moveSpeed = hasBunBoRig && actor.id === HERO_ID ? 3 : 1.5;
+      const moveSpeed = runtime.bunboRig && actor.id === HERO_ID ? 3 : 1.5;
       views.push({ actorId: actor.actor_id, characterId: actor.id, team: actor.team, x: actor.x, y: actor.y, direction: actor.direction, alive: actor.alive, speed: actor.moving ? moveSpeed : 0 });
     }
   } else {
@@ -916,6 +1014,9 @@ function drawMapVisuals(context, map, save) {
     } else if (visual.kind === 'clue' && activeIds.has(visual.id)) {
       drawElementEffect(context, spriteRenderer, visual.element ?? 'light', 'impact', { x, y: y - 9, size: 48, opacity: .9 });
       drawMapLabel(context, visual.label, x, y + 19);
+    } else if (['room_entrance', 'room_station'].includes(visual.kind) && activeIds.has(visual.id)) {
+      drawElementEffect(context, spriteRenderer, visual.element, 'impact', { x, y, size: 40, opacity: .8 });
+      if (visual.label) drawMapLabel(context, visual.label, x, y + 25);
     } else if (visual.kind === 'lantern' && save.adventure.chapterTwo.stage === 'accepted') {
       const lit = !activeIds.has(visual.id);
       drawElementEffect(context, spriteRenderer, visual.element, 'impact', { x, y: y - 10, size: lit ? 63 : 49, opacity: lit ? 1 : .6 });
@@ -998,7 +1099,7 @@ function drawBattleScene(context, adventure) {
       const fromX = actor.previousX ?? actor.x;
       const fromY = actor.previousY ?? actor.y;
       const animation = runtime.animations.getActorState(actor.actor_id)?.animation;
-      const rigMotion = battle.encounter === 'forest' && actor.id === HERO_ID
+      const rigMotion = actor.id === HERO_ID
         ? runtime.bunboRigClock?.motion(battle, actor, animation) : null;
       drawActor(context, actor, animation,
         actor.boss && ['stoves', 'sequence'].includes(battle.bossTelegraph?.counter),
@@ -1235,7 +1336,6 @@ function renderTcg() {
       ${!match.result && match.phase === 'round_end' && match.activePlayer === 0 ? '<div class="action-row"><button class="button" data-tcg-end>Kết thúc lượt</button></div>' : ''}
       <div class="action-row mode-shortcuts">
         <button class="button light compact" data-tcg-log>Nhật ký</button>
-        ${defending ? '<button class="button light compact" data-tcg-hand>Bài trên tay</button>' : ''}
         <button class="button light compact" data-page="deck">Sửa bộ bài</button>
         <button class="button light compact" data-tcg-graveyard ${user.graveyard.length ? '' : 'disabled'}>Mộ bài · ${user.graveyard.length}</button>
         <button class="button light compact" data-tcg-restart>Ván mới</button>
@@ -1365,7 +1465,10 @@ function tcgDefensePanel(attackers, defenders) {
         ${units.map(blocker => `<option value="${escapeAttr(blocker.instance_id)}">${escapeHtml(cardName(blocker))} · ${blocker.atk}/${blocker.current_def}</option>`).join('')}
       </select>
     </label>`).join('')}</div>
-    <button class="button" data-tcg-confirm-block>Chốt phòng thủ</button>
+    <div class="tcg-defense-actions">
+      <button type="button" class="button" data-tcg-confirm-block>Chốt phòng thủ</button>
+      <button type="button" class="button light" data-tcg-hand>Bài trên tay</button>
+    </div>
   </section>`;
 }
 
@@ -1444,6 +1547,7 @@ function openInfoDialog(title, body) {
   });
   app.append(dialog);
   dialog.showModal();
+  return dialog;
 }
 
 function renderChess() {
@@ -1886,6 +1990,7 @@ window.addEventListener('blur', () => {
   runtime.heldKeys.clear();
   runtime.worldStick = null;
 });
+window.addEventListener('focus', () => { if (runtime.page === 'home') void checkForContentUpdate(); });
 
 let lastFrame = 0;
 function animate(now) {

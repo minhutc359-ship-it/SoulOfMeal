@@ -1,0 +1,5 @@
+:root { color-scheme: dark; font-family: system-ui, sans-serif; }
+body { min-height: 100dvh; margin: 0; display: grid; place-items: center; background: #12211f; color: #fff1cf; }
+main { padding: 24px; text-align: center; }
+h1 { font-family: Georgia, serif; font-size: clamp(32px, 8vw, 56px); margin: 0; }
+button { min-height: 44px; padding: 0 20px; color: #30261c; background: #f4d496; font: inherit; font-weight: bold; border: 0; border-radius: 7px; cursor: pointer; }

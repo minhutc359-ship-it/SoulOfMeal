@@ -53,7 +53,7 @@ Tranh dùng ở màn chơi khách. Nguồn PNG được tạo bằng công cụ 
 
 ## Rig Bún Bò Hỏa Linh
 
-Trận Chương 1 dùng bộ rig 16 xương, 12 lớp hình và 10 clip. Tay, chân, tóc, dây áo và hỏa đao có khớp riêng. Rig phản chiếu hướng tây trong trận. Bản đồ dùng bộ khung PNG bốn hướng của nhân vật. Khi asset rig tải lỗi, trận dùng atlas chiến đấu sẵn có.
+Các trận Adventure dùng bộ rig 16 xương, 12 lớp hình và 10 clip. Tay, chân, tóc, dây áo và hỏa đao có khớp riêng. Rig phản chiếu hướng tây trong trận. Bản đồ dùng bộ khung PNG bốn hướng của nhân vật. Khi asset rig tải lỗi, trận dùng atlas chiến đấu sẵn có.
 
 `hit_resolved` xác nhận thời điểm trúng đòn. Client lấy vị trí đầu đao tại mốc `blade_contact` để vẽ vệt Hỏa và phát tiếng chém. Sát thương, vị trí mục tiêu và điểm lưu trận do mô phỏng quản lý.
 
@@ -66,3 +66,7 @@ python3 scripts/build_compatibility_audio.py
 ```
 
 Bộ xuất chứa `bunbo.json` và 12 PNG trong thư mục `images/`, theo định dạng Spine 4.2. Client dùng Canvas để chạy rig. Gói âm thanh tạo bằng FFmpeg chỉ được tải trên trình duyệt có Web Audio và thiếu giải mã Ogg Vorbis.
+
+## Nội thất Làng Ẩm Thực
+
+Ba nền anime mới phục vụ đi bộ trong Nhà Bếp, Hội Quán và Tiệm Nguyên Liệu. Map định nghĩa riêng vùng sàn, cửa, quầy và điểm trở về làng. Xuất bằng `python3 scripts/build_original_art.py /path/to/sheets village_kitchen village_guild village_merchant`. Tên sheet, prompt và SHA-256 nằm trong [manifest nguồn](ORIGINAL_ART_SOURCES.json). Duyệt mỹ thuật và quyền sử dụng đang chờ.

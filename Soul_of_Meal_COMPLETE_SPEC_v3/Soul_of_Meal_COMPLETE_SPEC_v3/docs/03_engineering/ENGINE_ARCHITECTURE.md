@@ -71,6 +71,8 @@ Save của bản chơi thử có thể mở trong chính bản chơi thử. P0 o
 
 ## 5. Phân phối và cập nhật
 
+Bản chơi thử đã có [lệnh xuất build bất biến và đổi con trỏ](../../client/README.md#cập-nhật-và-quay-lại-bản-phát-hành-trước). Launcher chọn build từ `release.json`. Trang game nạp catalog, code và hình theo đường dẫn của build đã mở. Sảnh áp dụng bản khác sau khi kết thúc các trận còn dở và ghi bản lưu. Phân phối theo CDN và các gói scene riêng thuộc kiến trúc đích bên dưới.
+
 Bootstrap pin `asset_build_id` và `catalog_version`. Manifest tải qua CDN. Các file theo hash có thể cache dài, con trỏ phát hành được kiểm tra lại khi vào game. Tải bundle bắt buộc trước khi chuyển scene. Một trận đang chạy tiếp tục theo phiên bản đã pin. Tải nội dung mới ở nền và áp dụng ở Home hoặc phiên kế tiếp. Giữ các build cũ trong thời hạn phiên cần dùng và thử đường rollback. Xem [pipeline asset](../02_art/WEB_ASSET_PIPELINE.md).
 
 ## 6. Thứ tự triển khai và cổng xác nhận
