@@ -3,9 +3,12 @@ import { ClipPlayer } from './clipPlayer.js';
 import { actorArt, ELEMENT_ART, sceneArt } from './spriteAssets.js';
 import { drawElementEffect } from './elementEffects.js';
 import { rigMotion } from './spiritRig.js';
+import { canvasContext, canvasResolution } from './canvasSurface.js';
 
 const ATTACK_LEAD = .20;
 const FALL_DURATION = .36;
+const REPLAY_WIDTH = 760;
+const REPLAY_HEIGHT = 480;
 
 export class ChessReplay {
   constructor(combat, renderer, reducedMotion) {
@@ -82,32 +85,12 @@ export class ChessReplay {
   }
 
   draw(canvas) {
-    const context = canvas.getContext('2d');
+    const resolution = canvasResolution(canvas, REPLAY_WIDTH, REPLAY_HEIGHT, true);
+    const context = canvasContext(canvas, resolution, REPLAY_WIDTH, REPLAY_HEIGHT);
+    if (!context) return;
     context.fillStyle = '#182d27';
-    context.fillRect(0, 0, 760, 480);
-    this.renderer.drawImage(context, sceneArt('chess_court'), 0, 0, 760, 480);
-    for (let column = 0; column < 7; column += 1) {
-      for (let row = 0; row < 8; row += 1) {
-        const { x, y } = boardPoint(column, row, this.hex);
-        context.fillStyle = row < 4 ? '#16352c69' : '#4f282763';
-        context.strokeStyle = row < 4 ? '#b5ecd067' : '#ffc29466';
-        if (this.hex) {
-          context.beginPath();
-          context.moveTo(x, y - 29);
-          for (const [dx, dy] of [[42, -17], [42, 17], [0, 29], [-42, 17], [-42, -17]]) context.lineTo(x + dx, y + dy);
-          context.closePath();
-          context.fill();
-          context.stroke();
-        } else {
-          context.fillRect(x - 44, y - 24, 88, 47);
-          context.strokeRect(x - 44, y - 24, 88, 47);
-        }
-      }
-    }
-    if (!this.hex) {
-      context.fillStyle = '#f6d095';
-      context.fillRect(60, boardPoint(0, 4).y + 23, 640, 2);
-    }
+    context.fillRect(0, 0, REPLAY_WIDTH, REPLAY_HEIGHT);
+    this.renderer.drawImage(context, sceneArt('chess_court'), 0, 0, REPLAY_WIDTH, REPLAY_HEIGHT);
     for (const actor of [...this.actors.values()].sort((a, b) => b.viewY - a.viewY)) {
       const standing = actor.hp > 0;
       if (!standing && (this.reducedMotion || !(actor.fallUntil > this.elapsed))) continue;
@@ -126,7 +109,7 @@ export class ChessReplay {
         context.strokeStyle = actor.team === 'player' ? '#afe4b5bf' : '#ffae89bf';
         context.stroke();
       }
-      const drawn = (clip && rig.draw(context, { id: animation.requestedClipId, phase }, x, y + 9, animation.direction, .51, opacity))
+      const drawn = (clip && rig.draw(context, { id: animation.requestedClipId, phase }, x, y + 9, animation.direction, .59, opacity))
         || this.renderer.drawSprite(context, actor.id, animation, x, y + 9, { scale: .43, opacity });
       if (!drawn) {
         const asset = actorArt(actor.id);

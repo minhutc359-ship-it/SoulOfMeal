@@ -54,6 +54,8 @@ test('TCG support spells require eligible allies and resolve through their own t
   assert.equal(match.phase, 'action');
   assert.equal(match.priority, 0);
   match = playTcgCard(match, 0, 'boost', 'wounded');
+  assert.equal(match.players[0].units[0].attackBuff, undefined);
+  match = passTcgPriority(passTcgPriority(match, 1), 0);
   assert.equal(match.players[0].units[0].attackBuff, 360);
   match = passTcgPriority(passTcgPriority(match, 1), 0);
   match = assignTcgBlockers(attackTcg(match, 0, ['wounded']), 1, [{ lane: 0, blockerId: 'enemy' }]);
@@ -149,16 +151,14 @@ test('a response spell can remove a blocker and open the lane before damage reso
   pending = playTcgCard(pending, 0, spell.instance_id, 'blocker');
   pending = passTcgPriority(passTcgPriority(pending, 1), 0);
   assert.equal(pending.players[1].units.length, 0);
-  assert.equal(pending.players[1].hp, 8000);
-  assert.equal(pending.phase, 'reaction');
-  assert.equal(pending.pendingAttack.blocks.length, 1);
-  const after = passTcgPriority(passTcgPriority(pending, 1), 0);
-  assert.equal(after.players[1].hp, 6800);
-  assert.equal(after.phase, 'round_end');
+  assert.equal(pending.players[1].hp, 6800);
+  assert.equal(pending.pendingAttack, null);
+  assert.equal(pending.phase, 'round_end');
 });
 
-test('a face-down attack trap stays private until reveal and cancels once', () => {
+test('a legacy face-down attack trap stays private until automatic reveal and cancels once', () => {
   const match = combat();
+  delete match.rulesVersion;
   const trap = card('card_demo_14', 'trap');
   match.players[1].hand = [trap];
   match.players[1].mana = 10;

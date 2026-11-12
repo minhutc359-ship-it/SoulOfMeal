@@ -45,15 +45,15 @@
     {
       "name": "head",
       "parent": "torso",
-      "x": 7,
-      "y": 33,
+      "x": 3,
+      "y": 28,
       "rotation": 0
     },
     {
       "name": "hair",
       "parent": "head",
-      "x": -13,
-      "y": 18,
+      "x": -11,
+      "y": 19,
       "rotation": 0
     },
     {
@@ -252,8 +252,8 @@
         },
         "head": {
           "head": {
-            "x": 4,
-            "y": 15,
+            "x": 1,
+            "y": 14,
             "width": 56.18,
             "height": 47
           }

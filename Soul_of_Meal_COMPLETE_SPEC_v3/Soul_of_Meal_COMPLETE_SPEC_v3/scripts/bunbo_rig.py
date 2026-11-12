@@ -13,7 +13,7 @@ PARTS = (
     "arm_near", "hand_near", "arm_far", "hand_far",
     "leg_near", "leg_far", "sword", "tassel",
 )
-CELL = 112
+CELL = 176
 ROTATIONS = {
     "chr_pho_lamvu": {"arm_near": 24, "hand_near": -78, "arm_far": -10, "hand_far": -84, "leg_near": 14, "leg_far": 7},
     "chr_goicuon_diepnhi": {"arm_near": 24, "hand_near": -94, "arm_far": -15, "hand_far": -96, "leg_near": 15, "leg_far": 8},

@@ -4,6 +4,7 @@ import { BoardSprites } from '../src/render/boardSprites.js';
 import { ClipPlayer } from '../src/render/clipPlayer.js';
 import { DuelEffects } from '../src/render/duelEffects.js';
 import { ChessReplay } from '../src/render/chessReplay.js';
+import { canvasResolution } from '../src/render/canvasSurface.js';
 
 const west = frames => ({ fps: 4, loop: true, directions: { W: { frames } } });
 const manifest = {
@@ -62,6 +63,17 @@ test('Auto Chess plays an attack lead once and makes contact on the recorded tic
   assert.equal(replay.actors.get('e').hp, 150);
 });
 
+test('Auto Chess renders the arena without grid strokes and adapts backing pixels to display density', () => {
+  const fills = [];
+  const canvas = { clientWidth: 390, clientHeight: 320, getContext: () => ({ setTransform() {}, fillRect(...rect) { fills.push(rect); } }) };
+  const renderer = { sheets: new Map(), drawImage() { return true; } };
+  const replay = new ChessReplay({ geometry: 'hex', tick: 60, startActors: [], events: [] }, renderer, false);
+  replay.draw(canvas);
+  assert.deepEqual(fills, [[0, 0, 760, 480]]);
+  assert.deepEqual(canvasResolution({ clientWidth: 114, clientHeight: 76 }, 96, 96, true, 3), [228, 228]);
+  assert.deepEqual(canvasResolution({ clientWidth: 3000, clientHeight: 1500 }, 960, 540, false, 3), [2048, 1152]);
+});
+
 test('board figures keep idle progress on rerender and play windup before a simultaneous counterhit', () => {
   const drawn = [];
   const renderer = {
@@ -70,7 +82,7 @@ test('board figures keep idle progress on rerender and play windup before a simu
   };
   const makeCanvas = () => ({
     dataset: { chibiId: 'mob_mushroom_01', chibiKey: 'm:1', chibiFacing: 'W' },
-    getContext: () => ({ clearRect() {} }),
+    getContext: () => ({ setTransform() {}, clearRect() {} }),
   });
   let canvas = makeCanvas();
   const host = { querySelectorAll: () => [canvas] };

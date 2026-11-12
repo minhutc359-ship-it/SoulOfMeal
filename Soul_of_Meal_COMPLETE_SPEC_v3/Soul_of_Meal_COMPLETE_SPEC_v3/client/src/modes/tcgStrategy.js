@@ -6,6 +6,18 @@ export function tcgUnitDurability(unit) {
   return unit.current_def + (unit.shield ?? 0);
 }
 
+export function tcgCanBlock(unit) {
+  return unit.current_def > 0 && !unit.rootedUntil;
+}
+
+export function tcgCanAttack(unit) {
+  return unit.ready && tcgCanBlock(unit);
+}
+
+export function tcgPierce(unit, damage, durability) {
+  return unit.keywords?.includes('pierce') ? Math.max(0, damage - durability) : 0;
+}
+
 export function planTcgBlocks(attackers, defenders, hp, difficulty) {
   const commanderPressure = difficulty === 'extreme' ? 0.72 : 1;
   let best = { score: -Infinity, blocks: [] };
@@ -28,7 +40,7 @@ export function planTcgBlocks(attackers, defenders, hp, difficulty) {
       const loss = Math.min(attack, tcgUnitDurability(defender)) * .45
         + (attack >= tcgUnitDurability(defender) ? defender.atk + defender.cost * 120 : 0);
       chosen.push({ lane: attacker.lane, blockerId: defender.instance_id });
-      search(index + 1, used | (1 << slot), exposed, trade + gain - loss);
+      search(index + 1, used | (1 << slot), exposed + tcgPierce(attacker, attack, tcgUnitDurability(defender)), trade + gain - loss);
       chosen.pop();
     }
   }

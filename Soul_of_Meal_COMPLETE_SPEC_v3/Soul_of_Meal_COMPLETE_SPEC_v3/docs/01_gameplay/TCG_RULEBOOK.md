@@ -1,6 +1,18 @@
 # Tactical Card Game — Rules Baseline v3
 **Status: PROPOSED** · deterministic, seeded bot PvE P0 · standalone stats. The screenshot values, art text and special effect previews do **not** define legal game rules.
 
+## Browser playtest, rules version 2
+
+The 0.5-proposed catalog contains 46 cards, including nine traps and five character-bound ultimates. All four themed presets have 36 cards. The rules use the established five unit lanes and two trap slots. Spell order, attack resolution and save recovery are deterministic. Open a new match to use version 2. Existing saved matches use the earlier automatic triggers and spell timings.
+
+- A face-down trap becomes armed on the next active-player turn. After an attack's blockers are confirmed, a summon is placed, a fast or slow spell is queued, or a unit falls, the matching owner may activate one eligible trap for that trigger or keep the traps. A chosen trap enters the visible response stack. The attack then continues on the surviving, unblocked lanes. Scout reveals a trap without consuming it. Disarm removes it while preserving the privacy of its identity if it is still face down.
+- Slow spells can only join an empty stack during deployment. Fast spells can join an open reaction. Both wait for resolution. Burst effects resolve immediately and retain priority. An ultimate needs its original caster on the board through resolution.
+- Once per turn, a second consecutive public card of the same element costs one mana less, with a minimum cost of zero. Setting a trap pays its base cost and clears the owner's chain. The active-player transition clears both chains.
+- A rooted unit cannot attack or block until its owner's turn ends. Pierce applies excess attack after the blocker's shield and DEF to the commander. Lifesteal heals the commander for 35% of actual DEF or HP damage from its combat hits, rounded down.
+- Manual trap choice, reaction stack and deck selection are saved. The on-screen stack and emitted trap events expose the trap's identity at reveal only. The bot's attack and block forecasts use the board and public stats.
+
+Interaction and mechanic references from MealGacha's prior TCG are [Trap Decision](https://github.com/minhutc359-ship-it/MealGacha/blob/f73b44a3901ee7fa58ad42cbe212004d234c9b18/src/components/game/TrapZone.tsx), [card and trap rules](https://github.com/minhutc359-ship-it/MealGacha/blob/f73b44a3901ee7fa58ad42cbe212004d234c9b18/dev/docs/TCG_RULES.md), and [Deck Builder](https://github.com/minhutc359-ship-it/MealGacha/blob/f73b44a3901ee7fa58ad42cbe212004d234c9b18/src/components/game/DeckBuilder.tsx). Visual and audio assets for this browser playtest use the local Soul of Meal v3 source inventory.
+
 ## 1. Match setup and card zones
 Two commanders at **8000 HP**, 36-card deck each, max two copies per non-token card. Zones: deck, hand, graveyard, exile, 5 friendly unit slots, 2 friendly face-down trap slots, stack, and commander. Hand cap 9; excess draws burn and are logged. Initial hand 4; optional one mulligan (choose cards to replace, once), first player skips first draw. Card types: `unit`, `slow_spell`, `fast_spell`, `burst_spell`, `trap`, `ultimate` (a subtype/keyword, not a free extra slot). Units have `atk`, `max_def` (durability), `current_def`, keywords and effects. No generic damage reduction based on DEF: DEF is unit hit points in this mode.
 

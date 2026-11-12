@@ -1,6 +1,9 @@
 import { ClipPlayer } from './clipPlayer.js';
 import { rigSample } from './chibiRig.js';
 import { rigMotion } from './spiritRig.js';
+import { canvasContext, canvasResolution } from './canvasSurface.js';
+
+export const BOARD_SPRITE = { width: 128, height: 104, x: 64, baseline: 85, scale: .60 };
 
 export class BoardSprites {
   constructor(renderer) {
@@ -45,13 +48,16 @@ export class BoardSprites {
       const phase = clip ? rigMotion(clip, frame.motionPhase, actor.timing, now) : 0;
       const signature = clip ? `${frame.requestedClipId}:${direction}:${Math.floor(phase * 24)}`
         : `${frame.frameId}:${frame.flipX}:${rigSample(id, frame)}`;
-      if (this.frames.get(canvas) === signature) continue;
-      const context = canvas.getContext('2d');
+      const { width, height, x, baseline, scale } = BOARD_SPRITE;
+      const resolution = canvasResolution(canvas, width, height, true);
+      const keyframe = signature + ':' + resolution.join('x');
+      if (this.frames.get(canvas) === keyframe) continue;
+      const context = canvasContext(canvas, resolution, width, height);
       if (!context) continue;
-      context.clearRect(0, 0, 96, 96);
-      const drawn = clip && rig.draw(context, { id: frame.requestedClipId, phase }, 48, 77, direction, .48);
-      if (drawn || this.renderer.drawSprite(context, id, frame, 48, 79, { scale: .55 })) {
-        this.frames.set(canvas, signature);
+      context.clearRect(0, 0, width, height);
+      const drawn = clip && rig.draw(context, { id: frame.requestedClipId, phase }, x, baseline, direction, scale);
+      if (drawn || this.renderer.drawSprite(context, id, frame, x, baseline + 2, { scale: .61 })) {
+        this.frames.set(canvas, keyframe);
       }
     }
     for (const key of this.actors.keys()) if (!current.has(key)) this.actors.delete(key);

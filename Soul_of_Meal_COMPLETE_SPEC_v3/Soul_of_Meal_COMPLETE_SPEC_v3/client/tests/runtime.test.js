@@ -662,7 +662,7 @@ test('TCG mulligan replaces selected cards once and preserves the deck size', as
   assert.throws(() => mulliganTcg(updated, []));
 });
 
-test('TCG summons units and an armed trap counters a fast spell without damage', async () => {
+test('TCG summons units and restores the legacy automatic counter for an existing match', async () => {
   const catalog = await readJson('examples/cards/cards.catalog.json');
   const deck = await readJson('examples/cards/starter_deck.json');
   const match = createTcgMatch(catalog, deck, 9);
@@ -675,6 +675,7 @@ test('TCG summons units and an armed trap counters a fast spell without damage',
   assert.equal(updated.players[0].units[0].ready, false);
 
   const spellMatch = createTcgMatch(catalog, deck, 10);
+  delete spellMatch.rulesVersion;
   const spell = structuredClone(catalog.cards.find((card) => card.card_id === 'card_demo_10'));
   spell.instance_id = 'p0:spell:test';
   spellMatch.players[0].hand = [spell];

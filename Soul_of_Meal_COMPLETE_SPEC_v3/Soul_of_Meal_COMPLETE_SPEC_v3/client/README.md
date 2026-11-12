@@ -36,7 +36,7 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 ## Lối chơi
 
 - **Adventure** · Chơi sáu chương bắt đầu với **Hương Vị Đầu Tiên**. Dùng **Dẫn đường** trên bản đồ hoặc trong **Nhật ký hành trình**. Nhật ký lưu manh mối đã tìm và cho đọc lại đối thoại đã mở. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
-- **TCG** · Đấu bot với bộ 36 lá, đổi bài mở màn một lần, xây bộ bài, triệu hồi Vị Linh, đặt bẫy úp và phản ứng theo lượt ưu tiên. Trình sửa bộ bài có mẫu **Hộ Trận** và **Tiên Phong**. Chọn độ khó Thường, Khó hoặc Cực khó khi tạo ván mới để dùng bộ bài đã lưu.
+- **TCG** · Đấu bot với bộ 36 lá từ danh mục 46 lá. Chọn độ khó và bộ bài bot riêng. Trình sửa có bốn ô lưu bộ bài, biểu đồ mana, bộ lọc và bốn mẫu **Hộ Trận**, **Tiên Phong**, **Triều Sương**, **Mầm Sống**.
 - **Auto Chess** · Xếp đội hình trên bàn lục giác, mua quân từ kho chung, hợp thể ba bản sao và mua XP. Ván mới có bảy bot đánh cùng lúc, các vòng quái thưởng linh kiện và kết thúc khi bị loại, về nhất hoặc đến giới hạn 37 vòng. Phát lại giao tranh dùng vị trí, đòn đánh, kỹ năng và HP do mô phỏng ghi lại. Ván lưu từ bản trước tiếp tục theo thể thức cũ.
 
 ## Bếp Trưởng Hỏa Diệm
@@ -70,8 +70,8 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 - **Adventure.** Bản đồ nhỏ đánh dấu vị trí người chơi, lối đi và mục tiêu nhiệm vụ hiện tại. Trên màn hình cảm ứng, dùng cần điều khiển hoặc chạm đích để đi. Mở **Nhật ký hành trình** để đọc lại các cảnh đã mở kèm minh họa sáu chương.
 - **Khiêu chiến boss.** Boss mở trong bảng khi đã thắng trận tương ứng ở cốt truyện. Tái đấu ở ba độ khó với đội hình đầy HP. Mỗi boss và độ khó có phần thưởng lần đầu, số lần thắng, thời gian tốt nhất và số Vị Linh sống sót cao nhất. Chỉ số và phần thưởng là cân bằng thử nghiệm.
 - **Làng Ẩm Thực.** Chạm cửa hoặc đi đến trước Nhà Bếp, Hội Quán hay Tiệm Nguyên Liệu rồi nhấn E. Bàn chế tác mở kho trang bị. Bàn nhiệm vụ mở nhật ký. Tiệm đổi 30 vàng lấy 5 tinh hoa theo cân bằng thử nghiệm. Nút **Ra quảng trường** đưa nhân vật về đúng cửa. Bản lưu nhớ cả vị trí bên trong.
-- **TCG.** Chạm lá phép để chọn rồi chọn mục tiêu sáng trên bàn hoặc trong danh sách. Phép gây sát thương chọn chủ soái hoặc Vị Linh địch. Phép hồi DEF, hộ thuẫn và tăng ATK chọn Vị Linh đồng minh. Nút **Thi triển** và **Hủy chọn** xuất hiện ở đầu khu tay bài. Khi bot tấn công, khu này chuyển sang chọn quân chặn. Nút **Bài trên tay** mở danh sách lá bài trong lúc chọn. Cả hai phía hiển thị hai ô bẫy úp, tên bẫy hiện khi lật. Nhật ký mở trong trận.
-- **Auto Chess.** Hai nửa bàn cùng hiển thị theo hướng của bản phát lại. Mua quân rồi kéo từ ghế hoặc chạm quân và ô để đặt. Kéo quân từ bàn về ghế để rút, kéo lên ô có quân để đổi chỗ. Chọn quân để hiện nút **Bán quân** hoặc **Rút về ghế**. Đồng hồ luyện tập 30 giây tạm dừng khi mở hộp thoại. Khi hết giờ hoặc bấm **Chiến đấu**, trận bắt đầu sau một giây. Ở khung ngang thấp, chạm **Hiệp lực** để xem các mốc hệ. Phát lại hỗ trợ tạm dừng và tốc độ 2×. Kết quả hiển thị thu nhập và nút sang vòng ở khu điều khiển.
+- **TCG.** Chạm lá phép để chọn rồi chọn mục tiêu sáng trên bàn hoặc trong danh sách. Bấm **Thi triển** để xác nhận. Có thể xem hiệu ứng từng lá trong **Hàng chờ phản ứng**. Khi đủ điều kiện bẫy, bàn hiện **Kích hoạt bẫy** và **Giữ bẫy**. Tên bẫy địch chỉ hiện sau khi lật hoặc do thám.
+- **Auto Chess.** Lưới dùng khi xếp quân. Khi giao tranh, sân chỉ hiện cảnh đấu, Vị Linh, thanh HP, năng lượng và hiệu ứng. Mua quân rồi kéo từ ghế hoặc chạm quân và ô để đặt. Kéo quân từ bàn về ghế để rút, kéo lên ô có quân để đổi chỗ. Chọn quân để hiện nút **Bán quân** hoặc **Rút về ghế**. Đồng hồ luyện tập 30 giây tạm dừng khi mở hộp thoại. Khi hết giờ hoặc bấm **Chiến đấu**, trận bắt đầu sau một giây. Phát lại hỗ trợ tạm dừng và tốc độ 2×.
 - **Giảm chuyển động.** Tùy chọn trong **Cài đặt** giảm chuyển cảnh, hiệu ứng lật bẫy và chuyển động minh họa mà luật giao tranh vẫn chạy theo tick.
 
 Đòn thường, đạn rời tay, va chạm, hộ thuẫn và tuyệt kỹ có tín hiệu âm thanh riêng. Bước chân đổi theo quãng đường đã đi và bề mặt. TCG phát vệt đòn theo hệ từ quân ra đòn tới mục tiêu. Auto Chess phát tiếng vung hoặc phóng trước mốc va chạm trong bản phát lại.
@@ -87,10 +87,12 @@ Cấp 1–5, công thức và giá là cân bằng thử nghiệm. Nâng cấp v
 ## Giao tranh TCG
 
 - Sau khi kết thúc giai đoạn triển khai, chạm các Vị Linh đang sẵn sàng để chọn nhóm tấn công. Các Vị Linh sẵn sàng được chọn mặc định.
-- Khi bot tuyên bố tấn công, chọn một quân chặn cho từng đường muốn bảo vệ rồi chọn **Chốt phòng thủ**. Một Vị Linh chỉ chặn một đường. Chỉ số sát thương dự kiến cập nhật ngay khi đổi lựa chọn.
+- Khi bot tuyên bố tấn công, chạm quân địch rồi chạm một đồng minh để chặn, hoặc chọn trong danh sách. Bấm **Chốt phòng thủ**. Một Vị Linh chỉ chặn một đường. Dự báo sát thương chủ soái tính cả Xuyên kích.
 - Sau khi chọn quân chặn, dùng tốc chú nếu cửa sổ phản ứng mở. Nếu quân chặn rời sân trước khi giao tranh được xử lý, đòn của đường đó đi thẳng vào chủ soái.
 - **Diệp Mộc Hồi Phục** hồi DEF qua hàng chờ tốc chú. **Ấn Bạch Ngọc** là tức chú dùng ngay và giữ ưu tiên. **Khai Hỏa Tiên Phong** là chậm chú tăng ATK. Hộ thuẫn và ATK cộng thêm hết hiệu lực cuối lượt hiện tại.
-- Tiến trình đang chờ chọn quân chặn được giữ khi rời trận hoặc tải lại. Lựa chọn chưa chốt chỉ dùng để xem trước.
+- Cộng hưởng giảm một mana cho lá lộ hệ thứ hai cùng hệ, tối đa một lần mỗi lượt. Năm tuyệt kỹ gắn với năm Vị Linh đầu. Vị Linh thi triển phải còn trên bàn khi phép xử lý.
+- Chín bẫy phản ứng khi tấn công, dùng phép, triệu hồi hoặc đồng minh bị hạ. Bẫy sẵn sàng sau khi đổi lượt và có thể được giữ cho lần khác. **Soi Dấu Bẫy** làm lộ một ô, **Phá Ấn Thất Vị** gỡ một ô và **Phản Chú Hư Vị** hóa giải phép hoặc bẫy đang chờ.
+- Bản lưu giữ cả cửa sổ chặn và cửa sổ bẫy đã mở. Ván lưu từ bản trước giữ nhịp bẫy và phép cũ. Mở **Ván mới** để dùng bộ bài đã lưu và các luật hiện tại.
 - Chọn **Chi tiết** trên tay bài hoặc tên thẻ trong trình sửa bộ bài để xem điều kiện dùng và hiệu ứng. **Mộ bài** cho xem các lá của bạn đã rời ván. Nút **Đầu hàng** kết thúc ván và ghi kết quả vào nhật ký.
 
 ## Chuẩn bị Auto Chess

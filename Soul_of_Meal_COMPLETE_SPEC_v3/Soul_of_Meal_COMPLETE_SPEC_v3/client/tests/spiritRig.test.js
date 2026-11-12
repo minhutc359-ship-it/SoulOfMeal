@@ -8,7 +8,7 @@ import { adventureViewport, battleActorPoint } from '../src/render/adventureStag
 function openRig(id) {
   const dir = id === HERO_ID ? 'bunbo' : id;
   const asset = name => JSON.parse(readFileSync(new URL('../assets/original/rigs/' + dir + '/' + name + '.json', import.meta.url)));
-  return new SpiritRig(asset(dir), asset('regions'), { naturalWidth: 448, naturalHeight: 336 });
+  return new SpiritRig(asset(dir), asset('regions'), { naturalWidth: 704, naturalHeight: 528 });
 }
 
 const rig = openRig(HERO_ID);
@@ -71,6 +71,22 @@ test('each of the five spirits has ten clips, independent limbs and mirrored eff
   }
   const dual = openRig('chr_caphe_davu');
   assert.notEqual(dual.clips.attack_a.socket, dual.clips.attack_b.socket);
+});
+
+test('the four additional faces register over their collar and all five use a denser head texture', () => {
+  for (const id of Object.keys(HERO_NAMES)) {
+    const spirit = openRig(id);
+    const head = spirit.slots.find(slot => slot.name === 'head');
+    assert.equal(Math.max(...head.region.slice(2)), 168);
+    if (id === HERO_ID) continue;
+    const torso = spirit.slots.find(slot => slot.name === 'torso');
+    const idle = spirit.pose(spirit.clips.idle, 0);
+    const neckOffset = Math.abs(idle[head.bone].x + head.attachment.x - idle[torso.bone].x - torso.attachment.x);
+    assert.ok(neckOffset <= 5.5, id);
+    const bottomOfHead = idle[head.bone].y + head.attachment.y - head.attachment.height / 2;
+    const topOfCollar = idle[torso.bone].y + torso.attachment.y + torso.attachment.height / 2;
+    assert.ok(topOfCollar - bottomOfHead >= 12, id);
+  }
 });
 
 test('a restored ranged action recovers after launch, and defeat remains at the final pose', () => {

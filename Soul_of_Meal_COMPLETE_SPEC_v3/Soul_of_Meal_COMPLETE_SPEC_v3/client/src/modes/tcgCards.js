@@ -1,0 +1,93 @@
+export const TCG_RULES_VERSION = 2;
+export const TCG_MAX_HP = 8000;
+export const TCG_HAND_LIMIT = 9;
+export const TCG_BOARD_LIMIT = 5;
+export const TCG_TRAP_LIMIT = 2;
+export const TCG_SPELL_TYPES = ['fast_spell', 'slow_spell', 'burst_spell'];
+export const TCG_REACTIONS = ['fast_spell', 'burst_spell'];
+
+const EFFECTS = {
+  deal_damage: { target: 'enemy', text: n => `Gây ${n} sát thương lên một Vị Linh địch hoặc chủ soái địch.`, badge: n => `${n} ST` },
+  restore_defense: { target: 'injured', text: n => `Hồi tối đa ${n} DEF cho một Vị Linh đồng minh bị thương.`, badge: n => `+${n} DEF` },
+  grant_shield: { target: 'ally', text: n => `Tạo ${n} hộ thuẫn cho một đồng minh đến hết lượt.`, badge: n => `${n} khiên` },
+  boost_attack: { target: 'ally', text: n => `Tăng ${n} ATK cho một đồng minh đến hết lượt.`, badge: n => `+${n} ATK` },
+  sweep_damage: { target: 'enemy_row', text: n => `Gây ${n} sát thương lên từng Vị Linh địch.`, badge: n => `${n} ST diện rộng` },
+  bind_damage: { target: 'enemy_unit', text: n => `Gây ${n} sát thương và trói mục tiêu đến khi lượt của chủ kết thúc. Quân bị trói không thể đánh hoặc chặn.`, badge: n => `${n} ST · Trói` },
+  team_heal: { target: 'injured_row', text: n => `Hồi tối đa ${n} DEF cho từng đồng minh bị thương.`, badge: n => `+${n} DEF cả đội` },
+  team_shield: { target: 'ally_row', text: n => `Tạo ${n} hộ thuẫn cho từng đồng minh đến hết lượt.`, badge: n => `${n} khiên cả đội` },
+  execute: { target: 'wounded_enemy', text: n => `Hạ một Vị Linh địch còn tối đa ${n}% DEF, kể cả khi có hộ thuẫn.`, badge: n => `Kết liễu ≤${n}% DEF` },
+  heal_commander: { target: 'own_commander', text: n => `Hồi tối đa ${n} HP cho chủ soái của bạn.`, badge: n => `+${n} HP` },
+  draw_cards: { target: 'own_deck', text: n => `Rút tối đa ${n} lá còn trong bộ bài. Lá vượt giới hạn tay bài vào mộ bài.`, badge: n => `Rút ${n} lá` },
+  disarm_trap: { target: 'any_trap', text: () => 'Gỡ một bẫy địch. Bẫy úp rời sân mà không lộ danh tính.', badge: () => 'Gỡ bẫy' },
+  scout_trap: { target: 'hidden_trap', text: () => 'Lộ một bẫy địch, giữ nguyên hiệu lực bẫy. Sau đó rút tối đa một lá.', badge: () => 'Do thám · Rút 1' },
+  counter_reaction: { target: 'stack', text: () => 'Hóa giải một phép hoặc bẫy địch đang chờ. Đối thủ đã trả mana khi sử dụng.', badge: () => 'Hóa giải' },
+};
+
+export function tcgEffectText(card) {
+  const { kind, value } = card.effect ?? {};
+  return Object.hasOwn(EFFECTS, kind) ? EFFECTS[kind].text(value) : '';
+}
+
+export function tcgEffectBadge(card) {
+  const { kind, value } = card.effect ?? {};
+  return Object.hasOwn(EFFECTS, kind) ? EFFECTS[kind].badge(value) : '';
+}
+
+export function tcgTurnSerial(match) {
+  return match.round * 2 - Number(match.activePlayer === 0);
+}
+
+export function tcgCardCost(match, playerIndex, card) {
+  const player = match.players[playerIndex];
+  const resonance = match.rulesVersion === TCG_RULES_VERSION && card.type !== 'trap' && card.cost > 0
+    && player.chainElement === card.element && !player.resonanceUsed;
+  return card.cost - Number(resonance);
+}
+
+export function tcgCaster(match, playerIndex, card) {
+  if (!card.requires_character) return null;
+  return match.players[playerIndex].units.filter(unit => unit.current_def > 0 && unit.character_id === card.requires_character)
+    .sort((a, b) => a.lane - b.lane)[0] ?? null;
+}
+
+export function tcgSpellTargets(match, playerIndex, card) {
+  const { kind, value } = card.effect ?? {};
+  if (!Object.hasOwn(EFFECTS, kind) || (card.requires_character && !tcgCaster(match, playerIndex, card))) return [];
+  const ally = match.players[playerIndex];
+  const enemyIndex = 1 - playerIndex;
+  const enemy = match.players[enemyIndex];
+  const allies = ally.units.filter(unit => unit.current_def > 0);
+  const enemies = enemy.units.filter(unit => unit.current_def > 0);
+  const injured = allies.filter(unit => unit.current_def < unit.max_def);
+  const units = (list, player) => list.map(unit => ({ id: unit.instance_id, player, unit, label: unit.display_name }));
+  const group = (list, player, label) => list.length ? [{ id: 'row', player, units: list, label }] : [];
+  const commander = player => ({ id: 'commander', player, unit: null, label: player === playerIndex ? 'Chủ soái của bạn' : 'Chủ soái đối thủ' });
+  const target = EFFECTS[kind].target;
+  switch (target) {
+    case 'enemy': return [commander(enemyIndex), ...units(enemies, enemyIndex)];
+    case 'enemy_unit': return units(enemies, enemyIndex);
+    case 'wounded_enemy': return units(enemies.filter(unit => unit.current_def * 100 <= unit.max_def * value), enemyIndex);
+    case 'ally': return units(allies, playerIndex);
+    case 'injured': return units(injured, playerIndex);
+    case 'enemy_row': return group(enemies, enemyIndex, 'Toàn bộ Vị Linh địch');
+    case 'ally_row': return group(allies, playerIndex, 'Toàn bộ đồng minh');
+    case 'injured_row': return group(injured, playerIndex, 'Mọi đồng minh bị thương');
+    case 'own_commander': return ally.hp < TCG_MAX_HP ? [commander(playerIndex)] : [];
+    case 'own_deck': return ally.deck.length ? [{ id: 'deck', player: playerIndex, label: 'Bộ bài của bạn' }] : [];
+    case 'any_trap':
+    case 'hidden_trap': return enemy.traps.flatMap((trap, slot) => {
+      if (target === 'hidden_trap' && !trap.faceDown) return [];
+      const label = `Bẫy địch ô ${slot + 1}` + (trap.faceDown ? '' : ' · ' + trap.card.display_name);
+      return [{ id: 'trap:' + (trap.token ?? slot), player: enemyIndex, slot, label }];
+    });
+    case 'stack': return [...match.stack].reverse().filter(item => item.owner === enemyIndex)
+      .map(item => ({ id: 'stack:' + item.id, player: enemyIndex, item, label: item.card.display_name }));
+  }
+  return [];
+}
+
+export const TCG_KEYWORDS = {
+  haste: 'Xung phong · Được đánh ngay khi vào sân.',
+  pierce: 'Xuyên kích · Sát thương vượt DEF và hộ thuẫn của quân chặn chuyển sang chủ soái địch.',
+  lifesteal: 'Hút vị · Hồi chủ soái bằng 35% DEF hoặc HP thực sự đã trừ khi giao tranh.',
+};

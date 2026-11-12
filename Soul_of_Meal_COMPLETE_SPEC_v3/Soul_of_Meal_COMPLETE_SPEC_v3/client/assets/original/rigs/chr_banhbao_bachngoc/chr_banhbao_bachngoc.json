@@ -46,14 +46,14 @@
       "name": "head",
       "parent": "torso",
       "x": 0,
-      "y": 29,
+      "y": 27,
       "rotation": 0
     },
     {
       "name": "hair",
       "parent": "head",
-      "x": -8,
-      "y": 28,
+      "x": -6,
+      "y": 27,
       "rotation": 0
     },
     {

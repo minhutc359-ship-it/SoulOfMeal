@@ -69,7 +69,7 @@ Bộ xuất chứa `bunbo.json` và 12 PNG trong thư mục `images/`, theo đ�
 
 ## Rig đội hình Vị Linh
 
-Bốn rig bổ sung dùng atlas WebP 448×336, mỗi rig có 12 lớp gắn xương và 10 clip. Các ảnh tách lớp bám pose gốc trong `original_battle/poses`. Phở có trượng nước và dải lụa, Gỏi Cuốn có quạt lá và dây hoa, Bánh Bao có mũ, khăn và thìa, Cà Phê có hai dao với mốc hiệu ứng riêng cho mỗi tay.
+Cả năm rig dùng atlas WebP RGBA 704×528, mỗi rig có 12 lớp gắn xương và 10 clip. Atlas lấy lại từ các sheet gốc đã ghi SHA-256, tối đa 168 px cho mỗi lớp. Kích thước của khớp trong trận độc lập với số pixel của lớp hình. Điểm neo đầu của Phở, Gỏi Cuốn và Cà Phê căn về cổ áo. Đầu và mũ Bánh Bao căn với thân tròn. Phở hạ góc giữ trượng để mặt dễ thấy ở tư thế nghỉ.
 
 | Nhân vật | ID thư mục | Xương | Mốc trình bày |
 |---|---|---:|---|
@@ -85,7 +85,7 @@ python3 scripts/bunbo_rig.py --character chr_pho_lamvu --export /path/to/pho-edi
 python3 scripts/bunbo_rig.py --character chr_pho_lamvu --pack /path/to/pho-sheet.png
 ```
 
-Dùng ID trong bảng cho ba nhân vật còn lại, hoặc bỏ `--character` để xuất Bún Bò. File JSON trong mỗi thư mục rig chứa các xương, slot và keyframe. Bộ xuất có 12 PNG riêng để gắn ảnh trong editor. Pose được xem trên hai nền sáng và tối. Mỗi clip được lấy mẫu 17 tư thế theo hai hướng trong khung TCG 96×96. Bộ đọc Spine 4.2 đã nhận các JSON xuất, với đầy đủ tên PNG tương ứng. Duyệt mỹ thuật, quyền sử dụng, kiểm tra nhánh tay/vũ khí phản chiếu và thao tác nhập trên Spine Editor đang chờ. Prompt và mã nguồn ảnh được ghi trong [manifest nguồn](ORIGINAL_ART_SOURCES.json).
+Dùng ID trong bảng cho ba nhân vật còn lại, hoặc bỏ `--character` để xuất Bún Bò. File JSON trong mỗi thư mục rig chứa các xương, slot và keyframe. Bộ xuất có 12 PNG riêng để gắn ảnh trong editor. Sân TCG dùng khung logic 128×104 và cấp pixel theo kích thước thực trên màn hình. Adventure, TCG và Auto Chess cấp tối đa DPR 3, với cạnh dài canvas tối đa 2048 px. Duyệt mỹ thuật trên thiết bị thật, quyền sử dụng và thao tác nhập trên Spine Editor đang chờ. Prompt và mã nguồn ảnh được ghi trong [manifest nguồn](ORIGINAL_ART_SOURCES.json).
 
 ## Nội thất Làng Ẩm Thực
 

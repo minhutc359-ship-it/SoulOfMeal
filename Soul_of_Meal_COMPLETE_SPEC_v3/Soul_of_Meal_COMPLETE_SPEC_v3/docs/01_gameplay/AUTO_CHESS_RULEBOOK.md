@@ -6,6 +6,8 @@
 
 The browser practice lobby uses a hex grid with one player and seven bots. It opens with two neutral rounds, then stages of four rival rounds and one neutral round. Neutral wins grant a component. Two components on a unit combine into a recipe, and each unit can hold up to three items. The lobby ends when the player is eliminated, all rivals are eliminated, or round 37 resolves. Existing browser runs keep their original format.
 
+The formation UI shows tiles. The battle replay draws the arena art and actors over those same coordinates with the grid hidden.
+
 ## 2. Phase machine
 `ROUND_SETUP -> SHOP_PREPARE (30s) -> LOCK_IN (1s) -> BATTLE (timeout 45s) -> RESOLVE -> PAYOUT -> NEXT_ROUND`. Low-motion setting shortens only render, not simulation. Temporary skills/status reset between rounds; persistent commander HP/gold/level, shop lock and standing board survive. Replay references RNG seed + roster + placements + purchases + versioned rules.
 

@@ -1,5 +1,5 @@
 {
-  "catalog_version": "0.4-proposed",
+  "catalog_version": "0.5-proposed",
   "cards": [
     {
       "card_id": "card_demo_01",
@@ -112,10 +112,10 @@
       "card_id": "card_demo_10",
       "display_name": "Hỏa Đao Xẹt Lửa",
       "type": "fast_spell",
-      "element": "shadow",
+      "element": "fire",
       "cost": 5,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.5-proposed",
       "effect": {
         "kind": "deal_damage",
         "value": 470
@@ -125,10 +125,10 @@
       "card_id": "card_demo_11",
       "display_name": "Lam Vũ Đột Kích",
       "type": "fast_spell",
-      "element": "fire",
+      "element": "water",
       "cost": 1,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.5-proposed",
       "effect": {
         "kind": "deal_damage",
         "value": 500
@@ -138,10 +138,10 @@
       "card_id": "card_demo_12",
       "display_name": "Diệp Vũ Cuộn Gió",
       "type": "fast_spell",
-      "element": "water",
+      "element": "wood",
       "cost": 2,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.5-proposed",
       "effect": {
         "kind": "deal_damage",
         "value": 530
@@ -151,10 +151,10 @@
       "card_id": "card_demo_13",
       "display_name": "Ánh Bếp Soi Rừng",
       "type": "fast_spell",
-      "element": "wood",
+      "element": "light",
       "cost": 3,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.5-proposed",
       "effect": {
         "kind": "deal_damage",
         "value": 560
@@ -221,10 +221,10 @@
       "card_id": "card_demo_17",
       "display_name": "Đốm Lửa Tức Thì",
       "type": "slow_spell",
-      "element": "water",
+      "element": "fire",
       "cost": 2,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.5-proposed",
       "effect": {
         "kind": "deal_damage",
         "value": 680
@@ -234,10 +234,10 @@
       "card_id": "card_demo_18",
       "display_name": "Giọt Sương Lấp Lánh",
       "type": "slow_spell",
-      "element": "wood",
+      "element": "water",
       "cost": 3,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.5-proposed",
       "effect": {
         "kind": "deal_damage",
         "value": 710
@@ -333,6 +333,339 @@
         "kind": "boost_attack",
         "value": 360
       }
+    },
+    {
+      "card_id": "card_hearth_pepper",
+      "display_name": "Tiêu Tinh · Tàn Than",
+      "type": "unit",
+      "element": "fire",
+      "cost": 1,
+      "rarity": "R",
+      "version": "0.5-proposed",
+      "character_id": "mob_pepper_01",
+      "atk": 340,
+      "max_def": 390,
+      "keywords": [
+        "haste"
+      ]
+    },
+    {
+      "card_id": "card_jade_mushroom",
+      "display_name": "Nấm Lạc Vị · Cổ Mộc",
+      "type": "unit",
+      "element": "wood",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.5-proposed",
+      "character_id": "mob_mushroom_01",
+      "atk": 340,
+      "max_def": 720,
+      "on_play": {
+        "kind": "shield",
+        "value": 200
+      }
+    },
+    {
+      "card_id": "card_rain_keeper",
+      "display_name": "Phở · Người Giữ Suối",
+      "type": "unit",
+      "element": "water",
+      "cost": 3,
+      "rarity": "R",
+      "version": "0.5-proposed",
+      "character_id": "chr_pho_lamvu",
+      "atk": 630,
+      "max_def": 780,
+      "on_play": {
+        "kind": "draw",
+        "value": 1
+      }
+    },
+    {
+      "card_id": "card_lantern_guard",
+      "display_name": "Lilia · Đèn Trấn Vị",
+      "type": "unit",
+      "element": "light",
+      "cost": 3,
+      "rarity": "R",
+      "version": "0.5-proposed",
+      "character_id": "npc_lilia",
+      "atk": 530,
+      "max_def": 1080,
+      "on_play": {
+        "kind": "shield",
+        "value": 240
+      }
+    },
+    {
+      "card_id": "card_shadow_hunter",
+      "display_name": "Cà Phê · Dạ Ảnh",
+      "type": "unit",
+      "element": "shadow",
+      "cost": 3,
+      "rarity": "R",
+      "version": "0.5-proposed",
+      "character_id": "chr_caphe_davu",
+      "atk": 720,
+      "max_def": 630,
+      "keywords": [
+        "pierce",
+        "lifesteal"
+      ]
+    },
+    {
+      "card_id": "card_trap_mirror",
+      "display_name": "Gương Triều Phản Kích",
+      "type": "trap",
+      "element": "water",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.5-proposed",
+      "trigger": {
+        "when": "attack_declared",
+        "condition": {}
+      },
+      "effect": {
+        "kind": "guard_commander",
+        "value": 600
+      }
+    },
+    {
+      "card_id": "card_trap_roots",
+      "display_name": "Lá Bện Khóa Lối",
+      "type": "trap",
+      "element": "wood",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.5-proposed",
+      "trigger": {
+        "when": "unit_summoned",
+        "condition": {
+          "min_cost": 2
+        }
+      },
+      "effect": {
+        "kind": "bind_summon",
+        "value": 280
+      }
+    },
+    {
+      "card_id": "card_trap_embers",
+      "display_name": "Tàn Hỏa Phục Kích",
+      "type": "trap",
+      "element": "fire",
+      "cost": 3,
+      "rarity": "SR",
+      "version": "0.5-proposed",
+      "trigger": {
+        "when": "attack_declared",
+        "condition": {
+          "min_attackers": 2
+        }
+      },
+      "effect": {
+        "kind": "burn_attackers",
+        "value": 350
+      },
+      "art_effect": "boss_cleave"
+    },
+    {
+      "card_id": "card_trap_rally",
+      "display_name": "Mâm Ngọc Hộ Trận",
+      "type": "trap",
+      "element": "light",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.5-proposed",
+      "trigger": {
+        "when": "attack_declared",
+        "condition": {}
+      },
+      "effect": {
+        "kind": "ward_blockers",
+        "value": 450
+      },
+      "art_effect": "shield_bubble"
+    },
+    {
+      "card_id": "card_trap_recall",
+      "display_name": "Dạ Ảnh Hoàn Hồn",
+      "type": "trap",
+      "element": "shadow",
+      "cost": 3,
+      "rarity": "SR",
+      "version": "0.5-proposed",
+      "trigger": {
+        "when": "ally_fallen",
+        "condition": {
+          "max_cost": 4
+        }
+      },
+      "effect": {
+        "kind": "revive_unit",
+        "value": 400
+      },
+      "art_card": "card_demo_15"
+    },
+    {
+      "card_id": "card_trap_reserve",
+      "display_name": "Hòm Tinh Hoa Dự Phòng",
+      "type": "trap",
+      "element": "wood",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.5-proposed",
+      "trigger": {
+        "when": "unit_summoned",
+        "condition": {
+          "min_cost": 4
+        }
+      },
+      "effect": {
+        "kind": "summon_reserve",
+        "value": 450
+      },
+      "art_prop": "chest_closed"
+    },
+    {
+      "card_id": "card_ultimate_fire",
+      "display_name": "Hỏa Đao Liên Vũ",
+      "type": "slow_spell",
+      "element": "fire",
+      "cost": 4,
+      "rarity": "SR",
+      "version": "0.5-proposed",
+      "effect": {
+        "kind": "sweep_damage",
+        "value": 620
+      },
+      "requires_character": "chr_bunbo_holinh"
+    },
+    {
+      "card_id": "card_ultimate_water",
+      "display_name": "Lam Vũ Triều Dâng",
+      "type": "fast_spell",
+      "element": "water",
+      "cost": 3,
+      "rarity": "SR",
+      "version": "0.5-proposed",
+      "effect": {
+        "kind": "bind_damage",
+        "value": 450
+      },
+      "requires_character": "chr_pho_lamvu"
+    },
+    {
+      "card_id": "card_ultimate_wood",
+      "display_name": "Diệp Vũ Hồi Sinh",
+      "type": "slow_spell",
+      "element": "wood",
+      "cost": 3,
+      "rarity": "SR",
+      "version": "0.5-proposed",
+      "effect": {
+        "kind": "team_heal",
+        "value": 480
+      },
+      "requires_character": "chr_goicuon_diepnhi"
+    },
+    {
+      "card_id": "card_ultimate_light",
+      "display_name": "Bạch Ngọc Hộ Trận",
+      "type": "fast_spell",
+      "element": "light",
+      "cost": 4,
+      "rarity": "SR",
+      "version": "0.5-proposed",
+      "effect": {
+        "kind": "team_shield",
+        "value": 600
+      },
+      "requires_character": "chr_banhbao_bachngoc"
+    },
+    {
+      "card_id": "card_ultimate_shadow",
+      "display_name": "Dạ Vũ Đoạn Ảnh",
+      "type": "fast_spell",
+      "element": "shadow",
+      "cost": 4,
+      "rarity": "SR",
+      "version": "0.5-proposed",
+      "effect": {
+        "kind": "execute",
+        "value": 45
+      },
+      "requires_character": "chr_caphe_davu"
+    },
+    {
+      "card_id": "card_tcg_disarm",
+      "display_name": "Phá Ấn Thất Vị",
+      "type": "slow_spell",
+      "element": "light",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.5-proposed",
+      "effect": {
+        "kind": "disarm_trap",
+        "value": 0
+      },
+      "art_effect": "shield_break"
+    },
+    {
+      "card_id": "card_tcg_scout",
+      "display_name": "Soi Dấu Bẫy",
+      "type": "burst_spell",
+      "element": "water",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.5-proposed",
+      "effect": {
+        "kind": "scout_trap",
+        "value": 1
+      },
+      "art_card": "card_demo_12"
+    },
+    {
+      "card_id": "card_tcg_refute",
+      "display_name": "Phản Chú Hư Vị",
+      "type": "fast_spell",
+      "element": "shadow",
+      "cost": 3,
+      "rarity": "R",
+      "version": "0.5-proposed",
+      "effect": {
+        "kind": "counter_reaction",
+        "value": 0
+      },
+      "art_card": "card_demo_16"
+    },
+    {
+      "card_id": "card_tcg_resupply",
+      "display_name": "Mở Kho Gia Vị",
+      "type": "burst_spell",
+      "element": "wood",
+      "cost": 3,
+      "rarity": "R",
+      "version": "0.5-proposed",
+      "effect": {
+        "kind": "draw_cards",
+        "value": 2
+      },
+      "art_prop": "chest_open"
+    },
+    {
+      "card_id": "card_tcg_tonic",
+      "display_name": "Tinh Vị Hồi Lực",
+      "type": "burst_spell",
+      "element": "light",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.5-proposed",
+      "effect": {
+        "kind": "heal_commander",
+        "value": 700
+      },
+      "art_card": "card_demo_13"
     }
   ],
   "presets": [
@@ -342,8 +675,13 @@
       "replace": {
         "card_demo_10": "card_spirit_renewal",
         "card_demo_13": "card_spirit_ward",
-        "card_demo_05": "card_wood_scout"
-      }
+        "card_demo_05": "card_wood_scout",
+        "card_demo_15": "card_trap_rally",
+        "card_demo_17": "card_ultimate_light",
+        "card_demo_18": "card_ultimate_wood",
+        "card_demo_09": "card_lantern_guard"
+      },
+      "description": "Giữ bàn bằng hộ thuẫn, hồi DEF và tuyệt kỹ bảo hộ."
     },
     {
       "id": "assault",
@@ -351,7 +689,45 @@
       "replace": {
         "card_demo_10": "card_spirit_rally",
         "card_demo_15": "card_fire_guard",
-        "card_demo_09": "card_shadow_duelist"
+        "card_demo_09": "card_shadow_duelist",
+        "card_demo_07": "card_hearth_pepper",
+        "card_demo_18": "card_ultimate_fire",
+        "card_demo_13": "card_trap_embers",
+        "card_demo_04": "card_shadow_hunter",
+        "card_demo_17": "card_ultimate_shadow"
+      },
+      "description": "Đánh sớm bằng Xung phong, Xuyên kích và hỏa đao diện rộng."
+    },
+    {
+      "id": "tide",
+      "name": "Triều Sương",
+      "description": "Đóng đường đánh bằng Trói, Phản chú và do thám bẫy.",
+      "replace": {
+        "card_demo_03": "card_rain_keeper",
+        "card_demo_05": "card_tide_mage",
+        "card_demo_06": "card_lantern_guard",
+        "card_demo_10": "card_ultimate_water",
+        "card_demo_13": "card_tcg_refute",
+        "card_demo_14": "card_trap_mirror",
+        "card_demo_15": "card_tcg_scout",
+        "card_demo_17": "card_tcg_disarm",
+        "card_demo_18": "card_tcg_resupply"
+      }
+    },
+    {
+      "id": "grove",
+      "name": "Mầm Sống",
+      "description": "Tích bài, hồi phục và gọi lại Vị Linh bằng bẫy.",
+      "replace": {
+        "card_demo_06": "card_jade_mushroom",
+        "card_demo_09": "card_lantern_guard",
+        "card_demo_10": "card_spirit_renewal",
+        "card_demo_12": "card_tcg_tonic",
+        "card_demo_14": "card_trap_roots",
+        "card_demo_15": "card_trap_reserve",
+        "card_demo_16": "card_trap_recall",
+        "card_demo_17": "card_ultimate_wood",
+        "card_demo_18": "card_tcg_resupply"
       }
     }
   ]
