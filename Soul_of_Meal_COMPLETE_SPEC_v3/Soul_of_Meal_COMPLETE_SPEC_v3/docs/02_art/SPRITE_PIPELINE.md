@@ -1,5 +1,7 @@
 # Sprite, Animation, Rig & Atlas — Production Spec v3.0
 
+Bản web đích dùng adapter Phaser cho sprite atlas và Spine. Xem [pipeline tích hợp v3.2](WEB_ASSET_PIPELINE.md) để biết hợp đồng runtime, bundle và phát hành.
+
 ## 1. Nguyên tắc
 Concept sheet / poster ≠ sprite sheet runtime. Sprite chạy game phải gồm **mỗi frame PNG RGBA có alpha thật** (hoặc source rig + exports), uniform anchor, không chữ/label/border/nền/hậu cảnh. Hình AI thường không đồng đều giữa các frame: cần cleanup và QA bằng mắt ở 1x, không đưa trực tiếp bản AI tổng hợp vào trận chiến.
 

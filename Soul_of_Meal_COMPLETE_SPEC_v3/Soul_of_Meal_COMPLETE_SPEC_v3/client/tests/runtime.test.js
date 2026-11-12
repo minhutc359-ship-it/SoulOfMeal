@@ -1,10 +1,15 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { createAdventureState, interactAdventure, nearestInteraction, beginBattle, setAdventureInput, stepAdventure, claimBattleResult, activateUltimate, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
-import { advanceChessRound, buyChessOffer, createChessRun, placeChessUnit, startChessCombat } from '../src/modes/autoChess.js';
-import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard } from '../src/modes/tcg.js';
+import { adventureCheckpoint, activateBossCounter, createAdventureState, interactAdventure, nearestInteraction, beginBattle, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, leaveAdventureDefeat, activateUltimate, activateLanternWard, retreatFromTide, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
+import { advanceChessRound, benchChessUnit, buyChessOffer, createChessRun, nextChessOpponent, placeChessUnit, startChessCombat, chessTraits } from '../src/modes/autoChess.js';
+import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard, mulliganTcg, surrenderTcg } from '../src/modes/tcg.js';
 import { createDefaultSave, migrateSave, SAVE_VERSION } from '../src/core/save.js';
+import { adventureJournal } from '../src/modes/adventureJournal.js';
+import { adventureEncounters } from '../src/modes/adventureBalance.js';
+import { FOREST_CLUE_IDS } from '../src/modes/adventureStory.js';
+import { adventureSpiritStats, changeSpiritProgress, spiritProfile } from '../src/modes/spiritProgress.js';
+import { createAdventureMapRegistry, getAdventureMap } from '../src/modes/mapCatalog.js';
 import { gameEvents } from '../src/core/events.js';
 import { collidesWithWorld, findAdventurePath, moveWithCollision } from '../src/modes/adventureNavigation.js';
 
@@ -18,6 +23,89 @@ test('save migration preserves version-one progress and normalizes coordinates',
   assert.equal(migrated.adventure.x, 240);
   assert.equal(migrated.adventure.y, 270);
   assert.equal(migrated.adventure.chestOpened, true);
+});
+
+test('Adventure spirit rank, gear and bond survive save migration and affect only their intended stats', () => {
+  let save = createDefaultSave();
+  const [hero, ally] = save.roster;
+  const action = (type, id = hero.id, gearId) => { save = changeSpiritProgress(save, { type, id, gearId }); };
+  assert.equal(spiritProfile(save, hero.id).rank, 1);
+  assert.throws(() => changeSpiritProgress(save, { type: 'rank', id: hero.id }, true), /kết thúc trận/);
+  action('rank');
+  assert.equal(save.player.gold, 60);
+  assert.equal(save.player.essence, 21);
+  assert.throws(() => action('rank'), /Không đủ/);
+  save.player.gold += 200;
+  action('craft', hero.id, 'spice_blade');
+  assert.throws(() => action('craft', hero.id, 'spice_blade'), /không thể chế tác/);
+  action('equip', hero.id, 'spice_blade');
+  assert.throws(() => action('equip', ally.id, 'spice_blade'), /Hãy tháo/);
+  action('unequip', hero.id, 'spice_blade');
+  action('equip', ally.id, 'spice_blade');
+  action('gift');
+  action('gift');
+  save = migrateSave(JSON.parse(JSON.stringify(save)));
+  assert.deepEqual(spiritProfile(save, hero.id), { rank: 2, bond: 2, equipped: [] });
+  assert.deepEqual(spiritProfile(save, ally.id).equipped, ['spice_blade']);
+  const trained = adventureSpiritStats(save.roster[0], spiritProfile(save, hero.id));
+  assert.deepEqual([trained.maxHp, trained.atk, trained.def], [3240, 342, 105]);
+  assert.equal(adventureSpiritStats(save.roster[1], spiritProfile(save, ally.id)).atk, 418);
+  assert.deepEqual(save.roster, [hero, ally, ...createDefaultSave().roster.slice(2)]);
+  assert.deepEqual(save.modes, { tcg: null, chess: null });
+
+  save.adventure.spirits.profiles[hero.id].equipped = ['spice_blade', 'unknown'];
+  const repaired = migrateSave(save);
+  assert.deepEqual(spiritProfile(repaired, hero.id).equipped, ['spice_blade']);
+  assert.deepEqual(spiritProfile(repaired, ally.id).equipped, []);
+});
+
+test('Adventure battle uses ranked and equipped stats and normalizes remaining HP back to the saved roster', () => {
+  const initial = createDefaultSave();
+  initial.player.gold = 200;
+  const id = initial.roster[0].id;
+  initial.roster[0].hp = 1500;
+  let save = changeSpiritProgress(initial, { type: 'rank', id });
+  save = changeSpiritProgress(save, { type: 'craft', id, gearId: 'village_recipe' });
+  save = changeSpiritProgress(save, { type: 'equip', id, gearId: 'village_recipe' });
+  const state = createAdventureState(save);
+  beginBattle(state, save);
+  const hero = state.battle.actors.find(actor => actor.id === id);
+  assert.deepEqual([hero.hp, hero.maxHp, hero.atk], [1740, 3480, 342]);
+  hero.hp = 870;
+  Object.assign(state.battle, { phase: 'battle_end', result: 'victory' });
+  save = claimBattleResult(state, save);
+  assert.deepEqual([save.roster[0].hp, save.roster[0].maxHp, save.roster[0].atk], [750, 3000, 320]);
+  beginBattle(state, save);
+  assert.equal(state.battle.actors.find(actor => actor.id === id).hp, 870);
+});
+
+test('Adventure defeat allows preparing the party again without granting encounter rewards', () => {
+  const save = createDefaultSave();
+  const state = createAdventureState(save);
+  beginBattle(state, save);
+  assert.equal(leaveAdventureDefeat(state), false);
+  for (const actor of state.battle.actors) if (actor.team === 'player') actor.alive = false;
+  stepAdventure(state, save, 1 / 30);
+  assert.equal(state.battle.result, 'defeat');
+  assert.equal(leaveAdventureDefeat(state), true);
+  assert.equal(state.battle, null);
+  assert.equal(save.player.gold, 120);
+  assert.deepEqual(save.adventure.rewardClaims, []);
+});
+
+test('Adventure restores clue IDs without resetting completed chapters or changing rewards', () => {
+  const [salt, ladle] = FOREST_CLUE_IDS;
+  const partial = migrateSave({
+    version: 2, adventure: { quest: 'accepted', chestOpened: true, map: 'forest', forestClues: ['unknown', ladle, ladle] },
+  });
+  assert.deepEqual(partial.adventure.forestClues, [ladle]);
+  assert.equal(adventureJournal(partial).action, salt);
+  for (const quest of ['ready_to_claim', 'completed']) {
+    const legacy = migrateSave({ version: 2, player: { gold: 290 }, adventure: { quest, forestCleared: true } });
+    assert.deepEqual(legacy.adventure.forestClues, [salt, ladle]);
+    assert.equal(legacy.adventure.quest, quest);
+    assert.equal(legacy.player.gold, 290);
+  }
 });
 
 test('Adventure requires nearby interaction and persists quest/chest/route progression', () => {
@@ -47,19 +135,257 @@ test('Adventure fixed-step battle advances simulation and emits an authoritative
   assert.ok(['battle_running', 'battle_end'].includes(state.battle.phase));
 });
 
-test('Adventure ultimate emits cast cue before its resolved impact', () => {
+test('Adventure ultimate announces the cast and applies an area hit on its simulation tick', () => {
   const save = createDefaultSave();
   save.roster[0].energy = 100;
   const state = createAdventureState(save);
   beginBattle(state, save);
-  const battleId = state.battle.id;
-  const eventTypes = [];
-  const listener = ({ detail }) => { if (detail.battle_id === battleId) eventTypes.push(detail.type); };
+  const caster = state.battle.actors[0];
+  const opponents = state.battle.actors.filter((actor) => actor.team === 'enemy');
+  const events = [];
+  const listener = ({ detail }) => { if (detail.source_id === caster.actor_id) events.push(detail); };
   gameEvents.addEventListener('game-event', listener);
-  const actorId = state.battle.actors.find((actor) => actor.team === 'player').actor_id;
-  activateUltimate(state, save, actorId);
-  gameEvents.removeEventListener('game-event', listener);
-  assert.ok(eventTypes.indexOf('cast_started') < eventTypes.indexOf('hit_resolved'));
+  try {
+    assert.equal(activateUltimate(state, save, caster.actor_id).ok, true);
+    assert.equal(caster.energy, 0);
+    assert.equal(events[0].type, 'cast_started');
+    assert.ok(opponents.every((actor) => actor.hp === actor.maxHp));
+    const hitTick = caster.action.hitTick;
+    while (state.battle.tick < hitTick - 1) stepAdventure(state, save, 1 / 30);
+    assert.equal(events.filter((event) => event.type === 'hit_resolved').length, 0);
+    stepAdventure(state, save, 1 / 30);
+    assert.deepEqual(events.filter((event) => event.type === 'hit_resolved').map((event) => event.tick), [hitTick, hitTick]);
+    assert.ok(opponents.every((actor) => actor.hp < actor.maxHp));
+  } finally {
+    gameEvents.removeEventListener('game-event', listener);
+  }
+});
+
+test('Adventure projectiles take time to hit and defensive ultimates affect the team', () => {
+  const save = createDefaultSave();
+  for (const actor of save.roster) actor.energy = 100;
+  const state = createAdventureState(save);
+  beginBattle(state, save);
+  const [, mage, support, guardian] = state.battle.actors;
+  const ally = state.battle.actors[0];
+  ally.hp -= 1000;
+  const events = [];
+  const listener = ({ detail }) => events.push(detail);
+  gameEvents.addEventListener('game-event', listener);
+  try {
+    for (const actor of [mage, support, guardian]) assert.equal(activateUltimate(state, save, actor.actor_id).ok, true);
+    for (let i = 0; i < 25; i += 1) stepAdventure(state, save, 1 / 30);
+    const launch = events.find((event) => event.type === 'projectile_spawned' && event.source_id === mage.actor_id);
+    const impact = events.find((event) => event.type === 'hit_resolved' && event.source_id === mage.actor_id);
+    assert.equal(impact.tick - launch.tick, launch.payload.travel_ticks);
+    assert.ok(ally.shield > 0 && ally.hp > ally.maxHp - 1000);
+    assert.ok(events.some((event) => event.type === 'heal_resolved' && event.target_id === ally.actor_id));
+  } finally {
+    gameEvents.removeEventListener('game-event', listener);
+  }
+});
+
+test('the Adventure journal points to the correct interaction after a map or quest change', () => {
+  const save = createDefaultSave();
+  assert.equal(adventureJournal(save).action, 'lilia');
+  Object.assign(save.adventure, { quest: 'accepted' });
+  assert.equal(adventureJournal(save).action, 'chest');
+  Object.assign(save.adventure, { chestOpened: true });
+  assert.equal(adventureJournal(save).action, 'portal');
+  Object.assign(save.adventure, { map: 'forest' });
+  assert.equal(adventureJournal(save).action, 'forest_clue_salt');
+  save.adventure.forestClues.push('forest_clue_ladle');
+  assert.equal(adventureJournal(save).action, 'forest_clue_salt');
+  save.adventure.forestClues.push('forest_clue_salt');
+  assert.equal(adventureJournal(save).action, 'encounter');
+  Object.assign(save.adventure, { forestCleared: true, quest: 'ready_to_claim' });
+  assert.equal(adventureJournal(save).action, 'village_return');
+  Object.assign(save.adventure, { map: 'village', quest: 'completed' });
+  assert.equal(adventureJournal(save).action, null);
+  assert.ok(adventureJournal(save).labels.every(step => step.status === 'done'));
+});
+
+function prepareBossCharge(encounter = 'forest') {
+  const save = createDefaultSave();
+  const state = createAdventureState(save);
+  beginBattle(state, save, encounter);
+  const battle = state.battle;
+  for (const enemy of battle.actors.filter(actor => actor.team === 'enemy')) enemy.alive = false;
+  const advance = () => stepAdventure(state, save, 1 / 30);
+  advance();
+  const boss = battle.actors.find(actor => actor.boss);
+  boss.hp = Math.floor(boss.maxHp * .6);
+  boss.cooldown = 900;
+  for (const actor of battle.actors.filter(actor => actor.team === 'player')) {
+    actor.action = { hitTick: 900 };
+  }
+  return { advance, save, state, battle, boss };
+}
+
+test('harbor tides hit only exposed Vị Linh, and a timely retreat moves the whole party to safety', () => {
+  const { advance, state, battle, boss, save } = prepareBossCharge('tide');
+  const allies = battle.actors.filter(actor => actor.team === 'player');
+  const events = [];
+  const listener = ({ detail }) => events.push(detail);
+  gameEvents.addEventListener('game-event', listener);
+  try {
+    assert.equal(retreatFromTide(state), false);
+    allies[0].x = 650;
+    advance();
+    assert.equal(battle.bossTelegraph.attack, 'Sóng Tràn Bến');
+    assert.deepEqual(bossTelegraphTargets(battle, boss), [allies[0]]);
+    while (battle.bossTelegraph) advance();
+    const firstHits = events.filter(event => event.type === 'hit_resolved' && event.payload.source_kind === 'boss_telegraph');
+    assert.deepEqual(firstHits.map(event => event.target_id), [allies[0].actor_id]);
+
+    boss.hp = Math.floor(boss.maxHp * .44);
+    for (const actor of allies) actor.x = 680;
+    advance();
+    assert.equal(battle.bossTelegraph.attack, 'Đại Triều Vọng');
+    battle.paused = true;
+    assert.equal(retreatFromTide(state), false);
+    battle.paused = false;
+    assert.equal(retreatFromTide(state), true);
+    assert.equal(retreatFromTide(state), false);
+    assert.equal(activateUltimate(state, save, allies[0].id).ok, false);
+    while (battle.bossTelegraph) advance();
+    assert.ok(allies.every(actor => actor.x <= 345));
+    assert.match(state.lastMessage, /tránh được sóng/);
+    assert.equal(events.filter(event => event.type === 'hit_resolved' && event.payload.source_kind === 'boss_telegraph').length, 1);
+  } finally {
+    gameEvents.removeEventListener('game-event', listener);
+  }
+});
+
+test('the lantern reduces one cast from the seal without changing marked targets or damage timing', () => {
+  const { advance, state, battle, boss } = prepareBossCharge('seal');
+  const events = [];
+  const listener = ({ detail }) => events.push(detail);
+  gameEvents.addEventListener('game-event', listener);
+  try {
+    assert.equal(activateLanternWard(state), false);
+    advance();
+    const telegraph = battle.bossTelegraph;
+    assert.equal(telegraph.attack, 'Sương Rút Vị');
+    assert.equal(telegraph.duration, 90);
+    const targets = bossTelegraphTargets(battle, boss);
+    assert.equal(targets.length, 2);
+    for (const target of targets) target.x = boss.x;
+    assert.deepEqual(bossTelegraphTargets(battle, boss), targets);
+    const before = targets.map(actor => actor.hp);
+    const releaseTick = battle.tick + telegraph.duration;
+    battle.paused = true;
+    assert.equal(activateLanternWard(state), false);
+    battle.paused = false;
+    assert.equal(activateLanternWard(state), true);
+    assert.equal(activateLanternWard(state), false);
+    while (battle.tick < releaseTick - 1) advance();
+    assert.deepEqual(targets.map(actor => actor.hp), before);
+    advance();
+    const hits = events.filter(event => event.type === 'hit_resolved' && event.source_id === boss.id);
+    assert.deepEqual(hits.map(event => event.target_id), targets.map(actor => actor.actor_id));
+    assert.deepEqual(hits.map(event => event.payload.hp_damage), targets.map(actor => Math.floor(boss.atk * 1.28 * 100 / (100 + actor.def))));
+    assert.ok(hits.every(event => event.tick === releaseTick));
+    boss.hp = Math.floor(boss.maxHp * .4);
+    advance();
+    assert.equal(battle.bossTelegraph.attack, 'Triều Sương');
+    assert.equal(bossTelegraphTargets(battle, boss).length, 5);
+    assert.equal(activateLanternWard(state), false);
+    assert.equal(events.filter(event => event.type === 'lantern_ward_activated').length, 1);
+  } finally {
+    gameEvents.removeEventListener('game-event', listener);
+  }
+});
+
+test('one surviving stove lets the boss hit the marked targets on the scheduled tick', () => {
+  const { advance, battle, boss } = prepareBossCharge();
+  assert.equal(boss.id, 'boss_bep_truong');
+  const events = [];
+  const listener = ({ detail }) => events.push(detail);
+  gameEvents.addEventListener('game-event', listener);
+  try {
+    advance();
+    const windup = events.find(event => event.type === 'boss_phase_changed');
+    assert.equal(windup.payload.windup_ticks, 180);
+    Object.assign(battle.stoves[0], { hp: 0, alive: false });
+    assert.equal(focusBossStove(battle, battle.stoves[0].actor_id), false);
+    assert.equal(focusBossStove(battle, battle.stoves[1].actor_id), true);
+    const targets = bossTelegraphTargets(battle, boss);
+    assert.equal(targets.length, 2);
+    targets[0].shield = 1;
+    targets[0].shieldUntil = 500;
+    const releaseTick = windup.tick + windup.payload.windup_ticks;
+    while (battle.tick < releaseTick - 1) advance();
+    assert.ok(events.every(event => event.type !== 'boss_cast_released'));
+    advance();
+    assert.equal(events.filter(event => event.type === 'boss_cast_released').length, 1);
+    const hits = events.filter(event => event.type === 'hit_resolved' && event.source_id === boss.id);
+    assert.deepEqual(hits.map(event => event.target_id), targets.map(actor => actor.actor_id));
+    assert.ok(hits.every(event => event.tick === releaseTick));
+    assert.equal(events.filter(event => event.type === 'shield_broken').length, 1);
+    assert.deepEqual(battle.stoves, []);
+    assert.equal(battle.stoveTargetId, null);
+  } finally {
+    gameEvents.removeEventListener('game-event', listener);
+  }
+});
+
+test('targeted basic attacks and ultimates can interrupt the boss on the final charge tick', () => {
+  const { advance, save, state, battle, boss } = prepareBossCharge();
+  const mage = battle.actors.find(actor => actor.role === 'mage');
+  const fighter = battle.actors.find(actor => actor.role === 'fighter');
+  const events = [];
+  const listener = ({ detail }) => events.push(detail);
+  gameEvents.addEventListener('game-event', listener);
+  try {
+    advance();
+    const [first, second] = battle.stoves;
+    const releaseTick = battle.tick + battle.bossTelegraph.duration;
+    assert.equal(battle.bossPhase, 2);
+    assert.equal(focusBossStove(battle, boss.actor_id), false);
+    Object.assign(fighter, { x: boss.x - 70, y: boss.y, action: null, cooldown: 0, atk: 1000 });
+    const bossHP = boss.hp;
+    advance();
+    assert.equal(fighter.action.targetId, boss.actor_id);
+    while (fighter.action) advance();
+    assert.equal(boss.hp, bossHP);
+    assert.ok(events.some(event => event.type === 'hit_resolved' && event.payload.guarded));
+
+    assert.equal(focusBossStove(battle, first.actor_id), true);
+    Object.assign(fighter, { x: first.x - 70, y: first.y, cooldown: 0 });
+    advance();
+    assert.equal(fighter.action.targetId, first.actor_id);
+    while (fighter.action) advance();
+    assert.equal(first.alive, false);
+    assert.equal(battle.stoveTargetId, null);
+    assert.equal(second.hp, second.maxHp);
+    fighter.cooldown = 900;
+
+    assert.equal(focusBossStove(battle, second.actor_id), true);
+    Object.assign(mage, { action: null, cooldown: 900, energy: 100, atk: 1000 });
+    while (battle.tick < releaseTick - 24) advance();
+    battle.paused = true;
+    assert.equal(activateUltimate(state, save, mage.actor_id).ok, false);
+    for (let i = 0; i < 30; i++) advance();
+    assert.equal(battle.tick, releaseTick - 24);
+    battle.paused = false;
+    assert.equal(activateUltimate(state, save, mage.actor_id).ok, true);
+    while (battle.tick < releaseTick) advance();
+    assert.ok(events.some(event => event.type === 'projectile_spawned' && event.target_id === second.actor_id));
+    assert.equal(second.alive, false);
+    assert.equal(battle.bossTelegraph, null);
+    assert.deepEqual(events.filter(event => event.type === 'boss_cast_interrupted').map(event => event.tick), [releaseTick]);
+    assert.ok(events.every(event => event.type !== 'boss_cast_released'));
+
+    boss.hp = Math.floor(boss.maxHp * .3);
+    advance();
+    assert.equal(battle.bossPhase, 3);
+    assert.equal(battle.bossTelegraph.duration, 36);
+    assert.equal(bossTelegraphTargets(battle, boss).length, 3);
+    assert.deepEqual(battle.stoves, []);
+  } finally {
+    gameEvents.removeEventListener('game-event', listener);
+  }
 });
 
 test('Adventure movement advances in world units on simulation time', () => {
@@ -129,39 +455,162 @@ test('Adventure tap navigation routes around solid buildings', () => {
   assert.ok(insideBuilding.every((point) => !collidesWithWorld('village', point.x, point.y)));
 });
 
-test('Adventure completes the P0 quest, battle reward and Lilia claim loop', () => {
+test('Adventure completes chapter one across a reload, with a gated boss and a single reward', async () => {
+  const maps = createAdventureMapRegistry(await Promise.all(['village', 'forest'].map(key => readJson(`examples/maps/${key}.json`))));
   let save = createDefaultSave();
-  const state = createAdventureState(save);
-  state.x = 235; state.y = 260;
-  let result = interactAdventure(state, save);
-  save = result.save;
-  state.x = 680; state.y = 355;
-  result = interactAdventure(state, save);
-  save = result.save;
-  state.x = 878; state.y = 260;
-  result = interactAdventure(state, save);
-  save = result.save;
-  state.x = 500; state.y = 300;
-  result = interactAdventure(state, save);
-  save = result.save;
-  for (let frame = 0; frame < 1_800 && state.battle?.phase === 'battle_running'; frame += 1) stepAdventure(state, save, 1 / 30);
+  let state = createAdventureState(save);
+  function interact(action) {
+    const item = getAdventureMap(maps, state.map).interactables.find(item => item.action === action);
+    Object.assign(state, { x: item.x, y: item.y });
+    const result = interactAdventure(state, save, maps);
+    save = result.save;
+    return result;
+  }
+
+  assert.equal(interact('lilia').dialogue, 'opening');
+  interact('chest');
+  interact('portal');
+  assert.equal(interact('encounter').changed, false);
+  assert.equal(state.battle, null);
+  const [salt, ladle] = FOREST_CLUE_IDS;
+  assert.equal(interact(ladle).changed, true);
+  assert.equal(interact(ladle).changed, false);
+  assert.equal(interact('encounter').changed, false);
+
+  interact('village_return');
+  assert.equal(state.map, 'village');
+  save = migrateSave(JSON.parse(JSON.stringify(save)));
+  state = createAdventureState(save);
+  assert.deepEqual(save.adventure.forestClues, [ladle]);
+  interact('portal');
+  assert.equal(adventureJournal(save).action, salt);
+  assert.equal(interact(salt).changed, true);
+  assert.equal(interact('encounter').changed, true);
+  for (let frame = 0; frame < 1_800 && state.battle.phase === 'battle_running'; frame += 1) stepAdventure(state, save, 1 / 30, maps);
 
   assert.equal(state.battle.phase, 'battle_end');
   assert.equal(state.battle.result, 'victory');
   save = claimBattleResult(state, save);
-  state.x = 900; state.y = 470;
-  result = interactAdventure(state, save);
-  save = result.save;
-  state.x = 235; state.y = 260;
-  result = interactAdventure(state, save);
-  save = result.save;
+  interact('village_return');
+  assert.equal(interact('lilia').dialogue, 'ending');
 
   assert.equal(save.adventure.quest, 'completed');
   assert.equal(save.adventure.chestOpened, true);
   assert.equal(save.adventure.forestCleared, true);
+  assert.equal(adventureJournal(save).clues.length, 2);
   assert.equal(save.player.gold, 290);
   assert.equal(save.player.essence, 39);
   assert.equal(save.adventure.rewardClaims.length, 2);
+  assert.equal(interact('lilia').dialogue, 'forestOpening');
+  assert.equal(save.player.gold, 290);
+  assert.equal(save.adventure.chapterTwo.stage, 'accepted');
+});
+
+test('chapter two unlocks in order, survives reload and credits the current save once', async () => {
+  const maps = createAdventureMapRegistry(await Promise.all(['village', 'forest'].map(key => readJson(`examples/maps/${key}.json`))));
+  let save = migrateSave({
+    version: SAVE_VERSION,
+    player: { gold: 290, essence: 39, experience: 100, level: 2 },
+    adventure: { quest: 'completed', chestOpened: true, forestCleared: true },
+    completedBattles: 1,
+  });
+  let state = createAdventureState(save);
+  function interact(action) {
+    const item = getAdventureMap(maps, state.map).interactables.find(item => item.action === action);
+    Object.assign(state, { x: item.x, y: item.y });
+    const result = interactAdventure(state, save, maps);
+    save = result.save;
+    return result;
+  }
+  assert.equal(save.adventure.chapterTwo.stage, 'not_started');
+  assert.equal(adventureJournal(save).nextChapterAction, 'lilia');
+  assert.equal(interact('lilia').dialogue, 'forestOpening');
+  interact('portal');
+  assert.equal(interact('forest_lantern_light').changed, false);
+  assert.equal(interact('seal_encounter').changed, false);
+  assert.equal(interact('forest_lantern_wood').changed, true);
+  save = migrateSave(JSON.parse(JSON.stringify(save)));
+  state = createAdventureState(save);
+  assert.equal(adventureJournal(save).action, 'forest_lantern_light');
+  assert.equal(interact('forest_lantern_light').changed, true);
+  assert.equal(interact('seal_encounter').changed, true);
+  assert.equal(state.battle.encounter, 'seal');
+  for (let i = 0; i < 2400 && state.battle.phase === 'battle_running'; i++) {
+    if (state.battle.bossPhase === 3) activateLanternWard(state);
+    stepAdventure(state, save, 1 / 30, maps);
+  }
+  assert.equal(state.battle.result, 'victory');
+  save.player.gold += 17;
+  save = claimBattleResult(state, save);
+  assert.equal(save.player.gold, 397);
+  assert.equal(save.adventure.chapterTwo.stage, 'ready_to_claim');
+  assert.equal(claimBattleResult(state, save), save);
+  interact('village_return');
+  assert.equal(interact('lilia').dialogue, 'forestEnding');
+  assert.equal(interact('lilia').changed, false);
+  assert.equal(save.player.gold, 507);
+  assert.equal(save.player.level, 3);
+  assert.equal(save.adventure.chapterTwo.stage, 'completed');
+  assert.equal(adventureJournal(save).action, null);
+});
+
+test('chapter three opens the harbor after chapter two and survives travel, reload and reward claim', async () => {
+  const maps = createAdventureMapRegistry(await Promise.all(['village', 'forest', 'harbor'].map(key => readJson(`examples/maps/${key}.json`))));
+  const legacy = {
+    version: SAVE_VERSION, player: { gold: 490, essence: 54, experience: 200, level: 3 },
+    adventure: { quest: 'completed', chestOpened: true, forestCleared: true, chapterTwo: { stage: 'ready_to_claim', lanterns: 2 } },
+    completedBattles: 2,
+  };
+  let save = migrateSave(legacy);
+  let state = createAdventureState(save);
+  function interact(action) {
+    const item = getAdventureMap(maps, state.map).interactables.find(item => item.action === action);
+    Object.assign(state, { x: item.x, y: item.y });
+    const result = interactAdventure(state, save, maps);
+    save = result.save;
+    return result;
+  }
+  assert.equal(interact('harbor_route').changed, false);
+  assert.equal(migrateSave({ ...legacy, adventure: { ...legacy.adventure, map: 'harbor' } }).adventure.map, 'village');
+
+  save = migrateSave({ ...legacy, adventure: { ...legacy.adventure, chapterTwo: { stage: 'completed' } } });
+  state = createAdventureState(save);
+  assert.equal(adventureJournal(save).nextChapterAction, 'harbor_route');
+  interact('harbor_route');
+  assert.equal(state.map, 'harbor');
+  assert.equal(adventureJournal(save).action, 'harbor_guide');
+  const map = getAdventureMap(maps, 'harbor');
+  assert.equal(collidesWithWorld('harbor', 465, 128, undefined, maps), true);
+  assert.ok(map.interactables.every(point => findAdventurePath('harbor', state, point, undefined, maps).length));
+  assert.equal(interact('tide_encounter').changed, false);
+  assert.equal(interact('harbor_guide').dialogue, 'harborOpening');
+  assert.equal(interact('harbor_tide').changed, true);
+  assert.equal(interact('harbor_tide').changed, false);
+  interact('harbor_return');
+  assert.equal(state.map, 'village');
+  save = migrateSave(JSON.parse(JSON.stringify(save)));
+  state = createAdventureState(save);
+  assert.deepEqual(save.adventure.chapterThree.clues, ['harbor_tide']);
+  interact('harbor_route');
+  assert.equal(adventureJournal(save).action, 'harbor_net');
+  interact('harbor_net');
+  assert.equal(adventureJournal(save).action, 'tide_encounter');
+  interact('tide_encounter');
+  assert.equal(state.battle.encounter, 'tide');
+  for (let i = 0; i < 2400 && state.battle.phase === 'battle_running'; i++) {
+    retreatFromTide(state);
+    stepAdventure(state, save, 1 / 30, maps);
+  }
+  assert.equal(state.battle.result, 'victory');
+  save = claimBattleResult(state, save);
+  assert.equal(save.adventure.chapterThree.stage, 'ready_to_claim');
+  assert.equal(claimBattleResult(state, save), save);
+  assert.equal(interact('harbor_guide').dialogue, 'harborEnding');
+  assert.equal(interact('harbor_guide').changed, false);
+  assert.equal(save.player.gold, 755);
+  assert.equal(save.player.level, 4);
+  assert.equal(save.adventure.chapterThree.stage, 'completed');
+  assert.equal(adventureJournal(save).action, 'caldera_route');
 });
 
 test('TCG starts with a valid 36-card deck and passes priority into combat', async () => {
@@ -180,6 +629,37 @@ test('TCG starts with a valid 36-card deck and passes priority into combat', asy
   const returnedToPlayer = runTcgBot(opponentTurn);
   assert.equal(returnedToPlayer.activePlayer, 0);
   assert.equal(returnedToPlayer.round, 2);
+});
+
+test('TCG surrender resolves a pending match once and preserves already spent cards', async () => {
+  const catalog = await readJson('examples/cards/cards.catalog.json');
+  const deck = await readJson('examples/cards/starter_deck.json');
+  const match = createTcgMatch(catalog, deck);
+  const card = match.players[1].hand.pop();
+  match.stack.push({ card, owner: 1, kind: 'spell' });
+  match.pendingAttack = { playerIndex: 1 };
+  const result = surrenderTcg(match, 0);
+  assert.equal(result.winner, 1);
+  assert.equal(result.result, 'surrender');
+  assert.equal(result.phase, 'result');
+  assert.deepEqual(result.stack, []);
+  assert.equal(result.pendingAttack, null);
+  assert.deepEqual(result.players[1].graveyard, [card]);
+  assert.equal(match.result, null);
+  assert.throws(() => surrenderTcg(result, 0), /đã kết thúc/);
+});
+
+test('TCG mulligan replaces selected cards once and preserves the deck size', async () => {
+  const catalog = await readJson('examples/cards/cards.catalog.json');
+  const deck = await readJson('examples/cards/starter_deck.json');
+  const match = createTcgMatch(catalog, deck, 41);
+  const selected = match.players[0].hand[0].instance_id;
+  const updated = mulliganTcg(match, [selected]);
+  assert.equal(updated.players[0].hand.length, 4);
+  assert.equal(updated.players[0].deck.length, 32);
+  assert.ok(!updated.players[0].hand.some((card) => card.instance_id === selected));
+  assert.ok(updated.players[0].deck.some((card) => card.instance_id === selected));
+  assert.throws(() => mulliganTcg(updated, []));
 });
 
 test('TCG summons units and an armed trap counters a fast spell without damage', async () => {
@@ -286,4 +766,208 @@ test('Auto Chess run reaches a terminal result at the round cap', async () => {
   }
   assert.equal(run.phase, 'finished');
   assert.ok(['victory', 'complete'].includes(run.result));
+});
+
+test('Auto Chess benches a deployed unit without selling it and scouts the same living opponent used in combat', async () => {
+  const unitsData = await readJson('examples/auto_chess/units.json');
+  const shop = await readJson('examples/auto_chess/shop_odds.json');
+  let run = createChessRun(unitsData.units, shop);
+  run = buyChessOffer(run, 0);
+  run = placeChessUnit(run, 0, 2, 3);
+  const gold = run.gold;
+  const id = run.board[0].id;
+  run = benchChessUnit(run, 0);
+  assert.equal(run.board.length, 0);
+  assert.equal(run.bench[0].id, id);
+  assert.equal(run.bench[0].x, undefined);
+  assert.equal(run.gold, gold);
+  run = placeChessUnit(run, 0, 4, 0);
+  run.opponents[0].hp = 0;
+  const forecast = nextChessOpponent(run);
+  assert.equal(forecast.id, run.opponents[1].id);
+  const result = startChessCombat(run);
+  assert.equal(result.result.opponentId, forecast.id);
+  assert.deepEqual(result.combat.startActors.filter(actor => actor.team === 'enemy').map(({ id, x, y }) => [id, x, y]),
+    forecast.units.map(unit => [unit.id, unit.x, unit.y + 4]));
+  assert.throws(() => benchChessUnit(result, 0), /chuẩn bị/);
+});
+test('Auto Chess applies synergy to unique allies and records an ordered replay', async () => {
+  const { units } = await readJson('examples/auto_chess/units.json');
+  const shop = await readJson('examples/auto_chess/shop_odds.json');
+  let run = createChessRun(units, shop, 2077);
+  const fire = units.filter((unit) => unit.element === 'fire');
+  assert.equal(chessTraits([fire[0], fire[0]]).get('fire'), 1);
+  run.shop[0] = fire[0];
+  run.shop[1] = fire[1];
+  run = placeChessUnit(buyChessOffer(run, 0), 0, 1, 2);
+  run = placeChessUnit(buyChessOffer(run, 1), 0, 2, 2);
+  const result = startChessCombat(run);
+  assert.equal(result.combat.startActors[0].atk, Math.floor(run.board[0].atk * 1.15));
+  assert.ok(result.combat.events.some((event) => event.type === 'move'));
+  assert.ok(result.combat.events.some((event) => event.type === 'hit_resolved'));
+  assert.ok(result.combat.events.every((event, index, events) => !index || events[index - 1].tick <= event.tick));
+});
+
+test('the main campaign opens chapters four through six in order and persists the ending', async () => {
+  const keys = ['village', 'forest', 'harbor', 'caldera', 'sanctum'];
+  const maps = createAdventureMapRegistry(await Promise.all(keys.map(key => readJson(`examples/maps/${key}.json`))));
+  const profile = createDefaultSave();
+  Object.assign(profile.adventure, { map: 'harbor', quest: 'completed', chestOpened: true, forestCleared: true,
+    chapterTwo: { stage: 'completed' }, chapterThree: { stage: 'ready_to_claim' } });
+  delete profile.adventure.finale;
+  let save = migrateSave(profile);
+  let state = createAdventureState(save);
+
+  function interact(action) {
+    const item = getAdventureMap(maps, state.map).interactables.find(item => item.action === action);
+    Object.assign(state, { x: item.x, y: item.y });
+    const result = interactAdventure(state, save, maps);
+    save = result.save;
+    return result;
+  }
+
+  function defeatEncounter(encounterId) {
+    const { battle } = state;
+    assert.equal(battle.encounter, encounterId);
+    const config = adventureEncounters[encounterId];
+    const interrupted = [];
+    const listener = ({ detail }) => {
+      if (detail.type === 'boss_cast_interrupted') interrupted.push(detail.payload.attack);
+    };
+    gameEvents.addEventListener('game-event', listener);
+    try {
+      for (let i = 0; i < 4200 && battle.phase === 'battle_running'; i++) {
+        const tell = battle.bossTelegraph;
+        if (tell?.counter === 'sequence') {
+          const input = config.phases[tell.phase].sequence.order[tell.counterStep];
+          if (input) activateBossCounter(state, input);
+        }
+        for (const actor of battle.actors.filter(item => item.team === 'player' && item.energy === 100)) {
+          activateUltimate(state, save, actor.actor_id);
+        }
+        stepAdventure(state, save, 1 / 30, maps);
+      }
+      assert.equal(battle.result, 'victory');
+      assert.deepEqual(interrupted, Object.values(config.phases).map(phase => phase.attack));
+      const goldBefore = save.player.gold;
+      save = claimBattleResult(state, save);
+      assert.equal(save.player.gold, goldBefore + config.reward.gold);
+      assert.equal(claimBattleResult(state, save), save);
+      assert.ok(save.adventure.rewardClaims.includes(config.claimId));
+    } finally {
+      gameEvents.removeEventListener('game-event', listener);
+    }
+  }
+
+  assert.equal(interact('caldera_route').changed, false);
+  assert.equal(interact('harbor_guide').dialogue, 'harborEnding');
+  assert.equal(adventureJournal(save).action, 'caldera_route');
+  assert.equal(interact('caldera_route').save.adventure.map, 'caldera');
+  assert.equal(interact('sanctum_route').changed, false);
+  assert.equal(interact('forge_guide').dialogue, 'forgeOpening');
+  assert.equal(interact('forge_ledger').changed, true);
+  assert.equal(interact('forge_encounter').changed, false);
+  save = migrateSave(JSON.parse(JSON.stringify(save)));
+  state = createAdventureState(save);
+  assert.equal(adventureJournal(save).action, 'forge_valve');
+  assert.equal(interact('forge_valve').changed, true);
+  interact('forge_encounter');
+  defeatEncounter('forge');
+  assert.equal(interact('forge_guide').dialogue, 'forgeEnding');
+  assert.equal(interact('sanctum_route').save.adventure.map, 'sanctum');
+  assert.equal(interact('feast_return').changed, false);
+  assert.equal(interact('sanctum_guide').dialogue, 'feastOpening');
+  interact('sanctum_seal');
+  interact('sanctum_urn');
+  interact('feast_encounter');
+  defeatEncounter('feast');
+  assert.equal(interact('sanctum_guide').dialogue, 'feastEnding');
+  assert.equal(interact('feast_return').save.adventure.map, 'village');
+  assert.equal(adventureJournal(save).action, 'feast_lilia');
+  assert.equal(interact('feast_lilia').dialogue, 'finaleOpening');
+  interact('feast_broth');
+  interact('feast_table');
+  assert.equal(interact('feast_lilia').dialogue, 'finaleEnding');
+  const gold = save.player.gold;
+  save = migrateSave(JSON.parse(JSON.stringify(save)));
+  state = createAdventureState(save);
+  assert.ok(adventureJournal(save).completedCampaign);
+  assert.ok(adventureJournal(save).labels.every(step => step.status === 'done'));
+  assert.equal(interact('feast_lilia').changed, false);
+  assert.equal(save.player.gold, gold);
+  assert.equal(migrateSave({ ...profile, adventure: { ...profile.adventure, map: 'sanctum',
+    finale: { 4: { stage: 'completed' }, 5: { stage: 'completed' } } } }).adventure.map, 'village');
+});
+
+test('the forge counter resets on wrong input and checkpoint recovery keeps the warning at its saved tick', () => {
+  const { advance, save, state, battle } = prepareBossCharge('forge');
+  save.adventure.map = 'caldera';
+  save.adventure.quest = 'completed';
+  save.adventure.chapterTwo.stage = 'completed';
+  save.adventure.chapterThree.stage = 'completed';
+  advance();
+  assert.equal(activateBossCounter(state, 'steam'), true);
+  assert.equal(battle.bossTelegraph.counterStep, 1);
+  assert.equal(activateBossCounter(state, 'steam'), true);
+  assert.equal(battle.bossTelegraph.counterStep, 0);
+  activateBossCounter(state, 'steam');
+  save.adventure.battle = adventureCheckpoint(battle);
+  const resumed = createAdventureState(migrateSave(JSON.parse(JSON.stringify(save))));
+  assert.equal(resumed.battle.paused, true);
+  assert.equal(resumed.battle.tick, battle.tick);
+  assert.equal(resumed.battle.bossTelegraph.counterStep, 1);
+  assert.equal(activateBossCounter(resumed, 'coal'), false);
+  resumed.battle.paused = false;
+  assert.equal(activateBossCounter(resumed, 'coal'), true);
+  assert.equal(activateBossCounter(resumed, 'coal'), false);
+  stepAdventure(resumed, save, 1 / 30);
+  assert.equal(resumed.battle.bossTelegraph, null);
+  assert.match(resumed.lastMessage, /Đã ngắt Áp Hơi/);
+  assert.equal(battle.bossTelegraph.counterStep, 1);
+});
+
+test('the walk to Đèn Mộc clears the tree corner from the forest entrance', async () => {
+  const map = await readJson('examples/maps/forest.json');
+  const maps = createAdventureMapRegistry([map]);
+  const lantern = map.interactables.find(item => item.id === 'forest_lantern_wood');
+  const save = createDefaultSave();
+  Object.assign(save.adventure, map.world.spawn, { map: 'forest', quest: 'completed' });
+  save.adventure.chapterTwo.stage = 'accepted';
+  const state = createAdventureState(save);
+  state.walkPath = findAdventurePath('forest', state, lantern, undefined, maps);
+  for (let i = 0; i < 280 && state.walkPath.length; i++) {
+    const waypoint = state.walkPath[0];
+    if (Math.hypot(waypoint.x - state.x, waypoint.y - state.y) < .01) state.walkPath.shift();
+    if (!state.walkPath.length) break;
+    const next = state.walkPath[0];
+    setAdventureInput(state, next.x - state.x, next.y - state.y);
+    stepAdventure(state, save, 1 / 30, maps);
+  }
+  assert.equal(state.walkPath.length, 0);
+  assert.equal(nearestInteraction(state, save, maps)?.id, lantern.id);
+});
+
+test('Auto Chess preparation and loss streak payout follow the match state', async () => {
+  const { units } = await readJson('examples/auto_chess/units.json');
+  const shop = await readJson('examples/auto_chess/shop_odds.json');
+  let run = createChessRun(units, shop, 21);
+  assert.equal(run.preparationSeconds, 30);
+  run.preparationSeconds = 0;
+  run.gold = 30;
+  run = startChessCombat(run);
+  assert.deepEqual(run.result.payout, { base: 5, win: 0, interest: 3, streak: 0 });
+  run = advanceChessRound(run, units, shop);
+  assert.equal(run.preparationSeconds, 30);
+  run = startChessCombat(run);
+  assert.equal(run.streak, -2);
+  assert.equal(run.result.payout.streak, 1);
+});
+
+test('Adventure melee attacks start when movement lands on the attack range boundary', () => {
+  const save = createDefaultSave();
+  const state = createAdventureState(save);
+  beginBattle(state, save, 'forest');
+  const mob = state.battle.actors.find(actor => actor.id === 'mob_mushroom_01');
+  for (let i = 0; i < 65 && !mob.attackCount; i++) stepAdventure(state, save, 1 / 30);
+  assert.ok(mob.attackCount > 0, 'a rounded movement coordinate must not trap the attacker outside its range');
 });

@@ -5,3 +5,19 @@
 - `archive/v2_production_spec/*`: historical specs and concept references; some sample screens contain AI text errors and unapproved measurements; not authoritative for gameplay or production assets.
 - Any new sprite: record source file hash, generator/model/tool if applicable, operator, date, content source, approved artist review, release rights and any license terms. `pending_review` means **not allowed in public release**.
 - No copying sprites/music/UI resources from Princess Connect! Re:Dive, Azur Lane or Legends of Runeterra. Reference only high-level genre principles, then create original assets.
+
+## Browser playtest assets
+
+| Asset | Source | Review |
+|---|---|---|
+| `client/assets/golden/bunbo.webp`, `fire.webp`, `client/assets/audio/sfx_*.ogg` | Bún Bò Hỏa Linh Golden Sample v1 supplied with Soul of Meal SPEC v3.1, from original procedural frames and audio | Technical frame validation passed. Human art review pending. |
+| `client/assets/characters/chr_bunbo_holinh/battle/poses/`, `golden/bunbo_battle.webp` | Original generated anime chibi poses based on the Soul of Meal identity (orange ponytail, spice flower, cream and red chef-warrior coat, flame knife). The prompt specified eight isolated poses in a transparent 4×2 grid with shared ground line. | Draft. Eight source RGBA poses checked for bounds and uniqueness. Identity, continuity and commercial rights review pending. |
+| `client/assets/cinematic/*.webp` | Original generated key art. Prompts specified a chibi heroine in a Vietnamese-inspired lantern market, a top-down village courtyard, a forest clearing, a transparent airborne ultimate pose and two isolated forest imps. | Draft. Commercial rights review pending. |
+| `client/assets/audio/*_theme.ogg`, `forest_wind.ogg` | Original melodies and synthesized ambience defined in `scripts/build_music.py`. | Playback and loudness on target devices pending. |
+| `sfx_element_*_ultimate.ogg`, `sfx_footstep_leaves_*.ogg`, `sfx_footstep_stone_b.ogg`, `sfx_guard_contact.ogg`, `sfx_skill_ready.ogg`, `sfx_boss_warning.ogg`, `sfx_boss_break.ogg` | Original sound synthesis in `scripts/build_combat_audio.py`. FFmpeg encodes the generated samples. | OGG decode passed. Listening and mix review on target devices pending. |
+
+The anime chibi art uses the visual direction requested for Soul of Meal. Characters and assets are original to this project. No art or audio from the reference game is included in these additions.
+
+## Original art playtest
+
+The runtime art in `client/assets/original/` was generated for this revision from the written Soul of Meal identity specifications. Source-sheet SHA-256, prompts and review status are tracked in [ORIGINAL_ART_SOURCES.json](ORIGINAL_ART_SOURCES.json). The source frames and atlas metadata are documented in [ORIGINAL_ART_PLAYTEST.md](ORIGINAL_ART_PLAYTEST.md). Elemental cast and impact sounds are synthesized by `scripts/build_element_sfx.py`. Human art and commercial-rights review remain pending.

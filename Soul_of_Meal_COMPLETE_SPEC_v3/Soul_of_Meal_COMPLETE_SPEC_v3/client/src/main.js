@@ -1,58 +1,152 @@
-import { createAdventureState, interactAdventure, nearestInteraction, setAdventureInput, stepAdventure, activateUltimate, beginBattle, claimBattleResult, WORLD, resolveCameraViewport } from './modes/adventure.js?v=6';
-import { createTcgMatch, playTcgCard, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn } from './modes/tcg.js?v=3';
-import { advanceChessRound, buyChessOffer, createChessRun, moveChessUnit, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat, toggleChessLock } from './modes/autoChess.js?v=3';
-import { gameEvents } from './core/events.js?v=3';
-import { loadSave, persistSave } from './core/save.js?v=3';
-import { AnimationAdapter } from './render/animationAdapter.js?v=4';
-import { findAdventurePath } from './modes/adventureNavigation.js?v=3';
-import { createAdventureMapRegistry, getAdventureMap } from './modes/mapCatalog.js?v=1';
+import { adventureCheckpoint, createAdventureState, interactAdventure, nearestInteraction, availableAdventureInteractions, purchaseAdventureSupplies, setAdventureInput, stepAdventure, activateUltimate, activateLanternWard, retreatFromTide, activateBossCounter, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, leaveAdventureDefeat, WORLD, resolveCameraViewport } from './modes/adventure.js';
+import { createTcgMatch, playTcgCard, passTcgPriority, runBotPriority, runTcgBot, attackTcg, assignTcgBlockers, declaredTcgAttackers, endTcgTurn, mulliganTcg, surrenderTcg, validateDeck } from './modes/tcg.js';
+import { advanceChessRound, benchChessUnit, buyChessOffer, createChessRun, moveChessUnit, nextChessOpponent, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat, toggleChessLock, buyChessExperience, chessTraits, CHESS_PREPARATION_SECONDS, CHESS_TRAITS } from './modes/autoChess.js';
+import { gameEvents } from './core/events.js';
+import { loadSave, migrateSave, persistSave, SAVE_KEY } from './core/save.js';
+import { AnimationAdapter } from './render/animationAdapter.js';
+import { findAdventurePath } from './modes/adventureNavigation.js';
+import { createAdventureMapRegistry, getAdventureMap } from './modes/mapCatalog.js';
 import { spriteRenderer } from './render/spriteRenderer.js';
-import { preloadGameAssets } from './render/spriteAssets.js';
+import { actorArt, chapterArt, combatArt, effectArt, HERO_ID, HERO_NAMES as characterNames, originalCardArt, preloadGameAssets, propArt, sceneArt, TRAVEL_HERO } from './render/spriteAssets.js';
+import { drawEffectTexture, drawElementEffect } from './render/elementEffects.js';
+import { ADVENTURE_TICK_RATE, adventureBalance, adventureEncounters } from './modes/adventureBalance.js';
+import { adventureSpiritStats, canAffordSpiritCost, changeSpiritProgress, MAX_SPIRIT_RANK, SPIRIT_BONDS, SPIRIT_GEAR, SPIRIT_GIFTS, SPIRIT_MEMORIES, SPIRIT_RANKS, spiritProfile } from './modes/spiritProgress.js';
+import { BattleEffects } from './render/battleEffects.js';
+import { BattleRigClock, loadSpiritRigs } from './render/spiritRig.js';
+import { GameAudio } from './core/audio.js';
+import { resolveSoundScene } from './core/soundScenes.js';
+import { adventureJournal } from './modes/adventureJournal.js';
+import { ROOM_EXIT, VILLAGE_ROOMS } from './modes/villageRooms.js';
+import { adventureChronicle, CHAPTER_DIALOGUES } from './modes/adventureStory.js';
+import { bindWorldStick, drawWorldMinimap } from './render/worldHud.js';
+import { BoardSprites } from './render/boardSprites.js';
+import { DuelEffects } from './render/duelEffects.js';
+import { ChessReplay } from './render/chessReplay.js';
+import { renderEntry } from './shell/entry.js';
+import { createAccountApi, accountErrorMessage } from './core/accountApi.js';
+import { createCloudSave } from './core/cloudSave.js';
+import { activeContentRelease, pinnedContentRelease } from './core/contentRelease.js';
+import { openAccountDialog } from './shell/accountDialog.js';
+import { openStoryDialog } from './shell/storyDialog.js';
 
 const app = document.querySelector('#app');
+const stageHost = document.querySelector('#web-stage');
+const systemMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const compactBattle = window.matchMedia('(max-height: 620px) and (orientation: landscape)');
+const FULL_ARENA = Object.freeze({ height: WORLD.height, top: 0 });
+const WIDE_ARENA = Object.freeze({ height: 360, top: 100 });
+const SPIRIT_RIG_SCALE = .88;
+let webStage;
+const pinnedRelease = pinnedContentRelease(new URL(location.href));
+const accountApi = import.meta.env?.SOM_ACCOUNTS ? createAccountApi() : null;
 const runtime = {
-  page: 'home', save: loadSave(), adventure: null, cards: null, deck: null, units: null, maps: null,
-  shopConfig: null, tcg: null, chess: null, selectedTarget: 'commander', selectedBench: null,
-  selectedBoard: null, notice: '', events: [], lastSavedLocation: 0, heldKeys: new Set(),
+  page: 'title', save: loadSave(), adventure: null, cards: null, deck: null, units: null, maps: null,
+  shopConfig: null, tcg: null, chess: null, selectedTarget: null, selectedSpell: null, tcgAttackers: null, selectedBench: null, mulligan: new Set(), deckDraft: null,
+  account: null, cloud: null, cloudStatus: 'saved', cloudError: null,
+  selectedBoard: null, chessLock: null, chessReplayPaused: false, chessReplaySpeed: 1, notice: '', lastSavedLocation: 0, heldKeys: new Set(), tcgImpacts: new Map(),
+  rosterId: HERO_ID, rosterTab: 'info', showMinimap: true, worldStick: null, rigClocks: new Map(),
 };
 runtime.adventure = createAdventureState(runtime.save);
 runtime.tcg = runtime.save.modes.tcg;
 runtime.chess = runtime.save.modes.chess;
-runtime.animations = new AnimationAdapter({
-  eventTarget: gameEvents,
-  reducedMotion: runtime.save.settings.reducedMotion,
-  onWarning: (message) => console.warn(message),
-});
-window.soulOfMealAnimation = runtime.animations;
-
+runtime.effects = new BattleEffects(spriteRenderer);
+const boardSprites = new BoardSprites(spriteRenderer);
+const duelEffects = new DuelEffects(spriteRenderer);
+runtime.audio = new GameAudio(runtime.save.settings);
+void runtime.audio.loadSoundtracks();
+window.addEventListener('click', () => runtime.audio.unlock(), { capture: true });
+window.addEventListener('keydown', () => runtime.audio.unlock(), { once: true, capture: true });
 gameEvents.addEventListener('game-event', ({ detail }) => {
-  runtime.events.unshift(detail);
-  runtime.events = runtime.events.slice(0, 40);
+  const battle = runtime.adventure.battle;
+  const clock = battle && detail.battle_id === battle.id ? runtime.rigClocks.get(detail.source_id) : null;
+  const delayedSlash = clock && detail.type === 'attack_started' && !detail.payload.travel_ticks;
+  const origin = clock ? handleAdventureRigEvent(detail, battle, clock) : undefined;
+  if (!delayedSlash) runtime.effects.handle(detail, battle, origin);
+  if (detail.type === 'hit_resolved' && detail.rules_version === 'client-tcg-v1') {
+    const { element, target_player, target_lane, damage } = detail.payload;
+    const now = performance.now();
+    const contact = duelEffects.queue(app.querySelector('.duel-field'), detail, now, app.dataset.motion === 'reduced');
+    if (runtime.page === 'tcg') {
+      const clip = detail.action_seq % 2 === 0 ? 'attack_a' : 'attack_b';
+      if (detail.payload.effect_kind === 'spell') runtime.audio.handle({ type: 'spell_launched', payload: { element } });
+      else {
+        runtime.audio.handle({ type: 'attack_started', payload: { element, clip_id: clip } });
+        if (contact > now && detail.source_id) boardSprites.cue(tcgSpriteKey(detail.battle_id, detail.source_id), clip, now, detail.action_seq, contact);
+      }
+    }
+    if (detail.target_id) boardSprites.cue(tcgSpriteKey(detail.battle_id, detail.target_id), 'hit', contact, detail.action_seq);
+    const prior = runtime.tcgImpacts.get(detail.target_id);
+    const sameAction = prior?.matchId === detail.battle_id && prior?.actionSeq === detail.action_seq;
+    const impact = {
+      element, matchId: detail.battle_id, actionSeq: detail.action_seq,
+      damage: (sameAction ? prior.damage : 0) + damage,
+      contact,
+      expires: contact + 650,
+    };
+    runtime.tcgImpacts.set(detail.target_id, impact);
+    if (Number.isInteger(target_lane)) runtime.tcgImpacts.set(tcgLaneId(target_player, target_lane), impact);
+  } else if (!delayedSlash && detail.payload.source_kind !== 'auto_chess_attack') {
+    runtime.audio.handle(detail);
+  }
 });
 
-const iconMap = { home: '⌂', adventure: '⌖', tcg: '▤', chess: '▦', settings: '⚙' };
-const characterNames = {
-  chr_bunbo_holinh: 'Bún Bò Hỏa Linh', chr_pho_lamvu: 'Phở Lam Vũ',
-  chr_goicuon_diepnhi: 'Gỏi Cuốn Diệp Nhi', chr_banhbao_bachngoc: 'Bánh Bao Bạch Ngọc',
-  chr_caphe_davu: 'Cà Phê Dạ Vũ',
-};
+function handleAdventureRigEvent({ type, payload, source_id }, battle, clock) {
+  const strike = type === 'hit_resolved' && !payload.travel_ticks;
+  const support = type === 'support_cast_released';
+  if (!strike && !support && type !== 'projectile_spawned') return;
+  const actor = battle.actors.find(item => item.actor_id === source_id);
+  if (!actor || !clock.contact(battle, payload.clip_id)) return;
+  const point = clock.rig.effectPoint(payload.clip_id, actor.x, actor.y, actor.direction, SPIRIT_RIG_SCALE,
+    app.dataset.motion === 'reduced');
+  if (strike) {
+    runtime.effects.add('strike', payload.element, .24, { ...point, angle: actor.direction === 'W' ? Math.PI : 0 });
+    if (payload.source_kind === 'basic') runtime.audio.handle({ type: 'attack_started', payload });
+  } else if (support) {
+    runtime.effects.add('cast', payload.element, .36, point);
+  }
+  return point;
+}
+
+const iconMap = { home: '⌂', adventure: '⌖', tcg: '▤', chess: '▦', roster: '✿', settings: '⚙' };
 const elementColors = { fire: '#dd684a', water: '#428eac', wood: '#548d56', light: '#b8923c', shadow: '#75627e' };
 
-async function loadContent() {
-  const [cards, deck, unitsData, shopConfig, villageMap, forestMap] = await Promise.all([
-    fetch('../../examples/cards/cards.catalog.json').then(checkResponse).then((response) => response.json()),
-    fetch('../../examples/cards/starter_deck.json').then(checkResponse).then((response) => response.json()),
-    fetch('../../examples/auto_chess/units.json').then(checkResponse).then((response) => response.json()),
-    fetch('../../examples/auto_chess/shop_odds.json').then(checkResponse).then((response) => response.json()),
-    fetch('../../examples/maps/village.json').then(checkResponse).then((response) => response.json()),
-    fetch('../../examples/maps/forest.json').then(checkResponse).then((response) => response.json()),
-  ]);
+const contentFiles = [
+  'cards/cards.catalog.json', 'cards/starter_deck.json',
+  'auto_chess/units.json', 'auto_chess/shop_odds.json',
+  'maps/village.json', 'maps/forest.json', 'maps/harbor.json', 'maps/caldera.json', 'maps/sanctum.json',
+  ...VILLAGE_ROOMS.map(key => 'maps/' + key + '.json'),
+];
+
+async function loadContent(report) {
+  let loaded = 0;
+  const signal = AbortSignal.timeout(15000);
+  const message = 'Đang tải dữ liệu hành trình…';
+  report(0, message);
+  const [cards, deck, unitsData, shopConfig, ...maps] = await Promise.all(
+    contentFiles.map(async (file) => {
+      const response = await fetch('../examples/' + file, { signal });
+      const data = await checkResponse(response).json();
+      loaded += 1;
+      report(Math.round(loaded / contentFiles.length * 70), message);
+      return data;
+    })
+  );
+  report(75, 'Đang chuẩn bị Vị Linh và bản đồ…');
   runtime.cards = cards;
   runtime.deck = deck;
   runtime.units = unitsData.units;
   runtime.shopConfig = shopConfig;
-  runtime.maps = createAdventureMapRegistry([villageMap, forestMap]);
-  preloadGameAssets(spriteRenderer).catch((err) => console.warn('Sprite preload error:', err));
+  runtime.maps = createAdventureMapRegistry(maps);
+  const [manifests, rigs] = await Promise.all([
+    preloadGameAssets(spriteRenderer), loadSpiritRigs(spriteRenderer, signal),
+  ]);
+  spriteRenderer.rigs = rigs;
+  runtime.rigClocks = new Map([...rigs].map(([id, rig]) => [id, new BattleRigClock(rig, ADVENTURE_TICK_RATE)]));
+  runtime.animations = new AnimationAdapter({
+    eventTarget: gameEvents, manifests, reducedMotion: app.dataset.motion === 'reduced',
+  });
+  window.soulOfMealAnimation = runtime.animations;
+  report(100, 'Sẵn sàng');
 }
 
 function checkResponse(response) {
@@ -64,57 +158,321 @@ function saveNow() {
   runtime.save.adventure.map = runtime.adventure.map;
   runtime.save.adventure.x = runtime.adventure.x;
   runtime.save.adventure.y = runtime.adventure.y;
+  runtime.save.adventure.battle = adventureCheckpoint(runtime.adventure.battle);
   runtime.save.modes.tcg = runtime.tcg;
   runtime.save.modes.chess = runtime.chess;
-  persistSave(runtime.save);
+  if (runtime.cloud) runtime.cloud.stage(runtime.save);
+  else persistSave(runtime.save);
 }
 
+function syncStage() {
+  stageHost.dataset.scene = runtime.page;
+  webStage?.show(runtime.page);
+}
+
+function syncMotion() {
+  const reduced = runtime.save.settings.reducedMotion || systemMotion.matches;
+  app.dataset.motion = reduced ? 'reduced' : 'full';
+  runtime.animations?.setReducedMotion(reduced);
+  runtime.chessReplay?.setReducedMotion(reduced);
+  webStage?.setReducedMotion(reduced);
+}
+
+async function enterGame(report) {
+  runtime.audio.unlock();
+  if (!runtime.animations) await loadContent(report);
+  saveNow();
+  navigate('home');
+}
+
+function replaceProfile(save) {
+  runtime.save = save;
+  runtime.adventure = createAdventureState(save);
+  runtime.tcg = save.modes.tcg;
+  runtime.chess = save.modes.chess;
+  runtime.chessReplay = null;
+  runtime.chessLock = null;
+  runtime.selectedTarget = null;
+  runtime.selectedSpell = null;
+  runtime.tcgAttackers = null;
+  runtime.selectedBoard = null;
+  runtime.selectedBench = null;
+  runtime.mulligan.clear();
+  runtime.deckDraft = null;
+  runtime.tcgImpacts.clear();
+  boardSprites.clear();
+  duelEffects.clear();
+  runtime.effects = new BattleEffects(spriteRenderer);
+  runtime.animations?.retainActors([]);
+  runtime.audio.setSettings(save.settings);
+  syncMotion();
+}
+
+function applyCloudProfile({ account, practiceSave }) {
+  runtime.account = account;
+  runtime.cloud = createCloudSave(accountApi, account.id, practiceSave, updateCloudStatus);
+  const save = migrateSave(practiceSave.snapshot);
+  save.player.name = account.username;
+  replaceProfile(save);
+  updateCloudStatus('saved');
+  if (practiceSave.snapshot === null) saveNow();
+}
+
+async function enterAccount(bootstrap, report) {
+  runtime.audio.unlock();
+  if (!runtime.animations) await loadContent(report);
+  applyCloudProfile(bootstrap);
+  navigate('home');
+}
+
+function updateCloudStatus(state, error) {
+  runtime.cloudStatus = state;
+  runtime.cloudError = error;
+  const status = ({
+    pending: 'Chờ lưu', saving: 'Đang lưu', saved: 'Đã lưu',
+    error: error?.status === 401 ? 'Hết phiên' : error?.code === 'save_conflict' ? 'Bản lưu mới hơn' : 'Chưa lưu',
+  })[state];
+  const badge = app.querySelector('.cloud-badge');
+  if (badge) {
+    badge.textContent = status;
+    badge.dataset.state = state;
+  }
+  const details = app.querySelector('[data-cloud-status]');
+  if (details) details.textContent = error ? accountErrorMessage(error) : status;
+  const actions = app.querySelectorAll('[data-cloud-action]');
+  for (const button of actions) {
+    const action = button.dataset.cloudAction;
+    if (action === 'logout') continue;
+    button.hidden = action !== (error?.code === 'save_conflict' ? 'reload'
+      : error?.status === 401 ? 'reauth' : error ? 'retry' : null);
+  }
+}
+
+async function runCloudAction(action) {
+  const cloud = runtime.cloud;
+  const account = runtime.account;
+  if (action === 'reauth') {
+    openAccountDialog(app, accountApi, async () => { await cloud.retry({ reauthenticated: true }); }, account);
+    return;
+  }
+  if (action === 'reload' && !confirm('Tải bản lưu từ máy chủ và bỏ các thay đổi đang chờ trên thiết bị này?')) return;
+
+  const shellElement = app.querySelector('.shell');
+  shellElement.inert = true;
+  try {
+    if (action === 'retry') {
+      await cloud.retry();
+    } else if (action === 'reload') {
+      let bootstrap;
+      try {
+        bootstrap = await accountApi.bootstrap();
+      } catch (error) {
+        if (error.status !== 401) throw error;
+      }
+      if (bootstrap?.account.id === account.id) {
+        applyCloudProfile(bootstrap);
+        navigate('home');
+      } else {
+        openAccountDialog(app, accountApi, async (confirmed) => {
+          applyCloudProfile(confirmed);
+          navigate('home');
+        }, account);
+      }
+    } else if (action === 'logout') {
+      if (cloud.dirty() && !await cloud.flush()) return;
+      try {
+        await accountApi.logout(account.id);
+      } catch (error) {
+        if (error.status !== 401) throw error;
+      }
+      runtime.cloud = null;
+      runtime.account = null;
+      replaceProfile(loadSave());
+      navigate('title');
+    }
+  } catch (error) {
+    app.querySelector('[data-cloud-status]')?.replaceChildren(accountErrorMessage(error));
+  } finally {
+    shellElement.inert = false;
+  }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') void runtime.cloud?.flush({ keepalive: true });
+});
+window.addEventListener('beforeunload', event => {
+  if (!runtime.cloud?.dirty()) return;
+  event.preventDefault();
+  event.returnValue = true;
+});
+
 function navigate(page) {
+  if (['adventure', 'chess'].includes(runtime.page) && runtime.page !== page) saveNow();
+  runtime.heldKeys.clear();
+  runtime.worldStick = null;
+  setAdventureInput(runtime.adventure, 0, 0);
+  if (runtime.page !== page) {
+    boardSprites.clear();
+    duelEffects.clear();
+    runtime.tcgImpacts.clear();
+  }
   runtime.page = page;
   runtime.notice = '';
+  syncStage();
   render();
+  app.querySelector('main h1')?.focus({ preventScroll: true });
 }
 
 function navButton(page, label) {
-  return `<button class="nav-button" data-page="${page}" aria-current="${runtime.page === page ? 'page' : 'false'}"><span class="nav-icon" aria-hidden="true">${iconMap[page] ?? '•'}</span><span>${label}</span></button>`;
+  return `<button class="nav-button" data-page="${page}" ${runtime.page === page ? 'aria-current="page"' : ''}><span class="nav-icon" aria-hidden="true">${iconMap[page]}</span><span>${label}</span></button>`;
 }
 
+async function toggleFullscreen() {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await document.documentElement.requestFullscreen();
+  } catch {
+    app.querySelector('[data-shell-status]')?.replaceChildren('Trình duyệt chưa cho phép mở toàn màn hình.');
+  }
+}
+
+function syncFullscreenButton() {
+  const button = app.querySelector('[data-fullscreen]');
+  if (!button) return;
+  const label = document.fullscreenElement ? 'Thoát toàn màn hình' : 'Toàn màn hình';
+  button.setAttribute('aria-label', label);
+  button.title = label;
+  button.setAttribute('aria-pressed', String(Boolean(document.fullscreenElement)));
+}
+
+document.addEventListener('fullscreenchange', syncFullscreenButton);
+
 function shell(content) {
+  if (runtime.page !== 'settings') runtime.audio.setScene(resolveSoundScene(runtime.page, runtime.adventure));
   const player = runtime.save.player;
+  const sameScreen = app.querySelector('.shell')?.dataset.screen === runtime.page;
+  const scrollTop = sameScreen ? app.querySelector('.main').scrollTop : 0;
+  const handScroll = sameScreen ? app.querySelector('.hand-row')?.scrollLeft : undefined;
+  const previousFocus = document.activeElement;
+  const focusKey = sameScreen && app.contains(previousFocus)
+    ? ['data-card', 'data-tcg-pass', 'data-tcg-end', 'data-bench', 'data-cell', 'data-buy'].find(key => previousFocus.hasAttribute(key))
+    : null;
+  const focusValue = focusKey ? previousFocus.getAttribute(focusKey) : null;
+  const gold = escapeHtml(player.gold);
+  const essence = escapeHtml(player.essence);
   app.innerHTML = `
-    <div class="shell">
-      <aside class="sidebar">
-        <div class="brand"><div class="brand-mark">味</div><div class="brand-name">SOUL OF MEAL<small>HÀNH TRÌNH VỊ LINH</small></div></div>
-        <nav class="nav-group" aria-label="Điều hướng chính"><div class="nav-label">Trạm hành trình</div>
-          ${navButton('home', 'Tổng quan')}${navButton('adventure', 'Phiêu lưu')}${navButton('tcg', 'Thẻ chiến thuật')}${navButton('chess', 'Đấu trường linh thú')}
-        </nav>
-        <div class="sidebar-spacer"></div>
-        <nav class="nav-group" aria-label="Tài khoản">${navButton('settings', 'Cài đặt')}</nav>
-        <div class="profile-chip"><div class="profile-avatar">味</div><div class="profile-copy">${escapeHtml(player.name)}<small>Cấp ${player.level} · Lữ khách</small></div></div>
-      </aside>
+    <div class="shell" data-screen="${runtime.page}">
+      <header class="game-bar">
+        <button class="brand" data-page="home" aria-label="Về sảnh Soul of Meal">SOUL <em>OF</em> MEAL</button>
+        <div class="profile-chip"><img class="profile-avatar" src="${actorArt(HERO_ID)}" alt=""><div class="profile-copy">${escapeHtml(player.name)}<small>Cấp ${escapeHtml(player.level)}</small></div></div>
+        <div class="game-resources">
+          <span title="Vàng" aria-label="${gold} vàng"><i aria-hidden="true">◈</i> ${gold}</span>
+          <span title="Tinh hoa" aria-label="${essence} tinh hoa"><i aria-hidden="true">✦</i> ${essence}</span>
+        </div>
+        ${runtime.cloud ? '<button class="cloud-badge" data-page="settings" title="Trạng thái lưu trên máy chủ"></button>' : ''}
+        ${document.fullscreenEnabled ? '<button class="shell-icon" type="button" data-fullscreen>⛶</button>' : ''}
+      </header>
       <main class="main">${content}</main>
-      <nav class="mobile-nav" aria-label="Điều hướng nhanh">${navButton('home', 'Nhà')}${navButton('adventure', 'Khám phá')}${navButton('tcg', 'Thẻ')}${navButton('chess', 'Đấu cờ')}</nav>
+      <nav class="game-dock" aria-label="Chế độ chơi">
+        ${navButton('home', 'Sảnh')}${navButton('adventure', 'Phiêu lưu')}${navButton('tcg', 'Đấu thẻ')}${navButton('chess', 'Đấu cờ')}${navButton('roster', 'Vị Linh')}${navButton('settings', 'Cài đặt')}
+      </nav>
+      <p class="shell-status" data-shell-status role="status"></p>
     </div>`;
+  const viewport = app.querySelector('main');
+  viewport.scrollTop = scrollTop;
+  const hand = viewport.querySelector('.hand-row');
+  if (hand && handScroll !== undefined) hand.scrollLeft = handScroll;
+  if (focusKey) app.querySelector(`[${focusKey}="${CSS.escape(focusValue)}"]:not([disabled])`)?.focus({ preventScroll: true });
+  if (!sameScreen) viewport.querySelector('.topline')?.classList.add('scene-enter');
+  const heading = viewport.querySelector('h1');
+  if (heading) heading.tabIndex = -1;
   app.querySelectorAll('[data-page]').forEach((button) => button.addEventListener('click', () => navigate(button.dataset.page)));
+  app.querySelector('[data-fullscreen]')?.addEventListener('click', toggleFullscreen);
+  syncFullscreenButton();
+  if (runtime.cloud) updateCloudStatus(runtime.cloudStatus, runtime.cloudError);
 }
 
 function pageHeader(kicker, title, description, back = 'home') {
-  return `<div class="topline"><div><div class="eyebrow">${kicker}</div><h1>${title}</h1><p class="subtitle">${description}</p></div><div class="resource-row"><div class="resource">◈ ${runtime.save.player.gold}</div><div class="resource">✦ ${runtime.save.player.essence}</div><button class="button light compact" data-page="${back}" aria-label="Về tổng quan">←</button></div></div>`;
+  return `<div class="topline"><div><div class="eyebrow">${kicker}</div><h1>${title}</h1>${description ? `<p class="subtitle">${description}</p>` : ''}</div><button class="button light compact" data-page="${back}" aria-label="Quay lại">←</button></div>`;
 }
 
 function renderHome() {
-  const quest = runtime.save.adventure.quest;
-  const headline = quest === 'not_started' ? 'Lilia cần bạn ở quảng trường' : quest === 'completed' ? 'Hương vị đã trở về' : 'Dấu vết dẫn vào rừng';
+  const { quest } = runtime.save.adventure;
+  const journal = adventureJournal(runtime.save);
+  const headline = journal.completedCampaign ? 'Đã hoàn thành Hành Trình Vị Linh'
+    : journal.labels[journal.step]?.title ?? journal.nextChapterLabel ?? 'Trở lại Làng Ẩm Thực';
   shell(`
-    ${pageHeader('Bản thử nghiệm kỹ thuật · 0.1.0', 'Chào mừng trở lại', 'Làng Ẩm Thực đang chờ Người Kết Vị. Tiến trình lưu tự động trên thiết bị này.')}
-    <section class="home-hero"><div class="hero-copy"><div class="eyebrow">${quest === 'completed' ? 'Khu rừng đã yên bình' : 'Một hương vị đang thất lạc'}</div><h2>${headline}</h2><p>Khám phá làng, nhận lời nhắn của Lilia và tìm lại hương vị bị đánh cắp. Luật chơi xử lý độc lập với phần hình ảnh.</p><div class="button-row"><button class="button" data-page="adventure">Tiếp tục hành trình →</button><button class="button secondary" data-page="roster">Đội hình · ${runtime.save.roster.length}</button></div></div><div class="hero-figure" role="img" aria-label="Bún Bò Hỏa Linh"><img src="./assets/portraits/chr_bunbo_holinh.png" alt="Bún Bò Hỏa Linh" style="width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 18px rgba(0,0,0,0.45));" onerror="this.style.display='none'"><div class="hero-orbit"></div><div class="hero-shadow"></div><div class="hero-mascot"><div class="mascot-scarf"></div></div><div class="mascot-flame"></div></div></section>
-    <div class="section-head"><div><div class="eyebrow">Ba lối chơi · chung thế giới</div><h2>Chọn hành trình</h2></div><p>Thành tích và tiến trình lưu trên thiết bị.</p></div>
-    <section class="mode-grid">
-      <button class="mode-card" data-page="adventure"><div class="mode-mark adventure">⌖</div><h3>Phiêu lưu</h3><p>Khám phá làng và rừng, hoàn thành nhiệm vụ, chiến đấu theo simulation 30Hz.</p><div class="mode-meta"><span>${quest === 'completed' ? 'Nhiệm vụ hoàn thành' : 'Nhiệm vụ P0'}</span><span>Vào khu vực →</span></div></button>
-      <button class="mode-card" data-page="tcg"><div class="mode-mark tcg">▤</div><h3>Thẻ chiến thuật</h3><p>Xây dựng bộ bài, triệu hồi Vị Linh, quản lý ưu tiên, phản ứng và bẫy úp.</p><div class="mode-meta"><span>Đấu bot · PVE</span><span>Vào trận →</span></div></button>
-      <button class="mode-card" data-page="chess"><div class="mode-mark chess">▦</div><h3>Đấu trường linh thú</h3><p>Mua quân, xếp đội hình, hợp thể ba bản sao và mô phỏng giao tranh tự động.</p><div class="mode-meta"><span>Chuẩn bị & chiến đấu</span><span>Vào trận →</span></div></button>
-    </section><p class="status-line">🎨 Đồ họa Soul of Meal · Đã tích hợp Sprite Sheets, Animation Manifests, Card Art & Map Assets</p>
-  `);
+    <section class="lobby">
+      <div class="lobby-copy">
+        <h1>Hành Trình<br>Vị Linh</h1>
+        <p>${headline}</p>
+        <button class="entry-action" data-page="adventure">${quest === 'not_started' ? 'Vào làng' : 'Tiếp tục phiêu lưu'} <b aria-hidden="true">›</b></button>
+        ${pinnedRelease ? `<div class="release-update" data-content-update hidden>
+          <p role="status">Có bản phát hành khác sẵn sàng.</p>
+          <button type="button" class="button light" data-apply-release>Cập nhật</button>
+        </div>` : ''}
+      </div>
+      <div class="lobby-modes" role="group" aria-label="Chọn lối chơi">
+        <button class="lobby-mode" data-page="tcg"><img src="${originalCardArt('card_demo_10')}" alt=""><span><strong>Thẻ chiến thuật</strong><small>${runtime.tcg && !runtime.tcg.result ? 'Tiếp tục ván đấu' : 'Đấu thẻ với bot'}</small></span><b aria-hidden="true">›</b></button>
+        <button class="lobby-mode" data-page="chess"><img src="${sceneArt('chess_court')}" alt=""><span><strong>Auto Chess</strong><small>${runtime.chess && runtime.chess.phase !== 'finished' ? 'Tiếp tục vòng ' + runtime.chess.round : 'Đấu cờ với bot'}</small></span><b aria-hidden="true">›</b></button>
+      </div>
+    </section>`);
+  void checkForContentUpdate();
+}
+
+function openMatches() {
+  return [
+    runtime.adventure.battle && 'Phiêu lưu',
+    runtime.tcg && !runtime.tcg.result && 'Đấu thẻ',
+    runtime.chess && runtime.chess.phase !== 'finished' && 'Đấu cờ',
+  ].filter(Boolean);
+}
+
+async function checkForContentUpdate() {
+  const panel = app.querySelector('[data-content-update]');
+  if (!pinnedRelease || !panel || panel.dataset.checking) return;
+  panel.dataset.checking = 'true';
+  try {
+    const next = await activeContentRelease(pinnedRelease.root);
+    if (!panel.isConnected) return;
+    panel.hidden = next.build === pinnedRelease.build;
+    if (panel.hidden) return;
+    const button = panel.querySelector('[data-apply-release]');
+    const pending = openMatches();
+    panel.querySelector('[role="status"]').textContent = pending.length
+      ? `Có bản cập nhật. Hoàn tất ${pending.join(', ')} để áp dụng.` : 'Có bản cập nhật sẵn sàng.';
+    button.disabled = pending.length > 0;
+    button.onclick = () => applyContentUpdate(panel, button);
+  } catch {
+    // A failed release check leaves the current scene usable.
+  } finally {
+    delete panel.dataset.checking;
+  }
+}
+
+async function applyContentUpdate(panel, button) {
+  if (openMatches().length) return;
+  button.disabled = true;
+  const status = panel.querySelector('[role="status"]');
+  status.textContent = 'Đang kiểm tra bản cập nhật…';
+  try {
+    const next = await activeContentRelease(pinnedRelease.root);
+    if (!panel.isConnected || runtime.page !== 'home') return;
+    if (next.build === pinnedRelease.build) {
+      panel.hidden = true;
+      return;
+    }
+    saveNow();
+    if (runtime.cloud && !await runtime.cloud.flush()) {
+      status.textContent = 'Tiến trình chưa được lưu. Kiểm tra tài khoản trong Cài đặt rồi thử lại.';
+      return;
+    }
+    if (panel.isConnected && runtime.page === 'home' && !openMatches().length) location.replace(next.entry);
+  } catch {
+    status.textContent = 'Chưa tải được bản cập nhật. Hãy thử lại.';
+  } finally {
+    button.disabled = false;
+  }
 }
 
 function renderAdventure() {
@@ -122,55 +480,335 @@ function renderAdventure() {
   const adventure = runtime.adventure;
   const battle = adventure.battle;
   const target = nearestInteraction(adventure, save, runtime.maps);
-  const questLabel = ({ not_started: 'Chưa nhận', accepted: 'Đang tìm nguyên liệu', ready_to_claim: 'Có thể báo tin', completed: 'Hoàn thành' })[save.adventure.quest];
-  const actionLabel = target ? `Tương tác · ${target.label}` : adventure.map === 'forest' ? 'Tiến gần dấu chân / cổng về làng' : 'Tiến gần Lilia';
-  const actorRows = battle?.actors.filter((actor) => actor.team === 'player').map((actor) => `
-    <div class="combatant"><div class="combatant-title"><span>${escapeHtml(characterNames[actor.id] ?? actor.id)}</span><b>${actor.hp}/${actor.maxHp}</b></div><div class="meter"><i style="width:${Math.max(0, actor.hp / actor.maxHp * 100)}%"></i></div><button class="button light full" data-ultimate="${actor.actor_id}" ${actor.energy < 100 || !actor.alive || battle.phase !== 'battle_running' ? 'disabled' : ''}>Tuyệt kỹ · ${actor.energy}%</button></div>`).join('') ?? '';
-  const battleEnemy = battle?.actors.find((actor) => actor.team === 'enemy' && actor.alive);
-  const resultPanel = battle?.phase === 'battle_end' ? `<div class="result-box ${battle.result}"><strong>${battle.result === 'victory' ? 'Chiến thắng' : 'Đội hình đã gục'}</strong><p>${battle.result === 'victory' ? 'Nhận 60 vàng và 10 tinh hoa. Tiến trình đã được ghi nhận.' : 'Thử lại trận chiến. Phần thưởng không bị trừ khi thất bại.'}</p><button class="button" data-battle-result>${battle.result === 'victory' ? 'Nhận thưởng & tiếp tục' : 'Thử lại'}</button></div>` : '';
+  const journal = adventureJournal(save);
+  const guideAction = journal.action ?? journal.nextChapterAction;
+  const inRoom = VILLAGE_ROOMS.includes(adventure.map);
+  const encounter = adventureEncounters[battle?.encounter ?? 'forest'];
+  const mapTitle = getAdventureMap(runtime.maps, adventure.map)?.display_name ?? 'Làng Ẩm Thực';
+  runtime.worldStick = null;
+  const actionLabel = target ? `Tương tác · ${target.label}` : 'Tiến gần điểm tương tác';
+  const actorRows = save.roster.map((member, index) => {
+    const actor = battle?.actors.find((candidate) => candidate.actor_id === member.id) ?? adventureSpiritStats(member, spiritProfile(save, member.id));
+    const skill = adventureBalance.ultimates[actor.id];
+    return `<div class="combatant skill-card" data-actor="${actor.id}" data-primed="${actor.energy >= 100}">
+      <button type="button" class="party-avatar" data-profile-id="${escapeAttr(actor.id)}" aria-label="Hồ sơ ${escapeAttr(characterNames[actor.id])}"><img src="${escapeAttr(actorArt(actor.id))}" alt=""></button>
+      <div class="skill-info"><strong>${escapeHtml(characterNames[actor.id])}</strong>
+        <div class="meter" aria-label="Sinh lực"><i data-hp style="width:${actor.hp / actor.maxHp * 100}%"></i></div>
+        <div class="meter energy" aria-label="Năng lượng"><i data-energy style="width:${actor.energy}%"></i></div>
+      </div>
+      ${battle ? `<button class="button skill-button" data-ultimate="${actor.id}" title="${escapeAttr(skill.description)}" disabled>
+        <span class="key-tag" aria-hidden="true">${index + 1}</span><img class="skill-art" src="${effectArt(actor.element, 'impact')}" alt="">
+        <span class="skill-name">${escapeHtml(skill.name)}</span><small data-charge>${actor.energy}%</small>
+      </button>` : `<small>${escapeHtml(skill.name)}</small>`}
+    </div>`;
+  }).join('');
+  const resultPanel = battle?.phase === 'battle_end' ? `<div class="result-box ${battle.result}">
+    <strong>${battle.result === 'victory' ? 'Chiến thắng' : 'Đội hình đã gục'}</strong>
+    <p>${battle.result === 'victory' ? `Phần thưởng · ${encounter.reward.gold} vàng và ${encounter.reward.essence} tinh hoa` : 'Đội hình có thể vào trận lại.'}</p>
+    <div class="action-row"><button class="button" data-battle-result>${battle.result === 'victory' ? 'Nhận thưởng' : 'Thử lại'}</button>
+      ${battle.result === 'defeat' ? '<button class="button light" data-adventure-prepare>Chuẩn bị đội hình</button>' : ''}</div></div>` : '';
+  const battleControls = battle?.phase === 'battle_running' ? `
+    <button class="button light compact" data-battle-pause></button>
+    <button class="button light compact" data-battle-speed aria-label="Tăng tốc trận đấu" aria-pressed="false">2×</button>
+    <span class="key-hint">1–5 · Tuyệt kỹ</span>` : '';
+  const sequenceOptions = encounter?.phases[2]?.sequence?.options;
+  const sequenceButtons = Object.entries(sequenceOptions ?? {}).map(([id, label]) =>
+    `<button class="button light compact" type="button" data-boss-counter="${id}">${label}</button>`).join('');
+  const stoveControls = adventureBalance.bossStoves.positions.map((_, index) => `
+    <button class="button light stove-button" data-stove="boss_stove_${index + 1}" aria-pressed="false">
+      <img src="${propArt('boss_stove')}" alt=""><span><b>${index + 6} · Bếp ${index + 1}</b><small data-stove-hp></small></span>
+    </button>`).join('');
+  const party = `<section class="panel party-panel ${battle ? 'battle-party' : ''}" aria-label="${battle ? 'Tuyệt kỹ đội hình' : 'Đội hình Vị Linh'}">
+    ${battle ? '' : '<h2>Đội hình Vị Linh</h2>'}<div class="actor-list">${actorRows}</div></section>`;
   shell(`
-    ${pageHeader(`Phiêu lưu · ${escapeHtml(adventure.map === 'village' ? 'Làng Ẩm Thực' : 'Rừng Nguyên Liệu')}`, adventure.map === 'village' ? 'Làng Ẩm Thực' : 'Rừng Nguyên Liệu', 'Di chuyển bằng WASD / phím mũi tên hoặc chạm điểm đến. Nhấn E hay nút tương tác khi đứng gần mục tiêu.', 'home')}
-    <div class="game-layout adventure-layout"><section class="panel world-panel"><div class="panel-heading"><div><h2>${adventure.map === 'village' ? 'Quảng trường & lối rừng' : battle ? 'Mô phỏng giao tranh' : 'Đường mòn trong rừng'}</h2><p>${battle ? `Trận ${battle.id} · tick ${battle.tick} · wave ${battle.wave + 1}` : '30 tick/s · hit do simulation quyết định'}</p></div><span class="phase-pill ${battle ? 'combat' : ''}">${battle ? battle.phase === 'battle_end' ? 'Kết quả' : 'Đang giao chiến' : 'Khám phá'}</span></div>
-      <div class="canvas-wrap"><canvas id="adventure-canvas" width="960" height="540" aria-label="Bản đồ phiêu lưu tương tác"></canvas></div>
-      <p class="controls-hint">${escapeHtml(adventure.lastMessage)} ${target && !battle ? `<span class="interaction-hint">E · ${escapeHtml(target.label)}</span>` : ''}</p>
-      <div class="action-row"><button class="button" data-interact ${battle ? 'disabled' : ''}>${escapeHtml(actionLabel)}</button><button class="button light" data-page="home">Về tổng quan</button>${battle?.phase === 'battle_end' ? resultPanel : ''}</div>
+    ${pageHeader('Phiêu lưu', escapeHtml(mapTitle), '', 'home')}
+    <div class="game-layout adventure-layout ${battle ? 'in-battle' : ''}"><section class="panel world-panel">
+      <div class="canvas-wrap"><canvas id="adventure-canvas" width="960" height="540" aria-label="Bản đồ phiêu lưu tương tác"></canvas>
+      ${battle ? '' : `<div class="minimap-widget">
+        <button class="map-toggle" type="button" data-map-toggle aria-controls="world-minimap" aria-expanded="${runtime.showMinimap}">Bản đồ</button>
+        <canvas id="world-minimap" width="180" height="102" aria-hidden="true" ${runtime.showMinimap ? '' : 'hidden'}></canvas>
+      </div><div class="world-stick" data-world-stick aria-hidden="true"><i></i></div>`}
+      <span class="phase-pill world-phase ${battle ? 'combat' : ''}">${battle ? battle.phase === 'battle_end' ? 'Kết quả' : `Đợt ${battle.wave + 1}/${encounter.waves.length}` : 'Khám phá'}</span></div>
+      ${battle ? '' : `<p class="controls-hint" data-adventure-message role="status">${escapeHtml(adventure.lastMessage)}</p>
+        <div class="action-row"><button class="button" data-interact ${!target ? 'disabled' : ''}>${escapeHtml(actionLabel)}</button><span class="key-hint">WASD hoặc chạm để đi · E để tương tác</span></div>`}
+      ${resultPanel}
     </section>
     <aside class="side-stack">
-      <section class="panel"><h2>Nhật ký hành trình</h2><div class="data-list"><div class="data-row"><span>Nhiệm vụ</span><span>${questLabel}</span></div><div class="data-row"><span>Rương tiếp tế</span><span>${save.adventure.chestOpened ? 'Đã mở' : 'Chưa mở'}</span></div><div class="data-row"><span>Khu rừng</span><span>${save.adventure.forestCleared ? 'Đã khai thông' : 'Chưa khai thông'}</span></div><div class="data-row"><span>Đội hình</span><span>${save.roster.filter((actor) => actor.hp > 0).length}/5 khỏe mạnh</span></div></div></section>
-      ${battle ? `<section class="panel"><h2>${battleEnemy ? escapeHtml(battleEnemy.name) : 'Đội hình'}</h2>${battleEnemy ? `<div class="boss-hp"><div class="combatant-title"><span>${battleEnemy.boss ? 'Boss · pha ' + battle.bossPhase : 'Đối thủ'}</span><b>${battleEnemy.hp}/${battleEnemy.maxHp}</b></div><div class="meter enemy"><i style="width:${Math.max(0, battleEnemy.hp / battleEnemy.maxHp * 100)}%"></i></div>${battle.bossTelegraph ? `<p class="telegraph">${escapeHtml(battle.bossTelegraph.attack)} · ${battle.bossTelegraph.ticks} tick</p>` : ''}</div>` : ''}<div class="actor-list">${actorRows}</div></section>` : `<section class="panel"><h2>Đội hình hành trình</h2><div class="actor-list">${save.roster.map((actor) => `<div class="combatant"><div class="combatant-title"><span><i class="element-dot" style="background:${elementColors[actor.element]}"></i>${escapeHtml(characterNames[actor.id])}</span><b>${actor.hp}/${actor.maxHp}</b></div><div class="meter"><i style="width:${Math.max(0, actor.hp / actor.maxHp * 100)}%"></i></div></div>`).join('')}</div></section>`}
-      <section class="panel"><h2>Sự kiện runtime</h2>${renderEventLog()}</section>
-    </aside></div>
+      ${battle ? `<section class="panel battle-target"><h2 data-enemy-name>Đối thủ</h2><div class="meter enemy"><i data-enemy-hp></i></div>
+        <p class="controls-hint" data-adventure-message role="status">${escapeHtml(adventure.lastMessage)}</p>
+        ${battleControls ? `<div class="action-row battle-controls">${battleControls}</div>` : ''}
+        <div class="telegraph" data-telegraph hidden><div class="telegraph-heading"><b data-telegraph-name></b><span data-telegraph-seconds></span></div>
+          <progress data-telegraph-time aria-label="Thời gian trước đòn boss"></progress>
+          <div class="stove-controls" data-stove-controls hidden><p>Phá 2 bếp để hạ hộ thuẫn và ngắt chiêu.</p><div class="stove-buttons">${stoveControls}</div></div>
+          ${sequenceButtons ? `<div class="boss-counter" data-boss-sequence hidden>
+            <p data-boss-sequence-progress aria-live="polite"></p><div class="action-row">${sequenceButtons}</div>
+          </div>` : ''}
+        </div>
+        ${battle.encounter === 'seal' && battle.phase === 'battle_running' ? `<div class="ward-controls"><p>Giảm ${encounter.wardReductionBp / 100}% sát thương của một đợt sương.</p>
+          <button class="button light" data-lantern-ward type="button" disabled>F · Đèn Giữ Vị</button></div>` : ''}
+        ${battle.encounter === 'tide' && battle.phase === 'battle_running' ? `<div class="tide-controls" data-tide-controls hidden>
+          <p data-tide-threat></p><button class="button light" data-tide-retreat type="button">R · Lùi về vùng khô</button></div>` : ''}
+        </section>` : `<section class="panel"><h2>${journal.title}</h2>
+          <p class="quest-objective">${journal.labels[journal.step]?.title ?? journal.nextChapterLabel ?? (journal.completedCampaign ? 'Hành Trình Vị Linh đã hoàn thành' : 'Chương đã hoàn thành')}</p>
+          <div class="action-row">${inRoom ? '<button class="button" data-leave-room>Ra quảng trường</button>'
+            : guideAction ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
+            <button class="button light" data-page="journey">Nhật ký hành trình</button></div>
+        </section>`}
+      ${battle ? '' : party}
+    </aside>${battle ? party : ''}</div>
   `);
   app.querySelector('[data-interact]')?.addEventListener('click', doAdventureInteract);
+  app.querySelectorAll('[data-profile-id]').forEach(button => button.addEventListener('click', () => {
+    runtime.rosterId = button.dataset.profileId;
+    runtime.rosterTab = 'info';
+    navigate('roster');
+  }));
+  app.querySelector('[data-guide-objective]')?.addEventListener('click', () => guideToObjective(guideAction));
+  app.querySelector('[data-leave-room]')?.addEventListener('click', () => {
+    const exit = availableAdventureInteractions(adventure.map, save, runtime.maps).find(item => item.action === ROOM_EXIT);
+    if (exit) queueWorldPath(exit, ROOM_EXIT);
+  });
+  app.querySelector('[data-lantern-ward]')?.addEventListener('click', () => {
+    if (activateLanternWard(adventure)) updateBattleHud(battle);
+  });
+  app.querySelector('[data-tide-retreat]')?.addEventListener('click', () => {
+    if (retreatFromTide(adventure)) updateBattleHud(battle);
+  });
+  app.querySelectorAll('[data-boss-counter]').forEach(button => button.addEventListener('click', () => {
+    if (activateBossCounter(adventure, button.dataset.bossCounter)) updateBattleHud(battle);
+  }));
   app.querySelectorAll('[data-ultimate]').forEach((button) => button.addEventListener('click', () => useUltimate(button.dataset.ultimate)));
+  app.querySelectorAll('[data-stove]').forEach(button => button.addEventListener('click', () => selectBossStove(button.dataset.stove)));
+  app.querySelector('[data-battle-pause]')?.addEventListener('click', () => {
+    battle.paused = !battle.paused;
+    saveNow();
+    updateBattleHud(battle);
+  });
+  app.querySelector('[data-battle-speed]')?.addEventListener('click', () => {
+    battle.speed = battle.speed === 2 ? 1 : 2;
+    updateBattleHud(battle);
+  });
   app.querySelector('[data-battle-result]')?.addEventListener('click', claimAdventureBattle);
+  app.querySelector('[data-adventure-prepare]')?.addEventListener('click', () => {
+    if (leaveAdventureDefeat(adventure)) navigate('roster');
+  });
   const canvas = app.querySelector('#adventure-canvas');
   canvas?.addEventListener('pointerdown', onWorldPointer);
+  const minimap = app.querySelector('#world-minimap');
+  const toggle = app.querySelector('[data-map-toggle]');
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      runtime.showMinimap = !runtime.showMinimap;
+      minimap.hidden = !runtime.showMinimap;
+      toggle.setAttribute('aria-expanded', String(runtime.showMinimap));
+    });
+    runtime.minimapObjective = guideAction;
+  }
+  const stick = app.querySelector('[data-world-stick]');
+  if (stick) bindWorldStick(stick, input => {
+    runtime.worldStick = input;
+    adventure.walkPath = [];
+    adventure.walkTarget = null;
+    adventure.tapInteraction = null;
+  });
+  if (battle) updateBattleHud(battle);
 }
 
-function renderEventLog() {
-  const events = runtime.events.slice(0, 7);
-  return `<div class="log">${events.length ? events.map((event) => `<p><b>${escapeHtml(event.type)}</b> · tick ${event.tick}</p>`).join('') : '<p>Chưa có sự kiện trong phiên này.</p>'}</div>`;
+function renderAdventureJournal() {
+  const { save, adventure } = runtime;
+  const journal = adventureJournal(save);
+  const guideAction = journal.action ?? journal.nextChapterAction;
+  const chronicle = adventureChronicle(save);
+  const statusText = { done: 'Hoàn thành', current: 'Mục tiêu hiện tại', upcoming: 'Sắp tới' };
+  shell(`
+    ${pageHeader('Phiêu lưu', 'Nhật ký hành trình', '', 'adventure')}
+    <section class="panel journey-panel">
+      <h2>${journal.title}</h2>
+      ${journal.completedCampaign ? '<p class="quest-objective">Hành Trình Vị Linh đã hoàn thành</p>' : ''}
+      <ol class="journey-steps">${journal.labels.map(({ title, status }) =>
+        `<li data-step-status="${status}" ${status === 'current' ? 'aria-current="step"' : ''}>
+          <strong>${title}</strong><small>${statusText[status]}</small>
+        </li>`).join('')}</ol>
+      ${journal.clues.length ? `<details class="journal-clues"><summary>Manh mối đã ghi (${journal.clues.length})</summary>
+        <dl>${journal.clues.map(clue => `<dt>${clue.title}</dt><dd>${clue.note}</dd>`).join('')}</dl>
+      </details>` : ''}
+      <div class="action-row">
+        ${guideAction && !adventure.battle ? `<button class="button" data-guide-objective>${guideAction === ROOM_EXIT ? 'Dẫn đến lối ra' : 'Dẫn đường'}</button>` : ''}
+        <button class="button light" data-page="adventure">Về bản đồ</button>
+      </div>
+    </section>
+    <section class="panel chronicle-panel" aria-label="Manga Hành Trình Vị Linh">
+      <h2>Manga Hành Trình Vị Linh</h2>
+      <div class="chronicle-grid">${chronicle.map(chapter => `<article class="chronicle-entry ${chapter.scenes.length ? '' : 'locked'}">
+        ${chapter.scenes.length ? `<img loading="lazy" src="${chapterArt(chapter.number)}" alt="">` : ''}
+        <div class="chronicle-copy"><span>Chương ${chapter.number}${chapter.scenes.length ? '' : ' · Chưa mở'}</span><h3>${chapter.title}</h3>
+          ${chapter.scenes.map(scene => `<button class="button light compact" data-story-replay="${scene}">${CHAPTER_DIALOGUES[scene].title}</button>`).join('')}
+        </div></article>`).join('')}</div>
+    </section>`);
+  app.querySelector('[data-guide-objective]')?.addEventListener('click', () => guideToObjective(guideAction));
+  app.querySelectorAll('[data-story-replay]').forEach(button => {
+    button.addEventListener('click', () => openStoryDialog(app, button.dataset.storyReplay));
+  });
+}
+
+function guideToObjective(action) {
+  const objective = availableAdventureInteractions(runtime.adventure.map, runtime.save, runtime.maps)
+    .find(item => item.action === action);
+  if (runtime.page !== 'adventure') navigate('adventure');
+  if (objective) queueWorldPath(objective);
+}
+
+function updateBattleHud(battle) {
+  for (const card of app.querySelectorAll('[data-actor]')) {
+    const actor = battle.actors.find((candidate) => candidate.actor_id === card.dataset.actor);
+    if (!actor) continue;
+    card.querySelector('[data-hp]').style.width = actor.hp / actor.maxHp * 100 + '%';
+    card.querySelector('[data-energy]').style.width = actor.energy + '%';
+    const button = card.querySelector('[data-ultimate]');
+    const cooldown = Math.max(0, Math.ceil((actor.ultimateReadyTick - battle.tick) / ADVENTURE_TICK_RATE));
+    const primed = actor.alive && actor.energy >= 100 && battle.phase === 'battle_running';
+    if (primed && card.dataset.primed === 'false' && !battle.paused) runtime.audio.play('sfx_skill_ready', { gain: .62 });
+    if (card.dataset.primed !== String(primed)) card.dataset.primed = String(primed);
+    button.disabled = battle.paused || battle.bossTelegraph?.retreating || !primed || Boolean(actor.action) || cooldown > 0;
+    const charge = button.querySelector('[data-charge]');
+    const label = !actor.alive ? 'Đã gục' : cooldown ? `Hồi ${cooldown} s` : actor.action?.sourceKind === 'ultimate'
+      ? 'Đang thi triển' : button.disabled ? `${actor.energy}%` : 'Sẵn sàng';
+    if (charge.textContent !== label) charge.textContent = label;
+    card.classList.toggle('skill-ready', !button.disabled);
+  }
+  const enemy = battle.actors.find((actor) => actor.boss) ?? battle.actors.find((actor) => actor.team === 'enemy' && actor.alive);
+  if (enemy) {
+    app.querySelector('[data-enemy-name]').textContent = enemy.name;
+    app.querySelector('[data-enemy-hp]').style.width = enemy.hp / enemy.maxHp * 100 + '%';
+  }
+  const telegraph = app.querySelector('[data-telegraph]');
+  telegraph.hidden = !battle.bossTelegraph;
+  const stoveControls = app.querySelector('[data-stove-controls]');
+  stoveControls.hidden = !battle.stoves.length;
+  for (const button of stoveControls.querySelectorAll('[data-stove]')) {
+    const stove = battle.stoves.find(target => target.actor_id === button.dataset.stove);
+    button.disabled = !stove?.alive;
+    button.setAttribute('aria-pressed', String(stove?.actor_id === battle.stoveTargetId));
+    const hp = button.querySelector('[data-stove-hp]');
+    const label = stove?.alive ? `${stove.hp}/${stove.maxHp} HP` : 'Đã phá';
+    if (hp.textContent !== label) hp.textContent = label;
+  }
+  if (battle.bossTelegraph) {
+    const { attack, duration, ticks } = battle.bossTelegraph;
+    const name = telegraph.querySelector('[data-telegraph-name]');
+    if (name.textContent !== attack) name.textContent = attack;
+    const time = telegraph.querySelector('[data-telegraph-time]');
+    time.max = duration;
+    time.value = ticks;
+    const seconds = telegraph.querySelector('[data-telegraph-seconds]');
+    const remaining = Math.ceil(ticks / 3) / 10;
+    const label = remaining.toLocaleString('vi', { minimumFractionDigits: 1 }) + ' s';
+    if (seconds.textContent !== label) seconds.textContent = label;
+  }
+  const sequenceControls = app.querySelector('[data-boss-sequence]');
+  if (sequenceControls) {
+    const tell = battle.bossTelegraph;
+    sequenceControls.hidden = tell?.counter !== 'sequence';
+    if (!sequenceControls.hidden) {
+      const { options, order } = adventureEncounters[battle.encounter].phases[tell.phase].sequence;
+      const done = tell.counterStep === order.length;
+      const status = sequenceControls.querySelector('[data-boss-sequence-progress]');
+      const text = done ? 'Đã kích hoạt đủ.' : `Thứ tự ${order.map(id => options[id]).join(' → ')} · ${tell.counterStep}/${order.length}`;
+      if (status.textContent !== text) status.textContent = text;
+      for (const button of sequenceControls.querySelectorAll('[data-boss-counter]')) button.disabled = battle.paused || done;
+    }
+  }
+  const pause = app.querySelector('[data-battle-pause]');
+  const ward = app.querySelector('[data-lantern-ward]');
+  if (ward) {
+    ward.disabled = battle.paused || battle.wardUsed || battle.bossTelegraph?.counter !== 'lantern';
+    const label = battle.bossTelegraph?.warded ? 'Đang che chở' : battle.wardUsed ? 'Đèn đã dùng' : 'F · Đèn Giữ Vị';
+    if (ward.textContent !== label) ward.textContent = label;
+  }
+  const tideControls = app.querySelector('[data-tide-controls]');
+  if (tideControls) {
+    const wave = battle.bossTelegraph;
+    tideControls.hidden = wave?.counter !== 'retreat';
+    if (!tideControls.hidden) {
+      const threatened = battle.actors.filter(actor => actor.team === 'player' && actor.alive && actor.x > wave.safeX).length;
+      const summary = tideControls.querySelector('[data-tide-threat]');
+      const label = threatened ? `${threatened} Vị Linh đang trong vùng nước.` : 'Đội đang ở vùng khô.';
+      if (summary.textContent !== label) summary.textContent = label;
+      const button = tideControls.querySelector('[data-tide-retreat]');
+      button.disabled = battle.paused || Boolean(wave.retreating);
+      button.textContent = wave.retreating ? 'Giữ vị trí đến khi sóng qua' : 'R · Lùi về vùng khô';
+    }
+  }
+  if (pause) {
+    const label = battle.paused ? 'Tiếp tục' : 'Tạm dừng';
+    if (pause.textContent !== label) pause.textContent = label;
+    app.querySelector('[data-battle-speed]').setAttribute('aria-pressed', String(battle.speed === 2));
+    const pill = app.querySelector('.world-phase');
+    const phase = battle.paused ? 'Tạm dừng' : `Đợt ${battle.wave + 1}/${adventureEncounters[battle.encounter ?? 'forest'].waves.length}`;
+    if (pill.textContent !== phase) pill.textContent = phase;
+  }
+}
+
+function selectBossStove(stoveId) {
+  const battle = runtime.adventure.battle;
+  if (focusBossStove(battle, stoveId)) updateBattleHud(battle);
 }
 
 function doAdventureInteract() {
   const result = interactAdventure(runtime.adventure, runtime.save, runtime.maps);
   runtime.adventure = result.state;
   runtime.save = result.save;
+  if (result.changed || result.dialogue || result.service) {
+    runtime.heldKeys.clear();
+    setAdventureInput(runtime.adventure, 0, 0);
+    runtime.adventure.walkPath = [];
+    runtime.adventure.walkTarget = null;
+    runtime.adventure.tapInteraction = null;
+  }
   if (result.changed) saveNow();
+  if (result.service) return openVillageService(result.service, result.offer);
   render();
+  if (result.dialogue) openStoryDialog(app, result.dialogue);
+}
+
+function openVillageService(service, offer) {
+  if (service === 'gear') {
+    runtime.rosterTab = 'gear';
+    return navigate('roster');
+  }
+  if (service === 'journal') return navigate('journey');
+  if (service !== 'supplies' || !offer) return;
+  const affordable = runtime.save.player.gold >= offer.gold;
+  const dialog = openInfoDialog('Tiệm Nguyên Liệu', `
+    <p>Đổi vàng lấy tinh hoa dùng để nâng cấp, chế tác và tặng quà Vị Linh.</p>
+    <p><b>${escapeHtml(offer.essence)} tinh hoa</b> · ${escapeHtml(offer.gold)} vàng</p>
+    <button type="button" class="button" data-buy-supplies ${affordable ? '' : 'disabled'}>${affordable ? 'Đổi nguyên liệu' : 'Chưa đủ vàng'}</button>`);
+  dialog.querySelector('[data-buy-supplies]').addEventListener('click', () => {
+    const purchase = purchaseAdventureSupplies(runtime.adventure, runtime.save, runtime.maps);
+    if (purchase.purchased) {
+      runtime.save = purchase.save;
+      runtime.adventure.lastMessage = `Đã đổi ${offer.gold} vàng lấy ${offer.essence} tinh hoa.`;
+      saveNow();
+      runtime.audio.play('sfx_ui_confirm');
+    } else {
+      runtime.adventure.lastMessage = 'Không thể đổi nguyên liệu. Kiểm tra số vàng và vị trí.';
+    }
+    dialog.close();
+    renderAdventure();
+    app.querySelector('[data-interact]')?.focus({ preventScroll: true });
+  }, { once: true });
 }
 
 function useUltimate(actorId) {
   const result = activateUltimate(runtime.adventure, runtime.save, actorId);
-  runtime.adventure.lastMessage = result.ok ? runtime.adventure.lastMessage : result.reason;
-  render();
+  if (!result.ok) runtime.adventure.lastMessage = result.reason;
+  updateBattleHud(runtime.adventure.battle);
 }
 
 function claimAdventureBattle() {
   if (runtime.adventure.battle?.result === 'defeat') {
-    runtime.adventure.battle = null;
-    beginBattle(runtime.adventure, runtime.save);
+    beginBattle(runtime.adventure, runtime.save, runtime.adventure.battle.encounter);
+    saveNow();
     render();
     return;
   }
@@ -180,39 +818,67 @@ function claimAdventureBattle() {
 }
 
 function onWorldPointer(event) {
-  if (runtime.adventure.battle) return;
+  if (app.querySelector('dialog[open]')) return;
   const canvas = event.currentTarget;
   const rect = canvas.getBoundingClientRect();
   const x = (event.clientX - rect.left) / rect.width * WORLD.width;
-  const y = (event.clientY - rect.top) / rect.height * WORLD.height;
-  const path = findAdventurePath(runtime.adventure.map, { x: runtime.adventure.x, y: runtime.adventure.y }, { x, y }, undefined, runtime.maps);
-  if (!path.length) {
-    runtime.adventure.lastMessage = 'Không tìm được đường đi tới điểm đó.';
-    canvas.dataset.pathLength = '0';
+  const battle = runtime.adventure.battle;
+  const view = battle && compactBattle.matches ? WIDE_ARENA : FULL_ARENA;
+  const y = view.top + (event.clientY - rect.top) / rect.height * view.height;
+  if (battle) {
+    const stove = battle.stoves.find(target => target.alive
+      && Math.abs(target.x - x) <= 39 && y >= target.y - 73 && y <= target.y + 10);
+    if (stove) selectBossStove(stove.actor_id);
     return;
   }
-  runtime.adventure.walkPath = path;
-  runtime.adventure.walkTarget = { x, y };
-  canvas.dataset.pathLength = String(path.length);
+  const target = availableAdventureInteractions(runtime.adventure.map, runtime.save, runtime.maps)
+    .find(item => Math.hypot(item.x - x, item.y - y) < 35);
+  canvas.dataset.pathLength = String(queueWorldPath(target ?? { x, y }, target?.action));
+}
+
+function queueWorldPath(destination, action = null) {
+  const adventure = runtime.adventure;
+  const path = findAdventurePath(adventure.map, adventure, destination, undefined, runtime.maps);
+  if (!path.length) {
+    adventure.lastMessage = 'Không tìm được đường đi tới điểm đó.';
+    return 0;
+  }
+  adventure.walkPath = path;
+  adventure.walkTarget = destination;
+  adventure.tapInteraction = action;
+  return path.length;
 }
 
 function drawAdventureFrame(deltaSeconds) {
   const canvas = app.querySelector('#adventure-canvas');
   if (!canvas) return;
   const context = canvas.getContext('2d');
-  const ratio = window.devicePixelRatio || 1;
-  if (canvas.width !== Math.round(960 * ratio)) { canvas.width = Math.round(960 * ratio); canvas.height = Math.round(540 * ratio); }
-  context.setTransform(canvas.width / 960, 0, 0, canvas.height / 540, 0, 0);
   const adventure = runtime.adventure;
+  const view = adventure.battle && compactBattle.matches ? WIDE_ARENA : FULL_ARENA;
+  const ratio = Math.min(2, window.devicePixelRatio || 1);
+  const width = Math.round(WORLD.width * ratio);
+  const height = Math.round(view.height * ratio);
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+  }
+  const scaleY = height / view.height;
+  context.setTransform(width / WORLD.width, 0, 0, scaleY, 0, -view.top * scaleY);
   const camera = resolveCameraViewport(adventure.x, adventure.y, { width: 960, height: 540 }, WORLD.width, WORLD.height);
   const cameraContext = { ...camera };
-  if (adventure.walkPath?.length && !adventure.battle && runtime.heldKeys.size === 0) {
+  if (adventure.walkPath?.length && !adventure.battle && runtime.heldKeys.size === 0 && !runtime.worldStick) {
     const waypoint = adventure.walkPath[0];
-    const dx = waypoint.x - adventure.x; const dy = waypoint.y - adventure.y;
-    if (Math.hypot(dx, dy) < 10) {
-      adventure.walkPath.shift();
-      if (!adventure.walkPath.length) { adventure.walkTarget = null; setAdventureInput(adventure, 0, 0); }
-    } else setAdventureInput(adventure, dx, dy);
+    if (Math.hypot(waypoint.x - adventure.x, waypoint.y - adventure.y) < .01) adventure.walkPath.shift();
+    const next = adventure.walkPath[0];
+    if (next) {
+      setAdventureInput(adventure, next.x - adventure.x, next.y - adventure.y);
+    } else {
+      adventure.walkTarget = null;
+      setAdventureInput(adventure, 0, 0);
+      const action = adventure.tapInteraction;
+      adventure.tapInteraction = null;
+      if (action && nearestInteraction(adventure, runtime.save, runtime.maps)?.id === action) return doAdventureInteract();
+    }
   }
   if (adventure.battle) setAdventureInput(adventure, 0, 0);
   else if (runtime.heldKeys.size) {
@@ -221,10 +887,34 @@ function drawAdventureFrame(deltaSeconds) {
     setAdventureInput(adventure, x, y);
     adventure.walkTarget = null;
     adventure.walkPath = [];
+    adventure.tapInteraction = null;
+  } else if (runtime.worldStick) {
+    Object.assign(adventure.input, runtime.worldStick);
+  } else if (!adventure.walkPath?.length) {
+    setAdventureInput(adventure, 0, 0);
   }
-  stepAdventure(adventure, runtime.save, deltaSeconds, runtime.maps);
-  syncAdventureAnimations(adventure);
-  runtime.animations.advance(deltaSeconds * 1000);
+  const previousPhase = adventure.battle?.phase;
+  const previousWave = adventure.battle?.wave;
+  const previousTelegraph = adventure.battle?.bossTelegraph;
+  const oldX = adventure.x;
+  const oldY = adventure.y;
+  const playbackDelta = adventure.battle?.paused ? 0 : deltaSeconds * (adventure.battle?.speed ?? 1);
+  stepAdventure(adventure, runtime.save, playbackDelta, runtime.maps);
+  const moved = Math.hypot(adventure.x - oldX, adventure.y - oldY);
+  if (!adventure.battle && moved > 0) runtime.audio.footstep(adventure.map, moved);
+  syncAdventureAnimations(adventure, moved > .1);
+  runtime.animations.advance(playbackDelta * 1000);
+  runtime.effects.advance(playbackDelta);
+  if (adventure.battle) {
+    if (previousPhase !== adventure.battle.phase || previousWave !== adventure.battle.wave) {
+      saveNow();
+      return renderAdventure();
+    }
+    if (previousTelegraph !== adventure.battle.bossTelegraph) saveNow();
+    updateBattleHud(adventure.battle);
+  }
+  const message = app.querySelector('[data-adventure-message]');
+  if (message.textContent !== adventure.lastMessage) message.textContent = adventure.lastMessage;
   const target = nearestInteraction(adventure, runtime.save, runtime.maps);
   const interactButton = app.querySelector('[data-interact]');
   if (interactButton && !adventure.battle) {
@@ -232,233 +922,271 @@ function drawAdventureFrame(deltaSeconds) {
     interactButton.textContent = target ? `Tương tác · ${target.label}` : 'Tiến gần một điểm tương tác';
   }
   const now = Date.now();
-  if (now - runtime.lastSavedLocation > 900 && !adventure.battle) {
+  if (now - runtime.lastSavedLocation > 900 && !adventure.battle
+      && (runtime.save.adventure.x !== adventure.x || runtime.save.adventure.y !== adventure.y)) {
     runtime.lastSavedLocation = now;
-    runtime.save.adventure.map = adventure.map;
-    runtime.save.adventure.x = adventure.x;
-    runtime.save.adventure.y = adventure.y;
-    persistSave(runtime.save);
+    saveNow();
   }
   canvas.dataset.worldX = String(Math.round(adventure.x));
   canvas.dataset.worldY = String(Math.round(adventure.y));
   canvas.dataset.simTick = String(adventure.tick);
   canvas.dataset.pathRemaining = String(adventure.walkPath?.length ?? 0);
-  const heroAnimation = runtime.animations.getActorState('chr_bunbo_holinh')?.animation;
+  const heroAnimation = runtime.animations.getActorState(HERO_ID)?.animation;
   canvas.dataset.animationClip = heroAnimation?.requestedClipId ?? 'idle';
   canvas.dataset.animationFallback = String(heroAnimation?.missingClip ?? true);
+  canvas.dataset.battleRig = adventure.battle && spriteRenderer.rigs.has(HERO_ID) ? 'bunbo' : '';
   if (adventure.battle) drawBattleScene(context, adventure);
   else {
     context.save();
     context.translate(-cameraContext.x, -cameraContext.y);
-    drawWorldScene(context, adventure, runtime.save);
+    drawWorldScene(context, adventure, runtime.save, moved > .25);
     context.restore();
+    const minimap = app.querySelector('#world-minimap:not([hidden])');
+    const map = getAdventureMap(runtime.maps, adventure.map);
+    if (minimap && map) drawWorldMinimap(minimap, map, adventure,
+      availableAdventureInteractions(adventure.map, runtime.save, runtime.maps), runtime.minimapObjective);
   }
 }
 
-function syncAdventureAnimations(adventure) {
+function syncAdventureAnimations(adventure, moved) {
   const views = [];
   if (adventure.battle) {
-    const playerActors = adventure.battle.actors.filter((actor) => actor.team === 'player');
-    playerActors.forEach((actor, index) => {
-      views.push({
-        actorId: actor.actor_id,
-        characterId: actor.id,
-        team: actor.team,
-        x: 140 + index * 75,
-        y: 300 + Math.sin(index * 2) * 20,
-        direction: 'E',
-        alive: actor.alive,
-      });
-    });
-    adventure.battle.actors.filter((actor) => actor.team === 'enemy').forEach((actor, index) => {
-      views.push({
-        actorId: actor.actor_id,
-        characterId: actor.id,
-        team: actor.team,
-        x: actor.boss ? 690 : 670 + index * 75,
-        y: actor.boss ? 280 : 298 + Math.sin(index * 3) * 15,
-        direction: 'W',
-        alive: actor.alive,
-      });
-    });
+    for (const actor of adventure.battle.actors) {
+      const moveSpeed = spriteRenderer.rigs.has(actor.id) ? 3 : 1.5;
+      views.push({ actorId: actor.actor_id, characterId: actor.id, team: actor.team, x: actor.x, y: actor.y, direction: actor.direction, alive: actor.alive, speed: actor.moving ? moveSpeed : 0 });
+    }
   } else {
     const direction = ({ up: 'N', right: 'E', down: 'S', left: 'W' })[adventure.facing] ?? 'S';
-    views.push({ actorId: 'chr_bunbo_holinh', characterId: 'chr_bunbo_holinh', team: 'player', x: adventure.x, y: adventure.y, direction, alive: true });
+    views.push({ actorId: HERO_ID, characterId: TRAVEL_HERO, team: 'player', x: adventure.x, y: adventure.y, direction, alive: true });
   }
 
   for (const view of views) {
     runtime.animations.registerActor(view);
+    if (adventure.battle?.phase === 'battle_end' && view.alive) continue;
     runtime.animations.syncMotion(view.actorId, {
       x: view.x,
       y: view.y,
       direction: view.direction,
-      speed: !adventure.battle && Math.hypot(adventure.input.x, adventure.input.y) > 0 ? 1.5 : 0,
+      speed: view.speed ?? (moved ? 1.5 : 0),
       alive: view.alive,
     });
   }
   runtime.animations.retainActors(views.map((view) => view.actorId));
 }
 
-function drawWorldScene(context, adventure, save) {
-  const forest = adventure.map === 'forest';
+function drawWorldScene(context, adventure, save, moving) {
   const map = getAdventureMap(runtime.maps, adventure.map);
-  context.fillStyle = forest ? '#6d9870' : '#9cc88e'; context.fillRect(0, 0, 960, 540);
-  context.fillStyle = forest ? '#8bb080' : '#b5d29b';
-  for (let row = 0; row < 12; row += 1) for (let column = 0; column < 20; column += 1) {
-    if ((row + column) % 3 === 0) { context.globalAlpha = .22; context.beginPath(); context.ellipse(column * 52 + 20, row * 50 + 15, 13, 4, -.4, 0, Math.PI * 2); context.fill(); }
-  }
-  context.globalAlpha = 1;
-  context.fillStyle = forest ? '#d7c792' : '#d8c99e';
-  context.beginPath(); context.moveTo(-20, 350); context.bezierCurveTo(170, 260, 260, 500, 450, 390); context.bezierCurveTo(640, 280, 720, 340, 990, 225); context.lineTo(990, 308); context.bezierCurveTo(720, 420, 640, 360, 470, 455); context.bezierCurveTo(240, 570, 160, 340, -20, 430); context.fill();
+  context.fillStyle = ({ village: '#b79864', forest: '#466a52', harbor: '#52677c', caldera: '#55423c', sanctum: '#382944' })[adventure.map] ?? '#466a52';
+  context.fillRect(0, 0, 960, 540);
+  spriteRenderer.drawImage(context, sceneArt(map?.runtime_key ?? 'village'), 0, 0, 960, 540);
   drawMapVisuals(context, map, save);
-  drawPlayer(context, adventure.x, adventure.y, runtime.animations.getActorState('chr_bunbo_holinh')?.animation);
-  context.fillStyle = '#173c35'; context.font = '700 14px DM Sans, sans-serif'; context.fillText(forest ? 'RỪNG NGUYÊN LIỆU · KHU VỰC 01' : 'LÀNG ẨM THỰC · QUẢNG TRƯỜNG', 22, 30);
-}
-
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
+  if (adventure.walkTarget) {
+    drawElementEffect(context, spriteRenderer, 'light', 'impact', {
+      x: adventure.walkTarget.x, y: adventure.walkTarget.y + 1, size: 30, opacity: .66,
+    });
+  }
+  if (moving && app.dataset.motion !== 'reduced') {
+    drawElementEffect(context, spriteRenderer, adventure.map === 'forest' ? 'wood' : 'light', 'trail', {
+      x: adventure.x, y: adventure.y + 1, size: 32, opacity: .20,
+    });
+  }
+  drawPlayer(context, adventure.x, adventure.y, runtime.animations.getActorState(HERO_ID)?.animation);
 }
 
 function drawMapVisuals(context, map, save) {
-  if (!map) return;
-  for (const visual of map.visuals) {
+  const activeIds = new Set(availableAdventureInteractions(map?.runtime_key, save, runtime.maps).map(item => item.id));
+  for (const visual of map?.visuals ?? []) {
+    const { x, y } = visual;
     if (visual.kind === 'house') {
-      const palette = { coral: '#c96b50', sage: '#7b8d72', gold: '#d4a84e' };
-      const labels = { building_kitchen: 'NHÀ BẾP', building_guild: 'HỘI QUÁN', building_merchant: 'TIỆM' };
-      drawHouse(context, visual.x, visual.y, palette[visual.palette] ?? '#b87855', labels[visual.id] ?? 'NHÀ', visual.width, visual.height, visual.id);
+      const art = propArt(visual.id.replace('building_', 'house_'));
+      drawFitted(context, art, x + visual.width / 2, y + visual.height, visual.width, visual.height);
+      const label = ({ building_kitchen: 'NHÀ BẾP', building_guild: 'HỘI QUÁN', building_merchant: 'TIỆM' })[visual.id];
+      drawMapLabel(context, label, x + visual.width / 2, y + visual.height + 13);
     } else if (visual.kind === 'table') {
-      drawTable(context, visual.x, visual.y, visual.width, visual.height);
+      drawFitted(context, propArt('table'), x + visual.width / 2, y + visual.height, visual.width, visual.height);
     } else if (visual.kind === 'tree') {
-      drawTree(context, visual.x, visual.y, visual.palette === 'forest_dark' ? '#356c50' : '#437a51', visual.palette);
-    } else if (visual.kind === 'marker') {
-      const color = visual.palette === 'wood' ? '#4b7f62' : visual.palette === 'coral' ? '#e87552' : '#efbd54';
-      drawMarker(context, visual.x, visual.y, visual.label, color);
-    } else if (visual.kind === 'chest' && !save.adventure.chestOpened) {
-      drawChest(context, visual.x, visual.y, false);
+      drawFitted(context, propArt('tree'), x, y + 26, 66, 93);
+    } else if (visual.kind === 'marker' && (visual.id === 'feast_lilia' && activeIds.has(visual.id)
+      || visual.id === 'npc_lilia' && save.adventure.finale[5].stage !== 'completed')) {
+      drawFitted(context, actorArt('npc_lilia'), x, y + 11, 65, 70);
+      drawMapLabel(context, visual.label, x, y + 24);
+    } else if (visual.kind === 'guide') {
+      drawFitted(context, actorArt(visual.actorId), x, y + 11, 65, 70);
+      drawMapLabel(context, visual.label, x, y + 24);
+    } else if (visual.kind === 'feast_guest' && save.adventure.finale[6].stage === 'completed') {
+      drawFitted(context, actorArt(visual.actorId), x, y + 10, 65, 70);
+      drawElementEffect(context, spriteRenderer, visual.element, 'impact', { x, y: y - 56, size: 24, opacity: .7 });
+    } else if (visual.kind === 'clue' && activeIds.has(visual.id)) {
+      drawElementEffect(context, spriteRenderer, visual.element ?? 'light', 'impact', { x, y: y - 9, size: 48, opacity: .9 });
+      drawMapLabel(context, visual.label, x, y + 19);
+    } else if (['room_entrance', 'room_station'].includes(visual.kind) && activeIds.has(visual.id)) {
+      drawElementEffect(context, spriteRenderer, visual.element, 'impact', { x, y, size: 40, opacity: .8 });
+      if (visual.label) drawMapLabel(context, visual.label, x, y + 25);
+    } else if (visual.kind === 'lantern' && save.adventure.chapterTwo.stage === 'accepted') {
+      const lit = !activeIds.has(visual.id);
+      drawElementEffect(context, spriteRenderer, visual.element, 'impact', { x, y: y - 10, size: lit ? 63 : 49, opacity: lit ? 1 : .6 });
+      drawMapLabel(context, lit ? visual.label + ' · ĐÃ SÁNG' : visual.label, x, y + 19);
+    } else if (visual.kind === 'seal' && activeIds.has(visual.id)) {
+      drawFitted(context, propArt(visual.artId ?? 'empty_bowl_seal'), x, y + 12, 81, 85);
+      drawMapLabel(context, visual.label, x, y + 24);
+    } else if (visual.kind === 'marker' && activeIds.has(visual.id)) {
+      drawFitted(context, actorArt('mob_mushroom_01'), x, y + 10, 59, 62);
+      drawMapLabel(context, visual.label, x, y + 24);
+    } else if (visual.kind === 'chest') {
+      drawFitted(context, propArt(save.adventure.chestOpened ? 'chest_open' : 'chest_closed'), x, y + 19, 58, 53);
+      drawMapLabel(context, 'RƯƠNG', x, y + 33);
     } else if (visual.kind === 'portal') {
-      const open = save.adventure.chestOpened;
-      drawMarker(context, visual.x, visual.y, open ? visual.label : 'KHÓA', open ? '#e87552' : '#68786e');
+      const open = activeIds.has(visual.id);
+      context.save();
+      context.globalAlpha = open ? 1 : .48;
+      drawFitted(context, propArt('portal'), x, y + 16, 78, 89);
+      context.restore();
+      drawMapLabel(context, open ? visual.label : 'KHÓA', x, y + 29);
     }
   }
 }
 
-function drawBattleScene(context, adventure) {
-  const battle = adventure.battle;
-  const gradient = context.createLinearGradient(0, 0, 0, 540);
-  gradient.addColorStop(0, '#314e43'); gradient.addColorStop(1, '#a48258');
-  context.fillStyle = gradient; context.fillRect(0, 0, 960, 540);
-  context.fillStyle = '#6f7753'; context.beginPath(); context.ellipse(485, 342, 440, 130, 0, 0, Math.PI * 2); context.fill();
-  for (let index = 0; index < 5; index += 1) {
-    const actor = battle.actors.filter((item) => item.team === 'player')[index];
-    drawActor(context, actor, 140 + index * 75, 300 + Math.sin(index * 2) * 20, index === 0 ? '#de704f' : elementColors[actor?.element] ?? '#86ac72', runtime.animations.getActorState(actor?.actor_id)?.animation);
-  }
-  const enemies = battle.actors.filter((item) => item.team === 'enemy');
-  enemies.forEach((enemy, index) => drawActor(context, enemy, enemy.boss ? 690 : 670 + index * 75, enemy.boss ? 280 : 298 + Math.sin(index * 3) * 15, enemy.boss ? '#b54e3e' : '#648c4e', runtime.animations.getActorState(enemy.actor_id)?.animation));
-  context.fillStyle = '#fff8e6'; context.font = '700 16px DM Sans, sans-serif'; context.fillText(`WAVE ${battle.wave + 1}  ·  TICK ${battle.tick}`, 24, 32);
-  if (battle.bossTelegraph) {
-    context.fillStyle = '#f5d477'; context.font = '700 18px DM Sans, sans-serif'; context.fillText(`TELEGRAPH: ${battle.bossTelegraph.attack} · ${battle.bossTelegraph.ticks}`, 650, 46);
-  }
-}
-
-function drawActor(context, actor, x, y, color, animation) {
-  if (!actor) return;
-  const size = actor.boss ? 55 : 31;
-  const charId = actor.boss ? 'boss_thief' : (actor.id ?? 'chr_bunbo_holinh');
-
-  // Thử vẽ Sprite đồ họa
-  const spriteDrawn = spriteRenderer.drawSprite(context, charId, animation, x, y, {
-    scale: actor.boss ? 1.3 : 1.0,
-    flipX: actor.team === 'enemy',
-    opacity: actor.alive ? 1.0 : 0.28,
-  });
-
-  if (!spriteDrawn) {
-    const pose = placeholderPose(animation);
-    context.save();
-    context.translate(x, y + pose.offsetY);
-    context.scale(pose.scaleX, pose.scaleY);
-    context.translate(-x, -y);
-    context.globalAlpha = actor.alive ? 1 : .28;
-    context.fillStyle = '#1f3027a0'; context.beginPath(); context.ellipse(x, y + size, size * .85, 10, 0, 0, Math.PI * 2); context.fill();
-    context.fillStyle = color; context.beginPath(); context.ellipse(x, y, size * .65, size, 0, 0, Math.PI * 2); context.fill();
-    context.fillStyle = '#fff5db'; context.beginPath(); context.arc(x, y - size * .62, size * .4, 0, Math.PI * 2); context.fill();
-    context.globalAlpha = 1;
-    context.restore();
-  }
-
-  // Tên & Thanh máu
+function drawMapLabel(context, label, x, y) {
   context.save();
-  context.globalAlpha = actor.alive ? 1 : .28;
-  context.fillStyle = '#283831'; context.font = '700 12px DM Sans, sans-serif'; context.textAlign = 'center';
-  context.fillText((actor.name ?? characterNames[actor.id] ?? 'V').slice(0, 12), x, y + size + 22);
-  context.textAlign = 'left';
-  context.fillStyle = '#24443a'; context.fillRect(x - size, y - size - 13, size * 2, 5);
-  context.fillStyle = '#e98157'; context.fillRect(x - size, y - size - 13, size * 2 * Math.max(0, actor.hp / actor.maxHp), 5);
+  context.textAlign = 'center';
+  context.font = '700 10px DM Sans, sans-serif';
+  context.lineWidth = 3;
+  context.strokeStyle = '#193d32';
+  context.fillStyle = '#fff6e3';
+  context.strokeText(label, x, y);
+  context.fillText(label, x, y);
   context.restore();
 }
 
-function drawHouse(context, x, y, color, label, width = 176, height = 118, houseId = '') {
-  const houseKey = `./assets/sprites/maps/${houseId.replace('building_', 'house_')}.png`;
-  const drawn = spriteRenderer.drawImage(context, houseKey, x, y, width, height);
-  if (!drawn) {
-    context.fillStyle = '#425b45'; context.fillRect(x + 10, y + 38, width - 20, height - 38);
-    context.fillStyle = color; context.beginPath(); context.moveTo(x, y + 47); context.lineTo(x + width / 2, y); context.lineTo(x + width, y + 47); context.fill();
-    context.fillStyle = '#ead9ad'; context.fillRect(x + 27, y + 48, width - 34, height - 48);
-    context.fillStyle = '#745840'; context.fillRect(x + width / 2 - 14, y + height - 40, 28, 40);
+function drawFitted(context, path, x, baseline, width, height) {
+  const image = spriteRenderer.images.get(path);
+  if (!image?.naturalWidth) return;
+  const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
+  const w = image.naturalWidth * scale;
+  const h = image.naturalHeight * scale;
+  spriteRenderer.drawImage(context, path, x - w / 2, baseline - h, w, h);
+}
+
+function drawBattleScene(context, adventure) {
+  const battle = adventure.battle;
+  context.fillStyle = '#283f33';
+  context.fillRect(0, 0, 960, 540);
+  spriteRenderer.drawImage(context, sceneArt(adventureEncounters[battle.encounter ?? 'forest'].scene ?? 'arena'), 0, 0, 960, 540);
+  if (battle.encounter === 'seal') {
+    context.fillStyle = '#2f154852';
+    context.fillRect(0, 0, 960, 540);
   }
-  context.fillStyle = '#304e40'; context.font = '700 11px DM Sans, sans-serif'; context.fillText(label, x + 47, y + height + 18);
+  const boss = battle.actors.find((actor) => actor.boss && actor.alive);
+  if (boss && battle.bossTelegraph) {
+    const { ticks, duration, counter, safeX } = battle.bossTelegraph;
+    const opacity = .46 + .33 * (1 - ticks / duration);
+    if (counter === 'retreat') {
+      drawTideWarning(context, safeX, opacity);
+      drawElementEffect(context, spriteRenderer, 'water', 'impact', { x: boss.x, y: boss.y + 5, size: 180, opacity });
+    } else if (boss.element === 'shadow') {
+      drawElementEffect(context, spriteRenderer, 'shadow', 'impact', { x: boss.x, y: boss.y + 5, size: 198, opacity });
+    } else drawBossWarning(context, boss.x, boss.y + 2, 230, opacity);
+    for (const target of bossTelegraphTargets(battle, boss)) {
+      if (boss.element === 'shadow') {
+        const element = battle.bossTelegraph.warded ? 'light' : 'shadow';
+        drawElementEffect(context, spriteRenderer, element, 'impact', { x: target.x, y: target.y + 2, size: 96, opacity });
+      } else if (counter === 'retreat') {
+        drawElementEffect(context, spriteRenderer, 'water', 'impact', { x: target.x, y: target.y + 2, size: 79, opacity });
+      } else drawBossWarning(context, target.x, target.y + 2, 79, opacity);
+    }
+  }
+  const blend = battle.paused || battle.phase !== 'battle_running' || app.dataset.motion === 'reduced'
+    ? 1 : Math.min(1, Math.max(0, (battle.accumulator ?? 0) * ADVENTURE_TICK_RATE));
+  for (const actor of [...battle.actors, ...battle.stoves].sort((a, b) => a.y - b.y)) {
+    if (actor.stove) {
+      if (actor.alive) drawBossStove(context, actor, battle.stoveTargetId === actor.actor_id);
+    } else {
+      const fromX = actor.previousX ?? actor.x;
+      const fromY = actor.previousY ?? actor.y;
+      const animation = runtime.animations.getActorState(actor.actor_id)?.animation;
+      const clock = runtime.rigClocks.get(actor.id);
+      const rigMotion = clock?.motion(battle, actor, animation);
+      drawActor(context, actor, animation,
+        actor.boss && ['stoves', 'sequence'].includes(battle.bossTelegraph?.counter),
+        fromX + (actor.x - fromX) * blend, fromY + (actor.y - fromY) * blend, rigMotion);
+    }
+  }
+  runtime.effects.draw(context, battle, app.dataset.motion === 'reduced');
 }
 
-function drawTree(context, x, y, color, palette = 'forest_light') {
-  const treeKey = palette === 'forest_dark' ? './assets/sprites/maps/tree_02.png' : './assets/sprites/maps/tree_01.png';
-  const drawn = spriteRenderer.drawImage(context, treeKey, x - 24, y - 48, 48, 96);
-  if (!drawn) {
-    context.fillStyle = '#664c38'; context.fillRect(x - 7, y + 7, 14, 43);
-    context.fillStyle = color; context.beginPath(); context.moveTo(x, y - 45); context.lineTo(x - 36, y + 20); context.lineTo(x + 36, y + 20); context.closePath(); context.fill();
-    context.beginPath(); context.moveTo(x, y - 21); context.lineTo(x - 31, y + 40); context.lineTo(x + 31, y + 40); context.closePath(); context.fill();
+function drawTideWarning(context, safeX, opacity) {
+  context.save();
+  context.fillStyle = '#5ce9ad24';
+  context.fillRect(0, 220, safeX, 320);
+  context.fillStyle = `rgba(36, 163, 224, ${opacity * .41})`;
+  context.fillRect(safeX, 220, WORLD.width - safeX, 320);
+  context.fillStyle = '#ccf7fe';
+  context.fillRect(safeX - 1, 220, 2, 320);
+  drawMapLabel(context, 'VÙNG KHÔ', safeX - 43, 235);
+  drawMapLabel(context, 'VÙNG NƯỚC', safeX + 48, 235);
+  context.restore();
+}
+
+function drawBossWarning(context, x, y, size, opacity) {
+  const options = { x, y, size, opacity };
+  if (!drawEffectTexture(context, spriteRenderer, combatArt('boss_warning'), options)) {
+    drawElementEffect(context, spriteRenderer, 'fire', 'impact', options);
   }
 }
 
-function drawMarker(context, x, y, label, color) {
-  context.fillStyle = '#213d33'; context.beginPath(); context.ellipse(x, y + 34, 30, 8, 0, 0, Math.PI * 2); context.fill();
-  context.fillStyle = color; context.beginPath(); context.arc(x, y, 23, 0, Math.PI * 2); context.fill();
-  context.fillStyle = '#fff6e3'; context.font = '700 10px DM Sans, sans-serif'; context.textAlign = 'center'; context.fillText(label, x, y + 4); context.textAlign = 'left';
+function drawBossStove(context, stove, focused) {
+  const { x, y } = stove;
+  drawBossWarning(context, x, y, focused ? 116 : 93, focused ? 1 : .55);
+  drawFitted(context, propArt('boss_stove'), x, y + 3, 72, 70);
+  context.save();
+  context.fillStyle = '#291b20';
+  context.fillRect(x - 30, y - 81, 60, 7);
+  context.fillStyle = focused ? '#ffe292' : '#ff9870';
+  context.fillRect(x - 29, y - 80, 58 * stove.hp / stove.maxHp, 5);
+  context.font = '800 17px system-ui';
+  context.textAlign = 'center';
+  context.strokeStyle = '#291b20';
+  context.lineWidth = 4;
+  const key = stove.actor_id === 'boss_stove_1' ? '6' : '7';
+  context.strokeText(key, x, y - 88);
+  context.fillText(key, x, y - 88);
+  context.restore();
 }
 
-function drawChest(context, x, y, opened = false) {
-  const chestKey = opened ? './assets/sprites/maps/chest_open.png' : './assets/sprites/maps/chest_closed.png';
-  const drawn = spriteRenderer.drawImage(context, chestKey, x - 20, y - 20, 40, 40);
-  if (!drawn) {
-    context.fillStyle = '#563f29'; context.fillRect(x - 25, y - 17, 50, 36);
-    context.fillStyle = '#dba94f'; context.fillRect(x - 25, y - 19, 50, 12);
-    context.fillStyle = '#f1d77d'; context.fillRect(x - 4, y - 11, 8, 25);
+function drawActor(context, actor, animation, guarded, x, y, rigMotion) {
+  context.save();
+  context.globalAlpha = actor.alive ? 1 : .32;
+  context.fillStyle = '#101e1c8c';
+  context.beginPath();
+  context.ellipse(x, y + 2, actor.boss ? 33 : 23, 7, 0, 0, Math.PI * 2);
+  context.fill();
+  const drawn = (rigMotion && spriteRenderer.rigs.get(actor.id).draw(context, rigMotion, x, y, actor.direction, SPIRIT_RIG_SCALE))
+    || (!actor.stationary && spriteRenderer.drawSprite(context, actor.id, animation, x, y, { scale: actor.boss ? 1.04 : .67 }));
+  if (actor.stationary) {
+    drawFitted(context, propArt(actor.artId ?? actor.id), x, y, 150, 129);
+  } else if (!drawn) {
+    const pose = placeholderPose(animation);
+    drawFitted(context, actorArt(actor.id), x, y + pose.offsetY,
+      (actor.boss ? 150 : 77) * pose.scaleX, (actor.boss ? 128 : 78) * pose.scaleY);
   }
-  context.fillStyle = '#fff4cf'; context.font = '700 11px DM Sans, sans-serif'; context.textAlign = 'center'; context.fillText('RƯƠNG', x, y + 37); context.textAlign = 'left';
-}
-
-function drawTable(context, x, y, width = 85, height = 52) {
-  const legHeight = height - 20;
-  context.fillStyle = '#80523c'; context.fillRect(x, y, width, 22); context.fillRect(x + 9, y + 20, 8, legHeight); context.fillRect(x + width - 18, y + 20, 8, legHeight);
-  context.fillStyle = '#f0d7a5'; context.fillRect(x + 11, y + 4, 16, 8); context.fillRect(x + 39, y + 4, 16, 8);
+  if (actor.shield || guarded) {
+    const options = { x, y: y - (guarded ? 66 : 39), size: guarded ? 210 : 113, opacity: .72 };
+    if (!drawEffectTexture(context, spriteRenderer, combatArt('shield_bubble'), options)) {
+      drawElementEffect(context, spriteRenderer, 'light', 'impact', options);
+    }
+  }
+  const barY = y - (actor.boss ? 140 : drawn ? 104 : 89);
+  const barWidth = actor.boss ? 94 : 50;
+  context.fillStyle = '#182726';
+  context.fillRect(x - barWidth / 2, barY, barWidth, 6);
+  context.fillStyle = actor.team === 'player' ? '#b4e09c' : '#ff865e';
+  context.fillRect(x - barWidth / 2 + 1, barY + 1, (barWidth - 2) * actor.hp / actor.maxHp, 4);
+  context.restore();
 }
 
 function drawPlayer(context, x, y, animation) {
-  const facingLeft = runtime.adventure?.facing === 'left';
-  const drawn = spriteRenderer.drawSprite(context, 'chr_bunbo_holinh', animation, x, y, {
-    scale: 1.0,
-    flipX: facingLeft,
-  });
-  if (!drawn) {
-    const pose = placeholderPose(animation);
-    context.save();
-    context.translate(x, y + pose.offsetY);
-    context.scale(pose.scaleX, pose.scaleY);
-    context.translate(-x, -y);
-    context.fillStyle = '#193b32'; context.beginPath(); context.ellipse(x, y + 22, 19, 6, 0, 0, Math.PI * 2); context.fill();
-    context.fillStyle = '#df7051'; context.beginPath(); context.ellipse(x, y, 14, 20, 0, 0, Math.PI * 2); context.fill();
-    context.fillStyle = '#f2d5a5'; context.beginPath(); context.arc(x, y - 16, 10, 0, Math.PI * 2); context.fill();
-    context.fillStyle = '#39433a'; context.fillRect(x - 12, y - 26, 24, 6);
-    context.restore();
+  if (!spriteRenderer.drawSprite(context, TRAVEL_HERO, animation, x, y, { scale: .55 })) {
+    drawFitted(context, actorArt(HERO_ID), x, y, 71, 69);
   }
 }
 
@@ -473,43 +1201,228 @@ function placeholderPose(animation) {
   return { scaleX: 1, scaleY: phase % 2 === 0 ? 1 : 1.02, offsetY: phase % 2 === 0 ? 0 : -1 };
 }
 
+const CARD_TYPES = { unit: 'Vị Linh', trap: 'Bẫy', fast_spell: 'Tốc chú', slow_spell: 'Chậm chú', burst_spell: 'Tức chú' };
+const ELEMENT_NAMES = { fire: 'Hỏa', water: 'Thủy', wood: 'Mộc', light: 'Quang', shadow: 'Ảnh' };
+const TCG_PHASES = { action: 'Triển khai', reaction: 'Phản ứng', combat: 'Tấn công', block_assign: 'Chọn quân chặn', round_end: 'Kết thúc lượt' };
+
+function playerDeck() {
+  try {
+    validateDeck(runtime.save.tcgDeck, runtime.cards);
+    return runtime.save.tcgDeck;
+  } catch {
+    return runtime.deck;
+  }
+}
+
+function startTcg(seed) {
+  runtime.mulligan.clear();
+  runtime.selectedTarget = null;
+  runtime.selectedSpell = null;
+  runtime.tcgAttackers = null;
+  return createTcgMatch(runtime.cards, playerDeck(), seed, runtime.deck);
+}
+
+function cardArt(card) {
+  const entry = card.card_id && runtime.cards.cards.find((candidate) => candidate.card_id === card.card_id);
+  return actorArt(card.character_id ?? entry?.character_id)
+    ?? originalCardArt(card.card_id)
+    ?? effectArt(card.element ?? entry?.element, card.type === 'fast_spell' ? 'trail' : 'impact');
+}
+
+function tcgCardRule(card) {
+  if (card.type === 'unit') return `ATK ${card.atk} · DEF ${card.max_def}. ${card.keywords?.includes('haste') ? 'Có thể tấn công ngay khi vào sân.' : 'Có thể chặn ngay khi vào sân. Tấn công từ vòng sau.'}`;
+  if (card.type === 'trap') return card.trigger?.when === 'attack_declared'
+    ? `Đặt úp. Từ vòng sau, lật khi đối thủ tấn công với ít nhất ${card.trigger.condition?.min_attackers ?? 1} Vị Linh. Hủy đợt tấn công khi bẫy được xử lý.`
+    : 'Đặt úp. Từ vòng sau, lật khi đối thủ dùng tốc chú và hóa giải tốc chú khi bẫy được xử lý.';
+  const damage = `Gây ${card.effect?.value ?? 0} sát thương lên mục tiêu đã chọn.`;
+  if (card.type === 'fast_spell') return damage + ' Có thể dùng trong cửa sổ phản ứng. Phép vào hàng chờ trước khi xử lý.';
+  if (card.type === 'slow_spell') return damage + ' Dùng khi đang triển khai và hàng chờ trống.';
+  return damage + ' Xử lý ngay khi thi triển.';
+}
+
+function showTcgCard(cardId) {
+  const card = runtime.cards.cards.find(item => item.card_id === cardId);
+  if (!card) return;
+  openInfoDialog(cardName(card), `<div class="inspect-tcg"><img src="${escapeAttr(cardArt(card))}" alt="">
+    <div><strong>${CARD_TYPES[card.type]} · Hệ ${ELEMENT_NAMES[card.element]} · ${card.cost} mana</strong><p>${escapeHtml(tcgCardRule(card))}</p></div></div>`);
+}
+
+function showTcgGraveyard(cards) {
+  const counts = new Map();
+  for (const card of [...cards].reverse()) {
+    const previous = counts.get(card.card_id);
+    counts.set(card.card_id, { card, count: (previous?.count ?? 0) + 1 });
+  }
+  openInfoDialog('Mộ bài của bạn', `<ul class="tcg-graveyard">${[...counts.values()].map(({ card, count }) =>
+    `<li><strong>${escapeHtml(cardName(card))} ×${count}</strong><small>${escapeHtml(tcgCardRule(card))}</small></li>`).join('')}</ul>`);
+}
+
+function boardChibi(id, key, direction, fallback) {
+  if (!id || !spriteRenderer.sheets.get(id)?.loaded) return fallback;
+  return `<canvas class="board-chibi" width="96" height="96" aria-hidden="true" data-chibi-id="${escapeAttr(id)}"
+    data-chibi-key="${escapeAttr(key)}" data-chibi-facing="${direction}"></canvas>`;
+}
+
+function tcgSpriteKey(battleId, actorId) { return `${battleId}:${actorId}`; }
+
+function tcgLaneId(player, lane) { return `lane:p${player}:${lane}`; }
+
+function tcgImpact(id) {
+  const impact = runtime.tcgImpacts.get(id);
+  if (!impact || impact.matchId !== runtime.tcg.battleId || impact.expires <= performance.now()) return '';
+  const delay = Math.round(impact.contact - performance.now());
+  return `<span class="tcg-hit" style="--contact-delay:${delay}ms" aria-hidden="true">
+    <img class="tcg-impact" src="${effectArt(impact.element, 'impact')}" alt=""><span class="tcg-damage">−${impact.damage}</span></span>`;
+}
+
 function renderTcg() {
-  if (!runtime.tcg) runtime.tcg = createTcgMatch(runtime.cards, runtime.deck, 41);
+  if (!runtime.tcg) runtime.tcg = startTcg(41);
+  else if (runtime.tcg.priority === 1 && !runtime.tcg.result) runtime.tcg = runTcgBot(runBotPriority(runtime.tcg), { yieldToPlayer: true });
   const match = runtime.tcg;
-  const user = match.players[0]; const bot = match.players[1];
-  const hand = user.hand.map((card) => `<button class="playing-card element-${card.element}" data-card="${escapeAttr(card.instance_id)}"><span class="card-cost">${card.cost}</span><span class="card-element">${escapeHtml(card.element)}</span><div class="card-thumb"><img src="./assets/cards/${escapeAttr(card.card_id)}.png" alt="${escapeAttr(cardName(card))}" loading="lazy" onerror="this.parentElement.style.display='none'"></div><strong>${escapeHtml(cardName(card))}</strong><small>${escapeHtml(card.type.replaceAll('_', ' '))}${card.type === 'unit' ? `<br>${card.atk} ATK · ${card.max_def} DEF` : card.effect ? `<br>${card.effect.value} damage` : ''}</small></button>`).join('');
-  const friendlyUnits = user.units.map((unit) => unitTile(unit, true)).join('') || '<div class="empty-slot">Unit slot</div>'.repeat(5);
-  const enemyUnits = bot.units.map((unit) => unitTile(unit, false)).join('') || '<div class="empty-slot">Unit slot</div>'.repeat(5);
-  const phaseLabel = match.result ? match.winner === 0 ? 'Chiến thắng' : match.winner === null ? 'Hòa trận' : 'Thất bại' : `${match.phase} · Vòng ${match.round}`;
-  const canPlay = !match.result && ['action', 'reaction'].includes(match.phase) && match.priority === 0;
+  for (const [id, impact] of runtime.tcgImpacts) {
+    if (impact.matchId !== match.battleId || impact.expires <= performance.now()) runtime.tcgImpacts.delete(id);
+  }
+  const [user, bot] = match.players;
+  const opening = match.mulliganDone === false && match.round === 1 && match.eventSeq === 0;
+  const canPlay = !opening && !match.result && ['action', 'reaction'].includes(match.phase) && match.priority === 0;
+  const spell = canPlay ? user.hand.find(card => card.instance_id === runtime.selectedSpell) : null;
+  if (!spell) {
+    runtime.selectedSpell = null;
+    runtime.selectedTarget = null;
+  }
+  if (runtime.selectedTarget !== 'commander' && !bot.units.some(unit => unit.instance_id === runtime.selectedTarget)) runtime.selectedTarget = null;
+  const hand = user.hand.map((card) => {
+    const affordable = card.cost <= user.mana;
+    const playable = canPlay && affordable
+      && (match.phase !== 'reaction' || card.type === 'fast_spell')
+      && (card.type !== 'unit' || user.units.length < 5)
+      && (card.type !== 'trap' || user.traps.length < 2);
+    const selected = opening ? runtime.mulligan.has(card.instance_id) : spell?.instance_id === card.instance_id;
+    return `<div class="hand-card"><button class="playing-card element-${card.element} ${selected ? 'selected' : ''}" data-card="${escapeAttr(card.instance_id)}" ${opening || card.type.endsWith('_spell') ? `aria-pressed="${selected}"` : ''} ${opening || playable ? '' : 'disabled'}><span class="card-cost">${card.cost}</span><span class="card-element">${ELEMENT_NAMES[card.element]}</span><div class="card-thumb"><img src="${escapeAttr(cardArt(card))}" alt=""></div><strong>${escapeHtml(cardName(card))}</strong><small>${CARD_TYPES[card.type]}${card.type === 'unit' ? ` · ${card.atk}/${card.max_def}` : card.effect?.kind === 'deal_damage' ? ` · ${card.effect.value} sát thương` : ''}</small></button>
+      <button type="button" class="hand-inspect" data-view-tcg-card="${escapeAttr(card.card_id)}" aria-label="Chi tiết ${escapeAttr(cardName(card))}">Chi tiết</button></div>`;
+  }).join('');
+  const phaseLabel = match.result ? match.winner === 0 ? 'Chiến thắng' : match.winner === null ? 'Hòa trận' : 'Thất bại' : TCG_PHASES[match.phase];
+  const showCombat = match.phase === 'combat' && match.activePlayer === 0 && !match.result;
+  const defending = match.phase === 'block_assign' && match.priority === 0;
+  const incoming = declaredTcgAttackers(match);
+  const declared = new Set(incoming.map(unit => unit.instance_id));
+  const blocked = new Set(match.pendingAttack?.blocks?.map(block => block.blockerId));
+  if (showCombat) runtime.tcgAttackers ??= new Set(user.units.filter(unit => unit.ready && unit.current_def > 0).map(unit => unit.instance_id));
+  else runtime.tcgAttackers = null;
+  const selected = runtime.tcgAttackers?.size ?? 0;
+  const stackTop = match.stack.at(-1);
+  const trapReveal = match.stack.find((item) => item.kind === 'counter' || item.kind === 'attack_counter');
+  const spellControls = spell ? `<div class="action-row spell-confirm"><label class="target-select">${escapeHtml(cardName(spell))} · ${spell.effect.value} sát thương
+    <select id="tcg-target"><option value="">Chọn mục tiêu</option><option value="commander" ${runtime.selectedTarget === 'commander' ? 'selected' : ''}>Chủ soái đối thủ</option>${bot.units.map(unit => `<option value="${escapeAttr(unit.instance_id)}" ${runtime.selectedTarget === unit.instance_id ? 'selected' : ''}>${escapeHtml(cardName(unit))}</option>`).join('')}</select></label>
+    <button class="button" data-tcg-cast ${runtime.selectedTarget ? '' : 'disabled'}>Thi triển</button><button class="button light" data-tcg-cancel-spell>Hủy chọn</button></div>` : '';
+
   shell(`
-    ${pageHeader('Đấu bot · bộ bài 36 lá', 'Thẻ chiến thuật', 'Chọn lá bài để triển khai. Bẫy sẽ được giữ kín đến lúc kích hoạt.', 'home')}
-    <div class="game-layout tactical-layout"><section class="panel tcg-board">
-      <div class="duel-top"><div><div class="eyebrow">Đối thủ · máy</div><strong>Người giữ vị đối phương</strong><small>${bot.deck.length} lá trong bộ bài · ${bot.hand.length} lá trên tay · ${bot.traps.length} bẫy úp</small></div><div class="commander-hp enemy-hp">${bot.hp}<small> / 8000 HP</small></div></div>
-      <div class="unit-row enemy-row">${enemyUnits}</div>
-      <div class="stack-strip"><span>${phaseLabel}</span><b>${match.priority === 0 ? 'Ưu tiên: bạn' : 'Ưu tiên: đối thủ'}</b><span>Stack ${match.stack.length}</span></div>
-      <div class="unit-row friendly-row">${friendlyUnits}</div>
-      <div class="duel-bottom"><div><div class="eyebrow">Bạn · người kết vị</div><strong>Đội hình</strong><small>${user.units.length}/5 đơn vị · ${user.traps.length}/2 bẫy</small></div><div class="commander-hp">${user.hp}<small> / 8000 HP</small></div></div>
-      <div class="hand-heading"><strong>Bài trên tay</strong><span>${user.mana}/${user.maxMana} mana · ${user.deck.length} lá còn lại</span></div>
-      <div class="hand-row">${hand || '<p class="empty-message">Không còn bài trên tay.</p>'}</div>
-      ${match.result ? `<div class="result-box ${match.winner === 0 ? 'victory' : 'defeat'}"><strong>${phaseLabel}</strong><p>${match.winner === 0 ? 'Đối thủ đã bị đánh bại.' : 'Bạn có thể bắt đầu ván mới.'}</p><button class="button" data-tcg-new>Ván mới</button></div>` : ''}
-      <div class="action-row"><label class="target-select">Mục tiêu <select id="tcg-target"><option value="commander">Chủ soái đối thủ</option>${bot.units.map((unit) => `<option value="${escapeAttr(unit.instance_id)}">${escapeHtml(cardName(unit))} · ${unit.current_def} DEF</option>`).join('')}</select></label><button class="button" data-tcg-pass ${!canPlay ? 'disabled' : ''}>Bỏ ưu tiên</button><button class="button light" data-tcg-attack ${match.phase !== 'combat' || match.activePlayer !== 0 || match.result ? 'disabled' : ''}>Tấn công bằng quân sẵn sàng</button><button class="button light" data-tcg-skip ${match.phase !== 'combat' || match.activePlayer !== 0 || match.result ? 'disabled' : ''}>Bỏ tấn công</button><button class="button secondary dark-secondary" data-tcg-end ${!['combat', 'round_end'].includes(match.phase) || match.activePlayer !== 0 || match.result ? 'disabled' : ''}>Kết thúc lượt</button></div>
-    </section><aside class="side-stack"><section class="panel"><h2>Trạng thái trận</h2><div class="data-list"><div class="data-row"><span>Pha</span><span>${phaseLabel}</span></div><div class="data-row"><span>Quyền ưu tiên</span><span>${match.priority === 0 ? 'Bạn' : 'Đối thủ'}</span></div><div class="data-row"><span>Deck</span><span>${user.deck.length + user.hand.length}/36</span></div><div class="data-row"><span>Mục tiêu</span><span>8000 HP</span></div></div></section><section class="panel"><h2>Nhật ký trận</h2>${renderTextLog(match.log)}</section><section class="panel"><h2>Hợp đồng</h2><p class="muted-copy">Đang bật unit summon, fast/slow damage spell, trap counter, lane attack/block, round draw và thắng/thua. Card effects ngoài grammar mẫu hiện chưa bật.</p></section></aside></div>
+    ${pageHeader('Đấu với bot', 'Thẻ chiến thuật', '', 'home')}
+    <div class="tactical-layout"><section class="panel tcg-board">
+      <div class="duel-field">
+      <div class="duel-top"><div><strong>Chủ soái đối thủ</strong><small>${bot.deck.length} lá bộ bài · ${bot.hand.length} lá tay · ${bot.mana}/${bot.maxMana} mana</small></div>
+        ${tcgTrapSlots(bot.traps.length)}
+        ${spell ? `<button type="button" class="commander-hp enemy-hp spell-target" data-duel-id="commander:p1" data-spell-target="commander" aria-pressed="${runtime.selectedTarget === 'commander'}">${bot.hp} HP${tcgImpact('commander:p1')}</button>` : `<div class="commander-hp enemy-hp" data-duel-id="commander:p1">${bot.hp}<small> / 8000 HP</small>${tcgImpact('commander:p1')}</div>`}</div>
+      <div class="unit-row enemy-row">${tcgLanes(bot.units, false, declared, blocked, Boolean(spell))}</div>
+      <div class="stack-strip"><span>Vòng ${match.round} · ${phaseLabel}</span><b>${match.activePlayer === 0 ? 'Lượt của bạn' : 'Lượt đối thủ'}</b><span>${match.priority === 0 ? 'Ưu tiên: bạn' : 'Ưu tiên: đối thủ'}</span><span>${user.attackUsedRound === match.round ? 'Hết lượt đánh' : match.activePlayer === 0 ? 'Còn lượt đánh' : 'Đối thủ tấn công'}</span></div>
+      ${stackTop ? `<p class="tcg-stack-top">Xử lý trước: <strong>${escapeHtml(cardName(stackTop.card))}</strong> · ${match.stack.length} chờ</p>` : ''}
+      ${trapReveal ? `<div class="trap-reveal" role="status"><img src="${escapeAttr(cardArt(trapReveal.card))}" alt="">Bẫy lật mở · ${escapeHtml(cardName(trapReveal.card))}</div>` : ''}
+      <div class="unit-row friendly-row">${tcgLanes(user.units, true, declared, blocked)}</div>
+      <div class="duel-bottom"><div><strong>Người Kết Vị</strong><small>${user.units.length}/5 Vị Linh · ${user.deck.length} lá bộ bài</small></div>${tcgTrapSlots(user.traps.length)}<div class="commander-hp" data-duel-id="commander:p0">${user.hp}<small> / 8000 HP</small>${tcgImpact('commander:p0')}</div></div>
+      <canvas class="duel-effects" aria-hidden="true" hidden></canvas>
+      </div><div class="tcg-hand-dock">
+      ${spellControls}
+      ${defending ? tcgDefensePanel(incoming, user.units) : `<div class="hand-heading"><strong>${opening ? 'Chọn các lá muốn đổi' : 'Bài trên tay'}</strong><span>${user.mana}/${user.maxMana} mana</span></div>
+        <div class="hand-row">${hand || '<p class="empty-message">Không còn bài trên tay.</p>'}</div>`}
+      ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}
+      ${match.result ? `<div class="result-box ${match.winner === 0 ? 'victory' : 'defeat'}"><strong>${phaseLabel}</strong><button class="button" data-tcg-new>Ván mới</button></div>` : opening ? `<div class="action-row"><button class="button" data-tcg-mulligan>${runtime.mulligan.size ? 'Đổi ' + runtime.mulligan.size + ' lá' : 'Giữ bài và vào trận'}</button></div>` : ''}
+      ${canPlay && !spell ? `<div class="action-row"><button class="button" data-tcg-pass>${match.phase === 'reaction' ? 'Bỏ phản ứng' : 'Bỏ ưu tiên'}</button></div>` : ''}
+      ${showCombat ? `<div class="action-row"><button class="button" data-tcg-attack>${selected ? `Tấn công với ${selected} Vị Linh` : 'Bỏ tấn công'}</button>${selected ? '<button class="button light" data-tcg-skip>Bỏ tấn công</button><span class="key-hint">Chạm Vị Linh để chọn đội tấn công</span>' : ''}</div>` : ''}
+      ${!match.result && match.phase === 'round_end' && match.activePlayer === 0 ? '<div class="action-row"><button class="button" data-tcg-end>Kết thúc lượt</button></div>' : ''}
+      <div class="action-row mode-shortcuts">
+        <button class="button light compact" data-tcg-log>Nhật ký</button>
+        <button class="button light compact" data-page="deck">Sửa bộ bài</button>
+        <button class="button light compact" data-tcg-graveyard ${user.graveyard.length ? '' : 'disabled'}>Mộ bài · ${user.graveyard.length}</button>
+        <button class="button light compact" data-tcg-restart>Ván mới</button>
+        ${match.result ? '' : '<button class="button light compact" data-tcg-surrender>Đầu hàng</button>'}
+      </div></div></section></div>
   `);
-  app.querySelectorAll('[data-card]').forEach((button) => {
-    button.addEventListener('click', () => actTcg(() => playTcgCard(runtime.tcg, 0, button.dataset.card, app.querySelector('#tcg-target')?.value ?? 'commander')));
+  app.querySelector('[data-tcg-log]').addEventListener('click', () => openInfoDialog('Nhật ký trận', renderTextLog(match.log)));
+  app.querySelector('[data-tcg-hand]')?.addEventListener('click', () => {
+    const cards = user.hand.map(card => `<li><strong>${escapeHtml(cardName(card))} · ${card.cost} mana</strong><small>${escapeHtml(tcgCardRule(card))}</small></li>`);
+    openInfoDialog('Bài trên tay', cards.length ? `<ul class="tcg-graveyard">${cards.join('')}</ul>` : '<p>Không còn bài trên tay.</p>');
   });
-  app.querySelector('[data-tcg-pass]')?.addEventListener('click', () => actTcg(() => runBotPriority(passTcgPriority(runtime.tcg, 0))));
-  app.querySelector('[data-tcg-attack]')?.addEventListener('click', () => actTcg(() => attackTcg(runtime.tcg, 0)));
+  app.querySelectorAll('[data-view-tcg-card]').forEach(button => button.addEventListener('click', () => showTcgCard(button.dataset.viewTcgCard)));
+  app.querySelector('[data-tcg-graveyard]').addEventListener('click', () => showTcgGraveyard(user.graveyard));
+  app.querySelector('[data-tcg-surrender]')?.addEventListener('click', () => {
+    if (confirm('Đầu hàng ván đấu này?')) actTcg(() => surrenderTcg(runtime.tcg, 0));
+  });
+  function selectSpellTarget(value) {
+    runtime.selectedTarget = value || null;
+    const picker = app.querySelector('#tcg-target');
+    picker.value = value;
+    app.querySelector('[data-tcg-cast]').disabled = !runtime.selectedTarget;
+    for (const button of app.querySelectorAll('[data-spell-target]')) {
+      button.setAttribute('aria-pressed', String(button.dataset.spellTarget === runtime.selectedTarget));
+    }
+  }
+  app.querySelector('#tcg-target')?.addEventListener('change', event => selectSpellTarget(event.target.value));
+  app.querySelectorAll('[data-spell-target]').forEach(button =>
+    button.addEventListener('click', () => selectSpellTarget(button.dataset.spellTarget)));
+  app.querySelector('[data-tcg-cast]')?.addEventListener('click', () => {
+    if (runtime.selectedTarget) actTcg(() => playTcgCard(runtime.tcg, 0, spell.instance_id, runtime.selectedTarget));
+  });
+  app.querySelector('[data-tcg-cancel-spell]')?.addEventListener('click', () => {
+    runtime.selectedSpell = null;
+    runtime.selectedTarget = null;
+    renderTcg();
+    app.querySelector(`[data-card="${CSS.escape(spell.instance_id)}"]`)?.focus({ preventScroll: true });
+  });
+  app.querySelectorAll('[data-card]').forEach((button) => button.addEventListener('click', () => {
+    const id = button.dataset.card;
+    if (opening) {
+      if (!runtime.mulligan.delete(id)) runtime.mulligan.add(id);
+      renderTcg();
+      app.querySelector(`[data-card="${CSS.escape(id)}"]`)?.focus();
+    } else if (user.hand.find(card => card.instance_id === id)?.type.endsWith('_spell')) {
+      runtime.selectedSpell = id;
+      runtime.selectedTarget = null;
+      renderTcg();
+      app.querySelector('#tcg-target')?.focus({ preventScroll: true });
+    } else actTcg(() => playTcgCard(runtime.tcg, 0, id));
+  }));
+  app.querySelector('[data-tcg-mulligan]')?.addEventListener('click', () => {
+    actTcg(() => mulliganTcg(runtime.tcg, [...runtime.mulligan]));
+    runtime.mulligan.clear();
+  });
+  app.querySelector('[data-tcg-pass]')?.addEventListener('click', () => actTcg(() => passTcgPriority(runtime.tcg, 0)));
+  app.querySelectorAll('[data-tcg-attacker]').forEach(button => button.addEventListener('click', () => {
+    const id = button.dataset.tcgAttacker;
+    if (!runtime.tcgAttackers.delete(id)) runtime.tcgAttackers.add(id);
+    renderTcg();
+    app.querySelector(`[data-tcg-attacker="${CSS.escape(id)}"]`)?.focus({ preventScroll: true });
+  }));
+  app.querySelector('[data-tcg-attack]')?.addEventListener('click', () => actTcg(() => attackTcg(runtime.tcg, 0, [...runtime.tcgAttackers])));
+  if (defending) bindTcgDefense();
   app.querySelector('[data-tcg-skip]')?.addEventListener('click', () => actTcg(() => attackTcg(runtime.tcg, 0, [])));
-  app.querySelector('[data-tcg-end]')?.addEventListener('click', () => actTcg(() => runTcgBot(endTcgTurn(runtime.tcg, 0))));
-  app.querySelector('[data-tcg-new]')?.addEventListener('click', () => { runtime.tcg = createTcgMatch(runtime.cards, runtime.deck, Date.now() % 999_983); saveNow(); render(); });
+  app.querySelector('[data-tcg-end]')?.addEventListener('click', () => actTcg(() => endTcgTurn(runtime.tcg, 0)));
+  function restart() {
+    runtime.tcg = startTcg(Date.now() % 999_983);
+    saveNow();
+    render();
+  }
+  app.querySelector('[data-tcg-new]')?.addEventListener('click', restart);
+  app.querySelector('[data-tcg-restart]')?.addEventListener('click', () => {
+    if (opening || match.result || confirm('Kết thúc ván hiện tại và bắt đầu ván mới?')) restart();
+  });
   saveNow();
 }
 
 function actTcg(action) {
   try {
-    runtime.tcg = action();
+    runtime.tcg = runTcgBot(runBotPriority(action()), { yieldToPlayer: true });
+    runtime.selectedSpell = null;
+    runtime.selectedTarget = null;
     runtime.notice = '';
     saveNow();
   } catch (error) {
@@ -518,60 +1431,379 @@ function actTcg(action) {
   render();
 }
 
-function unitTile(unit, friendly) {
-  return `<div class="tcg-unit ${friendly ? 'friendly' : ''}"><div class="tcg-unit-avatar"><img src="./assets/cards/${escapeAttr(unit.card_id)}.png" alt="${escapeAttr(cardName(unit))}" onerror="this.parentElement.style.display='none'"></div><b>${escapeHtml(cardName(unit))}</b><span>${unit.atk} ATK</span><strong>${unit.current_def} DEF</strong><small>${unit.ready ? 'Sẵn sàng' : 'Nghỉ'}</small></div>`;
+function tcgTrapSlots(occupied) {
+  return `<span class="trap-slots" aria-label="${occupied} trên 2 bẫy úp">${[0, 1].map(slot =>
+    `<i aria-hidden="true" class="${slot < occupied ? 'face-down' : ''}"></i>`).join('')}</span>`;
+}
+
+function tcgLanes(units, friendly, declared, blocked, targeting = false) {
+  return Array.from({ length: 5 }, (_, lane) => {
+    const unit = units.find((candidate) => candidate.lane === lane);
+    if (!unit) return `<div class="empty-slot" aria-label="Vị trí trống">·${tcgImpact(tcgLaneId(friendly ? 0 : 1, lane))}</div>`;
+    const selectable = friendly && runtime.tcgAttackers && unit.ready && unit.current_def > 0;
+    const selected = selectable && runtime.tcgAttackers.has(unit.instance_id);
+    const attacking = declared.has(unit.instance_id);
+    const blocking = blocked.has(unit.instance_id);
+    const badge = selected || attacking ? 'Tấn công' : blocking ? 'Chặn' : unit.ready ? 'Sẵn sàng' : 'Nghỉ';
+    const css = `tcg-unit ${friendly ? 'friendly' : ''} ${selected || attacking ? 'tcg-attacking' : ''} ${blocking ? 'tcg-blocking' : ''}`;
+    const portrait = `<img src="${escapeAttr(cardArt(unit))}" alt="">`;
+    const chibi = boardChibi(unit.character_id, tcgSpriteKey(runtime.tcg.battleId, unit.instance_id), friendly ? 'E' : 'W', portrait);
+    const identity = `data-duel-id="${escapeAttr(unit.instance_id)}"`;
+    const content = `<span class="tcg-unit-avatar">${chibi}</span><b>${escapeHtml(cardName(unit))}</b><span>${unit.atk} / ${unit.current_def}</span><small>${badge}</small>${tcgImpact(unit.instance_id)}`;
+    if (targeting) {
+      return `<button type="button" class="${css} spell-target" ${identity} data-spell-target="${escapeAttr(unit.instance_id)}" aria-pressed="${runtime.selectedTarget === unit.instance_id}">${content}</button>`;
+    }
+    return selectable
+      ? `<button type="button" class="${css}" ${identity} data-tcg-attacker="${escapeAttr(unit.instance_id)}" aria-pressed="${selected}">${content}</button>`
+      : `<div class="${css}" ${identity}>${content}</div>`;
+  }).join('');
+}
+
+function tcgDefensePanel(attackers, defenders) {
+  const units = defenders.filter(unit => unit.current_def > 0);
+  return `<section class="tcg-defense" aria-label="Chọn quân chặn">
+    <div class="tcg-defense-header"><strong>Chọn quân chặn</strong><span data-tcg-exposed role="status"></span></div>
+    <div class="tcg-block-grid">${attackers.map(unit => `<label>
+      <span>Đường ${unit.lane + 1} · ${escapeHtml(cardName(unit))} · ${unit.atk} ATK</span>
+      <select data-tcg-block="${unit.lane}" data-damage="${unit.atk}">
+        <option value="">Không chặn</option>
+        ${units.map(blocker => `<option value="${escapeAttr(blocker.instance_id)}">${escapeHtml(cardName(blocker))} · ${blocker.atk}/${blocker.current_def}</option>`).join('')}
+      </select>
+    </label>`).join('')}</div>
+    <div class="tcg-defense-actions">
+      <button type="button" class="button" data-tcg-confirm-block>Chốt phòng thủ</button>
+      <button type="button" class="button light" data-tcg-hand>Bài trên tay</button>
+    </div>
+  </section>`;
+}
+
+function bindTcgDefense() {
+  const fields = [...app.querySelectorAll('[data-tcg-block]')];
+  const exposed = app.querySelector('[data-tcg-exposed]');
+  function updateBlocks() {
+    const selected = new Set(fields.map(field => field.value).filter(Boolean));
+    let damage = 0;
+    for (const field of fields) {
+      if (!field.value) damage += Number(field.dataset.damage);
+      for (const option of field.options) option.disabled = option.value !== field.value && selected.has(option.value);
+    }
+    exposed.textContent = `Chủ soái dự kiến nhận ${damage} sát thương`;
+  }
+  fields.forEach(field => field.addEventListener('change', updateBlocks));
+  updateBlocks();
+  app.querySelector('[data-tcg-confirm-block]').addEventListener('click', () => {
+    const blocks = fields.filter(field => field.value)
+      .map(field => ({ lane: Number(field.dataset.tcgBlock), blockerId: field.value }));
+    actTcg(() => assignTcgBlockers(runtime.tcg, 0, blocks));
+  });
+}
+
+function renderDeck() {
+  runtime.deckDraft ??= Object.fromEntries(playerDeck().cards.map(({ card_id, count }) => [card_id, count]));
+  const count = Object.values(runtime.deckDraft).reduce((sum, value) => sum + value, 0);
+  shell(`${pageHeader('Thẻ chiến thuật', 'Bộ bài của bạn', 'Chọn 36 lá, tối đa hai bản sao mỗi lá.', 'tcg')}
+    <section class="panel deck-editor">
+      <div class="action-row"><strong>${count}/36 lá</strong><button class="button" data-deck-save ${count === 36 ? '' : 'disabled'}>Lưu bộ bài</button><button class="button light" data-deck-reset>Dùng bộ khởi đầu</button><button class="button light" data-page="tcg">Về trận đấu</button></div>
+      ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}
+      <div class="deck-grid">${runtime.cards.cards.map((card) => {
+        const copies = runtime.deckDraft[card.card_id] ?? 0;
+        return `<article class="deck-card element-${card.element}"><img src="${escapeAttr(cardArt(card))}" alt=""><div><button class="deck-card-name" type="button" data-view-tcg-card="${escapeAttr(card.card_id)}">${escapeHtml(cardName(card))}</button><small>${CARD_TYPES[card.type]} · ${card.cost} mana</small></div><div class="deck-count"><button class="button light" data-deck-id="${card.card_id}" data-change="-1" aria-label="Bớt ${escapeAttr(cardName(card))}" ${copies === 0 ? 'disabled' : ''}>−</button><b>${copies}</b><button class="button light" data-deck-id="${card.card_id}" data-change="1" aria-label="Thêm ${escapeAttr(cardName(card))}" ${copies === 2 || count >= 36 ? 'disabled' : ''}>+</button></div></article>`;
+      }).join('')}</div>
+    </section>`);
+  app.querySelectorAll('[data-view-tcg-card]').forEach(button => button.addEventListener('click', () => showTcgCard(button.dataset.viewTcgCard)));
+  app.querySelectorAll('[data-deck-id]').forEach((button) => button.addEventListener('click', () => {
+    const { deckId, change } = button.dataset;
+    runtime.deckDraft[deckId] = (runtime.deckDraft[deckId] ?? 0) + Number(change);
+    renderDeck();
+    app.querySelector(`[data-deck-id="${deckId}"][data-change="${change}"]:not(:disabled)`)?.focus();
+  }));
+  app.querySelector('[data-deck-reset]').addEventListener('click', () => {
+    runtime.deckDraft = Object.fromEntries(runtime.deck.cards.map(({ card_id, count: amount }) => [card_id, amount]));
+    runtime.notice = '';
+    renderDeck();
+  });
+  app.querySelector('[data-deck-save]').addEventListener('click', () => {
+    const deck = { ...runtime.deck, deck_id: 'deck_player', cards: Object.entries(runtime.deckDraft).filter(([, amount]) => amount > 0).map(([card_id, amount]) => ({ card_id, count: amount })) };
+    try {
+      validateDeck(deck, runtime.cards);
+      runtime.save.tcgDeck = deck;
+      saveNow();
+      runtime.notice = 'Đã lưu. Bộ bài được dùng khi bắt đầu ván mới.';
+    } catch (error) { runtime.notice = error.message; }
+    renderDeck();
+  });
 }
 
 function renderTextLog(items) {
-  return `<div class="log">${items.slice(0, 12).map((item) => `<p>${escapeHtml(item.text ?? item.type)}</p>`).join('')}</div>`;
+  return `<div class="log">${items.slice(0, 12).map((item) => `<p>${escapeHtml(item.text ?? item.type ?? item)}</p>`).join('')}</div>`;
+}
+
+function openInfoDialog(title, body) {
+  const previousFocus = document.activeElement;
+  const dialog = document.createElement('dialog');
+  dialog.className = 'game-info-dialog';
+  dialog.setAttribute('aria-labelledby', 'game-info-title');
+  dialog.innerHTML = `<header class="story-heading"><h2 id="game-info-title">${escapeHtml(title)}</h2>
+    <button class="button light compact" type="button" data-close-info aria-label="Đóng" autofocus>×</button></header>${body}`;
+  dialog.querySelector('[data-close-info]').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('close', () => {
+    dialog.remove();
+    previousFocus?.focus({ preventScroll: true });
+  });
+  app.append(dialog);
+  dialog.showModal();
+  return dialog;
 }
 
 function renderChess() {
   if (!runtime.chess) runtime.chess = createChessRun(runtime.units, runtime.shopConfig, 2077);
   const run = runtime.chess;
+  const replaying = Boolean(runtime.chessReplay);
+  const locking = runtime.chessLock !== null;
+  const preparing = run.phase === 'prepare' && !locking;
+  if (!Number.isFinite(run.preparationSeconds)) run.preparationSeconds = CHESS_PREPARATION_SECONDS;
+  const opponent = run.phase === 'prepare' ? nextChessOpponent(run) : run.opponents.find(bot => bot.id === run.result?.opponentId);
+  const remaining = run.opponents.filter(bot => bot.hp > 0).length;
+  const traits = chessTraits(run.board);
+  const activeSynergies = Object.keys(CHESS_TRAITS).filter(element => traits.get(element) >= 2).length;
+  const synergies = renderSynergies(traits);
   const boardCells = Array.from({ length: 28 }, (_, index) => {
-    const x = index % 7; const y = Math.floor(index / 7);
+    const x = index % 7; const y = 3 - Math.floor(index / 7);
     const unitIndex = run.board.findIndex((unit) => unit.x === x && unit.y === y);
     const unit = run.board[unitIndex];
-    return `<button class="chess-cell ${unit ? 'occupied' : ''} ${runtime.selectedBench !== null && !unit ? 'place-target' : ''}" data-cell="${x},${y}" aria-label="Ô ${x + 1}, ${y + 1}${unit ? ', ' + escapeAttr(unit.display_name) : ''}">${unit ? `<span class="unit-symbol" style="--unit-color:${elementColors[unit.element]}">${escapeHtml(shortName(unit.display_name))}</span><small>${unit.star}★</small><b>${unit.hp} HP</b>` : `<span>${x + 1},${y + 1}</span>`}</button>`;
+    const chibi = unit ? boardChibi(unit.id, `chess:${run.seed}:p:${unitIndex}:${unit.id}`, 'E', chessPortrait(unit)) : '';
+    return `<button class="chess-cell ${unit ? 'occupied' : ''} ${runtime.selectedBench !== null && !unit && run.board.length < run.level ? 'place-target' : ''} ${runtime.selectedBoard === unitIndex && unit ? 'selected' : ''}" data-cell="${x},${y}" ${preparing && unit ? `draggable="true" data-chess-board-index="${unitIndex}"` : ''} ${preparing ? '' : 'disabled'} aria-label="Ô ${x + 1}, ${y + 1}${unit ? ', ' + escapeAttr(unit.display_name) : ''}">${unit ? `${chibi}<small>${unit.star}★</small><b>${unit.hp} HP</b>` : '<span>·</span>'}</button>`;
   }).join('');
-  const shop = run.shop.map((unit, index) => unit ? `<button class="shop-unit" data-buy="${index}" ${run.phase !== 'prepare' || run.gold < unit.cost ? 'disabled' : ''}><small>${unit.element} · T${unit.cost}</small><b>${escapeHtml(unit.display_name)}</b><span>◈ ${unit.cost}</span></button>` : `<div class="shop-unit shop-empty"><span>Đã mua</span></div>`).join('');
-  const bench = run.bench.map((unit, index) => `<button class="bench-unit ${runtime.selectedBench === index ? 'selected' : ''}" data-bench="${index}"><span class="unit-symbol" style="--unit-color:${elementColors[unit.element]}">${escapeHtml(shortName(unit.display_name))}</span><b>${escapeHtml(unit.display_name)}</b><small>${unit.star}★ · T${unit.cost}</small></button>`).join('') || '<div class="empty-message">Băng ghế trống · mua quân ở cửa hàng bên dưới</div>';
+  const owned = [...run.board, ...run.bench];
+  const shop = run.shop.map((unit, index) => {
+    if (!unit) return '<div class="shop-unit shop-empty"><span>Đã mua</span></div>';
+    const copies = owned.filter(member => member.id === unit.id && member.star === 1).length;
+    const affordable = preparing && run.gold >= unit.cost && run.bench.length < 9;
+    return `<button class="shop-unit ${copies === 2 ? 'merge-offer' : ''}" data-buy="${index}" ${affordable ? '' : 'disabled'}>
+      ${chessPortrait(unit)}<small>${ELEMENT_NAMES[unit.element]} · Bậc ${unit.cost}</small><b>${escapeHtml(unit.display_name)}</b>
+      <span>◈ ${unit.cost}</span>${copies === 2 ? '<em>Hợp thể</em>' : ''}</button>`;
+  }).join('');
+  const bench = Array.from({ length: 9 }, (_, index) => {
+    const unit = run.bench[index];
+    return unit ? `<button class="bench-unit ${runtime.selectedBench === index ? 'selected' : ''}" data-bench="${index}" aria-label="${escapeAttr(unit.display_name)} · ${unit.star} sao" ${preparing ? 'draggable="true"' : 'disabled'}>${chessPortrait(unit)}<small>${unit.star}★</small></button>` : '<div class="bench-slot" aria-hidden="true">·</div>';
+  }).join('');
+  const enemyCells = Array.from({ length: 28 }, (_, index) => {
+    const x = index % 7; const y = 3 - Math.floor(index / 7);
+    const unit = opponent?.units.find(item => item.x === x && item.y === y);
+    const chibi = unit ? boardChibi(unit.id, `chess:${run.seed}:rival:${opponent.id}:${index}:${unit.id}`, 'W', chessPortrait(unit)) : '';
+    return `<div class="chess-cell rival-cell" ${unit ? `title="${escapeAttr(unit.display_name)} · ${unit.star}★"` : 'aria-hidden="true"'}>${unit ? `${chibi}<small>${unit.star}★</small>` : '·'}</div>`;
+  }).join('');
+  const selectionHint = runtime.selectedBench !== null ? run.board.length >= run.level ? 'Đội hình đã đủ quân' : 'Chọn một ô trống trên bàn'
+    : runtime.selectedBoard !== null ? 'Chọn ô để di chuyển hoặc đổi chỗ' : 'Mua quân, rồi kéo hoặc chạm để xếp đội';
   const result = run.phase === 'finished'
-    ? `<div class="result-box ${run.result === 'victory' ? 'victory' : 'defeat'}"><strong>${run.result === 'victory' ? 'Vô địch đấu trường' : 'Run đã kết thúc'}</strong><p>${run.wins} trận thắng · ${run.losses} trận thua · ${run.hp} HP chỉ huy còn lại.</p><button class="button" data-chess-new>Bắt đầu run mới</button></div>`
-    : run.result ? `<div class="result-box ${run.result.won ? 'victory' : 'defeat'}"><strong>${run.result.won ? 'Chiến thắng' : 'Thất bại'}</strong><p>${run.result.won ? 'Đối thủ mất 12 HP.' : `Mất ${run.result.damage} HP.`} · +${run.result.income} vàng · ${run.result.ticks} tick.</p><button class="button" data-chess-next>Sang vòng tiếp</button></div>` : '';
+    ? `<div class="result-box ${run.result === 'victory' ? 'victory' : 'defeat'}"><strong>${run.result === 'victory' ? remaining ? 'Thắng lượt chơi' : 'Vô địch đấu trường' : 'Lượt chơi đã kết thúc'}</strong><p>${run.wins} trận thắng · ${run.losses} trận thua · ${run.hp} HP chỉ huy còn lại.</p><button class="button" data-chess-new>Bắt đầu lượt chơi mới</button></div>`
+    : run.result && !replaying ? `<div class="result-box ${run.result.won ? 'victory' : run.result.draw ? 'draw' : 'defeat'}">
+      <strong>${run.result.won ? 'Chiến thắng' : run.result.draw ? 'Hòa' : 'Thất bại'}</strong>
+      <p>${run.result.won ? 'Đối thủ mất 12 HP.' : run.result.draw ? 'Hai chỉ huy giữ nguyên HP.' : `Mất ${run.result.damage} HP.`} · +${run.result.income} vàng${run.result.payout ? ` (${run.result.payout.base} cơ bản · ${run.result.payout.win} thắng · ${run.result.payout.interest} lãi · ${run.result.payout.streak} chuỗi)` : ''}</p>
+      <div class="action-row"><button class="button" data-chess-next>Sang vòng tiếp</button>${run.combat?.startActors ? '<button class="button light" data-chess-replay>Xem lại</button>' : ''}</div></div>` : '';
+  const hasSelection = runtime.selectedBench !== null || runtime.selectedBoard !== null;
   shell(`
-    ${pageHeader('Đấu trường · 8 đối thủ mô phỏng', 'Đấu trường linh thú', 'Mua và bố trí quân trong nửa bàn 7×4 của bạn. Mỗi ba bản sao cùng cấp sẽ hợp thể.', 'home')}
-    <div class="chess-topbar"><div class="resource">Vòng <b>${run.round}</b> / 10</div><div class="resource">Chỉ huy <b>${run.hp}</b> HP</div><div class="resource">Cấp <b>${run.level}</b></div><div class="resource">Kinh nghiệm <b>${run.experience}/4</b></div><div class="resource">◈ <b>${run.gold}</b></div><div class="resource">${run.wins} thắng · ${run.losses} thua</div></div>
-    <div class="game-layout chess-layout"><section class="panel chess-main"><div class="panel-heading"><div><h2>${run.phase === 'prepare' ? 'Sắp xếp đội hình' : run.phase === 'combat' ? 'Combat simulation' : run.phase === 'finished' ? 'Kết thúc trận' : 'Kết quả vòng ' + run.round}</h2><p>${run.phase === 'prepare' ? `${run.board.length}/${run.level} quân trên bàn · ${run.bench.length}/9 ghế` : 'Simulation deterministic theo seed và đội hình'}</p></div><span class="phase-pill ${run.phase !== 'prepare' ? 'combat' : ''}">${run.phase}</span></div>
-      <div class="chess-grid" role="group" aria-label="Bàn cờ 7 cột 4 hàng">${boardCells}</div>
-      <div class="bench-heading"><strong>Băng ghế</strong><span>${run.bench.length}/9</span></div><div class="bench-row">${bench}</div>
-      <div class="shop-heading"><strong>Cửa hàng</strong><span>Refresh 2 vàng · cửa hàng ${run.shopLocked ? 'đã khóa' : 'mở'}</span></div><div class="shop-row">${shop}</div>
-      <div class="action-row"><button class="button light" data-chess-refresh ${run.phase !== 'prepare' || run.gold < 2 || run.shopLocked ? 'disabled' : ''}>Làm mới · 2 ◈</button><button class="button light" data-chess-lock ${run.phase !== 'prepare' ? 'disabled' : ''}>${run.shopLocked ? 'Mở khóa' : 'Khóa shop'}</button><button class="button danger" data-chess-sell ${run.phase !== 'prepare' || (!runtime.selectedBench && runtime.selectedBench !== 0 && !runtime.selectedBoard) ? 'disabled' : ''}>Bán quân đã chọn</button><button class="button" data-chess-fight ${run.phase !== 'prepare' ? 'disabled' : ''}>Khóa đội hình & chiến đấu →</button></div>
-      ${runtime.notice ? `<p class="notice">${escapeHtml(runtime.notice)}</p>` : ''}${result}
-    </section><aside class="side-stack"><section class="panel"><h2>Synergy hiện tại</h2>${renderSynergies(run.board)}</section><section class="panel"><h2>Đối thủ kế tiếp</h2><div class="data-list"><div class="data-row"><span>Đội hình</span><span>${run.opponents[(run.round - 1) % run.opponents.length]?.units.length ?? 0} quân</span></div><div class="data-row"><span>Đối thủ còn lại</span><span>${run.opponents.filter((opponent) => opponent.hp > 0).length}/7</span></div><div class="data-row"><span>Payout</span><span>+5 base · interest ≤5</span></div></div><p class="muted-copy">Đối thủ dùng đội hình bot theo seed; AI không nhận bonus chỉ số/odds.</p></section><section class="panel"><h2>Nhật ký đấu trường</h2>${renderTextLog(run.log)}</section></aside></div>
+    ${pageHeader('Auto Chess · 7 bot', 'Đấu trường linh thú', '', 'home')}
+    <div class="chess-topbar"><div class="resource">Vòng <b>${run.round}</b>/10</div><div class="resource">Chỉ huy <b>${run.hp}</b> HP</div><div class="resource">Cấp <b>${run.level}</b> · XP ${run.experience}/4</div><div class="resource">Vàng <b>${run.gold}</b></div><div class="resource">${run.wins} thắng · ${run.losses} thua</div></div>
+    <div class="chess-layout chess-workspace"><section class="panel chess-main">
+      <div class="panel-heading chess-heading"><div><h2>${locking ? 'Đã khóa đội hình' : preparing ? 'Sắp xếp đội hình' : replaying ? 'Giao tranh vòng ' + run.round : 'Kết quả vòng ' + run.round}</h2>
+        ${opponent ? `<p class="chess-opponent">Đối thủ ${opponent.id} · ${opponent.hp} HP</p>` : ''}</div>
+        ${preparing ? `<span class="phase-pill" data-chess-clock role="timer">${Math.ceil(run.preparationSeconds)} s</span>
+          <p class="chess-selection-hint">${run.board.length}/${run.level} quân · ${selectionHint}</p>` : ''}
+      </div>
+      ${replaying ? '<canvas class="chess-replay" id="chess-replay" width="760" height="480" aria-label="Giao tranh Auto Chess"></canvas><div class="action-row replay-controls"><button class="button light" data-chess-pause>Tạm dừng</button><button class="button light" data-chess-speed aria-pressed="false">2×</button><button class="button light" data-chess-skip>Bỏ qua phát lại</button><progress data-chess-replay-progress max="1" value="0" aria-label="Tiến độ giao tranh"></progress></div>'
+        : `<div class="chess-formation"><div class="chess-grid enemy-formation" role="group" aria-label="Nửa bàn đối thủ">${enemyCells}</div><div class="chess-grid" role="group" aria-label="Nửa bàn của bạn, 7 cột 4 hàng">${boardCells}</div></div>`}
+    </section><section class="panel chess-command">
+      ${result}
+      ${preparing ? `<div class="bench-heading"><strong>Băng ghế</strong><span>${run.bench.length}/9</span></div><div class="bench-row" data-chess-bench-zone>${bench}</div>
+      <div class="shop-heading"><strong>Cửa hàng</strong><span>${run.shopLocked ? 'Đã khóa' : '5 vị trí'}</span></div><div class="shop-row">${shop}</div>
+      <div class="action-row chess-primary-actions">
+        <button class="button" data-chess-fight ${!run.board.length || !opponent ? 'disabled' : ''}>Chiến đấu</button>
+        <button class="button light" data-chess-refresh ${run.gold < 2 || run.shopLocked ? 'disabled' : ''}>Làm mới · 2 ◈</button>
+        <button class="button light" data-chess-xp ${run.gold < 4 || run.level >= 9 ? 'disabled' : ''}>Nâng cấp · 4 ◈</button>
+        <button class="button light" data-chess-lock>${run.shopLocked ? 'Mở khóa' : 'Khóa cửa hàng'}</button>
+      </div>` : ''}
+      ${runtime.notice ? `<p class="notice">${escapeHtml(runtime.notice)}</p>` : ''}
+      <div class="action-row mode-shortcuts">
+        ${preparing && hasSelection ? `${runtime.selectedBoard !== null ? `<button class="button light compact" data-chess-bench ${run.bench.length >= 9 ? 'disabled' : ''}>Rút về ghế</button>` : ''}
+          <button class="button danger compact" data-chess-sell>Bán quân</button>`
+          : `<span class="interest-preview">${remaining}/7 đối thủ · Lãi +${Math.min(Math.floor(run.gold / 10), 5)} ◈</span>`}
+        ${preparing && opponent ? '<button class="button light compact" data-chess-scout>Do thám</button>' : ''}
+        <button class="button light compact" data-chess-log>Nhật ký</button>
+        <button class="button light compact chess-synergy-button" data-chess-synergy>Hiệp lực · ${activeSynergies}</button>
+      </div>
+      <div class="chess-synergy" aria-label="Hiệp lực">${synergies}</div>
+    </section></div>
   `);
+  app.querySelector('[data-chess-log]').addEventListener('click', () => openInfoDialog('Nhật ký đấu trường', renderTextLog(run.log)));
+  app.querySelector('[data-chess-synergy]').addEventListener('click', () => openInfoDialog('Hiệp lực đội hình', synergies));
+  if (preparing) bindChessDrag(run);
+  if (replaying) {
+    app.querySelector('[data-chess-pause]').textContent = runtime.chessReplayPaused ? 'Tiếp tục' : 'Tạm dừng';
+    app.querySelector('[data-chess-speed]').setAttribute('aria-pressed', String(runtime.chessReplaySpeed === 2));
+    runtime.chessReplay.draw(app.querySelector('#chess-replay'));
+  }
   app.querySelectorAll('[data-buy]').forEach((button) => button.addEventListener('click', () => updateChess(() => buyChessOffer(runtime.chess, Number(button.dataset.buy)))));
   app.querySelectorAll('[data-bench]').forEach((button) => button.addEventListener('click', () => { runtime.selectedBench = Number(button.dataset.bench); runtime.selectedBoard = null; render(); }));
   app.querySelectorAll('[data-cell]').forEach((button) => button.addEventListener('click', () => onChessCell(button.dataset.cell)));
   app.querySelector('[data-chess-refresh]')?.addEventListener('click', () => updateChess(() => refreshChessShop(runtime.chess, runtime.units, runtime.shopConfig)));
   app.querySelector('[data-chess-lock]')?.addEventListener('click', () => updateChess(() => toggleChessLock(runtime.chess)));
+  app.querySelector('[data-chess-bench]')?.addEventListener('click', () => updateChess(() => benchChessUnit(runtime.chess, runtime.selectedBoard)));
+  app.querySelector('[data-chess-scout]')?.addEventListener('click', () => showChessScout(opponent));
   app.querySelector('[data-chess-sell]')?.addEventListener('click', sellSelectedChessUnit);
-  app.querySelector('[data-chess-fight]')?.addEventListener('click', () => updateChess(() => startChessCombat(runtime.chess)));
+  app.querySelector('[data-chess-xp]')?.addEventListener('click', () => updateChess(() => buyChessExperience(runtime.chess, runtime.units, runtime.shopConfig)));
+  app.querySelector('[data-chess-fight]')?.addEventListener('click', lockChessRound);
+  app.querySelector('[data-chess-replay]')?.addEventListener('click', () => { startChessReplay(run.combat); renderChess(); });
+  app.querySelector('[data-chess-skip]')?.addEventListener('click', () => { runtime.chessReplay = null; renderChess(); });
+  app.querySelector('[data-chess-pause]')?.addEventListener('click', event => {
+    runtime.chessReplayPaused = !runtime.chessReplayPaused;
+    event.currentTarget.textContent = runtime.chessReplayPaused ? 'Tiếp tục' : 'Tạm dừng';
+  });
+  app.querySelector('[data-chess-speed]')?.addEventListener('click', event => {
+    runtime.chessReplaySpeed = runtime.chessReplaySpeed === 2 ? 1 : 2;
+    event.currentTarget.setAttribute('aria-pressed', String(runtime.chessReplaySpeed === 2));
+  });
   app.querySelector('[data-chess-next]')?.addEventListener('click', () => updateChess(() => advanceChessRound(runtime.chess, runtime.units, runtime.shopConfig)));
   app.querySelector('[data-chess-new]')?.addEventListener('click', () => {
     runtime.chess = createChessRun(runtime.units, runtime.shopConfig, Date.now() % 999_983);
-    runtime.selectedBench = null; runtime.selectedBoard = null; runtime.notice = '';
+    runtime.selectedBench = null; runtime.selectedBoard = null; runtime.chessReplay = null; runtime.notice = '';
     saveNow(); render();
   });
   saveNow();
+}
+
+function lockChessRound() {
+  if (runtime.chess.phase !== 'prepare' || runtime.chessLock !== null) return;
+  runtime.chess.preparationSeconds = 0;
+  runtime.chessLock = 1;
+  renderChess();
+}
+
+function updateChessClock(delta) {
+  const run = runtime.chess;
+  if (run?.phase !== 'prepare' || document.hidden || app.querySelector('dialog[open]')) return;
+  if (runtime.chessLock !== null) {
+    runtime.chessLock = Math.max(0, runtime.chessLock - delta);
+    if (runtime.chessLock === 0) {
+      runtime.chessLock = null;
+      updateChess(() => {
+        const resolved = startChessCombat(run);
+        startChessReplay(resolved.combat);
+        return resolved;
+      });
+    }
+    return;
+  }
+  run.preparationSeconds = Math.max(0, run.preparationSeconds - delta);
+  const display = app.querySelector('[data-chess-clock]');
+  const seconds = Math.ceil(run.preparationSeconds);
+  if (display && display.textContent !== seconds + ' s') {
+    display.textContent = seconds + ' s';
+    display.classList.toggle('clock-urgent', seconds <= 5);
+    if (seconds % 5 === 0) saveNow();
+  }
+  if (run.preparationSeconds === 0) lockChessRound();
+}
+
+function bindChessDrag(run) {
+  let source;
+  const cells = [...app.querySelectorAll('[data-cell]')];
+  const bench = app.querySelector('[data-chess-bench-zone]');
+  const dropAllowed = cell => source?.zone === 'board' || (source?.zone === 'bench'
+    && !cell.classList.contains('occupied') && run.board.length < run.level);
+  const clear = () => {
+    source = null;
+    for (const cell of [...cells, bench]) delete cell.dataset.dropState;
+  };
+  for (const button of app.querySelectorAll('[draggable="true"]')) {
+    button.addEventListener('dragstart', event => {
+      const fromBoard = button.dataset.chessBoardIndex !== undefined;
+      source = { zone: fromBoard ? 'board' : 'bench', index: Number(fromBoard ? button.dataset.chessBoardIndex : button.dataset.bench) };
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', button.getAttribute('aria-label'));
+    });
+    button.addEventListener('dragend', clear);
+  }
+  for (const cell of cells) {
+    cell.addEventListener('dragover', event => {
+      if (!source) return;
+      event.preventDefault();
+      const allowed = dropAllowed(cell);
+      cell.dataset.dropState = allowed ? cell.classList.contains('occupied') ? 'swap' : 'valid' : 'blocked';
+      event.dataTransfer.dropEffect = allowed ? 'move' : 'none';
+    });
+    cell.addEventListener('dragleave', event => { if (!cell.contains(event.relatedTarget)) delete cell.dataset.dropState; });
+    cell.addEventListener('drop', event => {
+      event.preventDefault();
+      if (!dropAllowed(cell)) return clear();
+      runtime.selectedBench = source.zone === 'bench' ? source.index : null;
+      runtime.selectedBoard = source.zone === 'board' ? source.index : null;
+      clear();
+      onChessCell(cell.dataset.cell);
+    });
+  }
+  bench.addEventListener('dragover', event => {
+    if (source?.zone !== 'board') return;
+    event.preventDefault();
+    bench.dataset.dropState = run.bench.length < 9 ? 'valid' : 'blocked';
+    event.dataTransfer.dropEffect = run.bench.length < 9 ? 'move' : 'none';
+  });
+  bench.addEventListener('dragleave', event => { if (!bench.contains(event.relatedTarget)) delete bench.dataset.dropState; });
+  bench.addEventListener('drop', event => {
+    event.preventDefault();
+    if (source?.zone === 'board' && run.bench.length < 9) {
+      const index = source.index;
+      clear();
+      updateChess(() => benchChessUnit(run, index));
+    } else clear();
+  });
+}
+
+function showChessScout(opponent) {
+  const tiles = Array.from({ length: 28 }, (_, index) => {
+    const x = index % 7;
+    const y = Math.floor(index / 7);
+    const unit = opponent.units.find(item => item.x === x && item.y === y);
+    return `<div class="chess-scout-cell" ${unit ? `title="${escapeAttr(unit.display_name)} · ${unit.star}★"` : 'aria-hidden="true"'}>${unit ? `${chessPortrait(unit)}<b>${unit.star}★</b>` : '·'}</div>`;
+  });
+  const roster = opponent.units.map(unit => `<li><strong>${escapeHtml(unit.display_name)}</strong><span>${unit.star}★ · ${unit.hp} HP · ${unit.atk} ATK</span></li>`);
+  openInfoDialog(`Do thám đối thủ ${opponent.id}`, `<p>${opponent.hp} HP chỉ huy · Hàng trên cùng gần đội bạn nhất</p>
+    <div class="chess-scout-grid" aria-label="Nửa bàn 7 cột, 4 hàng của đối thủ">${tiles.join('')}</div><ul class="chess-scout-roster">${roster.join('')}</ul>`);
+}
+
+function chessPortrait(unit) {
+  return `<img class="chess-portrait" src="${escapeAttr(cardArt({ character_id: unit.id }))}" alt="">`;
+}
+
+function startChessReplay(combat) {
+  runtime.chessReplay = new ChessReplay(combat, spriteRenderer, app.dataset.motion === 'reduced');
+  runtime.chessReplayPaused = false;
+  runtime.chessReplaySpeed = 1;
+}
+
+function drawChessReplay(delta) {
+  const canvas = app.querySelector('#chess-replay');
+  if (!canvas || !runtime.chessReplay) return;
+  if (runtime.chessReplayPaused) return;
+  const replay = runtime.chessReplay;
+  const ended = replay.advance(delta * runtime.chessReplaySpeed, event => runtime.audio.handle(event));
+  replay.draw(canvas);
+  app.querySelector('[data-chess-replay-progress]').value = Math.min(1, replay.elapsed / replay.duration);
+  if (ended) {
+    runtime.chessReplay = null;
+    if (runtime.chess.result?.won) runtime.audio.play('sfx_victory');
+    renderChess();
+  }
 }
 
 function onChessCell(coordinates) {
   const [x, y] = coordinates.split(',').map(Number);
   try {
     if (runtime.selectedBench !== null) runtime.chess = placeChessUnit(runtime.chess, runtime.selectedBench, x, y);
-    else if (runtime.selectedBoard !== null) runtime.chess = moveChessUnit(runtime.chess, runtime.selectedBoard, x, y);
+    else if (runtime.selectedBoard !== null) {
+      runtime.chess = moveChessUnit(runtime.chess, runtime.selectedBoard, x, y);
+      runtime.selectedBoard = null;
+    }
     else {
       const index = runtime.chess.board.findIndex((unit) => unit.x === x && unit.y === y);
       if (index >= 0) runtime.selectedBoard = index;
@@ -594,63 +1826,207 @@ function sellSelectedChessUnit() {
 }
 
 function updateChess(action) {
-  try { runtime.chess = action(); runtime.notice = ''; saveNow(); }
+  try { runtime.chess = action(); runtime.selectedBench = null; runtime.selectedBoard = null; runtime.notice = ''; saveNow(); }
   catch (error) { runtime.notice = error.message; }
   render();
 }
 
-function renderSynergies(board) {
-  const counts = new Map();
-  for (const unit of board) counts.set(unit.element, (counts.get(unit.element) ?? 0) + 1);
-  const elements = ['fire', 'water', 'wood', 'light', 'shadow'];
-  return `<div class="synergy-list">${elements.map((element) => { const count = counts.get(element) ?? 0; return `<div class="synergy-row"><i class="element-dot" style="background:${elementColors[element]}"></i><span>${element}</span><strong>${count >= 2 ? 'Kích hoạt' : count ? '1 / 2' : 'Chưa có'}</strong></div>`; }).join('')}</div>`;
+function renderSynergies(counts) {
+  return `<div class="synergy-list">${Object.entries(CHESS_TRAITS).map(([element, trait]) => {
+    const count = counts.get(element) ?? 0;
+    return `<div class="synergy-row ${count >= 2 ? 'active' : ''}"><i class="element-dot" style="background:${elementColors[element]}"></i><div><strong>${trait.name}</strong><small>${trait.detail}</small></div><b>${Math.min(2, count)}/2</b></div>`;
+  }).join('')}</div>`;
 }
 
+const SPIRIT_TABS = { info: 'Thông tin', skills: 'Kỹ năng', gear: 'Trang bị', bond: 'Quan hệ' };
+const SPIRIT_ROLES = { fighter: 'Đấu sĩ', mage: 'Pháp sư', support: 'Hỗ trợ', guardian: 'Hộ vệ', assassin: 'Sát thủ' };
+
 function renderRoster() {
-  shell(`${pageHeader('Hồ sơ · Adventure stat scale', 'Đội hình Vị Linh', 'Cùng nhận diện nhân vật; đồ họa chính thức đã được tích hợp.', 'home')}<section class="roster-grid">${runtime.save.roster.map((actor) => `<article class="roster-card"><div class="roster-avatar" style="--unit-color:${elementColors[actor.element]}"><img src="./assets/avatars/avatar_${actor.id.replace('chr_', '')}.png" alt="${escapeAttr(characterNames[actor.id])}" style="width:100%;height:100%;border-radius:inherit;object-fit:cover;" onerror="this.style.display='none'"><span>${escapeHtml(shortName(characterNames[actor.id]))}</span></div><div><div class="eyebrow">${actor.element} · ${actor.role}</div><h2>${escapeHtml(characterNames[actor.id])}</h2><div class="data-list"><div class="data-row"><span>HP</span><b>${actor.hp}/${actor.maxHp}</b></div><div class="data-row"><span>ATK</span><b>${actor.atk}</b></div><div class="data-row"><span>DEF</span><b>${actor.def}</b></div></div></div></article>`).join('')}</section>`);
+  const { save } = runtime;
+  const member = save.roster.find(actor => actor.id === runtime.rosterId) ?? save.roster[0];
+  const profile = spiritProfile(save, member.id);
+  const battleActive = Boolean(runtime.adventure.battle);
+  const name = characterNames[member.id];
+  const title = `Hệ ${ELEMENT_NAMES[member.element]} · ${SPIRIT_ROLES[member.role]}`;
+  shell(`${pageHeader('Phiêu lưu', 'Hồ sơ Vị Linh', '', 'adventure')}
+    <section class="panel spirit-profile">
+      <div class="spirit-portrait" style="--unit-color:${elementColors[member.element]}">
+        <img src="${escapeAttr(actorArt(member.id))}" alt="">
+        <div class="spirit-portrait-label"><span>${title}</span><h2>${escapeHtml(name)}</h2></div>
+      </div>
+      <div class="spirit-detail">
+        <div class="spirit-tabs" role="group" aria-label="Mục hồ sơ">${Object.entries(SPIRIT_TABS).map(([id, label]) =>
+          `<button class="button light" data-spirit-tab="${id}" aria-pressed="${runtime.rosterTab === id}">${label}</button>`).join('')}</div>
+        <div class="spirit-tab-body">${renderSpiritTab(member, profile, battleActive)}</div>
+        ${battleActive && runtime.rosterTab !== 'skills' ? '<p class="muted-copy">Kết thúc trận Adventure để nâng cấp, đổi trang bị hoặc tặng quà.</p>' : ''}
+        ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}
+      </div>
+      <div class="spirit-picker" role="group" aria-label="Chọn Vị Linh">${save.roster.map(actor =>
+        `<button class="spirit-choice" data-spirit-choice="${escapeAttr(actor.id)}" aria-pressed="${actor.id === member.id}">
+          <img src="${escapeAttr(actorArt(actor.id))}" alt=""><span>${escapeHtml(characterNames[actor.id])}</span></button>`).join('')}</div>
+    </section>`);
+  app.querySelectorAll('[data-spirit-choice], [data-spirit-tab]').forEach(button => button.addEventListener('click', () => {
+    const { spiritChoice, spiritTab } = button.dataset;
+    if (spiritChoice) runtime.rosterId = spiritChoice;
+    if (spiritTab) runtime.rosterTab = spiritTab;
+    runtime.notice = '';
+    renderRoster();
+    app.querySelector(`[data-${spiritChoice ? 'spirit-choice' : 'spirit-tab'}="${CSS.escape(spiritChoice ?? spiritTab)}"]`)?.focus({ preventScroll: true });
+  }));
+  app.querySelectorAll('[data-spirit-action]').forEach(button => button.addEventListener('click', () => {
+    const { spiritAction: type, gearId } = button.dataset;
+    try {
+      runtime.save = changeSpiritProgress(runtime.save, { type, id: member.id, gearId }, Boolean(runtime.adventure.battle));
+      saveNow();
+      runtime.audio.play('sfx_ui_confirm');
+      runtime.notice = ({ rank: 'Đã nâng cấp Vị Linh.', craft: 'Đã chế tác và đưa vào kho.', equip: 'Đã trang bị.', unequip: 'Đã đưa trang bị về kho.', gift: 'Mức quan hệ đã tăng.' })[type];
+    } catch (error) {
+      runtime.notice = error.message;
+    }
+    renderRoster();
+    app.querySelector('[data-spirit-tab][aria-pressed="true"]')?.focus({ preventScroll: true });
+  }));
 }
+
+function renderSpiritTab(member, profile, battleActive) {
+  const { save } = runtime;
+  if (runtime.rosterTab === 'skills') {
+    const skill = adventureBalance.ultimates[member.id];
+    return `<div class="spirit-skill"><img src="${effectArt(member.element, 'impact')}" alt=""><div><h3>${skill.name}</h3>
+      <p>${skill.description}</p><small>100 năng lượng · hồi ${adventureBalance.ultimateCooldown / ADVENTURE_TICK_RATE} giây</small></div></div>
+      <p class="muted-copy">Đòn thường tự dùng trong tầm. Chạm tuyệt kỹ của Vị Linh trong trận khi đã nạp đủ năng lượng.</p>`;
+  }
+  if (runtime.rosterTab === 'gear') {
+    const { ownedGear, profiles } = save.adventure.spirits;
+    return `<h3>Kho trang bị · ${ownedGear.length}/${Object.keys(SPIRIT_GEAR).length}</h3>
+      <div class="spirit-gear-grid">${Object.entries(SPIRIT_GEAR).map(([id, gear]) => {
+        const owner = save.roster.find(actor => profiles[actor.id]?.equipped.includes(id));
+        let action = 'craft';
+        let label = 'Chế tác · ' + spiritCostLabel(gear.cost);
+        let disabled = battleActive || !canAffordSpiritCost(save.player, gear.cost);
+        if (ownedGear.includes(id)) {
+          action = owner?.id === member.id ? 'unequip' : 'equip';
+          label = action === 'unequip' ? 'Tháo' : owner ? 'Đang dùng' : 'Trang bị';
+          disabled = battleActive || Boolean(owner && owner.id !== member.id);
+        }
+        return `<div class="spirit-gear-item"><span aria-hidden="true">${gear.symbol}</span><div><small>${gear.slot}</small><strong>${gear.name}</strong><small>${gear.detail}${owner ? ' · ' + escapeHtml(characterNames[owner.id]) : ''}</small></div>
+          <button class="button light" data-spirit-action="${action}" data-gear-id="${id}" ${disabled ? 'disabled' : ''}>${label}</button></div>`;
+      }).join('')}</div>`;
+  }
+  if (runtime.rosterTab === 'bond') {
+    const essence = SPIRIT_GIFTS[profile.bond];
+    return `<h3>${SPIRIT_BONDS[profile.bond]}</h3>
+      <progress max="${SPIRIT_GIFTS.length}" value="${profile.bond}" aria-label="Mức quan hệ"></progress>
+      <p>${profile.bond >= 2 ? escapeHtml(SPIRIT_MEMORIES[member.id]) : 'Tặng quà để mở ký ức khi đạt mức Tin cậy.'}</p>
+      ${essence ? `<button class="button" data-spirit-action="gift" ${battleActive || save.player.essence < essence ? 'disabled' : ''}>Tặng quà · ${essence} ✦</button>` : ''}`;
+  }
+  const stats = adventureSpiritStats(member, profile);
+  const cost = SPIRIT_RANKS[profile.rank - 1];
+  const next = cost ? adventureSpiritStats(member, profile, profile.rank + 1) : stats;
+  const values = [['HP tối đa', stats.maxHp, next.maxHp], ['ATK', stats.atk, next.atk], ['DEF', stats.def, next.def],
+    ['Tốc độ/giây', Math.round(stats.speed * ADVENTURE_TICK_RATE), Math.round(next.speed * ADVENTURE_TICK_RATE)]];
+  return `<div class="spirit-rank"><strong>Cấp ${profile.rank}/${MAX_SPIRIT_RANK}</strong><progress max="${MAX_SPIRIT_RANK}" value="${profile.rank}" aria-label="Cấp Vị Linh"></progress></div>
+    <dl class="spirit-stats">${values.map(([label, current, upgraded]) => `<div><dt>${label}</dt><dd><b>${current.toLocaleString('vi')}</b>${upgraded > current ? ` <small>→ ${upgraded.toLocaleString('vi')}</small>` : ''}</dd></div>`).join('')}</dl>
+    ${cost ? `<button class="button" data-spirit-action="rank" ${battleActive || !canAffordSpiritCost(save.player, cost) ? 'disabled' : ''}>Nâng cấp · ${spiritCostLabel(cost)}</button>` : '<p>Đã đạt cấp tối đa.</p>'}`;
+}
+
+function spiritCostLabel(cost) { return `${cost.gold} ◈ + ${cost.essence} ✦`; }
 
 function renderSettings() {
   const settings = runtime.save.settings;
-  shell(`${pageHeader('Thiết bị này · save local', 'Cài đặt', 'Tùy chỉnh âm thanh và chuyển động. Audio buses đã có state, chờ asset âm thanh được gắn sau.', 'home')}<section class="settings-list panel">${[['music', 'Nhạc'], ['sfx', 'Hiệu ứng'], ['voice', 'Giọng nói'], ['ambience', 'Môi trường']].map(([key, label]) => `<label class="setting-row"><span>${label}</span><input type="range" min="0" max="100" value="${settings[key]}" data-setting="${key}"><b>${settings[key]}%</b></label>`).join('')}<label class="setting-row"><span>Giảm chuyển động</span><input type="checkbox" data-setting-motion ${settings.reducedMotion ? 'checked' : ''}><b>${settings.reducedMotion ? 'Bật' : 'Tắt'}</b></label><div class="action-row"><button class="button danger" data-reset-save>Khởi tạo lại tiến trình</button></div></section>`);
-  app.querySelectorAll('[data-setting]').forEach((input) => input.addEventListener('input', () => { runtime.save.settings[input.dataset.setting] = Number(input.value); input.nextElementSibling.textContent = `${input.value}%`; saveNow(); }));
-  app.querySelector('[data-setting-motion]')?.addEventListener('change', (event) => { runtime.save.settings.reducedMotion = event.target.checked; runtime.animations.setReducedMotion(event.target.checked); saveNow(); renderSettings(); });
-  app.querySelector('[data-reset-save]')?.addEventListener('click', () => { if (!confirm('Xóa tiến trình đã lưu trên thiết bị này?')) return; localStorage.removeItem('soul-of-meal.save.v2'); localStorage.removeItem('soul-of-meal.save.v1'); window.location.reload(); });
+  const guestActions = runtime.cloud ? '' : '<div class="action-row"><button class="button light" data-page="title">Về màn hình bắt đầu</button><button class="button danger" data-reset-save>Khởi tạo lại tiến trình</button></div>';
+  const cloudPanel = runtime.cloud ? `<section class="settings-list panel cloud-panel"><h2>Tài khoản ${escapeHtml(runtime.account.username)}</h2><p>Tiến trình luyện tập lưu trên máy chủ.</p><p role="status" data-cloud-status></p><div class="action-row"><button class="button light" data-cloud-action="retry" hidden>Thử lưu lại</button><button class="button light" data-cloud-action="reload" hidden>Tải bản trên máy chủ</button><button class="button light" data-cloud-action="reauth" hidden>Đăng nhập lại</button><button class="button danger" data-cloud-action="logout">Lưu và đăng xuất</button></div></section>` : '';
+  shell(`${pageHeader(runtime.cloud ? 'Tài khoản' : 'Thiết bị này', 'Cài đặt', '', 'home')}<section class="settings-list panel">${[['music', 'Nhạc'], ['sfx', 'Hiệu ứng'], ['ambience', 'Môi trường']].map(([key, label]) => `<label class="setting-row"><span>${label}</span><input type="range" min="0" max="100" value="${settings[key]}" data-setting="${key}"><b>${settings[key]}%</b></label>`).join('')}<label class="setting-row"><span>Giảm chuyển động</span><input type="checkbox" data-setting-motion ${settings.reducedMotion ? 'checked' : ''}><b>${settings.reducedMotion ? 'Bật' : 'Tắt'}</b></label>${guestActions}</section>${cloudPanel}`);
+  app.querySelectorAll('[data-setting]').forEach((input) => input.addEventListener('input', () => { runtime.save.settings[input.dataset.setting] = Number(input.value); input.nextElementSibling.textContent = `${input.value}%`; runtime.audio.setSettings(runtime.save.settings); saveNow(); }));
+  app.querySelector('[data-setting-motion]')?.addEventListener('change', (event) => { runtime.save.settings.reducedMotion = event.target.checked; syncMotion(); saveNow(); renderSettings(); });
+  app.querySelector('[data-reset-save]')?.addEventListener('click', () => {
+    if (!confirm('Xóa tiến trình đã lưu trên thiết bị này?')) return;
+    localStorage.removeItem(SAVE_KEY);
+    localStorage.removeItem('soul-of-meal.save.v1');
+    window.location.reload();
+  });
+  app.querySelectorAll('[data-cloud-action]').forEach(button =>
+    button.addEventListener('click', () => runCloudAction(button.dataset.cloudAction)));
 }
 
 function render() {
+  if (runtime.page === 'title') {
+    runtime.audio.setScene(resolveSoundScene('title', runtime.adventure));
+    return renderEntry(app, enterGame, accountApi
+      ? () => openAccountDialog(app, accountApi, enterAccount)
+      : null);
+  }
   if (runtime.page === 'home') return renderHome();
   if (runtime.page === 'adventure') return renderAdventure();
+  if (runtime.page === 'journey') return renderAdventureJournal();
   if (runtime.page === 'tcg') return renderTcg();
   if (runtime.page === 'chess') return renderChess();
   if (runtime.page === 'roster') return renderRoster();
+  if (runtime.page === 'deck') return renderDeck();
   if (runtime.page === 'settings') return renderSettings();
   runtime.page = 'home'; renderHome();
 }
 
-function cardName(card) { return card.display_name?.replace('Soul of Meal Sample', 'Lá chiến thuật') ?? card.card_id; }
-function shortName(name = '') { return name.split(/\s+/).slice(0, 2).map((word) => word[0]).join(''); }
+function cardName(card) {
+  return runtime.cards.cards.find((entry) => entry.card_id === card.card_id)?.display_name ?? card.display_name ?? card.card_id;
+}
 function escapeHtml(value = '') { return String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]); }
 function escapeAttr(value = '') { return escapeHtml(value); }
 
 window.addEventListener('keydown', (event) => {
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+  if (event.target?.matches?.('input, select, textarea') || app.querySelector('dialog[open]')) return;
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'w', 'a', 's', 'd'].includes(key) && runtime.page === 'adventure') {
     runtime.heldKeys.add(key); event.preventDefault();
   }
-  if ((key === 'e' || key === 'Enter') && runtime.page === 'adventure' && !runtime.adventure.battle) doAdventureInteract();
+  if (event.repeat || runtime.page !== 'adventure') return;
+  if (key === 'e' && !runtime.adventure.battle) doAdventureInteract();
+  if (/^[1-5]$/.test(key) && runtime.adventure.battle) {
+    const button = app.querySelectorAll('[data-ultimate]')[Number(key) - 1];
+    if (button && !button.disabled) useUltimate(button.dataset.ultimate);
+  }
+  if (key === '6' || key === '7') selectBossStove('boss_stove_' + (Number(key) - 5));
+  if (key === 'f') app.querySelector('[data-lantern-ward]')?.click();
+  if (key === 'r') app.querySelector('[data-tide-retreat]')?.click();
+  if (key === 'p') app.querySelector('[data-battle-pause]')?.click();
 });
 window.addEventListener('keyup', (event) => runtime.heldKeys.delete(event.key.length === 1 ? event.key.toLowerCase() : event.key));
-window.addEventListener('blur', () => runtime.heldKeys.clear());
+window.addEventListener('blur', () => {
+  runtime.heldKeys.clear();
+  runtime.worldStick = null;
+});
+window.addEventListener('focus', () => { if (runtime.page === 'home') void checkForContentUpdate(); });
 
-setInterval(() => {
-  if (runtime.page === 'adventure') drawAdventureFrame(1 / 30);
-}, 1000 / 30);
-
-try {
-  await loadContent();
-  render();
-  saveNow();
-} catch (error) {
-  app.innerHTML = `<main class="error-screen"><div class="eyebrow">Không thể khởi tạo game</div><h1>Dữ liệu chưa tải được</h1><p>${escapeHtml(error.message)}</p><p>Hãy chạy client từ server ở package root để các catalog trong <code>examples/</code> khả dụng.</p><button class="button" onclick="location.reload()">Thử lại</button></main>`;
+let lastFrame = 0;
+function animate(now) {
+  const delta = Math.min(.1, (now - (lastFrame || now)) / 1000);
+  lastFrame = now;
+  if (runtime.page === 'adventure' && runtime.animations) drawAdventureFrame(delta);
+  if (runtime.page === 'chess') {
+    if (runtime.chessReplay) drawChessReplay(delta);
+    else updateChessClock(delta);
+  }
+  if (runtime.page === 'tcg' || (runtime.page === 'chess' && !runtime.chessReplay)) {
+    const reducedMotion = app.dataset.motion === 'reduced';
+    boardSprites.paint(app, delta, now, reducedMotion);
+    if (runtime.page === 'tcg') {
+      duelEffects.paint(app.querySelector('.duel-effects'), runtime.tcg?.battleId, now, reducedMotion,
+        event => runtime.audio.handle(event));
+    }
+  }
+  requestAnimationFrame(animate);
 }
+requestAnimationFrame(animate);
+
+if (import.meta.env?.MODE) {
+  import('./shell/webStage.ts').then(({ mountWebStage }) => {
+    webStage = mountWebStage(stageHost);
+    syncMotion();
+    syncStage();
+  }).catch((error) => console.warn('Không mở được cảnh Phaser.', error));
+}
+
+systemMotion.addEventListener('change', syncMotion);
+syncMotion();
+syncStage();
+render();

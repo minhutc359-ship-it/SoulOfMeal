@@ -1,8 +1,10 @@
 # Animation Integration Spec — Browser Runtime
 
-**Version:** 1.0  
-**Status:** Adapter scaffold implemented in the local browser client; no production animation assets are included. This spec remains the agent contract for connecting subsequently approved assets.  
-**Purpose:** Give an implementation agent one self-contained contract for connecting approved animation assets to gameplay without making animation authoritative.
+**Version** 1.1
+
+**Status** Current Canvas playtest adapter and original sprite assets exist. This spec describes the presentation contract. The [v3.2 Web Asset Pipeline](WEB_ASSET_PIPELINE.md) defines the target Phaser and Spine integration.
+
+**Purpose** Give an implementation agent one self-contained contract for connecting approved animation assets to gameplay without making animation authoritative.
 
 ## 1. Read First
 
@@ -13,7 +15,7 @@ Before implementation, read:
 3. `docs/00_foundation/PROJECT_BIBLE.md` for character identity and element IDs.
 4. `client/src/core/events.js` and `client/src/modes/*.js` for actual event payloads.
 
-Do not infer runtime behavior from text or numbers baked into concept images. Do not generate, modify or claim approved animation art as part of this integration task. The project owner supplies or approves animation assets separately.
+Use rulebooks, catalogs and event payloads for runtime behavior. Concept images guide presentation. Record art approval independently of adapter integration.
 
 ## 2. Non-Negotiable Runtime Rules
 
@@ -51,7 +53,9 @@ The current envelope is:
 
 Only `type`, `seq`, `tick`, and `payload` are consistently supplied by the bus. Context fields are optional, not nullable guarantees. TCG may add `action_seq`. `seq` is currently allocated globally by one in-memory event bus; it is not a per-battle sequence, persisted replay cursor or cross-session ID. Do not assume events for a battle start at zero or are contiguous.
 
-The browser entry point exposes the adapter as `window.soulOfMealAnimation`. VFX/audio/transition consumers should subscribe to its `presentation-event` and route `detail.actions`; do not attach independent handlers to both this adapter and the mirrored `soul:game-event` stream for the same cue.
+The browser entry point exposes the adapter as `window.soulOfMealAnimation`. The Canvas playtest routes battle effects and audio from the internal bus in `main.js`, with Auto Chess audio following replay timing. A presentation consumer using the adapter’s `presentation-event` should route `detail.actions` once per cue.
+
+The Canvas playtest uses a 2D deformation rig for the five starting Vị Linh, the two animated mobs and Bún Bò's travel atlas. The renderer samples clip progress and deforms the atlas between four anchored body regions. It retains the original frames, pivot and facing. Reduced motion uses the undeformed frame. TCG flight, contact and impact audio share a presentation clock, and Auto Chess reads windup and contact from the replay. The simulation owns HP and reward changes.
 
 ### Events currently emitted by the browser runtime
 
@@ -72,15 +76,15 @@ These are implementation gaps, not permission for the adapter to guess:
 
 - Adventure movement is currently driven by local state/input, not `move_started`/`move_stopped` events.
 - Adventure basic-attack windup is not emitted separately; the adapter can show a short attack reaction on `hit_resolved`, but must not pretend this is frame-accurate anticipation.
-- Canvas presentation currently has no shared actor-view model for mapping simulation actor IDs to world/screen coordinates, anchors or sockets.
+- Adventure has an actor-view registry. There is no shared cross-mode world/screen transform and socket contract in the playtest.
 - TCG and Auto Chess event context is inconsistent. Some IDs are card IDs or per-match instance IDs rather than character IDs.
-- The browser client has a clip player, animation-manifest validation, event adapter and reduced-motion support. `SpriteRenderer` can draw frame-ID atlas rectangles when atlas metadata is loaded, while preserving the legacy grid-sheet path. The approved manifest/atlas assets are not yet wired through the adapter at runtime; VFX rendering and the audio event bridge are also still absent.
+- The browser client has a clip player, animation-manifest validation, event adapter and reduced-motion support. `SpriteRenderer` can draw frame-ID atlas rectangles when atlas metadata is loaded, while preserving the legacy grid-sheet path. Original playtest manifest/atlas pairs load into the adapter. The elemental VFX and audio bridge are live in the playtest. Production art and timing coverage are tracked separately.
 
 The agent must document and test any event/context additions it makes. Prefer adding optional presentation cues or context fields without changing existing gameplay results or removing current event types.
 
-## 4. Target Integration Layout
+## 4. Playtest Integration Layout
 
-Implement the adapter in small modules following the current vanilla ES module client style:
+The current vanilla JavaScript adapter uses these modules:
 
 ```text
 client/src/render/
@@ -95,19 +99,19 @@ client/src/render/
 - `client/src/render/clipPlayer.js`: frame-ID timing, looping, one-shot completion, interruption priority, reduced-motion freeze and manifest validation.
 - `client/src/render/actorViewRegistry.js`: render-only actor identity/transform registry and scene retention.
 - `client/src/render/animationAdapter.js`: subscribes to the internal `game-event` bus, normalizes optional IDs, deduplicates `seq`, maps spawn/cast/hit/death/result events to clip state, maps scene/wave/boss/trap/summon/chess events to presentation cue IDs, and falls back when a manifest/clip is missing.
-- `client/src/main.js`: syncs Adventure actor transforms and locomotion from runtime state; applies procedural pose transforms to the existing Canvas placeholders.
-- `client/src/render/spriteRenderer.js`: draws atlas rectangles by the clip snapshot's `frameId`, applies normalized anchors and falls back safely on missing/out-of-bounds frames. Approved atlas loading and wiring to the animation adapter remain pending.
+- `client/src/main.js`: syncs Adventure actor transforms and locomotion from runtime state, draws the frame-backed sprites, and falls back on a procedural pose if needed.
+- `client/src/render/spriteRenderer.js`: draws atlas rectangles by the clip snapshot's `frameId`, applies normalized anchors and falls back safely on missing/out-of-bounds frames.
+- `client/src/render/spriteAssets.js`: preloads the original playtest atlases and clip manifests for five battle heroes and Bún Bò’s travel sprite.
+- `client/src/render/battleEffects.js`, `client/src/render/chessReplay.js`, and `client/src/core/audio.js`: present combat effects, Auto Chess replay, and sound cues from resolved runtime events.
 
-No image atlas loader or approved animation frames exist yet. The code only proves the event-to-presentation boundary and visible placeholder response. The remaining agent work is to connect approved frame/atlas data, implement an actual sprite draw path and cover the additional mode-specific visual states without changing the rules contract.
-
-Do not add an animation framework or renderer dependency until the approved engine benchmark selects one. The initial adapter must work with the existing Canvas 2D presentation and remain renderer-independent at the event/manifest boundary. Keep asset files under the project pipeline convention, for example:
+Use this checkpoint for fixture parity. The [engine architecture](../03_engineering/ENGINE_ARCHITECTURE.md) selects Phaser 4 and Spine for the target and defines the benchmark. Keep asset files under the project pipeline convention, for example:
 
 ```text
 assets/characters/<character_id>/<skin_id>/animations/<clip_id>/<direction>/...
 assets/characters/<character_id>/<skin_id>/atlases/...
 ```
 
-If the project later selects a different engine or asset root, change the adapter through a documented migration; do not create a second undocumented naming system.
+Use the [Web Asset Pipeline](WEB_ASSET_PIPELINE.md) when migrating the adapter and asset lookup to Phaser.
 
 ## 5. Manifest Contract
 
@@ -191,24 +195,14 @@ Rules:
 - On missing actor, manifest or frame, log a development warning once and show the existing placeholder. Never stall the frame loop or match.
 - Respect `settings.reducedMotion`: suppress optional shake/cutin/long transitions while preserving state labels, telegraph readability and final outcome.
 
-## 8. Remaining Agent Deliverables
+## 8. Target Integration Work
 
-The technical adapter scaffold, manifest validation, Adventure actor-view mapping, event cue routing and focused Node tests are implemented. The next animation agent should complete only the asset-backed tasks below; do not rebuild the existing modules or claim art that was not provided.
+1. Map the current clip events and content IDs to the Phaser presentation adapter. Load frame atlases or Spine rigs through the versioned asset manifest.
+2. Verify the Golden Sample’s ground anchor, facing, socket mapping, clip timing, and recovery when a clip or asset is unavailable.
+3. Align remaining cast, travel, impact and aftermath cues with the resolved combat event and replay timing in each mode. Cover these cues with fixture checks.
+4. Check sprite loading and reduced motion on Chrome/Edge at the reference desktop viewport and on a supported touch viewport. Track art review and provenance separately from runtime checks.
 
-1. Load approved animation manifest(s) and atlas metadata/images through explicit asset IDs. Add a sample manifest only when it references delivered/approved frames; do not add fake PNGs.
-2. Wire approved manifests and atlas metadata/images into the existing frame-ID Canvas draw path. Keep the current procedural/shape renderer as per-actor fallback and verify the live runtime uses the approved frame IDs.
-3. Add a stable TCG/Auto Chess unit-to-character visual mapping only when the content catalog provides an approved character identity; leave demo cards with a generic placeholder otherwise.
-4. Cover remaining visual needs such as boss telegraph presentation, VFX sockets and audio cues only when source state/assets exist. These cues must remain presentation-only.
-5. Add atlas loading/draw tests and a browser smoke test with real approved frames on desktop and 390×844 mobile. Report all missing IDs/manifest entries.
-6. Refresh FILE_INDEX and document any event-context additions; keep art review/provenance approval as a separate human gate.
-
-Do not modify game rules, approved balances or save schema to make animation easier. If a necessary event lacks context, propose the smallest event-contract addition and its test separately. Do not mark art approved; human art review and provenance remain required.
-
-## 9. Copy-Ready Agent Task
-
-> Read `docs/02_art/ANIMATION_INTEGRATION_SPEC.md`, `docs/02_art/SPRITE_PIPELINE.md`, `client/README.md`, and the existing files under `client/src/render/`. Complete the asset-backed animation integration without replacing the existing adapter. Use approved manifest/atlas files only; otherwise preserve the current placeholder. Keep gameplay decisions authoritative in simulation. Add actual atlas loading/draw tests, perform desktop and 390×844 mobile smoke checks when approved frames are present, update docs/FILE_INDEX and report asset/event gaps. Do not generate animation assets or change game rules.
-
-## 10. Definition of Done
+## 9. Definition of Done
 
 - Every currently emitted event is either mapped, intentionally ignored with a documented reason, or listed as requiring an event-contract change.
 - Missing/corrupt animation data never breaks startup, input, simulation, save, result or route transitions.

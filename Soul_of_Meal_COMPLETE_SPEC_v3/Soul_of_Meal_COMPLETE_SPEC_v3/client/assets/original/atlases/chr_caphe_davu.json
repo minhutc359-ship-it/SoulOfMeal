@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "character_id": "chr_caphe_davu",
+  "skin_id": "default",
+  "asset_version": "original-chibi-preview-1",
+  "atlas": "chr_caphe_davu.webp",
+  "frames": {
+    "chr_caphe_davu_pose_00": {
+      "x": 2,
+      "y": 2,
+      "w": 160,
+      "h": 160
+    },
+    "chr_caphe_davu_pose_01": {
+      "x": 166,
+      "y": 2,
+      "w": 160,
+      "h": 160
+    },
+    "chr_caphe_davu_pose_02": {
+      "x": 330,
+      "y": 2,
+      "w": 160,
+      "h": 160
+    },
+    "chr_caphe_davu_pose_03": {
+      "x": 494,
+      "y": 2,
+      "w": 160,
+      "h": 160
+    },
+    "chr_caphe_davu_pose_04": {
+      "x": 2,
+      "y": 166,
+      "w": 160,
+      "h": 160
+    },
+    "chr_caphe_davu_pose_05": {
+      "x": 166,
+      "y": 166,
+      "w": 160,
+      "h": 160
+    },
+    "chr_caphe_davu_pose_06": {
+      "x": 330,
+      "y": 166,
+      "w": 160,
+      "h": 160
+    },
+    "chr_caphe_davu_pose_07": {
+      "x": 494,
+      "y": 166,
+      "w": 160,
+      "h": 160
+    }
+  },
+  "clips": {
+    "idle": {
+      "fps": 3,
+      "loop": true,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_caphe_davu_pose_00",
+            "chr_caphe_davu_pose_07"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "walk": {
+      "fps": 7,
+      "loop": true,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_caphe_davu_pose_01",
+            "chr_caphe_davu_pose_02"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "run": {
+      "fps": 10,
+      "loop": true,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_caphe_davu_pose_01",
+            "chr_caphe_davu_pose_02"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "attack_a": {
+      "fps": 9,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_caphe_davu_pose_03",
+            "chr_caphe_davu_pose_04",
+            "chr_caphe_davu_pose_00"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "attack_b": {
+      "fps": 10,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_caphe_davu_pose_03",
+            "chr_caphe_davu_pose_04",
+            "chr_caphe_davu_pose_07",
+            "chr_caphe_davu_pose_00"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "skill_01": {
+      "fps": 9,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_caphe_davu_pose_03",
+            "chr_caphe_davu_pose_04",
+            "chr_caphe_davu_pose_06",
+            "chr_caphe_davu_pose_00"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "ultimate_01": {
+      "fps": 6,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_caphe_davu_pose_03",
+            "chr_caphe_davu_pose_06",
+            "chr_caphe_davu_pose_04",
+            "chr_caphe_davu_pose_07"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "hit": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_caphe_davu_pose_05",
+            "chr_caphe_davu_pose_00"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "defeat": {
+      "fps": 2,
+      "loop": true,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_caphe_davu_pose_05"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "victory": {
+      "fps": 3,
+      "loop": true,
+      "directions": {
+        "E": {
+          "frames": [
+            "chr_caphe_davu_pose_07",
+            "chr_caphe_davu_pose_00"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    }
+  }
+}

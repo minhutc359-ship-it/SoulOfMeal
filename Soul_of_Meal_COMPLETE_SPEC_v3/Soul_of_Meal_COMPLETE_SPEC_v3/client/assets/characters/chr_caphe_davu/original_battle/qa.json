@@ -1,0 +1,10 @@
+{
+  "character_id": "chr_caphe_davu",
+  "checked_frames": 8,
+  "errors": [],
+  "warnings": [
+    "License status not approved; do not ship to production",
+    "Identity not yet human-approved"
+  ],
+  "pass": true
+}

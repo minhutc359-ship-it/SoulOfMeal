@@ -7,6 +7,7 @@ export const CLIP_PRIORITY = Object.freeze({
   attack_b: 30,
   hit: 40,
   skill_01: 50,
+  boss_release: 50,
   ultimate_01: 60,
   defeat: 100,
 });
@@ -83,12 +84,12 @@ export class ClipPlayer {
     const requestedClipId = this.current?.requestedClipId ?? this.fallbackClip;
     const previousFrameIndex = this.frameIndex ?? 0;
     const resolved = this.#resolveClip(requestedClipId);
-    this.current = { ...resolved, requestedClipId };
+    this.current = { ...resolved, requestedClipId, hold: this.current?.hold ?? false };
     this.frameIndex = Math.min(previousFrameIndex, resolved.frames.length - 1);
     this.missingClip = resolved.missing;
   }
 
-  play(requestedClipId, { force = false, restart = true } = {}) {
+  play(requestedClipId, { force = false, restart = true, hold = false } = {}) {
     const resolved = this.#resolveClip(requestedClipId);
     const nextPriority = CLIP_PRIORITY[requestedClipId] ?? 10;
     const currentPriority = CLIP_PRIORITY[this.current?.requestedClipId] ?? 10;
@@ -96,7 +97,8 @@ export class ClipPlayer {
     if (!restart && this.current?.clipId === resolved.clipId) return true;
     if (!force && this.current?.requestedClipId === requestedClipId && !this.completed && !restart) return true;
 
-    this.current = { ...resolved, requestedClipId };
+    this.current = { ...resolved, requestedClipId, hold };
+    this.frameIndex = 0;
     this.elapsedMs = 0;
     this.completed = false;
     this.missingClip = resolved.missing;
@@ -106,12 +108,13 @@ export class ClipPlayer {
   advance(deltaMs) {
     if (!this.current || !Number.isFinite(deltaMs) || deltaMs <= 0) return this.snapshot();
     const frameCount = this.current.frames.length;
-    if (this.reducedMotion) return this.snapshot();
     this.elapsedMs += deltaMs;
     const frameDuration = 1000 / this.current.fps;
     const totalFramesElapsed = Math.floor(this.elapsedMs / frameDuration);
     if (this.current.loop) {
       this.frameIndex = totalFramesElapsed % frameCount;
+    } else if (this.current.hold) {
+      this.frameIndex = Math.min(totalFramesElapsed, frameCount - 1);
     } else if (totalFramesElapsed >= frameCount) {
       this.completed = true;
       const completedClip = this.current.clipId;
@@ -126,14 +129,18 @@ export class ClipPlayer {
   snapshot() {
     if (!this.current) return null;
     const frameIndex = Math.min(this.frameIndex ?? 0, this.current.frames.length - 1);
+    const cycles = this.elapsedMs * this.current.fps / (1000 * this.current.frames.length);
     return {
       clipId: this.current.clipId,
       requestedClipId: this.current.requestedClipId,
-      frameIndex,
-      frameId: this.current.frames[frameIndex],
+      frameIndex: this.reducedMotion ? 0 : frameIndex,
+      frameId: this.current.frames[this.reducedMotion ? 0 : frameIndex],
       loop: this.current.loop,
       fps: this.current.fps,
       anchor: this.current.anchor,
+      direction: this.direction,
+      motionPhase: this.reducedMotion ? null : this.current.loop ? cycles % 1 : Math.min(1, cycles),
+      flipX: this.current.flipX ?? false,
       missingClip: this.missingClip,
       completed: this.completed,
     };
@@ -157,7 +164,10 @@ export class ClipPlayer {
   #readClip(clipId) {
     const clip = this.manifest?.clips?.[clipId];
     if (!clip) return null;
-    const direction = clip.directions?.[this.direction] ?? Object.values(clip.directions ?? {})[0];
+    const mirroredDirection = this.direction === 'E' ? 'W' : this.direction === 'W' ? 'E' : null;
+    const exact = clip.directions?.[this.direction];
+    const mirror = !exact && mirroredDirection && this.manifest.mirror_east_west && clip.directions?.[mirroredDirection];
+    const direction = exact ?? (mirror || Object.values(clip.directions ?? {})[0]);
     if (!direction?.frames?.length) return null;
     return {
       clipId,
@@ -165,6 +175,7 @@ export class ClipPlayer {
       fps: clip.fps,
       loop: clip.loop,
       anchor: direction.anchor_normalized ?? [0.5, 0.9],
+      flipX: Boolean(mirror),
     };
   }
 }

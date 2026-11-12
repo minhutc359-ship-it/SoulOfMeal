@@ -24,11 +24,15 @@ Explore → Encounter → Fight → Reward → Recruit/Develop → Build Team/De
 | `chr_banhbao_bachngoc` | Bánh Bao Bạch Ngọc | light | guardian | mascot trắng kem, mũ bếp, thìa, má hồng |
 | `chr_caphe_davu` | Cà Phê Dạ Vũ | shadow | assassin | tóc tím đen, ánh đồng, bóng tối pha cà phê |
 
+## Platform
+
+Soul of Meal is an anime 2.5D Web Client–Server game. Login, Loading, Home and every play mode share a continuous browser game shell. Online account, progression and inventory are server-owned. [SPEC v3.2](../03_engineering/ENGINE_ARCHITECTURE.md)
+
 ## Core experiences
 - **Adventure:** village, NPC/dialogue, chest/quest, travel, 1 main protagonist + 4 Vị Linh, auto basic attack/manual ultimate, deterministic hits and boss tells.
 - **TCG:** deck composition, visible 5-unit rows, 2 hidden traps, alternating priority/reactions, readable combat log and fair PvP via standardized card stats.
 - **Auto Chess:** buy/merge/position/synergy/economy, fair board/shop, battle resolves automatically with real trajectories and clear events.
-- **PWA:** install icon, versioned assets, update notification, local-only practice offline if assets downloaded, server-required competitive modes.
+- **Distribution:** versioned assets and in-game update notification. Optional PWA install and local practice can be evaluated after the web shell and server save path.
 
 ## P0 slice acceptance
 1. Home → village → talk Lilia → quest → chest → enter Rừng Nguyên Liệu → enemies → ultimate → rewards → reload preserved.

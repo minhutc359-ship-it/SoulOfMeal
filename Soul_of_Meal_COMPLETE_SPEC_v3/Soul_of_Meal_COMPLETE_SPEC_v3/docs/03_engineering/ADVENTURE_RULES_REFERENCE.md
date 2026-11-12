@@ -27,6 +27,8 @@ python scripts/validate_package.py .
 
 All combat events include `battle_id`, `tick`, monotonic `seq`, type, source/target, payload and `rules_version`. The renderer may display `projectile_spawned` and `hit_resolved`, but it must never apply a second hit.
 
+The browser emits `support_cast_released` once when a heal or shield action completes its windup. `projectile_spawned`, `support_cast_released` and action-driven `hit_resolved` carry a presentation `clip_id`. A projectile hit also carries `travel_ticks`, so an attack pose recovers from the launch cue and the target reacts at impact.
+
 ## Verified behavior
 
 - `examples/adventure/bunbo_ability.json` fixture: ATK 320, coefficient 15000, DEF 100 resolves exactly 240 damage.

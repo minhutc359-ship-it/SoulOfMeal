@@ -1,3 +1,5 @@
+import { drawRiggedSprite } from './chibiRig.js';
+
 /**
  * Soul of Meal - Sprite & Asset Renderer
  * Quản lý tải và vẽ sprite animation, map tiles, VFX và card art.
@@ -21,6 +23,7 @@ export class SpriteRenderer {
     this.basePath = basePath;
     this.sheets = new Map(); // characterId -> { image, manifest, loaded }
     this.images = new Map(); // key -> Image
+    this.rigs = new Map();
     this.loading = new Map();
   }
 
@@ -71,8 +74,9 @@ export class SpriteRenderer {
     }
 
     let frames = normalizeAtlasFrames(manifest?.frames);
-    const metadataPath = manifest?.atlas_metadata ?? fullImgPath.replace(/\.png([?#].*)?$/i, '.json$1');
-    if (!frames && metadataPath !== fullImgPath && typeof fetch !== 'undefined') {
+    const metadataPath = manifest?.atlas_metadata
+      ?? (manifest?.frame_width ? null : fullImgPath.replace(/\.png([?#].*)?$/i, '.json$1'));
+    if (!frames && metadataPath && metadataPath !== fullImgPath && typeof fetch !== 'undefined') {
       try {
         const res = await fetch(metadataPath);
         if (res.ok) frames = normalizeAtlasFrames((await res.json())?.frames);
@@ -106,24 +110,26 @@ export class SpriteRenderer {
    */
   drawSprite(ctx, characterId, animation, x, y, {
     scale = 1.0,
-    flipX = false,
+    flipX = animation?.flipX ?? false,
     opacity = 1.0,
-    tint = null,
   } = {}) {
     const entry = this.sheets.get(characterId);
     if (!entry || !entry.image || !entry.image.complete || entry.image.naturalWidth === 0) {
       return false; // Trả về false để caller vẽ fallback
     }
 
-    const frameId = animation?.frameId;
+    scale *= entry.manifest?.render_scale ?? 1;
+    const idle = entry.manifest?.clips?.idle?.directions;
+    const defaultDirection = idle?.S ?? idle?.E ?? Object.values(idle ?? {})[0];
+    const frameId = animation?.frameId ?? defaultDirection?.frames?.[0];
     const frame = entry.frames?.[frameId];
     if (entry.frames) {
       if (!frame || frame.x < 0 || frame.y < 0 || frame.width <= 0 || frame.height <= 0
         || frame.x + frame.width > entry.image.naturalWidth
         || frame.y + frame.height > entry.image.naturalHeight) return false;
 
-      const anchorX = animation?.anchor?.[0] ?? 0.5;
-      const anchorY = animation?.anchor?.[1] ?? 0.9;
+      const anchorX = animation?.anchor?.[0] ?? defaultDirection?.anchor_normalized?.[0] ?? 0.5;
+      const anchorY = animation?.anchor?.[1] ?? defaultDirection?.anchor_normalized?.[1] ?? 0.9;
       const scaleX = scale;
       const scaleY = scale;
       const logicalWidth = frame.sourceWidth;
@@ -135,7 +141,7 @@ export class SpriteRenderer {
       ctx.translate(x, y);
       if (flipX) ctx.scale(-1, 1);
       if (opacity < 1.0) ctx.globalAlpha = Math.max(0, opacity);
-      ctx.drawImage(
+      if (!drawRiggedSprite(ctx, entry.image, frame, characterId, animation, scale, [anchorX, anchorY], flipX)) ctx.drawImage(
         entry.image,
         frame.x,
         frame.y,

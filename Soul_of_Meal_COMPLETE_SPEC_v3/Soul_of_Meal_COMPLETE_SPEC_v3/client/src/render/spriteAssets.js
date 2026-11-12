@@ -1,87 +1,77 @@
-/**
- * Danh mục tải toàn bộ assets cho game Soul of Meal
- */
+import { validateAnimationManifest } from './clipPlayer.js';
+import { VILLAGE_ROOMS } from '../modes/villageRooms.js';
 
-export const ASSET_PATHS = Object.freeze({
-  sprites: './assets/sprites',
-  icons: './assets/sprites/icons',
-  maps: './assets/sprites/maps',
-  ui: './assets/sprites/ui',
-  effects: './assets/sprites/effects',
-  cards: './assets/cards',
-  portraits: './assets/portraits',
-  avatars: './assets/avatars',
+const ORIGINAL = './assets/original';
+export const HERO_ID = 'chr_bunbo_holinh';
+export const TRAVEL_HERO = HERO_ID + '_travel';
+export const MONSTER_IDS = ['mob_mushroom_01', 'mob_pepper_01'];
+export const BOSS_ID = 'boss_bep_truong';
+const ADVENTURE_SCENES = ['village', 'forest', 'arena', 'harbor', 'caldera', 'sanctum', ...VILLAGE_ROOMS];
+const ENCOUNTER_PROPS = ['boss_stove', 'empty_bowl_seal', 'tidal_conch', 'hollow_cauldron'];
+const COMBAT_EFFECTS = ['boss_warning', 'boss_cleave', 'shield_bubble', 'shield_break'];
+
+export const HERO_NAMES = Object.freeze({
+  [HERO_ID]: 'Bún Bò Hỏa Linh',
+  chr_pho_lamvu: 'Phở Lam Vũ',
+  chr_goicuon_diepnhi: 'Gỏi Cuốn Diệp Nhi',
+  chr_banhbao_bachngoc: 'Bánh Bao Bạch Ngọc',
+  chr_caphe_davu: 'Cà Phê Dạ Vũ',
 });
 
-export const CHARACTERS = Object.freeze([
-  'chr_bunbo_holinh',
-  'chr_pho_lamvu',
-  'chr_goicuon_diepnhi',
-  'chr_banhbao_bachngoc',
-  'chr_caphe_davu',
-  'boss_thief',
-]);
+const ACTORS = [...Object.keys(HERO_NAMES), 'npc_lilia', ...MONSTER_IDS, BOSS_ID];
+const CARD_IDS = new Set([7, 10, 11, 12, 13, 14, 15, 16, 17, 18].map((id) => 'card_demo_' + String(id).padStart(2, '0')));
+const PROPS = ['house_kitchen', 'house_guild', 'house_merchant', 'tree', 'chest_closed', 'chest_open', 'portal', 'table', ...ENCOUNTER_PROPS];
+
+export const ELEMENT_ART = Object.freeze({
+  fire: { color: '#ffae69', dark: '#70241f' },
+  water: { color: '#a5e8ff', dark: '#174d72' },
+  wood: { color: '#b9ef8e', dark: '#2e6044' },
+  light: { color: '#ffedaa', dark: '#755528' },
+  shadow: { color: '#d7b6ff', dark: '#482452' },
+});
+
+export function sceneArt(id) { return `${ORIGINAL}/scenes/${id}.webp`; }
+export function chapterArt(number) { return `${ORIGINAL}/chronicle/chapter-${number}.webp`; }
+export function actorArt(id) { return ACTORS.includes(id) ? `${ORIGINAL}/actors/${id}.webp` : null; }
+export function propArt(id) { return `${ORIGINAL}/props/${id}.webp`; }
+export function originalCardArt(id) { return CARD_IDS.has(id) ? `${ORIGINAL}/cards/${id}.webp` : null; }
+export function cutinArt(id) { return `${ORIGINAL}/cutins/${id}.webp`; }
+export function combatArt(id) { return `${ORIGINAL}/effects/${id}.webp`; }
+export function effectArt(element, phase) {
+  const key = Object.hasOwn(ELEMENT_ART, element) ? element : 'light';
+  return `${ORIGINAL}/effects/${key}_${phase}.webp`;
+}
 
 export async function preloadGameAssets(renderer) {
-  const promises = [];
-
-  // 1. Tải sprite sheets nhân vật
-  for (const charId of CHARACTERS) {
-    promises.push(
-      renderer.loadCharacter(
-        charId,
-        `${ASSET_PATHS.sprites}/${charId}.png`,
-        `${ASSET_PATHS.sprites}/${charId}.manifest.json`
-      )
-    );
-  }
-
-  // 2. Tải map tiles và objects
-  const mapAssets = [
-    'tile_grass_light', 'tile_grass_dark', 'tile_path', 'tile_water',
-    'tree_01', 'tree_02', 'house_kitchen', 'house_guild', 'house_merchant',
-    'chest_closed', 'chest_open', 'portal'
+  const imagePaths = [
+    ...ADVENTURE_SCENES.map(sceneArt),
+    ...ACTORS.map(actorArt),
+    ...['tcg_table', 'chess_court'].map(sceneArt),
+    ...PROPS.map(propArt),
+    ...Object.keys(HERO_NAMES).map(cutinArt),
+    ...COMBAT_EFFECTS.map(combatArt),
+    ...Object.keys(ELEMENT_ART).flatMap((id) => [effectArt(id, 'trail'), effectArt(id, 'impact')]),
   ];
-  for (const asset of mapAssets) {
-    promises.push(renderer.loadImage(`${ASSET_PATHS.maps}/${asset}.png`));
-  }
+  const requiredSprites = [TRAVEL_HERO, BOSS_ID, ...Object.keys(HERO_NAMES)];
+  const loadSprites = [...requiredSprites, ...MONSTER_IDS].map(async (id) => {
+    const path = `${ORIGINAL}/atlases/${id}`;
+    const entry = await renderer.loadCharacter(id, path + '.webp', path + '.json');
+    const manifest = entry.manifest;
+    const frames = new Set(Object.keys(manifest?.frames ?? {}));
+    if (entry.loaded && manifest?.character_id === id && manifest.clips?.idle
+        && frames.size && validateAnimationManifest(manifest, frames).valid) return [id, manifest];
+    renderer.sheets?.delete(id);
+    return [id, null];
+  });
 
-  // 3. Tải element icons
-  const elements = ['fire', 'water', 'wood', 'light', 'shadow'];
-  for (const el of elements) {
-    promises.push(renderer.loadImage(`${ASSET_PATHS.icons}/icon_${el}.png`));
+  const [sprites, images] = await Promise.all([
+    Promise.all(loadSprites),
+    Promise.all(imagePaths.map(async path => [path, await renderer.loadImage(path)])),
+  ]);
+  const required = new Set([...ADVENTURE_SCENES.map(sceneArt), ...ENCOUNTER_PROPS.map(propArt)]);
+  if (sprites.some(([id, manifest]) => !manifest && requiredSprites.includes(id))
+      || images.some(([path, image]) => required.has(path) && !image)) {
+    throw new Error('Không tải được bản đồ hoặc hoạt ảnh bắt buộc. Kiểm tra kết nối rồi thử lại.');
   }
-
-  // 4. Tải UI frames & badges
-  const uiAssets = [
-    'logo_mark', 'gold_coin', 'mana_gem', 'star_filled', 'star_empty',
-    'hp_bar_frame', 'energy_bar_frame', 'card_frame_R', 'card_frame_SR', 'card_frame_SSR'
-  ];
-  for (const asset of uiAssets) {
-    promises.push(renderer.loadImage(`${ASSET_PATHS.ui}/${asset}.png`));
-  }
-
-  // 5. Tải visual effects
-  const effectAssets = [
-    'hit_spark', 'fire_burst', 'water_splash', 'leaf_swirl',
-    'light_flash', 'shadow_fade', 'heal_glow'
-  ];
-  for (const asset of effectAssets) {
-    promises.push(renderer.loadImage(`${ASSET_PATHS.effects}/${asset}.png`));
-  }
-
-  // 6. Tải card arts cho 18 cards demo
-  for (let i = 1; i <= 18; i++) {
-    const num = String(i).padStart(2, '0');
-    promises.push(renderer.loadImage(`${ASSET_PATHS.cards}/card_demo_${num}.png`));
-  }
-
-  // 7. Tải portraits và avatars
-  for (const charId of CHARACTERS) {
-    promises.push(renderer.loadImage(`${ASSET_PATHS.portraits}/${charId}.png`));
-    promises.push(renderer.loadImage(`${ASSET_PATHS.avatars}/avatar_${charId.replace('chr_', '')}.png`));
-  }
-
-  const results = await Promise.allSettled(promises);
-  return results;
+  return Object.fromEntries(sprites.filter(([, manifest]) => manifest));
 }

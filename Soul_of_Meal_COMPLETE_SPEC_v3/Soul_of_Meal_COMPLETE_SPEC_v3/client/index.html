@@ -3,12 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#183f3b">
-    <title>Soul of Meal</title>
-    <link rel="stylesheet" href="./styles.css?v=2">
+    <meta name="theme-color" content="#12211f">
+    <title>Soul of Meal · Hành Trình Vị Linh</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./shell.css">
+    <link rel="stylesheet" href="./play.css">
   </head>
   <body>
-    <div id="app" aria-live="polite"></div>
-    <script type="module" src="./src/main.js?v=10"></script>
+    <div id="web-stage" data-scene="title" aria-hidden="true"></div>
+    <div id="app"><main class="entry"><p role="status">Đang mở Soul of Meal…</p></main></div>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>

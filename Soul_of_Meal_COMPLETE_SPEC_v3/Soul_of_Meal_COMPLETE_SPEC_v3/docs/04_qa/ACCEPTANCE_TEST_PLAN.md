@@ -1,4 +1,4 @@
-# QA & Production Acceptance Plan v3
+# QA & Production Acceptance Plan v3.2
 
 ## A. Asset QA (Golden Sample)
 - CH-01 4-direction turnaround matches silhouette, facial features, costume and hand weapon.
@@ -30,9 +30,9 @@
 - AC-04 deterministic replay same seed+commands+catalog yields same hash.
 
 ## D. UI/A11y/Audio QA
-- UI-01 Portrait home 390×844 logical, landscape game 960×540 logical; OS safe area and 44dp touch.
+- UI-01 Desktop game at the 1920×1080 reference viewport, scaled landscape game at 960×540, and portrait Login/Home at 390×844. Verify insets, input mapping and 44 CSS px touch targets.
 - UI-02 No document scroll required during TCG/Auto Chess gameplay; visible priority/action states.
-- UI-03 Loading/empty/error/offline state of all 16 screens.
+- UI-03 Verify loading, empty, error and offline states wherever applicable in each in-scope scene or overlay.
 - AU-01 SFX matched to fire/water/wood/light/shadow, no clipping or >2 competing voice calls by default.
 - AU-02 Muting Music/SFX/Voice/Ambience independent and preserved across reload.
 - AU-03 Missing audio does not stall action or break battle rules.
@@ -50,6 +50,17 @@
 - TCG setup/actions/combat: deck validation/copy limit, seeded hands and mulligan, first-player draw skip, mana ramp, hand burn/deck-out, unit summon/cap, hidden trap-set event, set-round protection, fast-spell and attack-declared trap reveal/counter, fast-spell response during attack reaction, targeted spell damage, LIFO resolution, unit death, commander victory, exact 1200 unblocked damage and 1200/1000 vs 700/1500 simultaneous blocker exchange, turn alternation, per-player attack token and 40-round HP adjudication. Draw/burn/trap-set events do not expose hidden card IDs.
 - Adventure combat: 320 ATK × 1.5 vs 100 DEF = 240; fixed-tick ultimate impact; shield-first damage/40% cap; seeded crit, status idempotency/burn ticks, stun/cooldown/energy validation and battle-end event.
 
-These tests do not establish full replay determinism, round rollover, star stat scaling, reaction triggers beyond configured examples, remaining card effects, Adventure movement/target selection/boss/wave/reward flow, UI behavior, mobile performance or release readiness. Those remain unimplemented or require manual/device validation as applicable. Exact test names and behavior are listed in the mode-specific references in `docs/03_engineering/`.
+The Python suite covers engine-independent fixtures. The browser playtest also has Node suites under `client/tests/` covering local save migration, Adventure movement and reward flow, TCG turn and reaction order, Auto Chess preparation and result flow, and animation, atlas rendering and original asset checks. The current Canvas/DOM smoke exercises chapters 1–6 on a fresh PostgreSQL-backed account, confirms the unclaimed final-boss result and epilogue can be saved, and opens TCG and Auto Chess after completing Adventure. Runtime regressions cover the forest corner route, final quest gating, and resuming a saved boss charge without rerunning its elapsed ticks. See the [playtest audit](PLAYTEST_CONCEPT_GAP.md) for the implementation and remaining art scope.
 
-The local browser client has two Node test suites: `client/tests/runtime.test.js` (16 tests) covers save migration, the Adventure P0 quest/reward loop, movement/fixed-step collision/A* route planning, TCG setup/priority/summon/trap counter/lethal event order, and Auto Chess purchase/placement/combat/loss damage/cross-zone merge/round-cap completion; `client/tests/animation.test.js` (12 tests) covers manifest validation, clip timing/priority, missing-asset and reduced-motion behavior, event normalization, cue mapping, deduplication and actor retention. Browser smoke checks were performed on desktop for navigation, Adventure placeholder animation/fallback, TCG turn progression and Auto Chess, plus mobile 390×844 layout for Home and TCG. Tile-authored collision, navmesh/chunk streaming, production sprites/atlas loading, full P0 acceptance, actual-device/mobile UX, PWA/offline, performance and release checks remain pending.
+## G. Web Client–Server acceptance
+
+The account playtest smoke checks registration, login, session revocation, CSRF, account isolation, cross-session persistence, idempotent retries, and concurrent save revisions against PostgreSQL. The full inventory, authoritative rewards, reconnect and device benchmarks below remain production acceptance goals.
+
+These are target checks for [SPEC v3.2](../03_engineering/ENGINE_ARCHITECTURE.md). The local playtest provides gameplay fixtures for these checks.
+
+- WEB-01 Sign in through Login and Loading, open each of the three modes and return to Home in the same viewport and session. Main gameplay actions are accessible without document scroll.
+- WEB-02 Verify the layouts in UI-01, keyboard focus, reduced-motion handling, audio unlock, and useful retries for account or required bundle failures.
+- WEB-03 Sign in on another browser and verify inventory and progression. Concurrent or repeated claim requests for the same reward grant it once. Expired sessions reject commands and return to a recoverable login flow.
+- WEB-04 Interrupt a battle connection, resume from a snapshot or event cursor and show each confirmed hit once. Inspect TCG transport for opponent hand or face-down trap data before reveal.
+- WEB-05 Publish a new asset build during a match. The match retains its pinned assets and rules. Verify the next entry loads the new build, a missing required bundle permits retry, and rollback restores a complete prior build.
+- WEB-06 Record the machine, browser, viewport, frame-time distribution, load times and texture memory for the Golden Sample benchmark. Check the 60 FPS desktop target with five Vị Linh, boss, HUD and effects active, and verify recovery from WebGL context loss. Document actual-device results for the supported matrix.

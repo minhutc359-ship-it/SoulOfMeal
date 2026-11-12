@@ -20,6 +20,9 @@ def update_index(root: Path) -> int:
         and path != manifest_path
         and "__pycache__" not in path.parts
         and ".git" not in path.parts
+        and path.relative_to(root).parts[:2] not in {
+            ("client", "node_modules"), ("client", "dist"), ("server", "bin"), ("server", "obj")
+        }
     )
     for path in package_files:
         relative = path.relative_to(root).as_posix()

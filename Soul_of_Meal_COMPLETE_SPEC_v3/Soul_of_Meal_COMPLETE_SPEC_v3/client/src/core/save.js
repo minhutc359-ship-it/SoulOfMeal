@@ -1,3 +1,8 @@
+import { restoreChapterThree, restoreChapterTwo, restoreForestClues } from '../modes/adventureStory.js';
+import { restoreFinale } from '../modes/adventureFinale.js';
+import { restoreSpiritProgress } from '../modes/spiritProgress.js';
+import { VILLAGE_ROOMS } from '../modes/villageRooms.js';
+
 export const SAVE_KEY = 'soul-of-meal.save.v2';
 export const SAVE_VERSION = 2;
 
@@ -7,7 +12,11 @@ export function createDefaultSave() {
     player: { name: 'Người Kết Vị', level: 1, experience: 0, gold: 120, essence: 24 },
     adventure: {
       map: 'village', x: 120, y: 310, quest: 'not_started', chestOpened: false,
-      forestCleared: false, rewardClaims: [], battle: null,
+      forestCleared: false, forestClues: [], rewardClaims: [], battle: null,
+      chapterTwo: { stage: 'not_started', lanterns: 0 },
+      chapterThree: { stage: 'not_started', clues: [] },
+      finale: restoreFinale({ chapterThree: { stage: 'not_started' } }),
+      spirits: { ownedGear: [], profiles: {} },
     },
     roster: [
       { id: 'chr_bunbo_holinh', hp: 3000, maxHp: 3000, atk: 320, def: 100, element: 'fire', role: 'fighter', energy: 0 },
@@ -25,22 +34,41 @@ export function createDefaultSave() {
 export function migrateSave(input) {
   const fresh = createDefaultSave();
   if (!input || typeof input !== 'object') return fresh;
+  const adventure = { ...fresh.adventure, ...input.adventure };
+  adventure.forestClues = restoreForestClues(adventure);
+  adventure.chapterTwo = restoreChapterTwo(adventure);
+  adventure.chapterThree = restoreChapterThree(adventure);
+  adventure.finale = restoreFinale(adventure);
+  const mapAllowed = {
+    village: true,
+    forest: true,
+    harbor: adventure.chapterTwo.stage === 'completed',
+    caldera: adventure.chapterThree.stage === 'completed',
+    sanctum: adventure.finale[4].stage === 'completed',
+    ...Object.fromEntries(VILLAGE_ROOMS.map(key => [key, true])),
+  };
+  if (!Object.hasOwn(mapAllowed, adventure.map) || !mapAllowed[adventure.map]) {
+    Object.assign(adventure, { map: fresh.adventure.map, x: fresh.adventure.x, y: fresh.adventure.y });
+  }
   if (input.version === SAVE_VERSION) {
+    const roster = Array.isArray(input.roster) && input.roster.length ? input.roster : fresh.roster;
+    adventure.spirits = restoreSpiritProgress(adventure.spirits, roster);
     return {
       ...fresh,
       ...input,
       player: { ...fresh.player, ...input.player },
-      adventure: { ...fresh.adventure, ...input.adventure },
+      adventure,
       settings: { ...fresh.settings, ...input.settings },
       modes: { ...fresh.modes, ...input.modes },
-      roster: Array.isArray(input.roster) && input.roster.length ? input.roster : fresh.roster,
+      roster,
     };
   }
   if (input.version === 1) {
+    adventure.spirits = restoreSpiritProgress(null, fresh.roster);
     const migrated = {
       ...fresh,
       player: { ...fresh.player, ...input.player },
-      adventure: { ...fresh.adventure, ...input.adventure },
+      adventure,
       roster: fresh.roster,
       completedBattles: input.completedBattles ?? 0,
     };

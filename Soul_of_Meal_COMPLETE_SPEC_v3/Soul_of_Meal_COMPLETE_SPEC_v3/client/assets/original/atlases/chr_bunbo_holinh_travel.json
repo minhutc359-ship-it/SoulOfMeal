@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "character_id": "chr_bunbo_holinh_travel",
+  "skin_id": "default",
+  "asset_version": "original-chibi-preview-1",
+  "atlas": "chr_bunbo_holinh_travel.webp",
+  "frames": {
+    "chr_bunbo_holinh_travel_pose_00": {
+      "x": 2,
+      "y": 2,
+      "w": 160,
+      "h": 160
+    },
+    "chr_bunbo_holinh_travel_pose_01": {
+      "x": 166,
+      "y": 2,
+      "w": 160,
+      "h": 160
+    },
+    "chr_bunbo_holinh_travel_pose_02": {
+      "x": 330,
+      "y": 2,
+      "w": 160,
+      "h": 160
+    },
+    "chr_bunbo_holinh_travel_pose_03": {
+      "x": 494,
+      "y": 2,
+      "w": 160,
+      "h": 160
+    },
+    "chr_bunbo_holinh_travel_pose_04": {
+      "x": 2,
+      "y": 166,
+      "w": 160,
+      "h": 160
+    },
+    "chr_bunbo_holinh_travel_pose_05": {
+      "x": 166,
+      "y": 166,
+      "w": 160,
+      "h": 160
+    },
+    "chr_bunbo_holinh_travel_pose_06": {
+      "x": 330,
+      "y": 166,
+      "w": 160,
+      "h": 160
+    },
+    "chr_bunbo_holinh_travel_pose_07": {
+      "x": 494,
+      "y": 166,
+      "w": 160,
+      "h": 160
+    },
+    "chr_bunbo_holinh_travel_pose_08": {
+      "x": 2,
+      "y": 330,
+      "w": 160,
+      "h": 160
+    },
+    "chr_bunbo_holinh_travel_pose_09": {
+      "x": 166,
+      "y": 330,
+      "w": 160,
+      "h": 160
+    },
+    "chr_bunbo_holinh_travel_pose_10": {
+      "x": 330,
+      "y": 330,
+      "w": 160,
+      "h": 160
+    },
+    "chr_bunbo_holinh_travel_pose_11": {
+      "x": 494,
+      "y": 330,
+      "w": 160,
+      "h": 160
+    }
+  },
+  "clips": {
+    "idle": {
+      "fps": 1,
+      "loop": true,
+      "directions": {
+        "N": {
+          "frames": [
+            "chr_bunbo_holinh_travel_pose_00"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        },
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_travel_pose_01"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        },
+        "S": {
+          "frames": [
+            "chr_bunbo_holinh_travel_pose_02"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        },
+        "W": {
+          "frames": [
+            "chr_bunbo_holinh_travel_pose_03"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "walk": {
+      "fps": 8,
+      "loop": true,
+      "directions": {
+        "N": {
+          "frames": [
+            "chr_bunbo_holinh_travel_pose_04",
+            "chr_bunbo_holinh_travel_pose_00",
+            "chr_bunbo_holinh_travel_pose_08"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        },
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_travel_pose_05",
+            "chr_bunbo_holinh_travel_pose_01",
+            "chr_bunbo_holinh_travel_pose_09"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        },
+        "S": {
+          "frames": [
+            "chr_bunbo_holinh_travel_pose_06",
+            "chr_bunbo_holinh_travel_pose_02",
+            "chr_bunbo_holinh_travel_pose_10"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        },
+        "W": {
+          "frames": [
+            "chr_bunbo_holinh_travel_pose_07",
+            "chr_bunbo_holinh_travel_pose_03",
+            "chr_bunbo_holinh_travel_pose_11"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    },
+    "run": {
+      "fps": 12,
+      "loop": true,
+      "directions": {
+        "N": {
+          "frames": [
+            "chr_bunbo_holinh_travel_pose_04",
+            "chr_bunbo_holinh_travel_pose_00",
+            "chr_bunbo_holinh_travel_pose_08"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        },
+        "E": {
+          "frames": [
+            "chr_bunbo_holinh_travel_pose_05",
+            "chr_bunbo_holinh_travel_pose_01",
+            "chr_bunbo_holinh_travel_pose_09"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        },
+        "S": {
+          "frames": [
+            "chr_bunbo_holinh_travel_pose_06",
+            "chr_bunbo_holinh_travel_pose_02",
+            "chr_bunbo_holinh_travel_pose_10"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        },
+        "W": {
+          "frames": [
+            "chr_bunbo_holinh_travel_pose_07",
+            "chr_bunbo_holinh_travel_pose_03",
+            "chr_bunbo_holinh_travel_pose_11"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
+    }
+  }
+}

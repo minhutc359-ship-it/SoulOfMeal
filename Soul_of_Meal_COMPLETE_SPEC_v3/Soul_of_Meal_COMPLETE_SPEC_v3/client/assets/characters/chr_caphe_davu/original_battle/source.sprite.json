@@ -1,0 +1,35 @@
+{
+  "character_id": "chr_caphe_davu",
+  "skin_id": "default",
+  "frame_size_px": [
+    256,
+    256
+  ],
+  "source_sheet_sha256": "3ac520109820c7d4b38dc309af64b3025385243a51c216e20fff267c7222206f",
+  "ground_anchor": [
+    0.5,
+    0.8984375
+  ],
+  "rights_status": "pending_review",
+  "identity_review": "pending",
+  "animations": {
+    "keyposes": {
+      "fps": 8,
+      "loop": false,
+      "directions": {
+        "E": {
+          "frames": [
+            "poses/chr_caphe_davu_pose_00.png",
+            "poses/chr_caphe_davu_pose_01.png",
+            "poses/chr_caphe_davu_pose_02.png",
+            "poses/chr_caphe_davu_pose_03.png",
+            "poses/chr_caphe_davu_pose_04.png",
+            "poses/chr_caphe_davu_pose_05.png",
+            "poses/chr_caphe_davu_pose_06.png",
+            "poses/chr_caphe_davu_pose_07.png"
+          ]
+        }
+      }
+    }
+  }
+}

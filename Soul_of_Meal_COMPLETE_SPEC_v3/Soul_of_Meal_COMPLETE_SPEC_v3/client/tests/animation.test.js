@@ -73,12 +73,14 @@ test('missing clips resolve to placeholder or configured fallback without throwi
   assert.equal(noManifest.snapshot().missingClip, true);
 });
 
-test('reduced motion keeps a stable frame when time advances', () => {
+test('reduced motion keeps a stable pose and still completes one-shot clips', () => {
   const player = new ClipPlayer(manifest, { reducedMotion: true });
   player.play('hit');
   const firstFrame = player.snapshot().frameId;
-  player.advance(500);
+  player.advance(50);
   assert.equal(player.snapshot().frameId, firstFrame);
+  player.advance(500);
+  assert.equal(player.snapshot().clipId, 'idle');
 });
 
 test('presentation event normalization preserves optional IDs without inventing context', () => {

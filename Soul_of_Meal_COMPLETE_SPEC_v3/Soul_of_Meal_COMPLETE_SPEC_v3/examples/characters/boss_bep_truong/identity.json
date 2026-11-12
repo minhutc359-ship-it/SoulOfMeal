@@ -1,0 +1,14 @@
+{
+  "character_id": "boss_bep_truong",
+  "display_name": "Bếp Trưởng Hỏa Diệm",
+  "skin_id": "default",
+  "element": "fire",
+  "role": "boss",
+  "identity_lock": "Dáng chibi vai rộng. Mũ bếp cao màu kem, râu cam, tạp dề giáp đỏ sẫm viền vàng, dải ruy-băng đỏ. Dao bản chữ nhật ở tay phải, chảo đen có huy hiệu lửa ở tay trái.",
+  "palette": ["#f6dfc8", "#c67534", "#8d3528", "#3f2d26", "#c59854"],
+  "palette_status": "proposed",
+  "turnaround_status": "battle_w_draft",
+  "identity_review": "pending",
+  "source_reference": "client/assets/original/actors/boss_bep_truong.webp",
+  "license_status": "pending_review"
+}
