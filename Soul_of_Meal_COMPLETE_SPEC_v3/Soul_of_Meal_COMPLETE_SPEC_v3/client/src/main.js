@@ -12,6 +12,7 @@ import { drawEffectTexture, drawElementEffect } from './render/elementEffects.js
 import { ADVENTURE_TICK_RATE, adventureBalance, adventureEncounters } from './modes/adventureBalance.js';
 import { adventureSpiritStats, canAffordSpiritCost, changeSpiritProgress, MAX_SPIRIT_RANK, SPIRIT_BONDS, SPIRIT_GEAR, SPIRIT_GIFTS, SPIRIT_MEMORIES, SPIRIT_RANKS, spiritProfile } from './modes/spiritProgress.js';
 import { BattleEffects } from './render/battleEffects.js';
+import { BattleRigClock, loadBunBoRig } from './render/bunboBattleRig.js';
 import { GameAudio } from './core/audio.js';
 import { resolveSoundScene } from './core/soundScenes.js';
 import { adventureJournal } from './modes/adventureJournal.js';
@@ -32,6 +33,7 @@ const systemMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const compactBattle = window.matchMedia('(max-height: 620px) and (orientation: landscape)');
 const FULL_ARENA = Object.freeze({ height: WORLD.height, top: 0 });
 const WIDE_ARENA = Object.freeze({ height: 360, top: 100 });
+const BUN_BO_RIG_SCALE = .88;
 let webStage;
 const accountApi = import.meta.env?.SOM_ACCOUNTS ? createAccountApi() : null;
 const runtime = {
@@ -52,7 +54,23 @@ void runtime.audio.loadSoundtracks();
 window.addEventListener('click', () => runtime.audio.unlock(), { capture: true });
 window.addEventListener('keydown', () => runtime.audio.unlock(), { once: true, capture: true });
 gameEvents.addEventListener('game-event', ({ detail }) => {
-  runtime.effects.handle(detail, runtime.adventure.battle);
+  const battle = runtime.adventure.battle;
+  const rigAttack = runtime.bunboRig && battle?.encounter === 'forest'
+    && detail.battle_id === battle.id && detail.source_id === HERO_ID;
+  const delayedSlash = rigAttack && detail.type === 'attack_started' && !detail.payload.travel_ticks;
+  if (!delayedSlash) runtime.effects.handle(detail, battle);
+  if (rigAttack && detail.type === 'hit_resolved') {
+    const actor = battle.actors.find(item => item.actor_id === HERO_ID);
+    const clip = detail.payload.clip_id;
+    if (actor && runtime.bunboRigClock.contact(battle, clip)) {
+      const tip = runtime.bunboRig.bladeTip(clip, actor.x, actor.y, actor.direction, BUN_BO_RIG_SCALE,
+        app.dataset.motion === 'reduced');
+      runtime.effects.add('strike', detail.payload.element, .24, { ...tip, angle: actor.direction === 'W' ? Math.PI : 0 });
+      if (detail.payload.source_kind === 'basic') {
+        runtime.audio.handle({ type: 'attack_started', payload: detail.payload });
+      }
+    }
+  }
   if (detail.type === 'hit_resolved' && detail.rules_version === 'client-tcg-v1') {
     const { element, target_player, target_lane, damage } = detail.payload;
     const now = performance.now();
@@ -76,7 +94,7 @@ gameEvents.addEventListener('game-event', ({ detail }) => {
     };
     runtime.tcgImpacts.set(detail.target_id, impact);
     if (Number.isInteger(target_lane)) runtime.tcgImpacts.set(tcgLaneId(target_player, target_lane), impact);
-  } else if (detail.payload.source_kind !== 'auto_chess_attack') {
+  } else if (!delayedSlash && detail.payload.source_kind !== 'auto_chess_attack') {
     runtime.audio.handle(detail);
   }
 });
@@ -110,7 +128,11 @@ async function loadContent(report) {
   runtime.units = unitsData.units;
   runtime.shopConfig = shopConfig;
   runtime.maps = createAdventureMapRegistry(maps);
-  const manifests = await preloadGameAssets(spriteRenderer);
+  const [manifests, rig] = await Promise.all([
+    preloadGameAssets(spriteRenderer), loadBunBoRig(spriteRenderer, signal),
+  ]);
+  runtime.bunboRig = rig;
+  if (rig) runtime.bunboRigClock = new BattleRigClock(rig, ADVENTURE_TICK_RATE);
   runtime.animations = new AnimationAdapter({
     eventTarget: gameEvents, manifests, reducedMotion: app.dataset.motion === 'reduced',
   });
@@ -808,6 +830,7 @@ function drawAdventureFrame(deltaSeconds) {
   const heroAnimation = runtime.animations.getActorState(HERO_ID)?.animation;
   canvas.dataset.animationClip = heroAnimation?.requestedClipId ?? 'idle';
   canvas.dataset.animationFallback = String(heroAnimation?.missingClip ?? true);
+  canvas.dataset.battleRig = adventure.battle?.encounter === 'forest' && runtime.bunboRig ? 'bunbo' : '';
   if (adventure.battle) drawBattleScene(context, adventure);
   else {
     context.save();
@@ -824,8 +847,10 @@ function drawAdventureFrame(deltaSeconds) {
 function syncAdventureAnimations(adventure, moved) {
   const views = [];
   if (adventure.battle) {
+    const hasBunBoRig = adventure.battle.encounter === 'forest' && runtime.bunboRig;
     for (const actor of adventure.battle.actors) {
-      views.push({ actorId: actor.actor_id, characterId: actor.id, team: actor.team, x: actor.x, y: actor.y, direction: actor.direction, alive: actor.alive, speed: actor.moving ? 1.5 : 0 });
+      const moveSpeed = hasBunBoRig && actor.id === HERO_ID ? 3 : 1.5;
+      views.push({ actorId: actor.actor_id, characterId: actor.id, team: actor.team, x: actor.x, y: actor.y, direction: actor.direction, alive: actor.alive, speed: actor.moving ? moveSpeed : 0 });
     }
   } else {
     const direction = ({ up: 'N', right: 'E', down: 'S', left: 'W' })[adventure.facing] ?? 'S';
@@ -972,9 +997,12 @@ function drawBattleScene(context, adventure) {
     } else {
       const fromX = actor.previousX ?? actor.x;
       const fromY = actor.previousY ?? actor.y;
-      drawActor(context, actor, runtime.animations.getActorState(actor.actor_id)?.animation,
+      const animation = runtime.animations.getActorState(actor.actor_id)?.animation;
+      const rigMotion = battle.encounter === 'forest' && actor.id === HERO_ID
+        ? runtime.bunboRigClock?.motion(battle, actor, animation) : null;
+      drawActor(context, actor, animation,
         actor.boss && ['stoves', 'sequence'].includes(battle.bossTelegraph?.counter),
-        fromX + (actor.x - fromX) * blend, fromY + (actor.y - fromY) * blend);
+        fromX + (actor.x - fromX) * blend, fromY + (actor.y - fromY) * blend, rigMotion);
     }
   }
   runtime.effects.draw(context, battle, app.dataset.motion === 'reduced');
@@ -1019,14 +1047,15 @@ function drawBossStove(context, stove, focused) {
   context.restore();
 }
 
-function drawActor(context, actor, animation, guarded, x, y) {
+function drawActor(context, actor, animation, guarded, x, y, rigMotion) {
   context.save();
   context.globalAlpha = actor.alive ? 1 : .32;
   context.fillStyle = '#101e1c8c';
   context.beginPath();
   context.ellipse(x, y + 2, actor.boss ? 33 : 23, 7, 0, 0, Math.PI * 2);
   context.fill();
-  const drawn = !actor.stationary && spriteRenderer.drawSprite(context, actor.id, animation, x, y, { scale: actor.boss ? 1.04 : .67 });
+  const drawn = (rigMotion && runtime.bunboRig.draw(context, rigMotion, x, y, actor.direction, BUN_BO_RIG_SCALE))
+    || (!actor.stationary && spriteRenderer.drawSprite(context, actor.id, animation, x, y, { scale: actor.boss ? 1.04 : .67 }));
   if (actor.stationary) {
     drawFitted(context, propArt(actor.artId ?? actor.id), x, y, 150, 129);
   } else if (!drawn) {

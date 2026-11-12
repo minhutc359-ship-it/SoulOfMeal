@@ -794,13 +794,13 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 115102,
-      "sha256": "c970b80ddef5d1641337397b085ce44660ca9d3486bd8eeedb7a7dc238fbe1bc"
+      "bytes": 116926,
+      "sha256": "28ca0eee47f3bc4a90f2f7031dbe8e3156ad7f945fbebdb6c7f3ddaec0d6e5b2"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 40294,
-      "sha256": "f9959740add24e7acf30653f52c0fe538d134e37d65e7268a11a1f4153383a51"
+      "bytes": 40447,
+      "sha256": "8d44f9376d4d6c3941bd13efb9a2c56acd49a30471974ffa2c6ac8969e7a9069"
     },
     {
       "path": "client/src/modes/autoChess.js",
@@ -1474,8 +1474,8 @@
     },
     {
       "path": "client/src/core/audio.js",
-      "bytes": 6748,
-      "sha256": "a9941b7929f0fed93b446716a60048e7c47c4ced7116472bbddb00b6cd9af772"
+      "bytes": 7009,
+      "sha256": "6f7534440e8fa7fdaeda10c173a986937c702efc74c4d73bb930e52073f37386"
     },
     {
       "path": "client/src/modes/adventureBalance.js",
@@ -2179,8 +2179,8 @@
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_PLAYTEST.md",
-      "bytes": 10089,
-      "sha256": "c1b51e6832b43e800760eb18387e32c0d318e0c5871affdc818f263fc2619126"
+      "bytes": 11437,
+      "sha256": "fd09c8992ea2b4aa2d377a6cf026039831cc64e15976b4e56ec823812ff73768"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_SOURCES.json",
@@ -2751,6 +2751,56 @@
       "path": "scripts/build_combat_audio.py",
       "bytes": 3045,
       "sha256": "500d555b26ffac72953df8d5cfa5d5637c3853fedb09e343aecde2ba4bd10efe"
+    },
+    {
+      "path": "client/assets/audio/compatibility.bin",
+      "bytes": 292064,
+      "sha256": "2ab973a33f526076a079cbc4f33b6e28ef58a0b105cf9ee5cb81bfc2fe56f4c9"
+    },
+    {
+      "path": "client/assets/original/rigs/bunbo/bunbo.json",
+      "bytes": 23362,
+      "sha256": "5ce1330cf5ee7d59dc1503713ca47525ac0a2f166a00262508755e8c656c0264"
+    },
+    {
+      "path": "client/assets/original/rigs/bunbo/parts.webp",
+      "bytes": 110444,
+      "sha256": "dbac3ed4377f191c450992931357769f0c05202abe45467395537e04cbbdffd6"
+    },
+    {
+      "path": "client/assets/original/rigs/bunbo/regions.json",
+      "bytes": 630,
+      "sha256": "48f8618ad3c580acfbbe4f63d4507395850526a05163ec41d9a0a0436db32081"
+    },
+    {
+      "path": "client/src/core/mp3AudioBank.js",
+      "bytes": 3849,
+      "sha256": "4b3daa9aca9b38390792ae3dfda9602dbcb4de0bb8ab37a26a9f245d5edb2791"
+    },
+    {
+      "path": "client/src/render/bunboBattleRig.js",
+      "bytes": 6126,
+      "sha256": "6a2c04eaae1585c11cb12592300fa8a8e269c82764df2e8c0f86431716a73b04"
+    },
+    {
+      "path": "client/tests/bunboBattleRig.test.js",
+      "bytes": 2581,
+      "sha256": "32b265be83466c575b90d79c73b41378abef948a9a986b4d7c9b4271369bf3bc"
+    },
+    {
+      "path": "client/tests/mp3AudioBank.test.js",
+      "bytes": 2565,
+      "sha256": "48b71a63bd2b47e44736b3b9120b83eb6e2de5e2eb99ee64997cc4c4d8c262a6"
+    },
+    {
+      "path": "scripts/build_compatibility_audio.py",
+      "bytes": 837,
+      "sha256": "e30df550af01888b1ee41b71dd9382abe7ceac699c114dd5917b31d2aa133971"
+    },
+    {
+      "path": "scripts/bunbo_rig.py",
+      "bytes": 2606,
+      "sha256": "34c0e11c577d2fbd018ef1ec0526df398d211c17f38a627999afe5d980526c01"
     }
   ]
 }

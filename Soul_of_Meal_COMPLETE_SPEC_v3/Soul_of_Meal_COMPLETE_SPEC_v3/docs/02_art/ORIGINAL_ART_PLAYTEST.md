@@ -50,3 +50,19 @@ Tranh dùng ở màn chơi khách. Nguồn PNG được tạo bằng công cụ 
 - [Minh họa sáu chương](../../client/assets/original/chronicle), [bàn TCG](../../client/assets/original/scenes/tcg_table.webp) và [sân Auto Chess](../../client/assets/original/scenes/chess_court.webp) là art mới theo nhận diện Vị Linh, bố cục trong storyboard và tuyến nhiệm vụ của game. Chữ, lá bài, quân cờ và số liệu được client vẽ riêng. Xuất lại bằng `python3 scripts/build_original_art.py /path/to/sheets chronicle tcg_table chess_court`. [Prompt và SHA-256](ORIGINAL_ART_SOURCES.json) lưu theo ID nguồn. Duyệt mỹ thuật và quyền sử dụng trước phát hành vẫn đang chờ.
 
 - Nấm Lạc Vị và Tiêu Tinh có tám pose chibi mới cho mỗi nhân vật. [Khung PNG, mốc chân và báo cáo Nấm](../../client/assets/characters/mob_mushroom_01/original_battle), [khung PNG, mốc chân và báo cáo Tiêu Tinh](../../client/assets/characters/mob_pepper_01/original_battle) và atlas WebP dùng chung giữa các chế độ. Pose gốc hướng tây. Bản chơi thử phản chiếu hướng đông cho hai quái này. Duyệt nhận diện, chuyển động và quyền sử dụng đang chờ. Xuất lại bằng `python3 scripts/build_original_art.py /path/to/sheets mob_mushroom_01 mob_pepper_01`.
+
+## Rig Bún Bò Hỏa Linh
+
+Trận Chương 1 dùng bộ rig 16 xương, 12 lớp hình và 10 clip. Tay, chân, tóc, dây áo và hỏa đao có khớp riêng. Rig phản chiếu hướng tây trong trận. Bản đồ dùng bộ khung PNG bốn hướng của nhân vật. Khi asset rig tải lỗi, trận dùng atlas chiến đấu sẵn có.
+
+`hit_resolved` xác nhận thời điểm trúng đòn. Client lấy vị trí đầu đao tại mốc `blade_contact` để vẽ vệt Hỏa và phát tiếng chém. Sát thương, vị trí mục tiêu và điểm lưu trận do mô phỏng quản lý.
+
+Hình tách lớp được tạo riêng cho dự án theo pose `chr_bunbo_holinh/original_battle/poses/pose_00.png`. SHA-256 sheet RGBA nguồn là `e3222c0aca3fa7bc2e5cd167dfd0b474bf530c61f3473a2e8cc3ee6bc39159be`. Duyệt tay tạo hình, chuyển động và quyền sử dụng đang chờ.
+
+```bash
+python3 scripts/bunbo_rig.py --pack /path/to/source-sheet.png
+python3 scripts/bunbo_rig.py --export /path/to/bunbo-editor
+python3 scripts/build_compatibility_audio.py
+```
+
+Bộ xuất chứa `bunbo.json` và 12 PNG trong thư mục `images/`, theo định dạng Spine 4.2. Client dùng Canvas để chạy rig. Gói âm thanh tạo bằng FFmpeg chỉ được tải trên trình duyệt có Web Audio và thiếu giải mã Ogg Vorbis.

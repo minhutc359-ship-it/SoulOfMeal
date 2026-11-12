@@ -1,4 +1,5 @@
 import { customSoundtrack, DEFAULT_SOUNDTRACKS } from './soundScenes.js';
+import { createCompatibilityBank } from './mp3AudioBank.js';
 
 const AUDIO_PATH = './assets/audio/';
 const CUES = {
@@ -26,9 +27,11 @@ export class GameAudio {
     this.soundtracks = {};
     this.lastPlayed = new Map();
     this.unlocked = false;
+    this.compatibilityBank = createCompatibilityBank(AUDIO_PATH);
   }
 
   unlock() {
+    this.compatibilityBank?.unlock();
     this.unlocked = true;
     this.updateLoops();
   }
@@ -86,7 +89,7 @@ export class GameAudio {
   }
 
   startLoop(channel, preferred, fallback, path) {
-    const audio = new Audio(AUDIO_PATH + path);
+    const audio = this.createTrack(path);
     audio.loop = true;
     const track = { audio, preferred, fallback, path, requested: false, failed: false, attempt: 0 };
     this.loops[channel] = track;
@@ -151,13 +154,17 @@ export class GameAudio {
     const now = performance.now();
     if (now - (this.lastPlayed.get(id) ?? -Infinity) < 110) return;
     this.lastPlayed.set(id, now);
-    const audio = new Audio(AUDIO_PATH + id + '.ogg');
+    const audio = this.createTrack(id + '.ogg');
     audio.volume = Math.min(1, this.volume('sfx') * gain);
     const release = () => this.active.delete(audio);
     this.active.set(audio, gain);
     audio.addEventListener('ended', release, { once: true });
     audio.addEventListener('error', release, { once: true });
     audio.play().catch(release);
+  }
+
+  createTrack(path) {
+    return this.compatibilityBank?.create(path) ?? new Audio(AUDIO_PATH + path);
   }
 
   volume(channel) {

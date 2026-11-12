@@ -603,9 +603,10 @@ function resolveAction(battle, actor, action) {
   const targets = action.kind === 'area'
     ? [...battle.actors, ...battle.stoves].filter((item) => item.alive && item.team !== actor.team)
     : target ? [target] : [];
+  const clipId = action.clip ?? (action.sourceKind === 'ultimate' ? 'ultimate_01' : 'attack_a');
   for (const victim of targets) {
     const coefficient = action.kind === 'execute' && victim.hp <= victim.maxHp * .35 ? action.executeCoefficient : action.coefficient;
-    applyBattleHit(battle, actor, victim, coefficient ?? 10000, action.sourceKind);
+    applyBattleHit(battle, actor, victim, coefficient ?? 10000, action.sourceKind, clipId);
     if (action.kind === 'slow') victim.slowUntil = battle.tick + action.duration;
   }
   if (actor.team === 'player' && action.sourceKind === 'basic') actor.energy = Math.min(100, actor.energy + balance.basicEnergy);
@@ -685,7 +686,7 @@ export function bossTelegraphTargets(battle, boss) {
     .slice(0, phase.targets);
 }
 
-function applyBattleHit(battle, source, target, coefficientBp, sourceKind) {
+function applyBattleHit(battle, source, target, coefficientBp, sourceKind, clipId) {
   const damage = Math.max(1, Math.floor(source.atk * coefficientBp / 10000 * 100 / (100 + target.def)));
   const absorbed = Math.min(damage, target.shield ?? 0);
   target.shield = (target.shield ?? 0) - absorbed;
@@ -700,6 +701,7 @@ function applyBattleHit(battle, source, target, coefficientBp, sourceKind) {
     hit_id: `${battle.tick}:${source.actor_id}:${target.actor_id}`, damage, hp_damage: hpDamage, absorbed,
     source_kind: sourceKind, element: source.element, timed: true, guarded: Boolean(guarded),
   };
+  if (clipId) payload.clip_id = clipId;
   const hit = gameEvents.emit('hit_resolved', payload, battleContext(battle, source.actor_id, target.actor_id));
   battle.events.push(hit);
   if (absorbed > 0 && target.shield === 0) {
