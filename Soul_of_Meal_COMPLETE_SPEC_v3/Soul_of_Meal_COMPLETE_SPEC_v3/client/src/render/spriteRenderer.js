@@ -23,6 +23,7 @@ export class SpriteRenderer {
     this.basePath = basePath;
     this.sheets = new Map(); // characterId -> { image, manifest, loaded }
     this.images = new Map(); // key -> Image
+    this.rigs = new Map();
     this.loading = new Map();
   }
 

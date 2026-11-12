@@ -12,7 +12,7 @@ import { drawEffectTexture, drawElementEffect } from './render/elementEffects.js
 import { ADVENTURE_TICK_RATE, adventureBalance, adventureEncounters } from './modes/adventureBalance.js';
 import { adventureSpiritStats, canAffordSpiritCost, changeSpiritProgress, MAX_SPIRIT_RANK, SPIRIT_BONDS, SPIRIT_GEAR, SPIRIT_GIFTS, SPIRIT_MEMORIES, SPIRIT_RANKS, spiritProfile } from './modes/spiritProgress.js';
 import { BattleEffects } from './render/battleEffects.js';
-import { BattleRigClock, loadBunBoRig } from './render/bunboBattleRig.js';
+import { BattleRigClock, loadSpiritRigs } from './render/spiritRig.js';
 import { GameAudio } from './core/audio.js';
 import { resolveSoundScene } from './core/soundScenes.js';
 import { adventureJournal } from './modes/adventureJournal.js';
@@ -35,7 +35,7 @@ const systemMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const compactBattle = window.matchMedia('(max-height: 620px) and (orientation: landscape)');
 const FULL_ARENA = Object.freeze({ height: WORLD.height, top: 0 });
 const WIDE_ARENA = Object.freeze({ height: 360, top: 100 });
-const BUN_BO_RIG_SCALE = .88;
+const SPIRIT_RIG_SCALE = .88;
 let webStage;
 const pinnedRelease = pinnedContentRelease(new URL(location.href));
 const accountApi = import.meta.env?.SOM_ACCOUNTS ? createAccountApi() : null;
@@ -44,7 +44,7 @@ const runtime = {
   shopConfig: null, tcg: null, chess: null, selectedTarget: null, selectedSpell: null, tcgAttackers: null, selectedBench: null, mulligan: new Set(), deckDraft: null,
   account: null, cloud: null, cloudStatus: 'saved', cloudError: null,
   selectedBoard: null, chessLock: null, chessReplayPaused: false, chessReplaySpeed: 1, notice: '', lastSavedLocation: 0, heldKeys: new Set(), tcgImpacts: new Map(),
-  rosterId: HERO_ID, rosterTab: 'info', showMinimap: true, worldStick: null,
+  rosterId: HERO_ID, rosterTab: 'info', showMinimap: true, worldStick: null, rigClocks: new Map(),
 };
 runtime.adventure = createAdventureState(runtime.save);
 runtime.tcg = runtime.save.modes.tcg;
@@ -58,22 +58,10 @@ window.addEventListener('click', () => runtime.audio.unlock(), { capture: true }
 window.addEventListener('keydown', () => runtime.audio.unlock(), { once: true, capture: true });
 gameEvents.addEventListener('game-event', ({ detail }) => {
   const battle = runtime.adventure.battle;
-  const rigAttack = runtime.bunboRig && battle
-    && detail.battle_id === battle.id && detail.source_id === HERO_ID;
-  const delayedSlash = rigAttack && detail.type === 'attack_started' && !detail.payload.travel_ticks;
-  if (!delayedSlash) runtime.effects.handle(detail, battle);
-  if (rigAttack && detail.type === 'hit_resolved') {
-    const actor = battle.actors.find(item => item.actor_id === HERO_ID);
-    const clip = detail.payload.clip_id;
-    if (actor && runtime.bunboRigClock.contact(battle, clip)) {
-      const tip = runtime.bunboRig.bladeTip(clip, actor.x, actor.y, actor.direction, BUN_BO_RIG_SCALE,
-        app.dataset.motion === 'reduced');
-      runtime.effects.add('strike', detail.payload.element, .24, { ...tip, angle: actor.direction === 'W' ? Math.PI : 0 });
-      if (detail.payload.source_kind === 'basic') {
-        runtime.audio.handle({ type: 'attack_started', payload: detail.payload });
-      }
-    }
-  }
+  const clock = battle && detail.battle_id === battle.id ? runtime.rigClocks.get(detail.source_id) : null;
+  const delayedSlash = clock && detail.type === 'attack_started' && !detail.payload.travel_ticks;
+  const origin = clock ? handleAdventureRigEvent(detail, battle, clock) : undefined;
+  if (!delayedSlash) runtime.effects.handle(detail, battle, origin);
   if (detail.type === 'hit_resolved' && detail.rules_version === 'client-tcg-v1') {
     const { element, target_player, target_lane, damage } = detail.payload;
     const now = performance.now();
@@ -83,7 +71,7 @@ gameEvents.addEventListener('game-event', ({ detail }) => {
       if (detail.payload.effect_kind === 'spell') runtime.audio.handle({ type: 'spell_launched', payload: { element } });
       else {
         runtime.audio.handle({ type: 'attack_started', payload: { element, clip_id: clip } });
-        if (contact > now && detail.source_id) boardSprites.cue(tcgSpriteKey(detail.battle_id, detail.source_id), clip, now, detail.action_seq);
+        if (contact > now && detail.source_id) boardSprites.cue(tcgSpriteKey(detail.battle_id, detail.source_id), clip, now, detail.action_seq, contact);
       }
     }
     if (detail.target_id) boardSprites.cue(tcgSpriteKey(detail.battle_id, detail.target_id), 'hit', contact, detail.action_seq);
@@ -101,6 +89,23 @@ gameEvents.addEventListener('game-event', ({ detail }) => {
     runtime.audio.handle(detail);
   }
 });
+
+function handleAdventureRigEvent({ type, payload, source_id }, battle, clock) {
+  const strike = type === 'hit_resolved' && !payload.travel_ticks;
+  const support = type === 'support_cast_released';
+  if (!strike && !support && type !== 'projectile_spawned') return;
+  const actor = battle.actors.find(item => item.actor_id === source_id);
+  if (!actor || !clock.contact(battle, payload.clip_id)) return;
+  const point = clock.rig.effectPoint(payload.clip_id, actor.x, actor.y, actor.direction, SPIRIT_RIG_SCALE,
+    app.dataset.motion === 'reduced');
+  if (strike) {
+    runtime.effects.add('strike', payload.element, .24, { ...point, angle: actor.direction === 'W' ? Math.PI : 0 });
+    if (payload.source_kind === 'basic') runtime.audio.handle({ type: 'attack_started', payload });
+  } else if (support) {
+    runtime.effects.add('cast', payload.element, .36, point);
+  }
+  return point;
+}
 
 const iconMap = { home: '⌂', adventure: '⌖', tcg: '▤', chess: '▦', roster: '✿', settings: '⚙' };
 const elementColors = { fire: '#dd684a', water: '#428eac', wood: '#548d56', light: '#b8923c', shadow: '#75627e' };
@@ -132,11 +137,11 @@ async function loadContent(report) {
   runtime.units = unitsData.units;
   runtime.shopConfig = shopConfig;
   runtime.maps = createAdventureMapRegistry(maps);
-  const [manifests, rig] = await Promise.all([
-    preloadGameAssets(spriteRenderer), loadBunBoRig(spriteRenderer, signal),
+  const [manifests, rigs] = await Promise.all([
+    preloadGameAssets(spriteRenderer), loadSpiritRigs(spriteRenderer, signal),
   ]);
-  runtime.bunboRig = rig;
-  if (rig) runtime.bunboRigClock = new BattleRigClock(rig, ADVENTURE_TICK_RATE);
+  spriteRenderer.rigs = rigs;
+  runtime.rigClocks = new Map([...rigs].map(([id, rig]) => [id, new BattleRigClock(rig, ADVENTURE_TICK_RATE)]));
   runtime.animations = new AnimationAdapter({
     eventTarget: gameEvents, manifests, reducedMotion: app.dataset.motion === 'reduced',
   });
@@ -929,7 +934,7 @@ function drawAdventureFrame(deltaSeconds) {
   const heroAnimation = runtime.animations.getActorState(HERO_ID)?.animation;
   canvas.dataset.animationClip = heroAnimation?.requestedClipId ?? 'idle';
   canvas.dataset.animationFallback = String(heroAnimation?.missingClip ?? true);
-  canvas.dataset.battleRig = adventure.battle && runtime.bunboRig ? 'bunbo' : '';
+  canvas.dataset.battleRig = adventure.battle && spriteRenderer.rigs.has(HERO_ID) ? 'bunbo' : '';
   if (adventure.battle) drawBattleScene(context, adventure);
   else {
     context.save();
@@ -947,7 +952,7 @@ function syncAdventureAnimations(adventure, moved) {
   const views = [];
   if (adventure.battle) {
     for (const actor of adventure.battle.actors) {
-      const moveSpeed = runtime.bunboRig && actor.id === HERO_ID ? 3 : 1.5;
+      const moveSpeed = spriteRenderer.rigs.has(actor.id) ? 3 : 1.5;
       views.push({ actorId: actor.actor_id, characterId: actor.id, team: actor.team, x: actor.x, y: actor.y, direction: actor.direction, alive: actor.alive, speed: actor.moving ? moveSpeed : 0 });
     }
   } else {
@@ -1099,8 +1104,8 @@ function drawBattleScene(context, adventure) {
       const fromX = actor.previousX ?? actor.x;
       const fromY = actor.previousY ?? actor.y;
       const animation = runtime.animations.getActorState(actor.actor_id)?.animation;
-      const rigMotion = actor.id === HERO_ID
-        ? runtime.bunboRigClock?.motion(battle, actor, animation) : null;
+      const clock = runtime.rigClocks.get(actor.id);
+      const rigMotion = clock?.motion(battle, actor, animation);
       drawActor(context, actor, animation,
         actor.boss && ['stoves', 'sequence'].includes(battle.bossTelegraph?.counter),
         fromX + (actor.x - fromX) * blend, fromY + (actor.y - fromY) * blend, rigMotion);
@@ -1155,7 +1160,7 @@ function drawActor(context, actor, animation, guarded, x, y, rigMotion) {
   context.beginPath();
   context.ellipse(x, y + 2, actor.boss ? 33 : 23, 7, 0, 0, Math.PI * 2);
   context.fill();
-  const drawn = (rigMotion && runtime.bunboRig.draw(context, rigMotion, x, y, actor.direction, BUN_BO_RIG_SCALE))
+  const drawn = (rigMotion && spriteRenderer.rigs.get(actor.id).draw(context, rigMotion, x, y, actor.direction, SPIRIT_RIG_SCALE))
     || (!actor.stationary && spriteRenderer.drawSprite(context, actor.id, animation, x, y, { scale: actor.boss ? 1.04 : .67 }));
   if (actor.stationary) {
     drawFitted(context, propArt(actor.artId ?? actor.id), x, y, 150, 129);
