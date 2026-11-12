@@ -4,9 +4,10 @@ import test from 'node:test';
 import { gameEvents } from '../src/core/events.js';
 import { createDefaultSave, migrateSave } from '../src/core/save.js';
 import {
-  assignTcgBlockers, attackTcg, createTcgMatch, declaredTcgAttackers, passTcgPriority,
-  playTcgCard, runBotPriority, runTcgBot,
+  assignTcgBlockers, attackTcg, canPlayTcgCard, createTcgMatch, declaredTcgAttackers,
+  endTcgTurn, passTcgPriority, playTcgCard, runBotPriority, runTcgBot, tcgPresetDeck, tcgSpellTargets,
 } from '../src/modes/tcg.js';
+import { planTcgAttacks, planTcgBlocks } from '../src/modes/tcgStrategy.js';
 
 const readJson = async file => JSON.parse(await readFile(new URL('../../examples/cards/' + file, import.meta.url)));
 const [catalog, deck] = await Promise.all([readJson('cards.catalog.json'), readJson('starter_deck.json')]);
@@ -25,6 +26,61 @@ function combat(active = 0) {
   match.players.forEach(player => { player.hand = []; });
   return match;
 }
+
+test('TCG support spells require eligible allies and resolve through their own timing rules', () => {
+  let match = combat();
+  const heal = card('card_spirit_renewal', 'heal');
+  const ward = card('card_spirit_ward', 'ward');
+  const boost = card('card_spirit_rally', 'boost');
+  Object.assign(match, { phase: 'action' });
+  Object.assign(match.players[0], {
+    mana: 10, hand: [heal, ward, boost],
+    units: [{ ...unit('wounded', 0, 650, 1000), current_def: 770 }, unit('healthy', 2, 550, 1100)],
+  });
+  match.players[1].units = [{ ...unit('enemy', 3, 900, 900), current_def: 300 }];
+  assert.deepEqual(tcgSpellTargets(match, 0, heal).map(item => item.id), ['wounded']);
+  assert.throws(() => playTcgCard(match, 0, heal.instance_id, 'enemy'), /mục tiêu hợp lệ/);
+  match = playTcgCard(match, 0, 'heal', 'wounded');
+  assert.equal(match.players[0].units[0].current_def, 770);
+  assert.equal(match.phase, 'reaction');
+  match = passTcgPriority(match, 1);
+  assert.equal(canPlayTcgCard(match, 0, boost), false);
+  match = playTcgCard(match, 0, 'ward', 'wounded');
+  assert.equal(match.priority, 0);
+  assert.equal(match.stack.length, 1);
+  assert.equal(match.players[0].units[0].shield, 400);
+  match = passTcgPriority(passTcgPriority(match, 0), 1);
+  assert.equal(match.players[0].units[0].current_def, 1000);
+  assert.equal(match.phase, 'action');
+  assert.equal(match.priority, 0);
+  match = playTcgCard(match, 0, 'boost', 'wounded');
+  assert.equal(match.players[0].units[0].attackBuff, 360);
+  match = passTcgPriority(passTcgPriority(match, 1), 0);
+  match = assignTcgBlockers(attackTcg(match, 0, ['wounded']), 1, [{ lane: 0, blockerId: 'enemy' }]);
+  assert.equal(match.players[0].units[0].current_def, 500);
+  assert.equal(match.players[0].units[0].shield, 0);
+  assert.equal(match.players[1].units.length, 0);
+  match = endTcgTurn(match, 0);
+  assert.equal(match.players[0].units[0].shield, undefined);
+  assert.equal(match.players[0].units[0].attackBuff, undefined);
+});
+
+test('TCG presets remain legal and advanced tactics account for trades and commander HP', () => {
+  const guard = tcgPresetDeck(catalog, deck, 'guard');
+  const assault = tcgPresetDeck(catalog, deck, 'assault');
+  assert.equal(guard.cards.reduce((sum, item) => sum + item.count, 0), 36);
+  assert.equal(assault.cards.reduce((sum, item) => sum + item.count, 0), 36);
+  assert.ok(guard.cards.some(item => item.card_id === 'card_spirit_ward'));
+  assert.ok(assault.cards.some(item => item.card_id === 'card_spirit_rally'));
+  const match = createTcgMatch(catalog, guard, 41, assault, 'extreme');
+  assert.equal(match.difficulty, 'extreme');
+  assert.ok([...match.players[1].hand, ...match.players[1].deck].some(item => item.card_id === 'card_spirit_rally'));
+  const attacker = unit('strong', 0, 1500, 2200);
+  const defender = unit('fragile', 3, 180, 200);
+  assert.deepEqual(planTcgBlocks([attacker], [defender], 1300, 'extreme').blocks, [{ lane: 0, blockerId: 'fragile' }]);
+  const weak = unit('weak', 4, 200, 200);
+  assert.deepEqual(planTcgAttacks([weak], [attacker], 7500), []);
+});
 
 test('a chosen attacker exchanges damage with an assigned blocker from another lane', () => {
   const match = combat();

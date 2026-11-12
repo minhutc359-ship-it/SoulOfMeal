@@ -1,3 +1,4 @@
+import { chessHexOffset } from '../modes/chessCombat.js';
 import { ClipPlayer } from './clipPlayer.js';
 import { actorArt, ELEMENT_ART, sceneArt } from './spriteAssets.js';
 import { drawElementEffect } from './elementEffects.js';
@@ -9,6 +10,7 @@ const FALL_DURATION = .36;
 export class ChessReplay {
   constructor(combat, renderer, reducedMotion) {
     this.combat = combat;
+    this.hex = combat.geometry === 'hex';
     this.renderer = renderer;
     this.reducedMotion = reducedMotion;
     this.actors = new Map(combat.startActors.map((actor) => {
@@ -43,12 +45,26 @@ export class ChessReplay {
         source.player.play('walk', { restart: false });
       } else if (event.type === 'hit_resolved') {
         const target = this.actors.get(event.target_id);
-        target.hp = event.payload.hp;
+        const { hp, damage, absorbed = 0, sourceMana, targetMana, shield } = event.payload;
+        target.hp = hp;
+        if (Number.isFinite(sourceMana)) source.mana = sourceMana;
+        if (Number.isFinite(targetMana)) target.mana = targetMana;
+        if (Number.isFinite(shield)) target.shield = shield;
         this.prepareAttack(source, target, index);
         target.player.play(target.hp ? 'hit' : 'defeat', { force: true });
         if (target.hp <= 0) target.fallUntil = this.elapsed + FALL_DURATION;
-        this.impacts.push({ targetId: target.actorId, damage: event.payload.damage, element: source.element, end: this.elapsed + .38 });
-        onCue({ type: 'hit_resolved', payload: { element: source.element } });
+        this.impacts.push({ targetId: target.actorId, text: damage > absorbed ? '−' + (damage - absorbed) : 'Chặn',
+          element: source.element, end: this.elapsed + .38 });
+        onCue({ type: 'hit_resolved', payload: { element: source.element, absorbed, hp_damage: damage - absorbed } });
+      } else if (event.type === 'ability') {
+        const target = this.actors.get(event.target_id);
+        const { amount, hp, shield, sourceMana } = event.payload;
+        source.mana = sourceMana;
+        target.hp = hp;
+        target.shield = shield;
+        source.player.play('skill_01', { force: true });
+        this.impacts.push({ targetId: target.actorId, text: amount ? '+' + amount : '', element: source.element, end: this.elapsed + .45 });
+        onCue({ type: 'cast_started', payload: { element: source.element } });
       }
     }
     this.trackApproachingAttacks(onCue);
@@ -72,20 +88,31 @@ export class ChessReplay {
     this.renderer.drawImage(context, sceneArt('chess_court'), 0, 0, 760, 480);
     for (let column = 0; column < 7; column += 1) {
       for (let row = 0; row < 8; row += 1) {
-        const { x, y } = boardPoint(column, row);
+        const { x, y } = boardPoint(column, row, this.hex);
         context.fillStyle = row < 4 ? '#16352c69' : '#4f282763';
-        context.fillRect(x - 44, y - 24, 88, 47);
         context.strokeStyle = row < 4 ? '#b5ecd067' : '#ffc29466';
-        context.strokeRect(x - 44, y - 24, 88, 47);
+        if (this.hex) {
+          context.beginPath();
+          context.moveTo(x, y - 29);
+          for (const [dx, dy] of [[42, -17], [42, 17], [0, 29], [-42, 17], [-42, -17]]) context.lineTo(x + dx, y + dy);
+          context.closePath();
+          context.fill();
+          context.stroke();
+        } else {
+          context.fillRect(x - 44, y - 24, 88, 47);
+          context.strokeRect(x - 44, y - 24, 88, 47);
+        }
       }
     }
-    context.fillStyle = '#f6d095';
-    context.fillRect(60, boardPoint(0, 4).y + 23, 640, 2);
+    if (!this.hex) {
+      context.fillStyle = '#f6d095';
+      context.fillRect(60, boardPoint(0, 4).y + 23, 640, 2);
+    }
     for (const actor of [...this.actors.values()].sort((a, b) => b.viewY - a.viewY)) {
       const standing = actor.hp > 0;
       if (!standing && (this.reducedMotion || !(actor.fallUntil > this.elapsed))) continue;
       const opacity = standing ? 1 : (actor.fallUntil - this.elapsed) / FALL_DURATION;
-      const { x, y } = boardPoint(actor.viewX, actor.viewY);
+      const { x, y } = boardPoint(actor.viewX, actor.viewY, this.hex);
       const animation = actor.player.snapshot();
       const rig = this.renderer.rigs?.get(actor.id);
       const clip = rig?.clips[animation.requestedClipId];
@@ -119,11 +146,23 @@ export class ChessReplay {
       context.fillRect(x - 19, y + 17, 38, 5);
       context.fillStyle = actor.team === 'player' ? '#a6e3a5' : '#ff977b';
       context.fillRect(x - 18, y + 18, 36 * actor.hp / actor.maxHp, 3);
+      if (this.hex) {
+        context.fillStyle = '#162727';
+        context.fillRect(x - 19, y + 22, 38, 4);
+        context.fillStyle = '#7ccbe6';
+        context.fillRect(x - 18, y + 23, 36 * actor.mana / 100, 2);
+        if (actor.shield > 0) {
+          context.strokeStyle = '#f6d891c7';
+          context.beginPath();
+          context.ellipse(x, y - 10, 24, 31, 0, 0, Math.PI * 2);
+          context.stroke();
+        }
+      }
     }
     if (!this.reducedMotion) this.drawApproachingAttacks(context);
     for (const effect of this.impacts) {
       const target = this.actors.get(effect.targetId);
-      const { x, y } = boardPoint(target.viewX, target.viewY);
+      const { x, y } = boardPoint(target.viewX, target.viewY, this.hex);
       const progress = (effect.end - this.elapsed) / .38;
       context.save();
       context.globalAlpha = Math.min(1, progress * 2);
@@ -135,9 +174,9 @@ export class ChessReplay {
       context.strokeStyle = '#172321';
       context.lineWidth = 4;
       const textY = y - 36 - (this.reducedMotion ? 0 : (1 - progress) * 16);
-      context.strokeText('−' + effect.damage, x, textY);
+      context.strokeText(effect.text, x, textY);
       context.fillStyle = ELEMENT_ART[effect.element]?.color ?? '#fff5d7';
-      context.fillText('−' + effect.damage, x, textY);
+      context.fillText(effect.text, x, textY);
       context.restore();
     }
   }
@@ -146,7 +185,8 @@ export class ChessReplay {
     if (actor.preparedHit === eventIndex) return;
     actor.preparedHit = eventIndex;
     if (target.x !== actor.x) actor.player.setDirection(target.x > actor.x ? 'E' : 'W');
-    const clip = actor.attackCount++ % 2 === 0 ? 'attack_a' : 'attack_b';
+    const skill = this.combat.events[eventIndex].payload.skill;
+    const clip = skill ? 'skill_01' : actor.attackCount++ % 2 === 0 ? 'attack_a' : 'attack_b';
     const contact = this.combat.events[eventIndex].tick * this.duration / this.combat.tick;
     actor.timing = { id: clip, start: (contact - ATTACK_LEAD) * 1000, contact: contact * 1000 };
     actor.player.play(clip, { force: true });
@@ -167,7 +207,7 @@ export class ChessReplay {
       preparing.add(source.actorId);
       const clip = this.prepareAttack(source, target, index);
       if (clip) onCue({
-        type: ['mage', 'ranged', 'support'].includes(source.job) ? 'spell_launched' : 'attack_started',
+        type: clip === 'skill_01' ? 'cast_started' : ['mage', 'ranged', 'support'].includes(source.job) ? 'spell_launched' : 'attack_started',
         payload: { element: source.element, clip_id: clip },
       });
       this.approaching.push({ source, target, contact });
@@ -176,8 +216,8 @@ export class ChessReplay {
 
   drawApproachingAttacks(context) {
     for (const { source, target, contact } of this.approaching) {
-      const from = boardPoint(source.viewX, source.viewY);
-      const to = boardPoint(target.viewX, target.viewY);
+      const from = boardPoint(source.viewX, source.viewY, this.hex);
+      const to = boardPoint(target.viewX, target.viewY, this.hex);
       const dx = to.x - from.x;
       const dy = to.y - from.y;
       const progress = Math.max(0, 1 - (contact - this.elapsed) / ATTACK_LEAD);
@@ -191,6 +231,9 @@ export class ChessReplay {
   }
 }
 
-function boardPoint(x, y) {
-  return { x: 104 + x * 92, y: 72 + (7 - y) * 49 };
+function boardPoint(x, y, hex = false) {
+  if (!hex) return { x: 104 + x * 92, y: 72 + (7 - y) * 49 };
+  const row = Math.floor(y);
+  const shift = chessHexOffset(row) * (row + 1 - y) + chessHexOffset(row + 1) * (y - row);
+  return { x: 83 + (x + shift) * 90, y: 72 + (7 - y) * 49 };
 }

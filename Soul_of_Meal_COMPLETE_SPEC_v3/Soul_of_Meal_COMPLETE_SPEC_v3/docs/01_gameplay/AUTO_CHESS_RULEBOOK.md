@@ -4,6 +4,8 @@
 ## 1. Match and board
 8 competitors (bots permitted), each starts 100 commander HP. Board is 7 columns ×8 rows overall; each player controls their half of 7×4 before battle. Bench capacity 9. Shop has 5 offers, refresh costs 2 gold; locking keeps offers across next round; buying costs tier (1–5) in gold. Unit cap on own board equals player level (levels 2–9 in prototype). Controlled placement only during preparation; combat is autonomous. Use visual labels for bench/full board/cannot afford/locked shop.
 
+The browser practice lobby uses a hex grid with one player and seven bots. It opens with two neutral rounds, then stages of four rival rounds and one neutral round. Neutral wins grant a component. Two components on a unit combine into a recipe, and each unit can hold up to three items. The lobby ends when the player is eliminated, all rivals are eliminated, or round 37 resolves. Existing browser runs keep their original format.
+
 ## 2. Phase machine
 `ROUND_SETUP -> SHOP_PREPARE (30s) -> LOCK_IN (1s) -> BATTLE (timeout 45s) -> RESOLVE -> PAYOUT -> NEXT_ROUND`. Low-motion setting shortens only render, not simulation. Temporary skills/status reset between rounds; persistent commander HP/gold/level, shop lock and standing board survive. Replay references RNG seed + roster + placements + purchases + versioned rules.
 
@@ -22,7 +24,7 @@ Start level 2 / 10 gold. Stage 1 can have neutral creep rounds. Prototype income
 | 8 | 12% | 22% | 30% | 28% | 8% |
 | 9 | 8% | 17% | 25% | 35% | 15% |
 
-Each row sums to 100. P0 may use per-shop deterministic independent offers; when PvP begins choose finite shared pool vs infinite and record the choice. If pool finite, purchases reduce pool and sold units return to pool (separate ADR).
+Each row sums to 100. The browser practice lobby uses the finite shared pool in `examples/auto_chess/shop_odds.json`. A shop reserves its offers until they are bought or rerolled. A merged unit retains the stock cost of its component copies. Sales and eliminations return copies to the pool. Buying XP does not reroll current offers.
 
 ## 5. Merge and placement
 Three copies of **same character ID and same star** combine into one unit +1 star; 1→2→3 stars maximum. Merge priority: board copies before bench if any, destination at the first occupied original cell with stable `placement_order`; overflow moves to bench, then refund/compensation policy must be explicit. Merge only between rounds. Merge increases HP/ATK according to unit-specific star multiplier content, not a hardcoded global double.

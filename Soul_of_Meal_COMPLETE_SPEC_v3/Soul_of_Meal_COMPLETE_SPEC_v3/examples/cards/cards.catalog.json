@@ -1,5 +1,5 @@
 {
-  "catalog_version": "0.3-proposed",
+  "catalog_version": "0.4-proposed",
   "cards": [
     {
       "card_id": "card_demo_01",
@@ -294,6 +294,65 @@
       "max_def": 880,
       "art_id": "card_demo_05",
       "character_id": "chr_caphe_davu"
+    },
+    {
+      "card_id": "card_spirit_renewal",
+      "display_name": "Diệp Mộc Hồi Phục",
+      "type": "fast_spell",
+      "element": "wood",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.4-proposed",
+      "effect": {
+        "kind": "restore_defense",
+        "value": 460
+      }
+    },
+    {
+      "card_id": "card_spirit_ward",
+      "display_name": "Ấn Bạch Ngọc",
+      "type": "burst_spell",
+      "element": "light",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.4-proposed",
+      "effect": {
+        "kind": "grant_shield",
+        "value": 400
+      }
+    },
+    {
+      "card_id": "card_spirit_rally",
+      "display_name": "Khai Hỏa Tiên Phong",
+      "type": "slow_spell",
+      "element": "fire",
+      "cost": 2,
+      "rarity": "R",
+      "version": "0.4-proposed",
+      "effect": {
+        "kind": "boost_attack",
+        "value": 360
+      }
+    }
+  ],
+  "presets": [
+    {
+      "id": "guard",
+      "name": "Hộ Trận",
+      "replace": {
+        "card_demo_10": "card_spirit_renewal",
+        "card_demo_13": "card_spirit_ward",
+        "card_demo_05": "card_wood_scout"
+      }
+    },
+    {
+      "id": "assault",
+      "name": "Tiên Phong",
+      "replace": {
+        "card_demo_10": "card_spirit_rally",
+        "card_demo_15": "card_fire_guard",
+        "card_demo_09": "card_shadow_duelist"
+      }
     }
   ]
 }

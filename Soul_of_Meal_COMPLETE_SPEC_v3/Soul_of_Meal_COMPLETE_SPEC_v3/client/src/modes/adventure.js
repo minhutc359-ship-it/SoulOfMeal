@@ -4,6 +4,7 @@ import { getAdventureMap } from './mapCatalog.js';
 import { adventureBalance as balance, adventureEncounters, ADVENTURE_TICK_RATE } from './adventureBalance.js';
 import { FOREST_CLUES, FOREST_CLUE_IDS, FOREST_LANTERNS, HARBOR_CLUES, HARBOR_CLUE_IDS } from './adventureStory.js';
 import { FINALE_CHAPTERS, FINALE_ROUTES, finaleChapterComplete } from './adventureFinale.js';
+import { adventureChallenge } from './adventureChallenges.js';
 import { adventureSpiritStats, spiritProfile } from './spiritProgress.js';
 import { buyVillageSupplies, VILLAGE_ROOMS } from './villageRooms.js';
 
@@ -29,7 +30,9 @@ function restoreBattle(save) {
   if (battle?.checkpointVersion !== CHECKPOINT_VERSION || !Object.hasOwn(adventureEncounters, battle.encounter)) return null;
   const encounter = adventureEncounters[battle.encounter];
   const allowedMap = encounter.scene ?? 'forest';
-  if (save.adventure.map !== allowedMap || !Number.isInteger(battle.tick) || battle.tick < 0
+  const validLocation = battle.challengeTier == null ? save.adventure.map === allowedMap
+    : Boolean(adventureChallenge(save, battle.encounter, battle.challengeTier)) && battle.wave === encounter.waves.length - 1;
+  if (!validLocation || !Number.isInteger(battle.tick) || battle.tick < 0
       || !Number.isInteger(battle.wave) || !encounter.waves[battle.wave] || typeof battle.id !== 'string'
       || !['battle_running', 'battle_end'].includes(battle.phase)
       || !Array.isArray(battle.actors) || !Array.isArray(battle.stoves)
@@ -341,16 +344,40 @@ function grantAdventureQuestReward(save, { gold, experience }) {
   save.roster = save.roster.map(actor => ({ ...actor, hp: actor.maxHp }));
 }
 
-export function beginBattle(state, save, encounter = 'forest') {
+export function beginAdventureChallenge(state, save, encounter, tier) {
+  const challenge = adventureChallenge(save, encounter, tier);
+  if (!challenge || (state.battle && (state.battle.result !== 'defeat'
+      || state.battle.encounter !== encounter || state.battle.challengeTier !== tier))) return false;
+  beginBattle(state, save, encounter, challenge);
+  state.walkPath = [];
+  state.walkTarget = null;
+  state.tapInteraction = null;
+  state.input = { x: 0, y: 0 };
+  state.lastMessage = challenge.tactic;
+  return true;
+}
+
+export function beginBattle(state, save, encounter = 'forest', challenge = null) {
+  const waves = adventureEncounters[encounter].waves;
+  const wave = challenge ? waves.length - 1 : 0;
   state.battle = {
-    id: `battle_adventure_${save.completedBattles + 1}`,
+    id: challenge ? `challenge_${challenge.key}_${(save.adventure.challengeRecords?.[challenge.key]?.clears ?? 0) + 1}`
+      : `battle_adventure_${save.completedBattles + 1}`,
     phase: 'battle_running',
     encounter,
     tick: 0,
-    wave: 0,
+    wave,
+    challengeTier: challenge?.tier ?? null,
     actors: [
-      ...save.roster.map((actor, index) => spawnActor(adventureSpiritStats(actor, spiritProfile(save, actor.id)), 'player', index)),
-      ...adventureEncounters[encounter].waves[0].map((enemy, index) => spawnActor(enemy, 'enemy', index)),
+      ...save.roster.map((actor, index) => {
+        const stats = adventureSpiritStats(actor, spiritProfile(save, actor.id));
+        return spawnActor(challenge ? { ...stats, hp: stats.maxHp } : stats, 'player', index);
+      }),
+      ...waves[wave].map((enemy, index) => {
+        const hp = Math.round(enemy.maxHp * (challenge?.hp ?? 1));
+        const stats = challenge ? { ...enemy, hp, maxHp: hp, atk: Math.round(enemy.atk * challenge.atk) } : enemy;
+        return spawnActor(stats, 'enemy', index);
+      }),
     ],
     bossPhase: 1,
     bossTelegraph: null,
@@ -362,7 +389,7 @@ export function beginBattle(state, save, encounter = 'forest') {
     events: [],
   };
   state.lastMessage = 'Các Vị Linh tự áp sát và tấn công. Hãy tung tuyệt kỹ khi đủ năng lượng.';
-  gameEvents.emit('battle_started', { battle_id: state.battle.id, wave: 1 }, battleContext(state.battle));
+  gameEvents.emit('battle_started', { battle_id: state.battle.id, wave: wave + 1 }, battleContext(state.battle));
 }
 
 function spawnActor(template, team, index) {
@@ -745,7 +772,7 @@ function finishBattle(state, won) {
   battle.phase = 'battle_end';
   clearBossTelegraph(battle);
   battle.result = won ? 'victory' : 'defeat';
-  state.result = won ? { won, ...adventureEncounters[battle.encounter ?? 'forest'].reward } : { won, gold: 0, essence: 0 };
+  state.result = won && !battle.challengeTier ? { won, ...adventureEncounters[battle.encounter ?? 'forest'].reward } : { won, gold: 0, essence: 0 };
   state.lastMessage = won ? 'Chiến thắng! Phần thưởng đã sẵn sàng nhận.' : 'Đội hình đã gục. Bạn có thể thử lại khi đã chuẩn bị.';
   gameEvents.emit('battle_finished', { result: battle.result, winner_team: won ? 'player' : 'enemy' }, battleContext(battle));
 }
@@ -756,6 +783,25 @@ export function claimBattleResult(state, save) {
   const updated = structuredClone(save);
   updated.adventure.battle = null;
   const { encounter } = battle;
+  if (battle.challengeTier) {
+    const challenge = adventureChallenge(updated, encounter, battle.challengeTier);
+    if (!challenge) return save;
+    const records = updated.adventure.challengeRecords ??= {};
+    const previous = records[challenge.key];
+    records[challenge.key] = {
+      bestTicks: Math.min(previous?.bestTicks ?? Infinity, battle.tick),
+      mostSurvivors: Math.max(previous?.mostSurvivors ?? 0, battle.actors.filter(actor => actor.team === 'player' && actor.alive).length),
+      clears: (previous?.clears ?? 0) + 1,
+    };
+    if (!previous) {
+      updated.player.gold += challenge.gold;
+      updated.player.essence += challenge.essence;
+    }
+    state.battle = null;
+    state.result = null;
+    state.lastMessage = previous ? 'Đã ghi thành tích khiêu chiến.' : `Lần đầu vượt thử thách · +${challenge.gold} vàng, +${challenge.essence} tinh hoa.`;
+    return updated;
+  }
   const finale = FINALE_CHAPTERS.find(chapter => chapter.boss && chapter.boss === encounter);
   const claimId = encounter === 'seal' ? 'forest_empty_bowl_reward'
     : encounter === 'tide' ? 'harbor_tidal_conch_reward' : finale ? adventureEncounters[encounter].claimId : `${battle.id}:forest_reward`;

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { adventureCheckpoint, activateBossCounter, createAdventureState, interactAdventure, nearestInteraction, beginBattle, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, leaveAdventureDefeat, activateUltimate, activateLanternWard, retreatFromTide, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
+import { adventureCheckpoint, activateBossCounter, createAdventureState, interactAdventure, nearestInteraction, beginBattle, beginAdventureChallenge, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, leaveAdventureDefeat, activateUltimate, activateLanternWard, retreatFromTide, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
 import { advanceChessRound, benchChessUnit, buyChessOffer, createChessRun, nextChessOpponent, placeChessUnit, startChessCombat, chessTraits } from '../src/modes/autoChess.js';
 import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard, mulliganTcg, surrenderTcg } from '../src/modes/tcg.js';
 import { createDefaultSave, migrateSave, SAVE_VERSION } from '../src/core/save.js';
@@ -746,6 +746,8 @@ test('Auto Chess merges across board and bench while keeping the placed survivor
   const unitsData = await readJson('examples/auto_chess/units.json');
   const shop = await readJson('examples/auto_chess/shop_odds.json');
   let run = createChessRun(unitsData.units, shop, 3);
+  const offer = run.shop[0];
+  run.shop.splice(0, 3, offer, offer, offer);
   run = buyChessOffer(run, 0);
   run = buyChessOffer(run, 1);
   run = placeChessUnit(run, 0, 4, 2);
@@ -759,12 +761,14 @@ test('Auto Chess merges across board and bench while keeping the placed survivor
 test('Auto Chess run reaches a terminal result at the round cap', async () => {
   const unitsData = await readJson('examples/auto_chess/units.json');
   const shop = await readJson('examples/auto_chess/shop_odds.json');
+  shop.lobby.max_rounds = 4;
   let run = createChessRun(unitsData.units, shop, 44);
   for (let cycle = 0; cycle < 20 && run.phase !== 'finished'; cycle += 1) {
     if (run.phase === 'prepare') run = startChessCombat(run);
     if (run.phase === 'result') run = advanceChessRound(run, unitsData.units, shop);
   }
   assert.equal(run.phase, 'finished');
+  assert.equal(run.round, shop.lobby.max_rounds);
   assert.ok(['victory', 'complete'].includes(run.result));
 });
 
@@ -782,13 +786,15 @@ test('Auto Chess benches a deployed unit without selling it and scouts the same 
   assert.equal(run.bench[0].x, undefined);
   assert.equal(run.gold, gold);
   run = placeChessUnit(run, 0, 4, 0);
+  run = advanceChessRound(startChessCombat(run), unitsData.units, shop);
+  run = advanceChessRound(startChessCombat(run), unitsData.units, shop);
   run.opponents[0].hp = 0;
   const forecast = nextChessOpponent(run);
-  assert.equal(forecast.id, run.opponents[1].id);
+  assert.ok(forecast.id > 1);
   const result = startChessCombat(run);
   assert.equal(result.result.opponentId, forecast.id);
   assert.deepEqual(result.combat.startActors.filter(actor => actor.team === 'enemy').map(({ id, x, y }) => [id, x, y]),
-    forecast.units.map(unit => [unit.id, unit.x, unit.y + 4]));
+    forecast.units.map(unit => [unit.id, unit.x, 7 - unit.y]));
   assert.throws(() => benchChessUnit(result, 0), /chuẩn bị/);
 });
 test('Auto Chess applies synergy to unique allies and records an ordered replay', async () => {
@@ -952,6 +958,8 @@ test('Auto Chess preparation and loss streak payout follow the match state', asy
   const shop = await readJson('examples/auto_chess/shop_odds.json');
   let run = createChessRun(units, shop, 21);
   assert.equal(run.preparationSeconds, 30);
+  run = advanceChessRound(startChessCombat(run), units, shop);
+  run = advanceChessRound(startChessCombat(run), units, shop);
   run.preparationSeconds = 0;
   run.gold = 30;
   run = startChessCombat(run);
@@ -970,4 +978,43 @@ test('Adventure melee attacks start when movement lands on the attack range boun
   const mob = state.battle.actors.find(actor => actor.id === 'mob_mushroom_01');
   for (let i = 0; i < 65 && !mob.attackCount; i++) stepAdventure(state, save, 1 / 30);
   assert.ok(mob.attackCount > 0, 'a rounded movement coordinate must not trap the attacker outside its range');
+});
+
+test('boss challenges preserve story progress and reward each difficulty only once', () => {
+  let save = createDefaultSave();
+  assert.equal(beginAdventureChallenge(createAdventureState(save), save, 'forest', 'hard'), false);
+  save.adventure.forestCleared = true;
+  save.adventure.quest = 'ready_to_claim';
+  save.roster[0].hp = 120;
+  save = migrateSave(save);
+  const original = structuredClone(save);
+  let state = createAdventureState(save);
+  assert.equal(beginAdventureChallenge(state, save, 'forge', 'hard'), false);
+  assert.equal(beginAdventureChallenge(state, save, 'forest', 'hard'), true);
+  assert.equal(state.battle.wave, 1);
+  assert.equal(state.battle.actors[0].hp, save.roster[0].maxHp);
+  const boss = adventureEncounters.forest.waves[1].find(actor => actor.boss);
+  assert.equal(state.battle.actors.find(actor => actor.boss).maxHp, Math.round(boss.maxHp * 1.28));
+  assert.equal(beginAdventureChallenge(state, save, 'forest', 'normal'), false);
+  save.adventure.battle = adventureCheckpoint(state.battle);
+  save = migrateSave(JSON.parse(JSON.stringify(save)));
+  state = createAdventureState(save);
+  assert.equal(state.battle.challengeTier, 'hard');
+  assert.equal(state.battle.paused, true);
+  Object.assign(state.battle, { phase: 'battle_end', result: 'victory', tick: 600 });
+  state.battle.actors[0].alive = false;
+  save = claimBattleResult(state, save);
+  assert.deepEqual(save.adventure.challengeRecords['forest:hard'], { bestTicks: 600, clears: 1, mostSurvivors: 4 });
+  assert.equal(save.player.gold, original.player.gold + 60);
+  assert.equal(save.player.essence, original.player.essence + 8);
+  assert.equal(save.adventure.battle, null);
+  assert.equal(beginAdventureChallenge(state, save, 'forest', 'hard'), true);
+  Object.assign(state.battle, { phase: 'battle_end', result: 'victory', tick: 550 });
+  save = migrateSave(claimBattleResult(state, save));
+  assert.deepEqual(save.adventure.challengeRecords['forest:hard'], { bestTicks: 550, clears: 2, mostSurvivors: 5 });
+  assert.equal(save.player.gold, original.player.gold + 60);
+  assert.equal(save.player.essence, original.player.essence + 8);
+  assert.deepEqual(save.roster, original.roster);
+  assert.deepEqual({ ...save.adventure, challengeRecords: {} }, original.adventure);
+  assert.equal(save.completedBattles, original.completedBattles);
 });

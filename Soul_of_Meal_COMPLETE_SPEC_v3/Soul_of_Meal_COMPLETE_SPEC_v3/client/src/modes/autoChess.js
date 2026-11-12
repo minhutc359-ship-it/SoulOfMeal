@@ -1,63 +1,125 @@
 import { gameEvents } from '../core/events.js';
+import { chessBattleOutcome, simulateChessCombat } from './chessCombat.js';
+import { CHESS_COMPONENTS, CHESS_ITEMS, chessItemPlacement } from './chessItems.js';
 
 export const CHESS_PREPARATION_SECONDS = 30;
 
-export const CHESS_TRAITS = {
-  fire: { name: 'Bếp Lửa', detail: '+15% công cho quân Hỏa', stat: 'atk', bonus: .15 },
-  wood: { name: 'Mầm Sống', detail: '+15% máu cho quân Mộc', stat: 'maxHp', bonus: .15 },
-  light: { name: 'Hộ Quang', detail: '+15% thủ cho quân Quang', stat: 'def', bonus: .15 },
-};
+export { CHESS_TRAITS, chessTraits } from './chessCombat.js';
 
-export function chessTraits(units) {
-  const counts = new Map();
-  for (const unit of new Map(units.map((unit) => [unit.id, unit])).values()) {
-    counts.set(unit.element, (counts.get(unit.element) ?? 0) + 1);
+const BOARD_COLUMNS = 7;
+const BOARD_ROWS = 4;
+const BENCH_SIZE = 9;
+const SHOP_SIZE = 5;
+const LEVEL_CAP = 9;
+
+export function chessRoundInfo(run) {
+  const { lobby, round } = run;
+  if (!lobby) return { label: String(round), stage: run.stage, neutral: false };
+  const offset = round - lobby.opening_neutral_rounds - 1;
+  if (offset < 0) return { label: '1-' + round, stage: 1, neutral: true };
+  const stage = 2 + Math.floor(offset / lobby.rounds_per_stage);
+  const step = 1 + offset % lobby.rounds_per_stage;
+  return { label: stage + '-' + step, stage, neutral: step === lobby.rounds_per_stage };
+}
+
+export function chessXpNeeded(run) {
+  return run.level >= LEVEL_CAP ? 0 : run.lobby?.xp_required[run.level] ?? 4;
+}
+
+function addExperience(entrant, amount, lobby) {
+  if (entrant.level >= LEVEL_CAP) return;
+  entrant.experience = (entrant.experience ?? 0) + amount;
+  while (entrant.level < LEVEL_CAP && entrant.experience >= lobby.xp_required[entrant.level]) {
+    entrant.experience -= lobby.xp_required[entrant.level];
+    entrant.level++;
+  }
+  if (entrant.level === LEVEL_CAP) entrant.experience = 0;
+}
+
+function livingOpponents(run) { return run.opponents.filter(opponent => opponent.hp > 0); }
+
+export function chessPoolCounts(run, includeShop = true) {
+  if (!run.lobby) return new Map();
+  const counts = new Map(Object.entries(run.pool));
+  const held = [...run.board, ...run.bench, ...livingOpponents(run).flatMap(bot => [...bot.units, ...bot.bench])];
+  for (const unit of held) counts.set(unit.id, (counts.get(unit.id) ?? 0) - 3 ** (unit.star - 1));
+  if (includeShop) {
+    for (const offer of run.shop.filter(Boolean)) counts.set(offer.id, (counts.get(offer.id) ?? 0) - 1);
   }
   return counts;
 }
 
-function applyTraits(units) {
-  const counts = chessTraits(units);
-  for (const unit of units) {
-    const trait = CHESS_TRAITS[unit.element];
-    if (!trait || counts.get(unit.element) < 2) continue;
-    unit[trait.stat] = Math.floor(unit[trait.stat] * (1 + trait.bonus));
-    if (trait.stat === 'maxHp') unit.hp = unit.maxHp;
-  }
+export function canBuyChessOffer(run, slot) {
+  const offer = run.shop[slot];
+  return run.phase === 'prepare' && Boolean(offer) && run.gold >= offer.cost
+    && (run.bench.length < BENCH_SIZE || Boolean(run.lobby && copiesOf(run, offer.id) >= 2));
+}
+
+function copiesOf(entrant, id) {
+  return [...entrant.board, ...entrant.bench].filter(unit => unit.id === id && unit.star === 1).length;
+}
+
+export function equipChessItem(run, zone, unitIndex, bagIndex) {
+  assertPrepare(run);
+  if (!run.lobby || !['board', 'bench'].includes(zone) || !Number.isInteger(unitIndex) || !Number.isInteger(bagIndex)) throw new Error('Chọn quân và vật phẩm hợp lệ.');
+  const unit = run[zone][unitIndex];
+  const item = run.items[bagIndex];
+  if (!unit || !Object.hasOwn(CHESS_ITEMS, item)) throw new Error('Không tìm thấy quân hoặc vật phẩm.');
+  const placement = chessItemPlacement(unit, item);
+  if (!placement) throw new Error('Quân đã mang đủ ba vật phẩm.');
+  const updated = structuredClone(run);
+  (updated[zone][unitIndex].items ??= [])[placement.slot] = placement.id;
+  updated.items.splice(bagIndex, 1);
+  record(updated, `${unit.display_name} nhận ${CHESS_ITEMS[placement.id].name}.`);
+  return updated;
 }
 
 export function createChessRun(units, shopConfig, seed = 2077) {
+  const lobby = shopConfig.lobby;
   const run = {
     phase: 'prepare', preparationSeconds: CHESS_PREPARATION_SECONDS, round: 1, stage: 1, hp: 100, gold: 10, level: 2, experience: 0,
     bench: [], board: [], shopLocked: false, shop: [], seed, wins: 0, losses: 0,
-    streak: 0, log: ['Vòng 1: chuẩn bị đội hình.'], combat: null, result: null,
-    opponents: Array.from({ length: 7 }, (_, index) => ({ id: index + 1, hp: 100, units: botRoster(units, index + seed) })),
+    streak: 0, log: ['Vòng đầu: chuẩn bị đội hình.'], combat: null, result: null,
+    opponents: Array.from({ length: 7 }, (_, index) => ({
+      id: index + 1, hp: 100, ...(lobby ? { units: [], bench: [], gold: 10, level: 2, experience: 0, streak: 0, items: [] }
+        : { units: botRoster(units, index + seed) }),
+    })),
   };
-  run.shop = rollChessShop(run, units, shopConfig, 5);
+  if (lobby) Object.assign(run, {
+    lobby: structuredClone(lobby), items: [],
+    pool: Object.fromEntries(units.map(unit => [unit.id, lobby.pool_by_tier[unit.cost]])),
+    economy: structuredClone(shopConfig.economy),
+  });
+  run.shop = rollChessShop(run, units, shopConfig);
+  if (lobby) prepareLobby(run, units, shopConfig);
   return run;
 }
 
 export function buyChessOffer(run, slot) {
   assertPrepare(run);
+  if (!Number.isInteger(slot) || !run.shop[slot]) throw new Error('Ô cửa hàng trống.');
   const offer = run.shop[slot];
-  if (!offer) throw new Error('Ô cửa hàng trống.');
-  if (run.bench.length >= 9) throw new Error('Băng ghế đã đủ 9 vị trí.');
   if (run.gold < offer.cost) throw new Error('Không đủ vàng.');
+  if (!canBuyChessOffer(run, slot)) throw new Error('Băng ghế đã đủ 9 vị trí.');
   const updated = structuredClone(run);
-  const unit = updated.shop[slot];
   updated.shop[slot] = null;
-  updated.gold -= unit.cost;
-  updated.bench.push({ ...unit, star: 1, hp: 0, atk: 0, def: 0, placementOrder: updated.bench.length });
+  updated.gold -= offer.cost;
+  updated.bench.push(newChessUnit(offer, updated.bench.length));
   mergeChessCopies(updated);
-  record(updated, `Đã mua ${unit.display_name}.`);
-  gameEvents.emit('chess_unit_bought', { unit_id: unit.id, cost: unit.cost });
+  record(updated, `Đã mua ${offer.display_name}.`);
+  gameEvents.emit('chess_unit_bought', { unit_id: offer.id, cost: offer.cost });
   return updated;
+}
+
+function newChessUnit(offer, placementOrder) {
+  return { ...offer, ...chessStats(offer.id, 1), star: 1, placementOrder };
 }
 
 export function placeChessUnit(run, benchIndex, x, y) {
   assertPrepare(run);
   if (run.board.length >= run.level) throw new Error(`Cấp ${run.level} chỉ dùng được ${run.level} quân.`);
-  if (x < 0 || x >= 7 || y < 0 || y >= 4) throw new Error('Chọn ô phía đội mình trên bàn 7×4.');
+  assertCell(x, y);
+  if (!Number.isInteger(benchIndex) || !run.bench[benchIndex]) throw new Error('Không tìm thấy quân trên ghế dự bị.');
   const updated = structuredClone(run);
   const existingIndex = updated.board.findIndex((unit) => unit.x === x && unit.y === y);
   if (existingIndex >= 0) throw new Error('Ô này đã có quân.');
@@ -73,7 +135,7 @@ export function placeChessUnit(run, benchIndex, x, y) {
 
 export function moveChessUnit(run, boardIndex, x, y) {
   assertPrepare(run);
-  if (x < 0 || x >= 7 || y < 0 || y >= 4) throw new Error('Chọn ô hợp lệ ở nửa bàn của bạn.');
+  assertCell(x, y);
   const updated = structuredClone(run);
   const selected = updated.board[boardIndex];
   if (!selected) throw new Error('Không tìm thấy quân.');
@@ -86,7 +148,7 @@ export function moveChessUnit(run, boardIndex, x, y) {
 export function benchChessUnit(run, boardIndex) {
   assertPrepare(run);
   if (!Number.isInteger(boardIndex) || !run.board[boardIndex]) throw new Error('Hãy chọn một quân trên bàn.');
-  if (run.bench.length >= 9) throw new Error('Băng ghế đã đủ 9 vị trí.');
+  if (run.bench.length >= BENCH_SIZE) throw new Error('Băng ghế đã đủ 9 vị trí.');
   const updated = structuredClone(run);
   const [{ x, y, ...unit }] = updated.board.splice(boardIndex, 1);
   updated.bench.push(unit);
@@ -96,12 +158,14 @@ export function benchChessUnit(run, boardIndex) {
 
 export function sellChessUnit(run, zone, index) {
   assertPrepare(run);
+  if (!['board', 'bench'].includes(zone) || !Number.isInteger(index) || !run[zone][index]) throw new Error('Không tìm thấy quân.');
   const updated = structuredClone(run);
-  const list = zone === 'board' ? updated.board : updated.bench;
-  const [unit] = list.splice(index, 1);
+  const [unit] = updated[zone].splice(index, 1);
   if (!unit) throw new Error('Không tìm thấy quân.');
-  const refund = unit.cost * unit.star;
+  const refund = updated.lobby ? unit.cost * 3 ** (unit.star - 1) - Number(unit.cost > 1) * (unit.star - 1)
+    : unit.cost * unit.star;
   updated.gold += refund;
+  if (updated.lobby) updated.items.push(...(unit.items ?? []));
   record(updated, `Đã bán ${unit.display_name}, nhận ${refund} vàng.`);
   return updated;
 }
@@ -113,7 +177,7 @@ export function refreshChessShop(run, units, shopConfig) {
   const updated = structuredClone(run);
   updated.gold -= 2;
   updated.seed += 1;
-  updated.shop = rollChessShop(updated, units, shopConfig, 5);
+  updated.shop = rollChessShop(updated, units, shopConfig);
   record(updated, 'Cửa hàng đã làm mới.');
   return updated;
 }
@@ -127,12 +191,26 @@ export function toggleChessLock(run) {
 }
 
 export function nextChessOpponent(run) {
-  const opponents = run.opponents;
-  for (let offset = 0; offset < opponents.length; offset++) {
-    const opponent = opponents[(run.round - 1 + offset) % opponents.length];
-    if (opponent.hp > 0) return opponent;
+  if (run.neutral) return run.neutral;
+  const { opponents } = run;
+  if (!run.lobby) {
+    for (let offset = 0; offset < opponents.length; offset++) {
+      const opponent = opponents[(run.round - 1 + offset) % opponents.length];
+      if (opponent.hp > 0) return opponent;
+    }
+    return null;
   }
-  return null;
+  const alive = livingOpponents(run);
+  const index = (run.round - 1) % alive.length;
+  const next = alive[index];
+  return alive.length > 1 && next.id === run.lastOpponentId ? alive[(index + 1) % alive.length] : next ?? null;
+}
+
+export function chessStandings(run) {
+  return [
+    { id: 0, hp: run.hp, level: run.level, eliminatedRound: run.hp === 0 ? run.round : null },
+    ...run.opponents,
+  ].sort((a, b) => b.hp - a.hp || (b.eliminatedRound ?? 0) - (a.eliminatedRound ?? 0) || a.id - b.id);
 }
 
 export function startChessCombat(run) {
@@ -140,172 +218,249 @@ export function startChessCombat(run) {
   const updated = structuredClone(run);
   const opponent = nextChessOpponent(updated);
   if (!opponent) throw new Error('Không còn đối thủ trên bàn.');
-  const friendly = updated.board.map((unit, index) => ({ ...unit, team: 'player', actorId: `p:${unit.id}:${index}`, cooldown: 0 }));
-  const enemyUnits = opponent.units.map((unit, index) => ({ ...unit, team: 'enemy', actorId: `b${opponent.id}:${unit.id}:${index}`, x: unit.x, y: unit.y + 4, cooldown: 6 + index * 2 }));
-  applyTraits(friendly);
-  applyTraits(enemyUnits);
-  const actors = [...friendly, ...enemyUnits];
-  updated.combat = { tick: 0, actors, startActors: structuredClone(actors), events: [] };
+  const hex = Boolean(updated.lobby);
+  const alive = livingOpponents(updated);
+  const combat = simulateChessCombat(updated.board, opponent.units, { hex });
+  updated.combat = combat;
   updated.phase = 'combat';
-  record(updated, `Vòng ${updated.round}: giao tranh tự động với đối thủ ${opponent.id}.`);
+  const opponentName = opponent.neutral ? opponent.name : 'đối thủ ' + opponent.id;
+  record(updated, `Vòng ${chessRoundInfo(updated).label}: giao tranh với ${opponentName}.`);
   gameEvents.emit('chess_combat_started', { round: updated.round, opponent_id: opponent.id });
-  return resolveChessCombat(updated, opponent);
+  const outcome = chessBattleOutcome(combat, updated.stage);
+  if (outcome.won) updated.wins++;
+  else if (!outcome.draw) updated.losses++;
+  updated.hp = Math.max(0, updated.hp - outcome.damage);
+  const payout = awardIncome(updated, outcome.won, outcome.draw, updated.economy, opponent.neutral);
+  const income = Object.values(payout).reduce((sum, amount) => sum + amount, 0);
+  let rewardItem = null;
+  if (hex) {
+    if (opponent.neutral && outcome.won) {
+      rewardItem = roundLoot(updated, 0);
+      updated.items.push(rewardItem);
+    }
+    if (!opponent.neutral) {
+      settleBot(opponent, outcome.enemyDamage, !outcome.won && !outcome.draw, outcome.draw, updated);
+      updated.lastOpponentId = opponent.id;
+    }
+    playBotMatches(updated, alive, opponent);
+  } else if (outcome.won) opponent.hp = Math.max(0, opponent.hp - 12);
+  updated.phase = 'result';
+  updated.result = { ...outcome, enemyDamage: hex ? outcome.enemyDamage : outcome.won ? 12 : 0,
+    income, payout, ticks: combat.tick, opponentId: opponent.id, rewardItem };
+  record(updated, outcome.won ? `Chiến thắng · +${income} vàng.` : outcome.draw ? `Hòa · +${income} vàng.` : `Thất bại · -${outcome.damage} HP, +${income} vàng.`);
+  if (rewardItem) record(updated, 'Nhặt được ' + CHESS_ITEMS[rewardItem].name + '.');
+  gameEvents.emit('chess_combat_finished', { won: outcome.won, draw: outcome.draw, damage: outcome.damage, income, ticks: combat.tick });
+  return updated;
+}
+
+function awardIncome(entrant, won, draw, economy, neutral = false) {
+  const prior = entrant.streak ?? 0;
+  if (!neutral) entrant.streak = draw ? 0 : won ? Math.max(0, prior) + 1 : Math.min(0, prior) - 1;
+  const streak = Math.abs(entrant.streak);
+  const table = entrant.streak > 0 ? economy?.win_streak_bonus_by_length : economy?.loss_streak_bonus_by_length;
+  const bonus = Object.entries(table ?? { 2: 1, 4: 2, 6: 3 })
+    .reduce((best, [threshold, gold]) => streak >= Number(threshold) ? Math.max(best, gold) : best, 0);
+  const payout = {
+    base: economy?.base_income ?? 5, win: won ? economy?.victory_bonus ?? 1 : 0,
+    interest: Math.min(Math.floor(entrant.gold / (economy?.interest_gold_interval ?? 10)), economy?.interest_cap ?? 5),
+    streak: bonus,
+  };
+  entrant.gold += Object.values(payout).reduce((sum, amount) => sum + amount, 0);
+  return payout;
+}
+
+function settleBot(bot, damage, won, draw, run, neutral = false) {
+  bot.hp = Math.max(0, bot.hp - damage);
+  if (bot.hp === 0) bot.eliminatedRound = run.round;
+  else awardIncome(bot, won, draw, run.economy, neutral);
+}
+
+function roundLoot(run, playerId) {
+  return CHESS_COMPONENTS[((run.seed + 13 * run.round + 17 * playerId) >>> 0) % CHESS_COMPONENTS.length];
+}
+
+function playBotMatches(run, alive, opponent) {
+  if (opponent.neutral) {
+    for (const bot of alive) {
+      const outcome = chessBattleOutcome(simulateChessCombat(bot.units, opponent.units, { hex: true, replay: false }), run.stage);
+      settleBot(bot, outcome.damage, outcome.won, outcome.draw, run, true);
+      if (outcome.won && bot.hp) (bot.items ??= []).push(roundLoot(run, bot.id));
+    }
+    return;
+  }
+  const rivals = alive.filter(bot => bot !== opponent);
+  const shift = (run.round - 1) % Math.max(1, rivals.length);
+  const ordered = [...rivals.slice(shift), ...rivals.slice(0, shift)];
+  for (let i = 0; i < ordered.length; i += 2) {
+    const first = ordered[i];
+    const second = ordered[i + 1];
+    const outcome = chessBattleOutcome(simulateChessCombat(first.units, (second ?? opponent).units, { hex: true, replay: false }), run.stage);
+    settleBot(first, outcome.damage, outcome.won, outcome.draw, run);
+    if (second) settleBot(second, outcome.enemyDamage, !outcome.won && !outcome.draw, outcome.draw, run);
+  }
 }
 
 export function advanceChessRound(run, units, shopConfig) {
   if (run.phase !== 'result') throw new Error('Trận đấu chưa có kết quả.');
   const updated = structuredClone(run);
-  const hasOpponent = Boolean(nextChessOpponent(updated));
-  if (updated.hp <= 0 || updated.round >= 10 || !hasOpponent) {
+  const rivals = livingOpponents(updated);
+  if (updated.hp <= 0 || updated.round >= (updated.lobby?.max_rounds ?? 10) || !rivals.length) {
     updated.phase = 'finished';
-    updated.result = updated.hp > 0 && (!hasOpponent || updated.wins > updated.losses) ? 'victory' : 'complete';
+    if (updated.lobby) {
+      updated.placement = updated.hp === 0 ? rivals.length + 1 : chessStandings(updated).findIndex(entry => entry.id === 0) + 1;
+      updated.result = updated.placement === 1 ? 'victory' : 'complete';
+    } else updated.result = updated.hp > 0 && (!rivals.length || updated.wins > updated.losses) ? 'victory' : 'complete';
     return updated;
   }
-  updated.round += 1;
-  updated.stage = Math.ceil(updated.round / 3);
-  if (updated.level < 9) {
+  updated.round++;
+  updated.stage = updated.lobby ? chessRoundInfo(updated).stage : Math.ceil(updated.round / 3);
+  if (updated.lobby) addExperience(updated, updated.lobby.xp_per_round, updated.lobby);
+  else if (updated.level < LEVEL_CAP) {
     updated.experience = (updated.experience ?? 0) + 1;
-    if (updated.experience >= 4) {
-      updated.experience -= 4;
-      updated.level += 1;
-    }
+    if (updated.experience >= 4) { updated.experience -= 4; updated.level++; }
   }
-  if (!updated.shopLocked) updated.shop = rollChessShop(updated, units, shopConfig, 5);
+  if (!updated.shopLocked) updated.shop = rollChessShop(updated, units, shopConfig);
   updated.shopLocked = false;
   updated.phase = 'prepare';
   updated.preparationSeconds = CHESS_PREPARATION_SECONDS;
   updated.combat = null;
   updated.result = null;
-  record(updated, `Vòng ${updated.round}: nhận thu nhập và chuẩn bị đội hình.`);
+  if (updated.lobby) prepareLobby(updated, units, shopConfig);
+  record(updated, `Vòng ${chessRoundInfo(updated).label}: chuẩn bị đội hình.`);
   return updated;
 }
 
 export function buyChessExperience(run, units, shopConfig) {
   assertPrepare(run);
-  if (run.level >= 9 || run.gold < 4) throw new Error('Cần 4 vàng và cấp dưới 9.');
+  if (run.level >= LEVEL_CAP || run.gold < 4) throw new Error('Cần 4 vàng và cấp dưới 9.');
   const updated = structuredClone(run);
   updated.gold -= 4;
-  updated.level += 1;
-  if (!updated.shopLocked) {
-    updated.seed += 1;
-    updated.shop = rollChessShop(updated, units, shopConfig, 5);
+  if (updated.lobby) {
+    addExperience(updated, updated.lobby.xp_per_purchase, updated.lobby);
+    record(updated, `Đã mua ${updated.lobby.xp_per_purchase} XP · cấp ${updated.level}.`);
+  } else {
+    updated.level++;
+    if (!updated.shopLocked) {
+      updated.seed++;
+      updated.shop = rollChessShop(updated, units, shopConfig);
+    }
+    record(updated, `Đã nâng đội hình lên cấp ${updated.level}.`);
   }
-  record(updated, `Đã nâng cửa hàng và đội hình lên cấp ${updated.level}.`);
   return updated;
 }
 
-function resolveChessCombat(run, opponent) {
-  const combat = run.combat;
-  const maxTicks = 45 * 30;
-  while (combat.tick < maxTicks) {
-    const alivePlayers = combat.actors.filter((actor) => actor.team === 'player' && actor.hp > 0);
-    const aliveEnemies = combat.actors.filter((actor) => actor.team === 'enemy' && actor.hp > 0);
-    if (!alivePlayers.length || !aliveEnemies.length) break;
-    combat.tick += 1;
-    for (const actor of combat.actors) {
-      if (actor.hp <= 0 || actor.cooldown > 0) { actor.cooldown = Math.max(0, actor.cooldown - 1); continue; }
-      const targets = combat.actors.filter((candidate) => candidate.hp > 0 && candidate.team !== actor.team);
-      const target = targets.sort((a, b) => distance(actor, a) - distance(actor, b) || a.actorId.localeCompare(b.actorId))[0];
-      if (!target) continue;
-      const range = ['mage', 'ranged', 'support'].includes(actor.job) ? 3 : 1;
-      if (distance(actor, target) > range) {
-        const dx = Math.sign(target.x - actor.x); const dy = Math.sign(target.y - actor.y);
-        const horizontal = { x: actor.x + dx, y: actor.y };
-        const vertical = { x: actor.x, y: actor.y + dy };
-        const routes = Math.abs(target.x - actor.x) >= Math.abs(target.y - actor.y)
-          ? [horizontal, vertical] : [vertical, horizontal];
-        const next = routes.find(({ x, y }) => !combat.actors.some((other) => other.hp > 0 && other.x === x && other.y === y));
-        if (next) {
-          Object.assign(actor, next);
-          combat.events.push({ tick: combat.tick, type: 'move', source_id: actor.actorId, ...next });
-        }
-        actor.cooldown = next ? 7 : 4;
-      } else {
-        const damage = Math.max(1, actor.atk - target.def);
-        target.hp = Math.max(0, target.hp - damage);
-        combat.events.push({ tick: combat.tick, type: 'hit_resolved', source_id: actor.actorId, target_id: target.actorId, payload: { damage, hp: target.hp, element: actor.element } });
-        gameEvents.emit('hit_resolved', { damage, hp_damage: damage, source_kind: 'auto_chess_attack' }, {
-          battle_id: `battle_chess_${run.round}`,
-          rules_version: 'client-auto-chess-v1',
-          tick: combat.tick,
-          source_id: actor.actorId,
-          target_id: target.actorId,
-        });
-        actor.cooldown = actor.job === 'assassin' ? 22 : 30;
-      }
+function prepareLobby(run, units, config) {
+  const { neutral, stage } = chessRoundInfo(run);
+  run.neutral = neutral ? neutralRoster(units, stage, run.round) : null;
+  for (const bot of livingOpponents(run)) {
+    if (run.round > 1) addExperience(bot, run.lobby.xp_per_round, run.lobby);
+    if (bot.level < LEVEL_CAP && bot.units.length >= bot.level && bot.gold >= 9 + bot.id % 3) {
+      bot.gold -= 4;
+      addExperience(bot, run.lobby.xp_per_purchase, run.lobby);
     }
+    const lineup = { board: bot.units, bench: bot.bench, items: bot.items ??= [] };
+    const shop = rollChessShop(run, units, config, bot);
+    for (let n = 0; n < 2; n++) {
+      const offers = shop.map((unit, slot) => ({ unit, slot }))
+        .filter(({ unit }) => unit && bot.gold >= unit.cost && (bot.bench.length < BENCH_SIZE || copiesOf(lineup, unit.id) >= 2));
+      const score = unit => copiesOf(lineup, unit.id) * 4 + unit.cost;
+      offers.sort((a, b) => score(b.unit) - score(a.unit) || a.slot - b.slot);
+      const offer = offers[0];
+      if (!offer) break;
+      bot.gold -= offer.unit.cost;
+      shop[offer.slot] = null;
+      bot.bench.push(newChessUnit(offer.unit, bot.bench.length));
+      mergeChessCopies(lineup, false);
+    }
+    while (bot.units.length < bot.level && bot.bench.length) {
+      const candidates = bot.bench.map((unit, index) => ({ unit, index }));
+      candidates.sort((a, b) => b.unit.star - a.unit.star || b.unit.cost - a.unit.cost || a.index - b.index);
+      const [unit] = bot.bench.splice(candidates[0].index, 1);
+      const row = ['guardian', 'fighter', 'assassin'].includes(unit.job) ? 3 : 0;
+      const slots = [3, 2, 4, 1, 5, 0, 6].flatMap(x => [row, row === 3 ? 2 : 1].map(y => ({ x, y })));
+      const cell = slots.find(({ x, y }) => !bot.units.some(member => member.x === x && member.y === y));
+      bot.units.push({ ...unit, ...cell, placementOrder: bot.units.length });
+    }
+    const carriers = [...bot.units].sort((a, b) => b.star - a.star || b.cost - a.cost);
+    bot.items = bot.items.filter(item => {
+      const carrier = carriers.find(unit => chessItemPlacement(unit, item));
+      if (!carrier) return true;
+      const placement = chessItemPlacement(carrier, item);
+      (carrier.items ??= [])[placement.slot] = placement.id;
+      return false;
+    });
   }
-  const friendly = combat.actors.filter(actor => actor.team === 'player');
-  const rival = combat.actors.filter(actor => actor.team === 'enemy');
-  const totalHp = actors => actors.reduce((total, unit) => total + unit.hp, 0);
-  const totalMaxHp = actors => actors.reduce((total, unit) => total + unit.maxHp, 0);
-  const playerHp = totalHp(friendly);
-  const enemyHp = totalHp(rival);
-  const timedOut = combat.tick >= maxTicks && playerHp > 0 && enemyHp > 0;
-  const comparison = timedOut ? playerHp * totalMaxHp(rival) - enemyHp * totalMaxHp(friendly) : playerHp - enemyHp;
-  const won = comparison > 0;
-  const draw = comparison === 0;
-  const damage = won || draw ? 0 : Math.min(25, 2 + Math.floor(run.stage / 2)
-    + rival.filter(actor => actor.hp > 0).reduce((sum, unit) => sum + unit.star, 0));
-  run.hp = Math.max(0, run.hp - damage);
-  if (won) {
-    run.wins += 1;
-    opponent.hp = Math.max(0, opponent.hp - 12);
-  } else if (!draw) run.losses += 1;
-  const prior = run.streak ?? 0;
-  run.streak = draw ? 0 : won ? Math.max(0, prior) + 1 : Math.min(0, prior) - 1;
-  const streak = Math.abs(run.streak);
-  const payout = {
-    base: 5, win: Number(won), interest: Math.min(Math.floor(run.gold / 10), 5),
-    streak: Number(streak >= 2) + Number(streak >= 4) + Number(streak >= 6),
-  };
-  const income = payout.base + payout.win + payout.interest + payout.streak;
-  run.gold += income;
-  run.phase = 'result';
-  run.result = { won, draw, damage, income, payout, playerHp, enemyHp, ticks: combat.tick, opponentId: opponent.id };
-  record(run, won ? `Chiến thắng · +${income} vàng.` : draw ? `Hòa · +${income} vàng.` : `Thất bại · -${damage} HP, +${income} vàng.`);
-  gameEvents.emit('chess_combat_finished', { won, draw, damage, income, ticks: combat.tick });
-  return run;
 }
 
-function mergeChessCopies(run) {
-  let merged = true;
-  while (merged) {
-    merged = false;
+function neutralRoster(units, stage, round) {
+  const choices = ['mob_mushroom_01', 'mob_pepper_01'].map(id => units.find(unit => unit.id === id) ?? units[0]);
+  const count = stage === 1 ? round : Math.min(4, 1 + stage);
+  return {
+    id: 0, neutral: true, name: 'Đội tuần tra Thất Vị',
+    units: Array.from({ length: count }, (_, index) => {
+      const base = newChessUnit(choices[index % choices.length], index);
+      const hp = stage === 1 ? 155 + 35 * round : Math.round(base.maxHp * (1 + .13 * stage));
+      return { ...base, x: 3 + [0, -1, 1, -2][index], y: 3, hp, maxHp: hp,
+        atk: stage === 1 ? 30 + 5 * round : base.atk, def: stage === 1 ? 12 : base.def };
+    }),
+  };
+}
+
+function mergeChessCopies(run, announce = true) {
+  for (;;) {
     const groups = new Map();
     for (const zone of ['board', 'bench']) {
       for (const unit of run[zone]) {
-        const key = `${unit.id}:${unit.star}`;
-        groups.set(key, [...(groups.get(key) ?? []), { zone, unit }]);
+        if (unit.star >= 3) continue;
+        const key = unit.id + ':' + unit.star;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(unit);
       }
     }
-    const triple = [...groups.values()].find((copies) => copies.length >= 3);
+    const triple = [...groups.values()].find(copies => copies.length >= 3);
     if (!triple) return;
-    const copies = triple.slice(0, 3);
-    const destination = copies.find((copy) => copy.zone === 'board') ?? copies[0];
-    const survivor = destination.unit;
-    const consumed = new Set(copies.filter((copy) => copy !== destination).map((copy) => copy.unit));
-    for (const zone of ['board', 'bench']) run[zone] = run[zone].filter((unit) => !consumed.has(unit));
-    survivor.star += 1;
+    const [survivor, ...consumed] = triple.slice(0, 3);
+    for (const zone of ['board', 'bench']) {
+      for (let index = run[zone].length - 1; index >= 0; index--) {
+        if (consumed.includes(run[zone][index])) run[zone].splice(index, 1);
+      }
+    }
+    survivor.star++;
     Object.assign(survivor, chessStats(survivor.id, survivor.star));
-    if (destination.zone === 'board') run.board.sort((first, second) => first.placementOrder - second.placementOrder);
-    merged = true;
-    record(run, `${survivor.display_name} hợp thể ${survivor.star} sao.`);
-    gameEvents.emit('chess_units_merged', { unit_id: survivor.id, star: survivor.star });
+    for (const item of consumed.flatMap(unit => unit.items ?? [])) {
+      const placement = chessItemPlacement(survivor, item);
+      if (placement) (survivor.items ??= [])[placement.slot] = placement.id;
+      else run.items.push(item);
+    }
+    if (announce) {
+      record(run, `${survivor.display_name} hợp thể ${survivor.star} sao.`);
+      gameEvents.emit('chess_units_merged', { unit_id: survivor.id, star: survivor.star });
+    }
   }
 }
 
-function rollChessShop(run, units, config, count) {
-  const odds = config.probabilities_percent[String(run.level)];
-  let seed = run.seed >>> 0;
-  return Array.from({ length: count }, () => {
-    seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
-    const roll = (seed >>> 0) % 100;
-    let total = 0; let tier = config.cost_tiers[0];
-    for (let index = 0; index < odds.length; index += 1) { total += odds[index]; if (roll < total) { tier = config.cost_tiers[index]; break; } }
-    const pool = units.filter((unit) => unit.cost === tier);
-    seed = (seed * 1664525 + 1013904223) >>> 0;
-    return structuredClone(pool[seed % pool.length]);
+function rollChessShop(run, units, config, bot = null) {
+  const odds = config.probabilities_percent[String(bot?.level ?? run.level)];
+  let seed = (run.seed + (run.lobby ? 131 * run.round + 701 * (bot?.id ?? 0) : 0)) >>> 0;
+  const pool = chessPoolCounts(run, Boolean(bot));
+  const draw = total => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return (seed >>> 8) % total;
+  };
+  function choose(items, weights) {
+    const total = weights.reduce((sum, weight) => sum + weight, 0);
+    if (total === 0) return null;
+    let roll = draw(total);
+    return items.find((_, index) => (roll -= weights[index]) < 0) ?? null;
+  }
+  return Array.from({ length: SHOP_SIZE }, () => {
+    const stock = unit => run.lobby ? Math.max(0, pool.get(unit.id) ?? 0) : 1;
+    const tiers = config.cost_tiers.map(tier => units.filter(unit => unit.cost === tier && stock(unit) > 0));
+    const group = choose(tiers, tiers.map((items, index) => items.length ? odds[index] : 0));
+    if (!group) return null;
+    const unit = choose(group, group.map(stock));
+    if (run.lobby) pool.set(unit.id, pool.get(unit.id) - 1);
+    return structuredClone(unit);
   });
 }
 
@@ -330,6 +485,11 @@ function chessStats(id, star) {
   return { hp: Math.floor(base[0] * multiplier), maxHp: Math.floor(base[0] * multiplier), atk: Math.floor(base[1] * multiplier), def: Math.floor(base[2] * multiplier) };
 }
 
-function distance(first, second) { return Math.abs(first.x - second.x) + Math.abs(first.y - second.y); }
+function assertCell(x, y) {
+  if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || x >= BOARD_COLUMNS || y < 0 || y >= BOARD_ROWS) {
+    throw new Error('Chọn ô hợp lệ ở nửa bàn của bạn.');
+  }
+}
+
 function record(run, message) { run.log.unshift(message); run.log = run.log.slice(0, 30); }
 function assertPrepare(run) { if (run.phase !== 'prepare') throw new Error('Chỉ được thao tác trong giai đoạn chuẩn bị.'); }

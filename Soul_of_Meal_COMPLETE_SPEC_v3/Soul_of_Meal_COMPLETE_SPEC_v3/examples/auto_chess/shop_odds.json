@@ -81,5 +81,29 @@
       35,
       15
     ]
+  },
+  "lobby": {
+    "status": "proposed",
+    "max_rounds": 37,
+    "opening_neutral_rounds": 2,
+    "rounds_per_stage": 5,
+    "xp_per_round": 2,
+    "xp_per_purchase": 4,
+    "xp_required": {
+      "2": 2,
+      "3": 6,
+      "4": 10,
+      "5": 20,
+      "6": 28,
+      "7": 36,
+      "8": 48
+    },
+    "pool_by_tier": {
+      "1": 29,
+      "2": 22,
+      "3": 18,
+      "4": 12,
+      "5": 9
+    }
   }
 }

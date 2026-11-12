@@ -35,9 +35,9 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 
 ## Lối chơi
 
-- **Adventure** · Chơi chương mở đầu **Hương Vị Đầu Tiên**. Gặp Lilia, mở rương, tìm hai manh mối Thất Vị trong rừng, đánh hai đợt và trở về làng nhận thưởng, xem cảnh kết. Dùng **Dẫn đường** trên bản đồ hoặc trong **Nhật ký hành trình**. Nhật ký lưu manh mối đã tìm và cho đọc lại đối thoại đã mở. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
-- **TCG** · Đấu bot với bộ 36 lá, đổi bài mở màn một lần, xây bộ bài trong danh mục 22 lá, triệu hồi Vị Linh, đặt bẫy úp và phản ứng theo lượt ưu tiên. Bộ bài đã lưu dùng khi bắt đầu ván mới.
-- **Auto Chess** · Mua quân, hợp thể ba bản sao, xếp đội hình, nâng cấp cửa hàng và chơi tối đa mười vòng. Hai nhân vật khác nhau cùng hệ Hỏa, Mộc hoặc Quang kích hoạt hiệp lực tương ứng. Phát lại giao tranh dùng vị trí, đòn đánh và HP do mô phỏng ghi lại.
+- **Adventure** · Chơi sáu chương bắt đầu với **Hương Vị Đầu Tiên**. Dùng **Dẫn đường** trên bản đồ hoặc trong **Nhật ký hành trình**. Nhật ký lưu manh mối đã tìm và cho đọc lại đối thoại đã mở. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
+- **TCG** · Đấu bot với bộ 36 lá, đổi bài mở màn một lần, xây bộ bài, triệu hồi Vị Linh, đặt bẫy úp và phản ứng theo lượt ưu tiên. Trình sửa bộ bài có mẫu **Hộ Trận** và **Tiên Phong**. Chọn độ khó Thường, Khó hoặc Cực khó khi tạo ván mới để dùng bộ bài đã lưu.
+- **Auto Chess** · Xếp đội hình trên bàn lục giác, mua quân từ kho chung, hợp thể ba bản sao và mua XP. Ván mới có bảy bot đánh cùng lúc, các vòng quái thưởng linh kiện và kết thúc khi bị loại, về nhất hoặc đến giới hạn 37 vòng. Phát lại giao tranh dùng vị trí, đòn đánh, kỹ năng và HP do mô phỏng ghi lại. Ván lưu từ bản trước tiếp tục theo thể thức cũ.
 
 ## Bếp Trưởng Hỏa Diệm
 
@@ -68,8 +68,9 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 
 - **Giao tranh Adventure.** Năm tuyệt kỹ nằm dưới sân đấu. Mỗi ô hiển thị năng lượng, trạng thái sẵn sàng, thời gian hồi và trạng thái gục. Cột đối thủ chứa HP boss, báo chiêu và nút đối phó. Khi dẫn đường, bản đồ nhỏ vẽ tuyến còn lại và sân đánh dấu điểm đến.
 - **Adventure.** Bản đồ nhỏ đánh dấu vị trí người chơi, lối đi và mục tiêu nhiệm vụ hiện tại. Trên màn hình cảm ứng, dùng cần điều khiển hoặc chạm đích để đi. Mở **Nhật ký hành trình** để đọc lại các cảnh đã mở kèm minh họa sáu chương.
+- **Khiêu chiến boss.** Boss mở trong bảng khi đã thắng trận tương ứng ở cốt truyện. Tái đấu ở ba độ khó với đội hình đầy HP. Mỗi boss và độ khó có phần thưởng lần đầu, số lần thắng, thời gian tốt nhất và số Vị Linh sống sót cao nhất. Chỉ số và phần thưởng là cân bằng thử nghiệm.
 - **Làng Ẩm Thực.** Chạm cửa hoặc đi đến trước Nhà Bếp, Hội Quán hay Tiệm Nguyên Liệu rồi nhấn E. Bàn chế tác mở kho trang bị. Bàn nhiệm vụ mở nhật ký. Tiệm đổi 30 vàng lấy 5 tinh hoa theo cân bằng thử nghiệm. Nút **Ra quảng trường** đưa nhân vật về đúng cửa. Bản lưu nhớ cả vị trí bên trong.
-- **TCG.** Chạm lá phép để chọn, rồi chạm chủ soái hoặc Vị Linh địch trên bàn, hoặc chọn trong danh sách. Nút **Thi triển** và **Hủy chọn** xuất hiện ở đầu khu tay bài. Khi bot tấn công, khu này chuyển sang chọn quân chặn. Nút **Bài trên tay** mở danh sách lá bài trong lúc chọn. Cả hai phía hiển thị hai ô bẫy úp, tên bẫy hiện khi lật. Nhật ký mở trong trận.
+- **TCG.** Chạm lá phép để chọn rồi chọn mục tiêu sáng trên bàn hoặc trong danh sách. Phép gây sát thương chọn chủ soái hoặc Vị Linh địch. Phép hồi DEF, hộ thuẫn và tăng ATK chọn Vị Linh đồng minh. Nút **Thi triển** và **Hủy chọn** xuất hiện ở đầu khu tay bài. Khi bot tấn công, khu này chuyển sang chọn quân chặn. Nút **Bài trên tay** mở danh sách lá bài trong lúc chọn. Cả hai phía hiển thị hai ô bẫy úp, tên bẫy hiện khi lật. Nhật ký mở trong trận.
 - **Auto Chess.** Hai nửa bàn cùng hiển thị theo hướng của bản phát lại. Mua quân rồi kéo từ ghế hoặc chạm quân và ô để đặt. Kéo quân từ bàn về ghế để rút, kéo lên ô có quân để đổi chỗ. Chọn quân để hiện nút **Bán quân** hoặc **Rút về ghế**. Đồng hồ luyện tập 30 giây tạm dừng khi mở hộp thoại. Khi hết giờ hoặc bấm **Chiến đấu**, trận bắt đầu sau một giây. Ở khung ngang thấp, chạm **Hiệp lực** để xem các mốc hệ. Phát lại hỗ trợ tạm dừng và tốc độ 2×. Kết quả hiển thị thu nhập và nút sang vòng ở khu điều khiển.
 - **Giảm chuyển động.** Tùy chọn trong **Cài đặt** giảm chuyển cảnh, hiệu ứng lật bẫy và chuyển động minh họa mà luật giao tranh vẫn chạy theo tick.
 
@@ -88,6 +89,7 @@ Cấp 1–5, công thức và giá là cân bằng thử nghiệm. Nâng cấp v
 - Sau khi kết thúc giai đoạn triển khai, chạm các Vị Linh đang sẵn sàng để chọn nhóm tấn công. Các Vị Linh sẵn sàng được chọn mặc định.
 - Khi bot tuyên bố tấn công, chọn một quân chặn cho từng đường muốn bảo vệ rồi chọn **Chốt phòng thủ**. Một Vị Linh chỉ chặn một đường. Chỉ số sát thương dự kiến cập nhật ngay khi đổi lựa chọn.
 - Sau khi chọn quân chặn, dùng tốc chú nếu cửa sổ phản ứng mở. Nếu quân chặn rời sân trước khi giao tranh được xử lý, đòn của đường đó đi thẳng vào chủ soái.
+- **Diệp Mộc Hồi Phục** hồi DEF qua hàng chờ tốc chú. **Ấn Bạch Ngọc** là tức chú dùng ngay và giữ ưu tiên. **Khai Hỏa Tiên Phong** là chậm chú tăng ATK. Hộ thuẫn và ATK cộng thêm hết hiệu lực cuối lượt hiện tại.
 - Tiến trình đang chờ chọn quân chặn được giữ khi rời trận hoặc tải lại. Lựa chọn chưa chốt chỉ dùng để xem trước.
 - Chọn **Chi tiết** trên tay bài hoặc tên thẻ trong trình sửa bộ bài để xem điều kiện dùng và hiệu ứng. **Mộ bài** cho xem các lá của bạn đã rời ván. Nút **Đầu hàng** kết thúc ván và ghi kết quả vào nhật ký.
 
@@ -95,6 +97,7 @@ Cấp 1–5, công thức và giá là cân bằng thử nghiệm. Nâng cấp v
 
 - Dùng **Do thám** để xem đúng đối thủ kế tiếp, nửa bàn và vị trí quân của họ. Số lãi dự kiến cập nhật theo vàng hiện có.
 - Chọn một quân trên bàn rồi bấm **Rút về ghế** để giữ quân và số sao. Ghế có chỗ thì có thể triển khai lại ở vị trí khác trước khi khóa đội hình.
+- **Túi vật phẩm** cho gắn linh kiện lên quân. Gắn linh kiện thứ hai lên quân đang giữ một linh kiện để ghép thành món hoàn chỉnh. Bán quân trả vật phẩm về túi và trả bản sao về kho chung. Tỉ lệ cửa hàng, ngưỡng XP và các món là cân bằng thử nghiệm.
 
 ## Cài nhạc theo cảnh
 

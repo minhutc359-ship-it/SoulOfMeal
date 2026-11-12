@@ -1,6 +1,7 @@
 import { restoreChapterThree, restoreChapterTwo, restoreForestClues } from '../modes/adventureStory.js';
 import { restoreFinale } from '../modes/adventureFinale.js';
 import { restoreSpiritProgress } from '../modes/spiritProgress.js';
+import { restoreChallengeRecords } from '../modes/adventureChallenges.js';
 import { VILLAGE_ROOMS } from '../modes/villageRooms.js';
 
 export const SAVE_KEY = 'soul-of-meal.save.v2';
@@ -12,7 +13,7 @@ export function createDefaultSave() {
     player: { name: 'Người Kết Vị', level: 1, experience: 0, gold: 120, essence: 24 },
     adventure: {
       map: 'village', x: 120, y: 310, quest: 'not_started', chestOpened: false,
-      forestCleared: false, forestClues: [], rewardClaims: [], battle: null,
+      forestCleared: false, forestClues: [], rewardClaims: [], challengeRecords: {}, battle: null,
       chapterTwo: { stage: 'not_started', lanterns: 0 },
       chapterThree: { stage: 'not_started', clues: [] },
       finale: restoreFinale({ chapterThree: { stage: 'not_started' } }),
@@ -39,6 +40,7 @@ export function migrateSave(input) {
   adventure.chapterTwo = restoreChapterTwo(adventure);
   adventure.chapterThree = restoreChapterThree(adventure);
   adventure.finale = restoreFinale(adventure);
+  adventure.challengeRecords = restoreChallengeRecords(adventure.challengeRecords);
   const mapAllowed = {
     village: true,
     forest: true,

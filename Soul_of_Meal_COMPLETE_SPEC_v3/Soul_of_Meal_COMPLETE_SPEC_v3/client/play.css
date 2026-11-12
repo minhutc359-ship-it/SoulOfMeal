@@ -387,3 +387,11 @@ button.enemy-hp { border: 1px solid #f3c788; border-radius: 7px; background: #44
 .duel-field .tcg-unit-avatar:has(.board-chibi) { background: radial-gradient(ellipse at 50% 76%, #7a725a55, transparent 57%); overflow: visible; }
 .chess-formation .chess-cell .board-chibi { width: min(92%, 50px); height: 100%; min-height: 0; }
 .chess-formation .chess-cell:has(.board-chibi) { grid-template-rows: minmax(0, 1fr); align-content: stretch; }
+
+.challenge-pickers { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(85px, .6fr); gap: 8px; margin-top: 12px; }
+.challenge-pickers label { display: grid; gap: 4px; font-size: 12px; font-weight: 700; }
+.challenge-pickers select { min-width: 0; min-height: 39px; padding: 4px; border: 1px solid #bba178; border-radius: 6px; background: #fffbeb; color: #203e32; font: inherit; }
+.challenge-preview { display: flex; align-items: center; gap: 10px; padding: 9px; margin-block: 8px; background: #ecdfc3; border: 1px solid #bba178; border-radius: 8px; }
+.challenge-preview img { width: 62px; height: 66px; object-fit: contain; }
+.challenge-preview p { margin: 4px 0; font-size: 12px; line-height: 1.4; }
+.challenge-preview small { font-weight: 750; color: #3a5949; }

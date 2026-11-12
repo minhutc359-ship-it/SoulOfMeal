@@ -289,8 +289,8 @@
     },
     {
       "path": "docs/01_gameplay/AUTO_CHESS_RULEBOOK.md",
-      "bytes": 5181,
-      "sha256": "186f9d7d0e1ac8ad528dbfd081db45168de630cc53acca1f45e14c792b6663b4"
+      "bytes": 5711,
+      "sha256": "6ff540c5d61fd2d1810b10059d2eb5a420936edb77f298e1e4498234ec49705e"
     },
     {
       "path": "docs/01_gameplay/TCG_RULEBOOK.md",
@@ -339,8 +339,8 @@
     },
     {
       "path": "examples/auto_chess/shop_odds.json",
-      "bytes": 964,
-      "sha256": "cf32b7b7659d52a48ae64cbaf89264e1e9a2f409f8c5b916a8d2147d1ede101b"
+      "bytes": 1371,
+      "sha256": "d3f2952455c48b584de3f913376940ad3eb2ab124a63d9a3fc55e2360c32c7a0"
     },
     {
       "path": "examples/auto_chess/units.json",
@@ -349,8 +349,8 @@
     },
     {
       "path": "examples/cards/cards.catalog.json",
-      "bytes": 6998,
-      "sha256": "44dcf0d5f5c241399ed6e6c7927f12bcd03709be848d4f047b3f016acbee4ed1"
+      "bytes": 8377,
+      "sha256": "c01214daf2def3b8e53cb475dd000531030127505e845cac67a10d4ae6e94088"
     },
     {
       "path": "examples/cards/starter_deck.json",
@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 16718,
-      "sha256": "87c387ce1ac45e7a4ad5524b49bb78cf7a63b324b697a07fe35ecbd9e6e8402e"
+      "bytes": 17905,
+      "sha256": "f4271b6ef12800e3efcf18c5c6844db1b5fe1cfdd81ec6853cc2c5642f484b5d"
     },
     {
       "path": "client/index.html",
@@ -789,28 +789,28 @@
     },
     {
       "path": "client/src/core/save.js",
-      "bytes": 4123,
-      "sha256": "fb9aa058e2bdcd0daea1fe1966431044cfe8a36caa19eda9eba5f578ac938dee"
+      "bytes": 4304,
+      "sha256": "0aec9915c2eac8c6f1901bf989778ba4b1d1af43a230e973e863ebf98106819a"
     },
     {
       "path": "client/src/main.js",
-      "bytes": 124804,
-      "sha256": "6c324bc3a9b01948ac72d25919b8e4d5ec0c9b1a9ac4e5e417808f847de4dbee"
+      "bytes": 138432,
+      "sha256": "45da5ff19a7a86c2f1a93a05f65a510af357373f176e5a981d6fc58ab4b3def0"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 41915,
-      "sha256": "559c03ee44f66fd3a083f99e5f2ffa50c91e05ec8577d2b0f1f2e116ff7c8aa3"
+      "bytes": 44217,
+      "sha256": "b625b2af7747b96bf84bd2e5c6e5736f995c53acb45dbc9e69c27064aa3fa75b"
     },
     {
       "path": "client/src/modes/autoChess.js",
-      "bytes": 15738,
-      "sha256": "12d52db6bf0e914bbde8286fc285c515bae95e04ef67a1e26e2226503e95623b"
+      "bytes": 22939,
+      "sha256": "b4711078ba5ac57efd1ac77e03c80352f48b20ac260a3b58aded3af61fdd0635"
     },
     {
       "path": "client/src/modes/tcg.js",
-      "bytes": 23043,
-      "sha256": "dc2d435d033ab16450ce5139d8c0bc4686495ebe40109c3e57b48339bbdb0560"
+      "bytes": 27721,
+      "sha256": "b75f030add57d0e9cd9b4159c64705ccda4f83104ee0d7fa511c39ccee915292"
     },
     {
       "path": "client/styles.css",
@@ -819,8 +819,8 @@
     },
     {
       "path": "client/tests/runtime.test.js",
-      "bytes": 48553,
-      "sha256": "ce8775a62509e55a496903f0ee6cb229ab0081cf3b4369030ee896bb8101e868"
+      "bytes": 51324,
+      "sha256": "5299d362edbcfab6c2f371084622730bbb0bea825c3411377cff5b9238561e5f"
     },
     {
       "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
@@ -1489,8 +1489,8 @@
     },
     {
       "path": "client/src/render/chessReplay.js",
-      "bytes": 9050,
-      "sha256": "38f44b531fb974bbb8819afde0e19ba436e9732cff06bc1d20cc85f2b09d7082"
+      "bytes": 11197,
+      "sha256": "aaf3fb8f5763c30180538ca0a2ac4e329c8518f4f07851c1af6895da357d4284"
     },
     {
       "path": "scripts/build_battle_poses.py",
@@ -2209,8 +2209,8 @@
     },
     {
       "path": "docs/04_qa/PLAYTEST_CONCEPT_GAP.md",
-      "bytes": 6309,
-      "sha256": "fac2c29c2f693783bef332f52061bed965490053f772d0f8bd14df49e4787e0f"
+      "bytes": 6433,
+      "sha256": "e5f8d8814f13ebb61c9840b6a6517b097a7082e4f02757546e55909ef86c93c1"
     },
     {
       "path": "client/assets/original/scenes/title.webp",
@@ -2419,8 +2419,8 @@
     },
     {
       "path": "client/tests/tcgCombat.test.js",
-      "bytes": 6673,
-      "sha256": "2ab2c5a1c014250c7a7fb2a852912a0766d9ce0780b8192994dc26e5530047d9"
+      "bytes": 9888,
+      "sha256": "40ca02b3ef7d26a96678d33ea02776e5f9ac078847c86c827afbab03948d69a3"
     },
     {
       "path": "client/assets/original/props/boss_stove.webp",
@@ -2534,8 +2534,8 @@
     },
     {
       "path": "client/play.css",
-      "bytes": 21744,
-      "sha256": "dc006ea1bb1f1cebada1ca482e4c7eb648d154b8099733488b353c4d197c578a"
+      "bytes": 22519,
+      "sha256": "d70ef3b2efa7978581ceb11c17c70fe5a79f74a84c1d6353842771d0973d25a0"
     },
     {
       "path": "client/src/render/worldHud.js",
@@ -2944,8 +2944,33 @@
     },
     {
       "path": "client/arena.css",
-      "bytes": 19246,
-      "sha256": "014fc8b3273cfbb977f2b3a8237c7480f35909cb03658de379315cc73b1ab07a"
+      "bytes": 21442,
+      "sha256": "cc9568bbdcebfde65235c7ed94c98149c3624644f846bb394420de2fad80065a"
+    },
+    {
+      "path": "client/src/modes/adventureChallenges.js",
+      "bytes": 2475,
+      "sha256": "dd0f38001ce3820c68dfb10605789cf89b82309c79cab649a1fe0c19e4e7391d"
+    },
+    {
+      "path": "client/src/modes/chessCombat.js",
+      "bytes": 7414,
+      "sha256": "d4cf1ca3d096b95713683739d06a09ca7afdfdb79bc58aee1809abdd122d36f4"
+    },
+    {
+      "path": "client/src/modes/chessItems.js",
+      "bytes": 1651,
+      "sha256": "d10bca1664a651de873814176a0f1517cc981ee2d001796305a975edb269cfc1"
+    },
+    {
+      "path": "client/src/modes/tcgStrategy.js",
+      "bytes": 1936,
+      "sha256": "45e4f046230c495cfd7bcb5ef10273fe163876cdaf7e4d00863c8d04907259a2"
+    },
+    {
+      "path": "client/tests/chessLobby.test.js",
+      "bytes": 4657,
+      "sha256": "49b3f76e6d0439a474a1975491a6770cd6b9eb6c7d04f7af54b04b1d87aecafa"
     }
   ]
 }
