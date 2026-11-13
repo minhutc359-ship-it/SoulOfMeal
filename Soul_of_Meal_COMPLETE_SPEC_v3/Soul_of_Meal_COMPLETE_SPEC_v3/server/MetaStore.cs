@@ -6,10 +6,11 @@ using NpgsqlTypes;
 internal sealed record SpiritDefinition(string Id, string Rarity);
 internal sealed record BannerDefinition(string Id, string Family, string? Featured, int? Limit);
 internal sealed record MetaCatalog(SpiritDefinition[] Characters, string Mascot, string[] Starters,
-    string[] OnboardingAvatars, Dictionary<string, int> Rates, Dictionary<string, int> GuaranteeRates,
+    string[] StarterGuardians, Dictionary<string, int> Rates, Dictionary<string, int> GuaranteeRates,
     int SrPity, int SsrPity, int FeaturedChance, int GemCost, Dictionary<string, int> DuplicateEssence,
     Dictionary<string, int> WelcomeWallet, BannerDefinition[] Banners);
-internal sealed record PlayerIdentity(string Name, string Avatar, string? Starter);
+internal sealed record PlayerIdentity(string Name, string Avatar, string? Starter, string[]? StarterIds = null);
+internal sealed record CreatePlayerRequest(string? Name);
 internal sealed record PityState(int SinceSsr = 0, int SinceSr = 0, bool FeaturedGuaranteed = false, int Draws = 0);
 internal sealed record DrawRequest(string? BannerId, int Count, string? Payment, Guid Key);
 internal sealed record DrawItem(string Id, bool IsNew, int Essence);
@@ -36,15 +37,16 @@ internal sealed class MetaStore(NpgsqlDataSource database)
     public Task<MetaState> ReadAsync(Guid accountId, string username, CancellationToken ct) =>
         TransactAsync(accountId, username, (_, _, state) => Task.FromResult((state, state)), ct);
 
-    public Task<MetaState> CreateProfileAsync(Guid accountId, string username, PlayerIdentity profile, CancellationToken ct) =>
+    public Task<MetaState> CreateProfileAsync(Guid accountId, string username, string name, CancellationToken ct) =>
         TransactAsync(accountId, username, (_, _, state) =>
         {
-            if (state.Profile == profile) return Task.FromResult((state, state));
+            if (state.Profile?.Name == name) return Task.FromResult((state, state));
             if (state.Profile is not null) throw new MetaException("profile_exists", 409);
-            if (!Catalog.Starters.Contains(profile.Starter) || !Catalog.OnboardingAvatars.Contains(profile.Avatar))
-                throw new MetaException("invalid_profile", 400);
-            state.Owned.UnionWith([Catalog.Mascot, profile.Starter!]);
-            var next = state with { Profile = profile };
+            var guardian = Catalog.StarterGuardians[RandomNumberGenerator.GetInt32(Catalog.StarterGuardians.Length)];
+            var companion = Catalog.Starters[RandomNumberGenerator.GetInt32(Catalog.Starters.Length)];
+            var starters = new[] { guardian, companion };
+            state.Owned.UnionWith(starters);
+            var next = state with { Profile = new PlayerIdentity(name, guardian, companion, starters) };
             return Task.FromResult((next, next));
         }, ct);
 

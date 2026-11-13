@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 21648,
-      "sha256": "d3e904b9664c68866b2cd35f75190074a1d44d05c99e76fec8a5065279d41f12"
+      "bytes": 21807,
+      "sha256": "349cdb670b8ca0191ef2ad18851b0562b3f234ce4d7e46af7860df1c4aba7aed"
     },
     {
       "path": "client/index.html",
@@ -794,8 +794,8 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 199726,
-      "sha256": "6222ce6070d7752ee6a1d859b0cb6239c00398f395e6be8d188844f3df19e1d9"
+      "bytes": 201453,
+      "sha256": "65e39394a34917a5d01b9d8393318bab562a3ebe280a554b6f2ef503bc5eb945"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -2249,8 +2249,8 @@
     },
     {
       "path": "client/src/core/accountApi.js",
-      "bytes": 4417,
-      "sha256": "066f960e2942099c6f2a23d35d93ead98533172888c87fdcfb9a38ca576c9319"
+      "bytes": 4383,
+      "sha256": "c4f0d8ee1aee5964b1f0085d7f23f8281813bdf04f88041f77abc768ed2e1f5d"
     },
     {
       "path": "client/src/core/cloudSave.js",
@@ -2289,8 +2289,8 @@
     },
     {
       "path": "server/README.md",
-      "bytes": 3548,
-      "sha256": "aa343a6a088163dbbdd759ee5415e3ac2a9204dcf499ffbe0366db522f1a9c8f"
+      "bytes": 3660,
+      "sha256": "49f9c0f4047a808a584b8c109fe38d5a48ad0f695d3cffedd5ba68ca3b4f4eb5"
     },
     {
       "path": "server/SoulOfMeal.Server.csproj",
@@ -2304,8 +2304,8 @@
     },
     {
       "path": "server/verify_accounts.py",
-      "bytes": 7851,
-      "sha256": "2d6c76d0aed10e9ce52c3a6af662e4f745106ab7cfff0cd0a431b7f6b1f7b00b"
+      "bytes": 8658,
+      "sha256": "706a62b76b9972b040e8626dc52115233f3061ca2b169e34ecf34bbf93fe4f52"
     },
     {
       "path": "client/assets/audio/soundtracks.json",
@@ -3159,8 +3159,8 @@
     },
     {
       "path": "client/meta.css",
-      "bytes": 8100,
-      "sha256": "3d392a11499d18c3b59c8fce5a3eaf183765c90432c62f2cecac9d309220094a"
+      "bytes": 9103,
+      "sha256": "4b1f945d60ef213ffcc5e56b17bacd62cee05f249d9202064af40696ea5b9c70"
     },
     {
       "path": "client/src/modes/adventureStore.js",
@@ -3169,23 +3169,23 @@
     },
     {
       "path": "client/src/modes/metaCatalog.json",
-      "bytes": 11557,
-      "sha256": "4fd329dd476d84e13be0e5d1af16b9d7bbb40d62aa3bbca5a96ffdcbb6f89939"
+      "bytes": 11651,
+      "sha256": "a17f27adc2d597d742666f9f34bf74c7f9e8a6d93fa46d4f7913552e9c4c97df"
     },
     {
       "path": "client/src/modes/metaProgress.js",
-      "bytes": 7525,
-      "sha256": "350b95015b59302b2325a998d77d0b500d262ef12cf798ac0c08fdcec22390d5"
+      "bytes": 8731,
+      "sha256": "4cd5f55b9fc085d90ea8938089b64eafdc61fc0c04531d0f101597425f197d8b"
     },
     {
       "path": "client/src/shell/metaPanels.js",
-      "bytes": 11790,
-      "sha256": "53156d2ece8336d569f6d0fdd0e9e1c300d06073629c7e91c9f45c65d409034b"
+      "bytes": 12982,
+      "sha256": "59c1a5f38dcb8b6eb7e2490d04fb4bb35cc81cf8ca3d90b9cd9ddb3d7d6de295"
     },
     {
       "path": "client/tests/metaProgress.test.js",
-      "bytes": 4431,
-      "sha256": "41e8517aba0d0b7cc37cf109a802d4ce855e04310fa4f097895347be66fe457d"
+      "bytes": 5747,
+      "sha256": "030ee371c63317f8321da6f2debfbf2dd370db7fbb11efcd080d3381d39874a0"
     },
     {
       "path": "server/GoogleSignIn.cs",
@@ -3194,13 +3194,13 @@
     },
     {
       "path": "server/MetaEndpoints.cs",
-      "bytes": 2293,
-      "sha256": "c3585abd0cf9e0570ec113e741f711bac6fddf39c9c3c3ccc0cd341bef3a562f"
+      "bytes": 2274,
+      "sha256": "d397fe0724fbff8b0b331b95d915d41222305c50b056884173fdda0348c612c9"
     },
     {
       "path": "server/MetaStore.cs",
-      "bytes": 9399,
-      "sha256": "04628c4162d623a69d6d2ddebcf7b5db5b170b75ee24ebff639f73aae9c7f3ef"
+      "bytes": 9597,
+      "sha256": "47cdb68bbd5320d3a52dd5cebf88ce7a73f652b1f22ec629f96291180e3aefcd"
     },
     {
       "path": "client/scene.css",
@@ -3209,8 +3209,8 @@
     },
     {
       "path": "client/scripts/smoke-web-client.cjs",
-      "bytes": 9947,
-      "sha256": "57e46334929570fc6bfd0f0c3c19188b5c5607e02f6b41c4278b13d73d3fe222"
+      "bytes": 11984,
+      "sha256": "696ab2dfc8062f12242634ca21b611bddc766f7456311636eb34ceecaf82839c"
     },
     {
       "path": "client/src/shell/sceneNavigation.js",

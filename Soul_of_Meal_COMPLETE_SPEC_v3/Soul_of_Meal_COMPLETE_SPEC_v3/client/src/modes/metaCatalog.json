@@ -271,6 +271,11 @@
     "chr_goicuon_diepnhi",
     "chr_som_016"
   ],
+  "starterGuardians": [
+    "chr_banhbao_bachngoc",
+    "chr_som_002",
+    "chr_som_009"
+  ],
   "mascot": "chr_banhbao_bachngoc",
   "onboardingAvatars": [
     "chr_banhbao_bachngoc",

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createDefaultSave, migrateSave } from '../src/core/save.js';
 import { ADVENTURE_OFFERS, changeAdventureInventory } from '../src/modes/adventureStore.js';
-import { BANNERS, META, SPIRITS, adventureParty, changeParty, drawSpirits, finishOnboarding } from '../src/modes/metaProgress.js';
+import { BANNERS, META, SPIRITS, adventureParty, changeParty, drawSpirits, finishOnboarding, rollStarters, starterSpirits } from '../src/modes/metaProgress.js';
 import { adventureSpiritStats, spiritProfile } from '../src/modes/spiritProgress.js';
 
 const newPlayer = () => finishOnboarding(createDefaultSave(), {
@@ -26,6 +26,28 @@ test('onboarding grants only the two starters and legacy migration keeps the pre
   const migrated = migrateSave(legacy);
   assert.ok(migrated.meta.profile);
   assert.deepEqual(adventureParty(migrated), legacy.roster);
+});
+
+test('first summon awards one random guardian and one SR and restores the same pending reward', () => {
+  const fresh = createDefaultSave();
+  const first = rollStarters(fresh, '  Minh Kết Vị  ', roll(0, 0));
+  const last = rollStarters(fresh, 'Minh Kết Vị', roll(99, 99));
+  assert.deepEqual(starterSpirits(first.meta.profile), [META.starterGuardians[0], META.starters[0]]);
+  const ids = [META.starterGuardians.at(-1), META.starters.at(-1)];
+  assert.deepEqual(starterSpirits(last.meta.profile), ids);
+  assert.equal(last.meta.profile.avatar, ids[0]);
+  assert.equal(first.player.name, 'Minh Kết Vị');
+  assert.deepEqual(last.meta.wallet, fresh.meta.wallet);
+  assert.deepEqual(last.meta.history, []);
+  assert.deepEqual(last.meta.pity, {});
+  assert.equal(fresh.meta.profile, null);
+  const restored = migrateSave(JSON.parse(JSON.stringify(last)));
+  assert.equal(restored.meta.starterRevealPending, true);
+  assert.deepEqual(starterSpirits(restored.meta.profile), ids);
+  assert.deepEqual(adventureParty(restored).map(spirit => spirit.id), ids);
+  assert.throws(() => rollStarters(restored, 'Minh Kết Vị', roll(0, 0)), /đã được tạo/);
+  restored.meta.starterRevealPending = false;
+  assert.equal(migrateSave(restored).meta.starterRevealPending, false);
 });
 
 test('SSR hard pity wins over SR pity, and an off-banner SSR guarantees the next one', () => {
