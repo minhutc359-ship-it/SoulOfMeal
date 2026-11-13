@@ -50,7 +50,7 @@ export class DuelEffects {
     const active = [];
     for (const attack of this.attacks) {
       if (attack.event.battle_id !== matchId) continue;
-      if (reducedMotion || now >= attack.contact) onContact(attack.event);
+      if (reducedMotion || !attack.from || !attack.to || now >= attack.contact) onContact(attack.event);
       else active.push(attack);
     }
     this.attacks = active;

@@ -2674,8 +2674,8 @@
     },
     {
       "path": "client/tests/boardSprites.test.js",
-      "bytes": 5180,
-      "sha256": "b7ff803d2f324015c867332f9076e6d47b7e77edbd145e00a17bc361fd57cb37"
+      "bytes": 5515,
+      "sha256": "a9f3dda55b973cb283072ebedd99d39dfdf7aa0396b906c6ce4f05a334fe4158"
     },
     {
       "path": "client/assets/audio/sfx_boss_break.ogg",
@@ -2744,8 +2744,8 @@
     },
     {
       "path": "client/src/render/duelEffects.js",
-      "bytes": 4218,
-      "sha256": "001304e45d1a87453038b17b3fc6b7c20630ae4eceb0d3a1bb433e629be0b4be"
+      "bytes": 4248,
+      "sha256": "b8c8abf07bbf8138d0d29dc8649e98c600da8f41165a01ea749db25b7dca1e4b"
     },
     {
       "path": "scripts/build_combat_audio.py",

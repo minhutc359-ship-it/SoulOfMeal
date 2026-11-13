@@ -43,6 +43,12 @@ test('TCG contact fires once after the trail and pending effects clear when a du
   duel.paint(null, 'new-duel', 600, false, callback);
   assert.deepEqual(contacts, [event]);
   assert.equal(duel.queue(field, event, 625, true), 625);
+  duel.clear();
+  const withoutTarget = { ...field, querySelector: selector => selector.includes('unit') ? node : null };
+  assert.equal(duel.queue(withoutTarget, event, 650, false), 650);
+  duel.paint(null, 'duel', 649, false, callback);
+  duel.paint(null, 'duel', 651, false, callback);
+  assert.deepEqual(contacts, [event, event]);
 });
 
 test('Auto Chess plays an attack lead once and makes contact on the recorded tick', () => {
