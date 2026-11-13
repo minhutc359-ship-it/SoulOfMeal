@@ -38,3 +38,9 @@ Khi triển khai, phục vụ qua HTTPS. Cấu hình `DataProtection__KeyPath` t
 Chạy `python3 server/verify_accounts.py http://127.0.0.1:5080` với database kiểm thử có thể xóa. Script tạo hai tài khoản thử để kiểm tra cookie, CSRF, quyền sở hữu bản lưu, ghi đồng thời, gửi lại cùng bản lưu và thu hồi phiên. Chạy `node --test client/tests/*.test.js` để kiểm tra hàng đợi đồng bộ, phiên hết hạn, xung đột và các luật chơi.
 
 Máy chủ dùng thư viện [Npgsql](https://github.com/npgsql/npgsql) theo PostgreSQL License.
+
+## Giao ước và hồ sơ v4
+
+Tạo hồ sơ, chọn Vị Linh đầu tiên, số dư gacha, pity và kết quả triệu hồi của tài khoản được ghi vào PostgreSQL. Mỗi lượt dùng mã UUID để gửi lại cùng yêu cầu sau lỗi mạng. Cửa hàng, trang bị, cấp và sao Adventure dùng bản lưu luyện tập. Cân bằng của gacha và Adventure thuộc bản chơi thử.
+
+Cấu hình thêm `Authentication__Google__ClientId` và `Authentication__Google__ClientSecret` để hiện nút Google. Đăng ký URI chuyển hướng `https://<game-origin>/signin-google` cho cùng origin phục vụ client và API. Tài khoản Google dùng định danh do Google cấp và phiên cookie của game. Chế độ khách có tùy chọn lưu trên máy chủ, với phiên gắn với trình duyệt. Bản Vercel tĩnh chạy chế độ lưu trên thiết bị khi chưa có API cùng origin.

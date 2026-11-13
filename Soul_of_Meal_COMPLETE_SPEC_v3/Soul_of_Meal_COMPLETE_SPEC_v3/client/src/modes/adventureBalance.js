@@ -1,3 +1,5 @@
+import { SPIRITS } from './metaProgress.js';
+
 // Browser playtest values. Combat advances at 30 ticks/s.
 export const ADVENTURE_TICK_RATE = 30;
 export const adventureBalance = {
@@ -21,6 +23,9 @@ export const adventureBalance = {
     mage:     { range: 275, interval: 48, windup: 7,  travel: 12, coefficient: 10500 },
     support:  { range: 235, interval: 53, windup: 7,  travel: 10, coefficient: 10000 },
     guardian: { range: 76,  interval: 48, windup: 9,  coefficient: 10000 },
+    healer:   { range: 240, interval: 53, windup: 7, travel: 10, coefficient: 10000 },
+    controller: { range: 255, interval: 48, windup: 8, travel: 10, coefficient: 10000 },
+    ranged:   { range: 270, interval: 41, windup: 7, travel: 10, coefficient: 10300 },
     assassin: { range: 65,  interval: 35, windup: 7,  coefficient: 11000 },
   },
   ultimates: {
@@ -40,6 +45,21 @@ export const adventureBalance = {
     hollow_cauldron: { range: 345, windup: 14, travel: 13 },
   },
 };
+
+const roleUltimates = {
+  guardian: { description: 'Tạo lá chắn cho cả đội trong 5 giây.', kind: 'shield', windup: 17, ratio: .24, duration: 150 },
+  healer: { description: 'Hồi 25% HP tối đa cho đồng đội còn sống.', kind: 'heal', windup: 19, ratio: .25 },
+  support: { description: 'Hồi 18% HP tối đa cho đồng đội còn sống.', kind: 'heal', windup: 15, ratio: .18 },
+  fighter: { description: 'Đánh tất cả kẻ địch trên sân.', kind: 'area', windup: 19, coefficient: 15500 },
+  mage: { description: 'Đánh tất cả kẻ địch bằng phép nguyên tố.', kind: 'area', windup: 23, coefficient: 16500 },
+  controller: { description: 'Tấn công và làm chậm mục tiêu trong 4 giây.', kind: 'slow', windup: 15, travel: 10, coefficient: 17000, duration: 120 },
+  ranged: { description: 'Bắn tên nguyên tố gây sát thương mạnh lên một mục tiêu.', kind: 'direct', windup: 12, travel: 10, coefficient: 21000 },
+  assassin: { description: 'Đánh kẻ địch yếu máu nhất, tăng sát thương khi mục tiêu còn dưới 35% HP.', kind: 'execute', windup: 13, coefficient: 23000, executeCoefficient: 31500 },
+};
+
+for (const spirit of Object.values(SPIRITS)) {
+  adventureBalance.ultimates[spirit.id] ??= { name: spirit.ultimate, ...roleUltimates[spirit.role] };
+}
 
 const mushroom = { id: 'mob_mushroom_01', name: 'Nấm Lạc Vị', hp: 980, maxHp: 980, atk: 90, def: 20, interval: 54, element: 'wood' };
 const pepper = { id: 'mob_pepper_01', name: 'Tiêu Tinh', hp: 1250, maxHp: 1250, atk: 110, def: 25, interval: 48, element: 'fire' };

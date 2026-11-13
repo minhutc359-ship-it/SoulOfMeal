@@ -5,7 +5,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.9" />
     <PackageReference Include="Npgsql" Version="10.0.1" />
     <EmbeddedResource Include="schema.sql" />
+    <EmbeddedResource Include="../client/src/modes/metaCatalog.json" LogicalName="SoulOfMeal.Server.metaCatalog.json" />
   </ItemGroup>
 </Project>

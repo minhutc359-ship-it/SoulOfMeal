@@ -1,3 +1,4 @@
+import { ADVENTURE_OFFERS, CRAFTED_GEAR_SLOTS, adventureGearFor, itemBonus } from './adventureStore.js';
 import { adventureBalance, ADVENTURE_TICK_RATE } from './adventureBalance.js';
 
 // Proposed practice economy. These upgrades apply only to Adventure.
@@ -7,6 +8,7 @@ export const SPIRIT_RANKS = [
   { gold: 140, essence: 8 },
   { gold: 200, essence: 12 },
 ];
+export const SPIRIT_AWAKENING = [10, 20, 35, 55];
 export const MAX_SPIRIT_RANK = SPIRIT_RANKS.length + 1;
 export const SPIRIT_GIFTS = [3, 5, 8];
 export const SPIRIT_BONDS = ['Mới gặp', 'Quen biết', 'Tin cậy', 'Thân thiết'];
@@ -37,7 +39,8 @@ export function restoreSpiritProgress(input, roster) {
     equipped.forEach(gearId => used.add(gearId));
     const rank = Number.isInteger(entry.rank) && entry.rank >= 1 && entry.rank <= MAX_SPIRIT_RANK ? entry.rank : 1;
     const bond = Number.isInteger(entry.bond) && entry.bond >= 0 && entry.bond <= SPIRIT_GIFTS.length ? entry.bond : 0;
-    profiles[id] = { rank, bond, equipped };
+    const star = Number.isInteger(entry.star) && entry.star >= 1 && entry.star <= 5 ? entry.star : 1;
+    profiles[id] = { rank, bond, equipped, ...(star > 1 ? { star } : {}) };
   }
   return { ownedGear, profiles };
 }
@@ -46,17 +49,25 @@ export function spiritProfile(save, id) {
   return save.adventure.spirits?.profiles[id] ?? { rank: 1, bond: 0, equipped: [] };
 }
 
-export function adventureSpiritStats(member, profile, rank = profile.rank) {
+export function adventureSpiritStats(member, profile, rank = profile.rank, save) {
+  const stars = (profile.star ?? 1) - 1;
   const steps = rank - 1;
   const stats = {
-    maxHp: Math.floor(member.maxHp * (100 + steps * 8) / 100),
-    atk: Math.floor(member.atk * (100 + steps * 7) / 100),
-    def: Math.floor(member.def * (100 + steps * 5) / 100),
+    maxHp: Math.floor(member.maxHp * (100 + steps * 8 + stars * 4) / 100),
+    atk: Math.floor(member.atk * (100 + steps * 7 + stars * 4) / 100),
+    def: Math.floor(member.def * (100 + steps * 5 + stars * 3) / 100),
     speed: adventureBalance.approachSpeed,
   };
+  const shopGear = save ? adventureGearFor(save, member.id).map(([, item]) => item) : [];
+  const shopSlots = new Set(shopGear.map(item => ADVENTURE_OFFERS[item.item].slot));
   for (const gearId of profile.equipped) {
+    if (shopSlots.has(CRAFTED_GEAR_SLOTS[gearId])) continue;
     const gear = SPIRIT_GEAR[gearId];
     for (const stat of Object.keys(stats)) stats[stat] += gear[stat] ?? 0;
+  }
+  for (const item of shopGear) {
+    const offer = ADVENTURE_OFFERS[item.item];
+    stats[offer.stat] += itemBonus(offer, item.level);
   }
   const hp = member.hp > 0 ? Math.max(1, Math.round(member.hp * stats.maxHp / member.maxHp)) : 0;
   return { ...member, ...stats, hp };
@@ -79,6 +90,13 @@ export function changeSpiritProgress(save, { type, id, gearId }, battleActive = 
     updated.player.essence -= cost.essence;
   }
   switch (type) {
+    case 'awaken': {
+      const essence = SPIRIT_AWAKENING[(profile.star ?? 1) - 1];
+      if (!essence) throw new Error('Vị Linh đã đạt 5 sao.');
+      spend({ gold: 0, essence });
+      profile.star = (profile.star ?? 1) + 1;
+      break;
+    }
     case 'rank': {
       const cost = SPIRIT_RANKS[profile.rank - 1];
       if (!cost) throw new Error('Vị Linh đã đạt cấp tối đa.');
@@ -96,6 +114,11 @@ export function changeSpiritProgress(save, { type, id, gearId }, battleActive = 
       if (Object.values(spirits.profiles).some(item => item.equipped.includes(gearId))) throw new Error('Hãy tháo trang bị khỏi Vị Linh đang dùng.');
       profile.equipped = profile.equipped.filter(item => SPIRIT_GEAR[item].slot !== gear.slot);
       profile.equipped.push(gearId);
+      for (const [, item] of adventureGearFor(updated, id)) {
+        if (ADVENTURE_OFFERS[item.item].slot !== CRAFTED_GEAR_SLOTS[gearId]) continue;
+        item.owner = null;
+        updated.adventure.inventory.revision++;
+      }
       break;
     case 'unequip':
       if (!profile.equipped.includes(gearId)) throw new Error('Vị Linh chưa đeo trang bị này.');

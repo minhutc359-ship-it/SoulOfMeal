@@ -177,13 +177,13 @@
 .formation-divider::before, .formation-divider::after { content: ''; flex: 1; height: 1px; background: #f5d18f; }
 .rival-lineup { display: none; }
 .chess-bench { flex: none; display: grid; gap: 3px; padding: 4px; }
-.chess-match .bench-row { grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 3px; }
+.chess-match .bench-row { grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 3px; overflow: visible; padding: 0; }
 .main .chess-match :is(.bench-slot, .bench-unit) {
-  position: relative; display: grid; place-items: center; height: clamp(26px, 4.6dvh, 45px); min-height: 0; padding: 0;
+  position: relative; display: grid; place-items: center; width: 100%; height: clamp(26px, 4.6dvh, 45px); min-width: 0; min-height: 0; padding: 0; overflow: hidden;
   border: 1px solid #a799657d; border-radius: 4px; background: #142722;
 }
 .chess-match .bench-slot { border-style: dashed; }
-.main .chess-match .bench-unit .chess-portrait { width: 100%; height: 100%; object-fit: contain; background: none; }
+.main .chess-match .bench-unit .chess-portrait { position: absolute; inset: 1px; width: calc(100% - 2px); height: calc(100% - 2px); object-fit: contain; background: none; }
 .chess-match .bench-unit small { position: absolute; inset: auto 1px 1px auto; color: #ffe3a5; background: #162520eb; font-size: 9px; }
 .chess-match .shop-row { gap: 4px; }
 .chess-match .shop-unit { height: clamp(68px, 15.5dvh, 142px); justify-items: stretch; }
@@ -408,6 +408,8 @@
   color: #f1c4a2; font-size: 10px; text-align: center;
 }
 .chess-match small.chess-stars { color: #ffe0a1; letter-spacing: .05em; white-space: nowrap; }
+.chess-match .bench-unit small.chess-stars { z-index: 1; font-size: clamp(7px, 1.8vw, 9px); line-height: 1; }
+.chess-match .bench-unit .chess-item-marker { inset: 1px auto auto 1px; }
 .chess-star-up {
   display: grid; place-items: center; position: absolute; inset: 8%; z-index: 3; border: 1px solid #fff0ba; border-radius: 50%;
   box-shadow: 0 0 10px #ffce61; color: #fff5bf; font-size: clamp(14px, 4vw, 30px); pointer-events: none;

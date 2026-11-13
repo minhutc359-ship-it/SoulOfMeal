@@ -16,6 +16,10 @@ export function openAccountDialog(host, api, accept, expectedAccount) {
       </div>
       ${expectedAccount ? '' : '<p class="account-help">Tài khoản mới bắt đầu hành trình riêng. Tên gồm 3–24 chữ Latin, số hoặc _. Mật khẩu từ 12 ký tự.</p>'}
     </form>
+    ${expectedAccount ? '' : `<div class="action-row" data-account-providers>
+      <button class="button light" type="button" data-google hidden>Tiếp tục bằng Google</button>
+      <button class="button light" type="button" data-cloud-guest>Chơi thử với lưu máy chủ</button></div>
+      <p class="account-help" data-guest-note>Phiên khách máy chủ gắn với trình duyệt này. Hãy chọn tài khoản nếu cần đăng nhập trên thiết bị khác.</p>`}
     <div class="account-session" hidden>
       <p data-session-label></p>
       <div class="action-row"><button class="button" type="button" data-resume>Tiếp tục</button><button class="button light" type="button" data-clear-session>Đăng xuất</button></div>
@@ -27,6 +31,9 @@ export function openAccountDialog(host, api, accept, expectedAccount) {
   const session = dialog.querySelector('.account-session');
   const resume = dialog.querySelector('[data-resume]');
   const close = dialog.querySelector('[data-close]');
+  const providers = dialog.querySelector('[data-account-providers]');
+  const guestNote = dialog.querySelector('[data-guest-note]');
+  const google = dialog.querySelector('[data-google]');
   if (expectedAccount) {
     form.elements.username.value = expectedAccount.username;
     form.elements.username.readOnly = true;
@@ -37,6 +44,8 @@ export function openAccountDialog(host, api, accept, expectedAccount) {
     const matches = !expectedAccount || expectedAccount.id === bootstrap.account.id;
     form.hidden = true;
     session.hidden = false;
+    if (providers) providers.hidden = true;
+    if (guestNote) guestNote.hidden = true;
     resume.hidden = !matches;
     session.querySelector('[data-session-label]').textContent = matches
       ? 'Phiên đăng nhập của ' + bootstrap.account.username
@@ -92,15 +101,20 @@ export function openAccountDialog(host, api, accept, expectedAccount) {
       if (error.status !== 401) throw error;
     }
     session.hidden = true;
+    if (providers) providers.hidden = false;
+    if (guestNote) guestNote.hidden = false;
     form.hidden = false;
     form.elements.username.focus();
   }));
+  google?.addEventListener('click', () => { location.assign('/api/v1/auth/providers/google/start'); });
+  dialog.querySelector('[data-cloud-guest]')?.addEventListener('click', () => run(async () => openGame(await api.guest())));
   close.addEventListener('click', () => dialog.close());
   dialog.addEventListener('cancel', event => { if (busy) event.preventDefault(); });
   dialog.addEventListener('close', () => dialog.remove());
 
   host.append(dialog);
   dialog.showModal();
+  if (google) void api.providers().then(result => { google.hidden = !result.google; }).catch(() => {});
   run(async () => {
     try {
       showSession(await api.bootstrap());

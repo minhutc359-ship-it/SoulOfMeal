@@ -138,3 +138,11 @@ python3 scripts/validate_package.py .
 ```
 
 Battle Adventure và Auto Chess dùng Canvas 2D. Cả ba chế độ dùng bot. Tài khoản đồng bộ bản luyện tập lên PostgreSQL. Client xử lý luật chiến đấu. Các phần còn cần hoàn thiện trước phát hành gồm rig và hoạt ảnh đầy đủ, duyệt mỹ thuật và quyền sử dụng, voice, benchmark WebGL trên thiết bị thật và cân bằng dài hạn. Bản chơi thử lưu manh mối, mốc nhiệm vụ, phần thưởng, checkpoint Adventure, ván TCG và vòng Auto Chess. Khi tải lại Adventure giữa trận, game khôi phục mốc đã lưu và chờ người chơi bấm **Tiếp tục**.
+
+## Hồ sơ và Giao Ước Vị Linh v4
+
+Người chơi mới chọn tên, ảnh đại diện và một trong ba Vị Linh SR. Bánh Bao đi cùng từ đầu. Nhiệm vụ của Lilia và trận boss đầu trao thêm Cơm Nắm và Bánh Mì. Hồ sơ cũ giữ đội hình đã lưu.
+
+Từ sảnh, mở **Giao Ước Vị Linh** để xem tỷ lệ theo lượt kế tiếp, triệu hồi 1 hoặc 10 và xem lại kết quả. Bộ sưu tập hiển thị 24 Vị Linh theo độ hiếm, cho thêm tối đa năm Vị Linh vào đội Adventure và thức tỉnh đến năm sao. **Cửa hàng Adventure** mở từ sảnh hoặc quầy trong làng. Vật phẩm mua được đưa vào túi và có thể dùng, trang bị, khóa, bán hoặc tinh luyện tùy loại.
+
+Giá cửa hàng dùng thang vàng của chiến dịch đang có. Chỉ số nâng cấp và trang bị áp dụng cho Adventure. Kỹ năng của các Vị Linh mới hiện dùng cơ chế thử nghiệm theo vai trò.

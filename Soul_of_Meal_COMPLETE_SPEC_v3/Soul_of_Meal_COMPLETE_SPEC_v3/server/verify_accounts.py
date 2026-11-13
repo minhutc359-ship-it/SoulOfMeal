@@ -109,6 +109,47 @@ def verify():
     print("Account smoke passed: CSRF, register, login, two sessions, private save, CAS, retry, logout revocation.")
 
 
+def verify_meta():
+    first, second, guest = (client() for _ in range(3))
+    credentials = {"username": "qa_" + uuid4().hex[:16], "password": uuid4().hex}
+    authenticate(first, "register", credentials, 201)
+    authenticate(second, "login", credentials, 204)
+    first_token, second_token = (csrf(browser) for browser in (first, second))
+    profile = {"name": "Minh Kết Vị", "avatar": "chr_banhbao_bachngoc", "starter": "chr_som_016"}
+    bootstrap = expect(200, request(first, "/me/bootstrap"))
+    assert bootstrap["meta"]["profile"] is None
+    assert expect(401, request(first, "/player/create", "POST", profile, first_token,
+                               {"X-Soul-Account": str(uuid4())}))["code"] == "session_expired"
+    assert expect(200, request(first, "/player/create", "POST", profile, first_token))["profile"] == profile
+    expect(200, request(second, "/player/create", "POST", profile, second_token))
+    expect(409, request(second, "/player/create", "POST", {**profile, "starter": "chr_pho_lamvu"}, second_token))
+
+    payload = {"bannerId": "newbie_001", "count": 10, "payment": "ticket", "key": str(uuid4())}
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        draws = [pool.submit(request, browser, "/gacha/draw", "POST", payload, token)
+                 for browser, token in ((first, first_token), (second, second_token))]
+        receipts = [expect(200, draw.result()) for draw in draws]
+    assert receipts[0] == receipts[1]
+    settled = receipts[0]
+    assert settled["meta"]["wallet"]["ticket"] == 0
+    assert settled["meta"]["pity"]["newbie"]["draws"] == 10
+    assert len(settled["receipt"]["items"]) == 10
+    assert expect(409, request(first, "/gacha/draw", "POST", {**payload, "payment": "gem"},
+                               first_token))["code"] == "idempotency_conflict"
+    assert expect(409, request(first, "/gacha/draw", "POST", {**payload, "key": str(uuid4()), "payment": "gem"},
+                               first_token))["code"] == "banner_limit"
+    assert expect(200, request(second, "/me/bootstrap"))["meta"] == settled["meta"]
+
+    expect(201, request(guest, "/auth/guest", "POST", token=csrf(guest)))
+    guest_bootstrap = expect(200, request(guest, "/me/bootstrap"))
+    assert guest_bootstrap["account"]["id"] != bootstrap["account"]["id"]
+    assert guest_bootstrap["account"]["username"].startswith("guest_")
+    assert guest_bootstrap["meta"]["profile"] is None
+    print("Meta smoke passed: isolated guest, once-only starter, concurrent idempotent draws, banner quota and recovery.")
+
+
+
 if __name__ == "__main__":
     base = (sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:5080").rstrip("/")
     verify()
+    verify_meta()

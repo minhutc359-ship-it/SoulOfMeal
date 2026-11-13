@@ -89,6 +89,22 @@ test('the four additional faces register over their collar and all five use a de
   }
 });
 
+test('the party head stays centered and the torso stays upright in locomotion', () => {
+  for (const id of Object.keys(HERO_NAMES).filter(id => id !== HERO_ID)) {
+    const spirit = openRig(id);
+    const head = spirit.bones.findIndex(bone => bone.name === 'head');
+    const torso = spirit.bones.findIndex(bone => bone.name === 'torso');
+    const idle = spirit.pose(spirit.clips.idle, 0);
+    assert.ok(Math.abs(idle[head].x - idle[torso].x) <= 1, id);
+    for (const clip of ['walk', 'run']) {
+      for (let index = 0; index <= 20; index++) {
+        const pose = spirit.pose(spirit.clips[clip], index / 20);
+        assert.ok(Math.abs(pose[torso].angle * 180 / Math.PI) < 8, id + ' ' + clip);
+      }
+    }
+  }
+});
+
 test('a restored ranged action recovers after launch, and defeat remains at the final pose', () => {
   const mage = openRig('chr_pho_lamvu');
   const clock = new BattleRigClock(mage, 30);

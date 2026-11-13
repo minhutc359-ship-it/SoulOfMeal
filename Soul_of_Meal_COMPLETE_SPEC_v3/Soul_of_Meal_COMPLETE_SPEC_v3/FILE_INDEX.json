@@ -769,13 +769,13 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 19024,
-      "sha256": "08fbf71cb899d4fb08586d1ff47e5e9f9ab12474ced6d4aaea780b1cfedf2738"
+      "bytes": 20025,
+      "sha256": "15a2834bd1ca0dbb3fae4e9778835aef2bf05d3d661b5330c804695905fce3b4"
     },
     {
       "path": "client/index.html",
-      "bytes": 717,
-      "sha256": "4ef0f84137c7860ae4d77da3d47f02d419d815139d7ee8f095964d31cd547d39"
+      "bytes": 763,
+      "sha256": "0bdd3fd2d4f89eed31d7f757e2e388a609b8e12e7327b52a359b8d349167910c"
     },
     {
       "path": "client/package.json",
@@ -789,18 +789,18 @@
     },
     {
       "path": "client/src/core/save.js",
-      "bytes": 4304,
-      "sha256": "0aec9915c2eac8c6f1901bf989778ba4b1d1af43a230e973e863ebf98106819a"
+      "bytes": 4882,
+      "sha256": "c039de8ab8fcbc60794e505208e7a32e7c42d94d20f5dd205eaf8a6100e70f83"
     },
     {
       "path": "client/src/main.js",
-      "bytes": 174045,
-      "sha256": "34f3829515c9ccc51b20eb6f7eb4bc503ce53ca41dcdd9b60d50db326d2dde21"
+      "bytes": 190243,
+      "sha256": "c7ab514c5f2e156c8c7781e62a85379cd4ae2a354f37e173de7477a0e601376a"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 44217,
-      "sha256": "b625b2af7747b96bf84bd2e5c6e5736f995c53acb45dbc9e69c27064aa3fa75b"
+      "bytes": 44753,
+      "sha256": "02aa81aa81b2802f5da0a79787dcc734f4021b3393a48b4c2c3a64e72e399a2b"
     },
     {
       "path": "client/src/modes/autoChess.js",
@@ -1259,8 +1259,8 @@
     },
     {
       "path": "client/src/render/spriteAssets.js",
-      "bytes": 3981,
-      "sha256": "9b91ea714f7a12f3c7d9415577abc91568edcfbc5817f856511954c51e832b28"
+      "bytes": 4047,
+      "sha256": "4c3b1529719f1607257f5ce9468bce1684982b38a63591791257fb7a7920a1d9"
     },
     {
       "path": "client/src/render/spriteRenderer.js",
@@ -1479,8 +1479,8 @@
     },
     {
       "path": "client/src/modes/adventureBalance.js",
-      "bytes": 6081,
-      "sha256": "39e11e5712f9dbba11df54802eb739ef5453c5ec01b47bd539dc4b4e37d4c603"
+      "bytes": 7734,
+      "sha256": "71a924027faab9cc579125fc955482fe4fde177f98c7cf2f538c70379cf693f1"
     },
     {
       "path": "client/src/render/battleEffects.js",
@@ -2179,8 +2179,8 @@
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_PLAYTEST.md",
-      "bytes": 14306,
-      "sha256": "f50ae805729c7cd32b7b492f3474a94abd5b48b0c89b3cd9f97d0c2d86d28866"
+      "bytes": 14873,
+      "sha256": "4897ae27fb0e04a21c4250e232f8ae41ceeff4b00437056110e62ec12827085b"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_SOURCES.json",
@@ -2229,8 +2229,8 @@
     },
     {
       "path": "client/src/shell/entry.js",
-      "bytes": 1916,
-      "sha256": "b7f19c364a8ee57b502031c1e557997ecedde17260605bf63f2c06480d14e91d"
+      "bytes": 2440,
+      "sha256": "d78a76b3b2fc1eb092ad1a0facac8f44d109743698ddfaca6ab223d2d70705d3"
     },
     {
       "path": "client/src/shell/webStage.ts",
@@ -2249,8 +2249,8 @@
     },
     {
       "path": "client/src/core/accountApi.js",
-      "bytes": 3304,
-      "sha256": "f951f700e6b6c96b0a37effda682fd7e26fb47af8f01c1549e21d058e5788f46"
+      "bytes": 4417,
+      "sha256": "066f960e2942099c6f2a23d35d93ead98533172888c87fdcfb9a38ca576c9319"
     },
     {
       "path": "client/src/core/cloudSave.js",
@@ -2259,8 +2259,8 @@
     },
     {
       "path": "client/src/shell/accountDialog.js",
-      "bytes": 4668,
-      "sha256": "c5580db48a64c53a0990238b6f0e4ab71b7df08473a015907eef57d3a5bfeba9"
+      "bytes": 5852,
+      "sha256": "8cb91da3883c304cb783127d20583f8b7d31e80fe2cd552fc9a70402be8cbf98"
     },
     {
       "path": "client/tests/cloudSave.test.js",
@@ -2269,13 +2269,13 @@
     },
     {
       "path": "server/AccountEndpoints.cs",
-      "bytes": 8152,
-      "sha256": "c22046d591b22c668a6ba0a42781f74cf12a6e471c8e88148dca83e6cdb9e560"
+      "bytes": 8861,
+      "sha256": "9bd50d282b55a707a5f91d74ec97010c2a2c1ec1296d0251f8dd63b7f39137c4"
     },
     {
       "path": "server/GameStore.cs",
-      "bytes": 4964,
-      "sha256": "17cc9f6ed0aa58ace31567444cea73833ff14924ac2a2b5f1184d08d6c604197"
+      "bytes": 8069,
+      "sha256": "a315bdf4c8f7adc7cb5c6bf57b3b13feb7829c9e37050c1040d9f1f58afae27e"
     },
     {
       "path": "server/PostgresTicketStore.cs",
@@ -2284,28 +2284,28 @@
     },
     {
       "path": "server/Program.cs",
-      "bytes": 4135,
-      "sha256": "27c66ac89029f1835bf67cc5b1f5dbf1273bb28d9891debeb1f4eabf357f77ed"
+      "bytes": 4601,
+      "sha256": "374fa1ae5297404d496867addfc789bc2d5c1665443ec6de81197fbf41405562"
     },
     {
       "path": "server/README.md",
-      "bytes": 2623,
-      "sha256": "7be7c68f8a06811175b7b35e44a77f82d9b20bad05dc5bd3e3015edd67192591"
+      "bytes": 3548,
+      "sha256": "aa343a6a088163dbbdd759ee5415e3ac2a9204dcf499ffbe0366db522f1a9c8f"
     },
     {
       "path": "server/SoulOfMeal.Server.csproj",
-      "bytes": 343,
-      "sha256": "ac07e2f4c5591abcea1255757b34d0b37220f18daa0de50e47a048955eeb4c54"
+      "bytes": 566,
+      "sha256": "ba75538398bc509aabcf98b0cca14e500a6f523ce86380e22a93ea54903026e5"
     },
     {
       "path": "server/schema.sql",
-      "bytes": 621,
-      "sha256": "50bcd6ebbcee65cbc2bf694e0256541d85f958f888ff5d0e7a5299bcb878fd9c"
+      "bytes": 1142,
+      "sha256": "f215ca6ec354819444b57eb9e272780ddb3fad6fed73a6630bd14c7d84d71d1f"
     },
     {
       "path": "server/verify_accounts.py",
-      "bytes": 5274,
-      "sha256": "31b75c732972305c6be7de86222e04f4ee3bc25d4cb1d027ead0921456deba72"
+      "bytes": 7851,
+      "sha256": "2d6c76d0aed10e9ce52c3a6af662e4f745106ab7cfff0cd0a431b7f6b1f7b00b"
     },
     {
       "path": "client/assets/audio/soundtracks.json",
@@ -2444,8 +2444,8 @@
     },
     {
       "path": "client/src/modes/spiritProgress.js",
-      "bytes": 5923,
-      "sha256": "6d1a69e028c2aff12c0d8c331bf727c8a1b575962db80bb703e659bc43cc0c6e"
+      "bytes": 7156,
+      "sha256": "625609b132970730c675a42660be588b9645ed05ede592f8c44bc413e0135547"
     },
     {
       "path": "client/assets/original/props/tidal_conch.webp",
@@ -2869,8 +2869,8 @@
     },
     {
       "path": "client/assets/original/rigs/chr_banhbao_bachngoc/chr_banhbao_bachngoc.json",
-      "bytes": 34434,
-      "sha256": "97d4122e7d0dbafeefc9f160b49136fb697c9cf2a2db4e5a7eb9b086eb3cc1fa"
+      "bytes": 34475,
+      "sha256": "dbad3174d1daae752b34cb2a0e63236abf67dfd4d0efb6584432dbc0df8cd2b8"
     },
     {
       "path": "client/assets/original/rigs/chr_banhbao_bachngoc/parts.webp",
@@ -2884,8 +2884,8 @@
     },
     {
       "path": "client/assets/original/rigs/chr_caphe_davu/chr_caphe_davu.json",
-      "bytes": 34586,
-      "sha256": "fd4da63c4b0f9c26aba15c8f5f2c5e8c9b1d08ecf55864a4b7170ae0f2b427ca"
+      "bytes": 34623,
+      "sha256": "8fb2444ec8a4c5e729404272b2e208410ef8608ead2b4206b81b2d64a039632d"
     },
     {
       "path": "client/assets/original/rigs/chr_caphe_davu/parts.webp",
@@ -2899,8 +2899,8 @@
     },
     {
       "path": "client/assets/original/rigs/chr_goicuon_diepnhi/chr_goicuon_diepnhi.json",
-      "bytes": 34525,
-      "sha256": "3c047be796021e443b58abc455fa3925883733e0ecc205526a76c488f534528e"
+      "bytes": 34561,
+      "sha256": "108af60bb96c59195cfde7de3ca09fd1b9d5747c37f66e9595b6c2163440c3f1"
     },
     {
       "path": "client/assets/original/rigs/chr_goicuon_diepnhi/parts.webp",
@@ -2914,8 +2914,8 @@
     },
     {
       "path": "client/assets/original/rigs/chr_pho_lamvu/chr_pho_lamvu.json",
-      "bytes": 34447,
-      "sha256": "03c68159695dedfcd17a55af692ee771987c0a3c1ffcb95cf677693031e7259c"
+      "bytes": 34483,
+      "sha256": "3ed1c0fe1532661cc6d7e324b115b845b3a6cd820c45aaa8b1ccc153f8d24df8"
     },
     {
       "path": "client/assets/original/rigs/chr_pho_lamvu/parts.webp",
@@ -2934,8 +2934,8 @@
     },
     {
       "path": "client/tests/spiritRig.test.js",
-      "bytes": 8031,
-      "sha256": "292602f0ba27ace2e87e2e133caa957d8bdd4fb874572f4450fd1732faf051f8"
+      "bytes": 8752,
+      "sha256": "23f6ad98c2a2856c0cf0e49bf2bf100064b84797198a0c6024cd74c786478161"
     },
     {
       "path": "client/src/render/adventureStage.js",
@@ -2944,8 +2944,8 @@
     },
     {
       "path": "client/arena.css",
-      "bytes": 35752,
-      "sha256": "cf2f063df6717ff8f31276a10053b9f6ac7741dd08aef0873dfefce447e0b606"
+      "bytes": 36068,
+      "sha256": "d4c70644b03dece55e1f8169f16c5ee159fa700a0b3c8dcce7ec23e88a29e676"
     },
     {
       "path": "client/src/modes/adventureChallenges.js",
@@ -3061,6 +3061,146 @@
       "path": "client/assets/audio/sound_track/village_theme.mp3",
       "bytes": 4131197,
       "sha256": "dc0dfdce1fe97cc72dbc65bbd5e4de575b58c1e5e06342362f59723ef338747d"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_002.webp",
+      "bytes": 34716,
+      "sha256": "676ca77d905d173b01fb1d81e9da354b9cffe901218280712ac2c95c7a013bcb"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_003.webp",
+      "bytes": 29602,
+      "sha256": "6b2aa807e6f92586af811df6886b8e1fc15280c09de1c5c2bf7ac548049952ba"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_004.webp",
+      "bytes": 37786,
+      "sha256": "d8ff99edf6e30db3968f3905b52b64251de68f1bf3faef0ca0b91c6a4f0def20"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_005.webp",
+      "bytes": 33818,
+      "sha256": "7d3d2f199f48726fc0925b3031b98808bba965d3ba3cdc30d20663a77b667468"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_006.webp",
+      "bytes": 41202,
+      "sha256": "a02388d36baf3c0bbc78a0439634bb500dee3936cece1e1054fa09549406ec8d"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_007.webp",
+      "bytes": 45162,
+      "sha256": "d7a56a68cc42bbe176fd0d92363cc0065bcc42b58902893c4a6280580186c621"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_008.webp",
+      "bytes": 40114,
+      "sha256": "b5d73d448c73e4f03903ca72dbe89931e6dde1df7274f4ea9ea7a2527486e0be"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_009.webp",
+      "bytes": 40638,
+      "sha256": "f90a51360ce6e6a96e4c390fbbaffaca7a8c87d137979702b7a0f2f6d16a82e3"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_010.webp",
+      "bytes": 42398,
+      "sha256": "040073970f9f7d0e634c0d53d72e8891287ba94fe8984b8f95a72fa49ddd008d"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_011.webp",
+      "bytes": 44652,
+      "sha256": "034af7f0d252de3fc7a9cec8b49800776b89c6939e6b2e259a2d80f0a593c13f"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_012.webp",
+      "bytes": 46936,
+      "sha256": "373d8aaf3e2c55930f3ee34a364c4d9b7cdff8e2f8244e40a3833cba10396420"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_013.webp",
+      "bytes": 42648,
+      "sha256": "d84226b4621f3483dd0873d77664f1f962eb4116af37b28f19c8ba6ff150939a"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_016.webp",
+      "bytes": 41742,
+      "sha256": "153558b7ab5bbc46a3404316dc216b6378cd86bc4928a7b763afd4f17eda068d"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_017.webp",
+      "bytes": 46072,
+      "sha256": "226227ce797b81148f472f93815554b3922121658b00a26595ffb9f7324ce690"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_019.webp",
+      "bytes": 46028,
+      "sha256": "28d63e6866cae3889b8b9b46b9f6659048568bc49d88967b5c06612ed905b469"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_020.webp",
+      "bytes": 46488,
+      "sha256": "1a50b62249e47d267f5c80180cd669554020382f6bef296b9ee9f5fae660f1c9"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_022.webp",
+      "bytes": 39092,
+      "sha256": "c322c3d5cb8983640a2b3e883572735fe793484beb4d6d704a03b258e1979c96"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_023.webp",
+      "bytes": 48280,
+      "sha256": "01be45387be88299069a436f790a614f60480954431982dea9150f7c3dae0806"
+    },
+    {
+      "path": "client/assets/original/actors/chr_som_024.webp",
+      "bytes": 39012,
+      "sha256": "e21d8659ae501c4ae8b52b7ca7f059c4ecd9fe3608fe469c38a07da430b5809b"
+    },
+    {
+      "path": "client/meta.css",
+      "bytes": 8100,
+      "sha256": "3d392a11499d18c3b59c8fce5a3eaf183765c90432c62f2cecac9d309220094a"
+    },
+    {
+      "path": "client/src/modes/adventureStore.js",
+      "bytes": 6311,
+      "sha256": "ed0418b5e43698a0b22cb285f1810185e700e99741b5495043e4ca0492e0a040"
+    },
+    {
+      "path": "client/src/modes/metaCatalog.json",
+      "bytes": 11557,
+      "sha256": "4fd329dd476d84e13be0e5d1af16b9d7bbb40d62aa3bbca5a96ffdcbb6f89939"
+    },
+    {
+      "path": "client/src/modes/metaProgress.js",
+      "bytes": 7525,
+      "sha256": "350b95015b59302b2325a998d77d0b500d262ef12cf798ac0c08fdcec22390d5"
+    },
+    {
+      "path": "client/src/shell/metaPanels.js",
+      "bytes": 11790,
+      "sha256": "53156d2ece8336d569f6d0fdd0e9e1c300d06073629c7e91c9f45c65d409034b"
+    },
+    {
+      "path": "client/tests/metaProgress.test.js",
+      "bytes": 4431,
+      "sha256": "41e8517aba0d0b7cc37cf109a802d4ce855e04310fa4f097895347be66fe457d"
+    },
+    {
+      "path": "server/GoogleSignIn.cs",
+      "bytes": 2803,
+      "sha256": "0afb00424c0bacec0e07678218d2c0a797ca43d3e70651a7ae029ce9ad6051eb"
+    },
+    {
+      "path": "server/MetaEndpoints.cs",
+      "bytes": 2293,
+      "sha256": "c3585abd0cf9e0570ec113e741f711bac6fddf39c9c3c3ccc0cd341bef3a562f"
+    },
+    {
+      "path": "server/MetaStore.cs",
+      "bytes": 9399,
+      "sha256": "04628c4162d623a69d6d2ddebcf7b5db5b170b75ee24ebff639f73aae9c7f3ef"
     }
   ]
 }

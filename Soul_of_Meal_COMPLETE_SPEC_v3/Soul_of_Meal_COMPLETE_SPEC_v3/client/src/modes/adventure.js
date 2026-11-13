@@ -6,6 +6,7 @@ import { FOREST_CLUES, FOREST_CLUE_IDS, FOREST_LANTERNS, HARBOR_CLUES, HARBOR_CL
 import { FINALE_CHAPTERS, FINALE_ROUTES, finaleChapterComplete } from './adventureFinale.js';
 import { adventureChallenge } from './adventureChallenges.js';
 import { adventureSpiritStats, spiritProfile } from './spiritProgress.js';
+import { adventureParty, recruitSpirit, STARTER_REWARDS } from './metaProgress.js';
 import { buyVillageSupplies, VILLAGE_ROOMS } from './villageRooms.js';
 
 export const WORLD = { width: 960, height: 540 };
@@ -36,7 +37,7 @@ function restoreBattle(save) {
       || !Number.isInteger(battle.wave) || !encounter.waves[battle.wave] || typeof battle.id !== 'string'
       || !['battle_running', 'battle_end'].includes(battle.phase)
       || !Array.isArray(battle.actors) || !Array.isArray(battle.stoves)
-      || !save.roster.every(member => battle.actors.some(actor => actor?.actor_id === member.id && actor.team === 'player'))) return null;
+      || !adventureParty(save).every(member => battle.actors.some(actor => actor?.actor_id === member.id && actor.team === 'player'))) return null;
   if (battle.phase === 'battle_end' && !['victory', 'defeat'].includes(battle.result)) return null;
   const tell = battle.bossTelegraph;
   if (tell && (!encounter.phases[tell.phase] || !Number.isFinite(tell.ticks))) return null;
@@ -187,7 +188,9 @@ export function interactAdventure(state, save, maps) {
   if (target.id === 'lilia') {
     if (updated.adventure.quest === 'not_started') {
       updated.adventure.quest = 'accepted';
-      state.lastMessage = 'Đã nhận nhiệm vụ. Mở rương tiếp tế ở phía đông quảng trường.';
+      const reward = updated.meta?.profile && recruitSpirit(updated, STARTER_REWARDS.quest, true);
+      state.lastMessage = reward ? 'Cơm Nắm Tròn Trịa đã gia nhập. Mở rương tiếp tế ở phía đông quảng trường.'
+        : 'Đã nhận nhiệm vụ. Mở rương tiếp tế ở phía đông quảng trường.';
       dialogue = 'opening';
       gameEvents.emit('quest_accepted', { quest_id: 'quest_missing_flavor' }, { map_id: 'village' });
     } else if (updated.adventure.quest === 'ready_to_claim') {
@@ -369,8 +372,8 @@ export function beginBattle(state, save, encounter = 'forest', challenge = null)
     wave,
     challengeTier: challenge?.tier ?? null,
     actors: [
-      ...save.roster.map((actor, index) => {
-        const stats = adventureSpiritStats(actor, spiritProfile(save, actor.id));
+      ...adventureParty(save).map((actor, index) => {
+        const stats = adventureSpiritStats(actor, spiritProfile(save, actor.id), undefined, save);
         return spawnActor(challenge ? { ...stats, hp: stats.maxHp } : stats, 'player', index);
       }),
       ...waves[wave].map((enemy, index) => {
@@ -810,16 +813,18 @@ export function claimBattleResult(state, save) {
     updated.adventure.rewardClaims.push(claimId);
     updated.player.gold += gold;
     updated.player.essence += essence;
+    if (updated.meta?.profile && !updated.meta.serverOwned) updated.meta.wallet.ticket += 1;
     updated.completedBattles += 1;
     updated.roster = updated.roster.map(member => {
       const actor = battle.actors.find(item => item.actor_id === member.id);
-      return { ...member, hp: Math.max(1, Math.round(actor.hp * member.maxHp / actor.maxHp)), energy: 0 };
+      return actor ? { ...member, hp: Math.max(1, Math.round(actor.hp * member.maxHp / actor.maxHp)), energy: 0 } : member;
     });
     if (encounter === 'seal') updated.adventure.chapterTwo.stage = 'ready_to_claim';
     else if (encounter === 'tide') updated.adventure.chapterThree.stage = 'ready_to_claim';
     else if (finale) updated.adventure.finale[finale.number].stage = 'ready_to_claim';
     else {
       updated.adventure.forestCleared = true;
+      if (updated.meta?.profile) recruitSpirit(updated, STARTER_REWARDS.boss, true);
       updated.adventure.quest = 'ready_to_claim';
     }
   }

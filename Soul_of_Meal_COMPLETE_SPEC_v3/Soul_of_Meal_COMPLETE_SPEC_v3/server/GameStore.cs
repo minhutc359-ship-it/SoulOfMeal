@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Identity;
 using Npgsql;
 using NpgsqlTypes;
 
@@ -46,6 +47,67 @@ internal sealed class GameStore(NpgsqlDataSource database)
         command.Parameters.AddWithValue(account.Username);
         command.Parameters.AddWithValue(account.PasswordHash);
         return await command.ExecuteNonQueryAsync(cancellationToken) == 1;
+    }
+
+    private static Account NewGeneratedAccount(string prefix, IPasswordHasher<Account> hasher)
+    {
+        var id = Guid.NewGuid();
+        var account = new Account(id, prefix + "_" + id.ToString("N")[..16], "");
+        return account with { PasswordHash = hasher.HashPassword(account, Guid.NewGuid().ToString("N")) };
+    }
+
+    public async Task<Account> CreateGeneratedAccountAsync(string prefix, IPasswordHasher<Account> hasher, CancellationToken ct)
+    {
+        while (true)
+        {
+            var account = NewGeneratedAccount(prefix, hasher);
+            if (await RegisterAsync(account, ct)) return account;
+        }
+    }
+
+    public async Task<Account> ExternalAccountAsync(string provider, string subject, IPasswordHasher<Account> hasher, CancellationToken ct)
+    {
+        await using var connection = await database.OpenConnectionAsync(ct);
+        await using var transaction = await connection.BeginTransactionAsync(ct);
+        await using var identityLock = new NpgsqlCommand(
+            "SELECT pg_advisory_xact_lock(hashtextextended($1 || ':' || $2, 879652));", connection, transaction);
+        identityLock.Parameters.AddWithValue(provider);
+        identityLock.Parameters.AddWithValue(subject);
+        await identityLock.ExecuteNonQueryAsync(ct);
+        await using var find = new NpgsqlCommand("""
+            SELECT account.id, account.username, account.password_hash
+            FROM som_account_identities AS identity JOIN som_accounts AS account ON account.id = identity.account_id
+            WHERE identity.provider = $1 AND identity.subject = $2
+            """, connection, transaction);
+        find.Parameters.AddWithValue(provider);
+        find.Parameters.AddWithValue(subject);
+        await using (var row = await find.ExecuteReaderAsync(ct))
+        {
+            if (await row.ReadAsync(ct)) return new Account(row.GetGuid(0), row.GetString(1), row.GetString(2));
+        }
+
+        Account account;
+        while (true)
+        {
+            account = NewGeneratedAccount("google", hasher);
+            await using var addAccount = new NpgsqlCommand("""
+                INSERT INTO som_accounts (id, username, password_hash) VALUES ($1, $2, $3)
+                ON CONFLICT (username) DO NOTHING
+                """, connection, transaction);
+            addAccount.Parameters.AddWithValue(account.Id);
+            addAccount.Parameters.AddWithValue(account.Username);
+            addAccount.Parameters.AddWithValue(account.PasswordHash);
+            if (await addAccount.ExecuteNonQueryAsync(ct) == 1) break;
+        }
+        await using var addIdentity = new NpgsqlCommand("""
+            INSERT INTO som_account_identities (provider, subject, account_id) VALUES ($1, $2, $3)
+            """, connection, transaction);
+        addIdentity.Parameters.AddWithValue(provider);
+        addIdentity.Parameters.AddWithValue(subject);
+        addIdentity.Parameters.AddWithValue(account.Id);
+        await addIdentity.ExecuteNonQueryAsync(ct);
+        await transaction.CommitAsync(ct);
+        return account;
     }
 
     public async Task UpdatePasswordHashAsync(Account account, string updatedHash, CancellationToken cancellationToken)

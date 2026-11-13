@@ -1,0 +1,326 @@
+{
+  "version": "v4-proposed",
+  "characters": [
+    {
+      "id": "chr_banhbao_bachngoc",
+      "specId": "SOM_CHAR_001",
+      "name": "Bánh Bao Bạch Ngọc",
+      "rarity": "N",
+      "element": "light",
+      "role": "guardian",
+      "ultimate": "Hấp Khí Hộ Thể",
+      "concept": "Khiên cho mục tiêu yếu máu",
+      "lore": "Linh vật tròn đáng yêu, mũ đầu bếp, mang thìa gỗ. Tính cách: Năng động, trung thành. Vùng gốc: Làng Ẩm Thực."
+    },
+    {
+      "id": "chr_som_002",
+      "specId": "SOM_CHAR_002",
+      "name": "Súp Nấm Lục Vệ",
+      "rarity": "N",
+      "element": "wood",
+      "role": "guardian",
+      "ultimate": "Rừng Nấm Kiên Cường",
+      "concept": "Triệu hồi nấm chắn đường",
+      "lore": "Hiệp sĩ nấm nhỏ, giáp lá, khiên gỗ. Tính cách: Nhút nhát nhưng dũng cảm. Vùng gốc: Rừng Nguyên Liệu."
+    },
+    {
+      "id": "chr_som_003",
+      "specId": "SOM_CHAR_003",
+      "name": "Cơm Nắm Tròn Trịa",
+      "rarity": "N",
+      "element": "light",
+      "role": "support",
+      "ultimate": "Nắm Cơm Tiếp Sức",
+      "concept": "Hồi năng lượng cho một đồng đội",
+      "lore": "Linh vật cơm nắm tai lá rong biển, túi cơm nhỏ. Tính cách: Vui vẻ, thích chia sẻ. Vùng gốc: Làng Ẩm Thực."
+    },
+    {
+      "id": "chr_som_004",
+      "specId": "SOM_CHAR_004",
+      "name": "Trứng Cuộn Vàng Ươm",
+      "rarity": "N",
+      "element": "fire",
+      "role": "fighter",
+      "ultimate": "Lăn Tròn Nhiệt Huyết",
+      "concept": "Đánh liên tiếp cự ly gần",
+      "lore": "Nhân vật chibi tóc vàng, áo giáp cuộn trứng, song đoản kiếm. Tính cách: Hăng hái, hơi vụng. Vùng gốc: Làng Ẩm Thực."
+    },
+    {
+      "id": "chr_som_005",
+      "specId": "SOM_CHAR_005",
+      "name": "Khoai Lang Mầm",
+      "rarity": "N",
+      "element": "wood",
+      "role": "support",
+      "ultimate": "Mầm Non Chữa Lành",
+      "concept": "Hồi máu theo thời gian",
+      "lore": "Yêu tinh củ khoai tím có lá mầm trên đầu. Tính cách: Hiền lành, kiên nhẫn. Vùng gốc: Rừng Nguyên Liệu."
+    },
+    {
+      "id": "chr_som_006",
+      "specId": "SOM_CHAR_006",
+      "name": "Đậu Hũ Mềm Mại",
+      "rarity": "N",
+      "element": "water",
+      "role": "healer",
+      "ultimate": "Tịnh Thủy Mềm Mại",
+      "concept": "Thanh tẩy một hiệu ứng bất lợi",
+      "lore": "Tinh linh đậu hũ trắng xanh, áo vải lụa mềm. Tính cách: Điềm đạm, chu đáo. Vùng gốc: Làng Ẩm Thực."
+    },
+    {
+      "id": "chr_som_007",
+      "specId": "SOM_CHAR_007",
+      "name": "Bánh Mì Phong Tốc",
+      "rarity": "R",
+      "element": "light",
+      "role": "ranged",
+      "ultimate": "Giòn Tan Liên Kích",
+      "concept": "Bắn chuỗi mũi tên ánh sáng",
+      "lore": "Cung thủ chibi áo vàng, cung hoa văn vỏ bánh. Tính cách: Lanh lợi, hoạt bát. Vùng gốc: Làng Ẩm Thực."
+    },
+    {
+      "id": "chr_som_008",
+      "specId": "SOM_CHAR_008",
+      "name": "Trà Sữa Đào Đào",
+      "rarity": "R",
+      "element": "water",
+      "role": "support",
+      "ultimate": "Trân Châu Hồi Phục",
+      "concept": "Tạo bong bóng hồi máu",
+      "lore": "Thiếu nữ tóc hồng với bình trà và trân châu ma thuật. Tính cách: Ngọt ngào, hay trêu. Vùng gốc: Hải Vực Hương Biển."
+    },
+    {
+      "id": "chr_som_009",
+      "specId": "SOM_CHAR_009",
+      "name": "Bò Bít Tết Thiết Vệ",
+      "rarity": "R",
+      "element": "fire",
+      "role": "guardian",
+      "ultimate": "Thiết Bàn Bất Phá",
+      "concept": "Khiên phản đòn cận chiến",
+      "lore": "Chiến binh áo giáp nặng, khiên chảo gang. Tính cách: Nghiêm túc, đáng tin. Vùng gốc: Núi Lửa Gia Vị."
+    },
+    {
+      "id": "chr_som_010",
+      "specId": "SOM_CHAR_010",
+      "name": "Bánh Flan Nhật Nguyệt",
+      "rarity": "R",
+      "element": "shadow",
+      "role": "controller",
+      "ultimate": "Nguyệt Ảnh Ngọt Ngào",
+      "concept": "Làm chậm và đánh dấu địch",
+      "lore": "Pháp sư nhỏ tóc nâu kem, gương caramel. Tính cách: Mơ màng, bí ẩn. Vùng gốc: Làng Ẩm Thực."
+    },
+    {
+      "id": "chr_som_011",
+      "specId": "SOM_CHAR_011",
+      "name": "Mì Xào Phong Hành",
+      "rarity": "R",
+      "element": "fire",
+      "role": "fighter",
+      "ultimate": "Chảo Lửa Liên Hoàn",
+      "concept": "Đòn xoay sát thương vùng hẹp",
+      "lore": "Chiến binh đầu bếp tốc độ, chảo thép kép. Tính cách: Nóng tính, vui nhộn. Vùng gốc: Núi Lửa Gia Vị."
+    },
+    {
+      "id": "chr_som_012",
+      "specId": "SOM_CHAR_012",
+      "name": "Cơm Chiên Kim Sa",
+      "rarity": "R",
+      "element": "light",
+      "role": "mage",
+      "ultimate": "Tinh Sa Bùng Nổ",
+      "concept": "Đạn sáng nảy mục tiêu",
+      "lore": "Pháp sư tóc vàng kim, đũa phép và hạt sáng. Tính cách: Thích khám phá. Vùng gốc: Làng Ẩm Thực."
+    },
+    {
+      "id": "chr_som_013",
+      "specId": "SOM_CHAR_013",
+      "name": "Bánh Xèo Lôi Vũ",
+      "rarity": "R",
+      "element": "fire",
+      "role": "assassin",
+      "ultimate": "Bánh Xèo Chớp Nhoáng",
+      "concept": "Đột kích từ sau lưng",
+      "lore": "Ninja vàng cam mang quạt bán nguyệt, tia lửa lách tách. Tính cách: Tinh nghịch, liều lĩnh. Vùng gốc: Hải Vực Hương Biển."
+    },
+    {
+      "id": "chr_pho_lamvu",
+      "specId": "SOM_CHAR_014",
+      "name": "Phở Lam Vũ",
+      "rarity": "SR",
+      "element": "water",
+      "role": "mage",
+      "ultimate": "Vũ Điệu Hương Phở",
+      "concept": "Gom mục tiêu bằng xoáy nước",
+      "lore": "Nữ pháp sư tóc xanh bạc, tay áo sóng nước. Tính cách: Dịu dàng, thông minh. Vùng gốc: Hải Vực Hương Biển."
+    },
+    {
+      "id": "chr_goicuon_diepnhi",
+      "specId": "SOM_CHAR_015",
+      "name": "Gỏi Cuốn Diệp Nhi",
+      "rarity": "SR",
+      "element": "wood",
+      "role": "support",
+      "ultimate": "Khu Vườn Tươi Mát",
+      "concept": "Trói và buff đồng đội",
+      "lore": "Tiên nữ tóc lá xanh với dây lụa thực vật. Tính cách: Lạc quan, tò mò. Vùng gốc: Rừng Nguyên Liệu."
+    },
+    {
+      "id": "chr_som_016",
+      "specId": "SOM_CHAR_016",
+      "name": "Chè Hoa Sen",
+      "rarity": "SR",
+      "element": "wood",
+      "role": "healer",
+      "ultimate": "Liên Hoa Tái Sinh",
+      "concept": "Hồi phục cả đội, giải hiệu ứng",
+      "lore": "Thiếu nữ sen trắng, chuông nhỏ, quầng hoa. Tính cách: Điềm tĩnh, bao dung. Vùng gốc: Rừng Nguyên Liệu."
+    },
+    {
+      "id": "chr_som_017",
+      "specId": "SOM_CHAR_017",
+      "name": "Mì Ramen Lôi Tiên",
+      "rarity": "SR",
+      "element": "fire",
+      "role": "mage",
+      "ultimate": "Thiên Võng Mì Lửa",
+      "concept": "Sát thương chuỗi mục tiêu",
+      "lore": "Đầu bếp pháp thuật tóc vàng đỏ, vòng sợi mì ánh sáng. Tính cách: Tăng động, sáng tạo. Vùng gốc: Núi Lửa Gia Vị."
+    },
+    {
+      "id": "chr_caphe_davu",
+      "specId": "SOM_CHAR_018",
+      "name": "Cà Phê Dạ Vũ",
+      "rarity": "SR",
+      "element": "shadow",
+      "role": "assassin",
+      "ultimate": "Dạ Khúc Đắng Ngọt",
+      "concept": "Đánh dấu và kết liễu",
+      "lore": "Thiếu niên tóc tím đen, áo choàng café, lưỡi liềm. Tính cách: Ít nói, sâu sắc. Vùng gốc: Khu Vực Bí Ẩn."
+    },
+    {
+      "id": "chr_som_019",
+      "specId": "SOM_CHAR_019",
+      "name": "Xôi Gấc Hồng Tâm",
+      "rarity": "SR",
+      "element": "light",
+      "role": "support",
+      "ultimate": "Hồng Phúc Đoàn Viên",
+      "concept": "Tăng crit có giới hạn và khiên mềm",
+      "lore": "Thiếu nữ đỏ cam mang dải lụa, hoa văn gấc. Tính cách: Ấm áp, hào phóng. Vùng gốc: Làng Ẩm Thực."
+    },
+    {
+      "id": "chr_som_020",
+      "specId": "SOM_CHAR_020",
+      "name": "Lẩu Nấm Tinh Tú",
+      "rarity": "SR",
+      "element": "wood",
+      "role": "mage",
+      "ultimate": "Tinh Tú Sôi Trào",
+      "concept": "Ao độc và nấm triệu hồi",
+      "lore": "Phù thủy chibi mũ nấm ngân hà, trượng nồi lẩu. Tính cách: Hiếu kỳ, hơi đãng trí. Vùng gốc: Rừng Nguyên Liệu."
+    },
+    {
+      "id": "chr_bunbo_holinh",
+      "specId": "SOM_CHAR_021",
+      "name": "Bún Bò Hỏa Linh",
+      "rarity": "SSR",
+      "element": "fire",
+      "role": "fighter",
+      "ultimate": "Ngọn Lửa Ẩm Thực",
+      "concept": "Xung kích và tuyệt kỹ chém lửa",
+      "lore": "Nữ chiến binh tóc đỏ cam, mắt hổ phách, hỏa đao. Tính cách: Kiên cường, nhiệt huyết. Vùng gốc: Núi Lửa Gia Vị."
+    },
+    {
+      "id": "chr_som_022",
+      "specId": "SOM_CHAR_022",
+      "name": "Kem Trăng Tuyết",
+      "rarity": "SSR",
+      "element": "water",
+      "role": "controller",
+      "ultimate": "Bạch Nguyệt Tuyết Vũ",
+      "concept": "Đóng băng theo điều kiện, tạo khiên băng",
+      "lore": "Công chúa băng kem tóc trắng xanh, trâm mặt trăng. Tính cách: Điềm tĩnh, hơi kiêu kỳ. Vùng gốc: Hải Vực Hương Biển."
+    },
+    {
+      "id": "chr_som_023",
+      "specId": "SOM_CHAR_023",
+      "name": "Sushi Long Triều",
+      "rarity": "SSR",
+      "element": "water",
+      "role": "ranged",
+      "ultimate": "Long Triều Vạn Tiễn",
+      "concept": "Đạn nước xuyên tuyến",
+      "lore": "Cung thủ hải tộc mang hoa văn vảy rồng và đai sushi. Tính cách: Lạnh lùng, công bằng. Vùng gốc: Hải Vực Hương Biển."
+    },
+    {
+      "id": "chr_som_024",
+      "specId": "SOM_CHAR_024",
+      "name": "Bánh Chưng Thanh Long",
+      "rarity": "SSR",
+      "element": "wood",
+      "role": "guardian",
+      "ultimate": "Tứ Phương Hộ Thế",
+      "concept": "Khiên đội và chống gián đoạn",
+      "lore": "Vệ thần cổ áo xanh lá, khiên gói lá vuông, vân rồng. Tính cách: Trầm ổn, trọng lời hứa. Vùng gốc: Khu Vực Bí Ẩn."
+    }
+  ],
+  "starters": [
+    "chr_pho_lamvu",
+    "chr_goicuon_diepnhi",
+    "chr_som_016"
+  ],
+  "mascot": "chr_banhbao_bachngoc",
+  "onboardingAvatars": [
+    "chr_banhbao_bachngoc",
+    "chr_pho_lamvu",
+    "chr_goicuon_diepnhi",
+    "chr_bunbo_holinh"
+  ],
+  "rates": {
+    "N": 50,
+    "R": 36,
+    "SR": 12,
+    "SSR": 2
+  },
+  "guaranteeRates": {
+    "N": 0,
+    "R": 0,
+    "SR": 86,
+    "SSR": 14
+  },
+  "srPity": 10,
+  "ssrPity": 80,
+  "featuredChance": 50,
+  "gemCost": 160,
+  "duplicateEssence": {
+    "N": 10,
+    "R": 20,
+    "SR": 50,
+    "SSR": 120
+  },
+  "welcomeWallet": {
+    "gem": 1600,
+    "ticket": 10
+  },
+  "banners": [
+    {
+      "id": "featured_bunbo_001",
+      "family": "featured",
+      "name": "Ngọn Lửa Ẩm Thực",
+      "featured": "chr_bunbo_holinh"
+    },
+    {
+      "id": "standard_001",
+      "family": "standard",
+      "name": "Bàn Tiệc Vị Nguyên"
+    },
+    {
+      "id": "newbie_001",
+      "family": "newbie",
+      "name": "Giao Ước Đầu Tiên",
+      "limit": 10
+    }
+  ]
+}

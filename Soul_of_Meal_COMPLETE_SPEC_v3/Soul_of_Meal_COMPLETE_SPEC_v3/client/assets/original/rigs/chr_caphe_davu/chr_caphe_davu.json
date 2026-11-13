@@ -45,9 +45,9 @@
     {
       "name": "head",
       "parent": "torso",
-      "x": 3,
-      "y": 28,
-      "rotation": 0
+      "x": -1,
+      "y": 33,
+      "rotation": 6
     },
     {
       "name": "hair",
@@ -361,20 +361,20 @@
       "bones": {
         "torso": {
           "rotate": [
-            {"time": 0.0, "value": -4},
-            {"time": 0.165, "value": -6},
-            {"time": 0.33, "value": -4},
-            {"time": 0.495, "value": -6},
-            {"time": 0.66, "value": -4}
+            {"time": 0.0, "value": -2.2},
+            {"time": 0.165, "value": -3.3},
+            {"time": 0.33, "value": -2.2},
+            {"time": 0.495, "value": -3.3},
+            {"time": 0.66, "value": -2.2}
           ]
         },
         "head": {
           "rotate": [
-            {"time": 0.0, "value": 2.0},
-            {"time": 0.165, "value": 4},
-            {"time": 0.33, "value": 2.0},
-            {"time": 0.495, "value": 4},
-            {"time": 0.66, "value": 2.0}
+            {"time": 0.0, "value": 1.04},
+            {"time": 0.165, "value": 2.08},
+            {"time": 0.33, "value": 1.04},
+            {"time": 0.495, "value": 2.08},
+            {"time": 0.66, "value": 1.04}
           ]
         },
         "hair": {
@@ -455,20 +455,20 @@
       "bones": {
         "torso": {
           "rotate": [
-            {"time": 0.0, "value": -11},
-            {"time": 0.125, "value": -13},
-            {"time": 0.25, "value": -11},
-            {"time": 0.375, "value": -13},
-            {"time": 0.5, "value": -11}
+            {"time": 0.0, "value": -6.05},
+            {"time": 0.125, "value": -7.15},
+            {"time": 0.25, "value": -6.05},
+            {"time": 0.375, "value": -7.15},
+            {"time": 0.5, "value": -6.05}
           ]
         },
         "head": {
           "rotate": [
-            {"time": 0.0, "value": 5.5},
-            {"time": 0.125, "value": 11},
-            {"time": 0.25, "value": 5.5},
-            {"time": 0.375, "value": 11},
-            {"time": 0.5, "value": 5.5}
+            {"time": 0.0, "value": 2.86},
+            {"time": 0.125, "value": 5.72},
+            {"time": 0.25, "value": 2.86},
+            {"time": 0.375, "value": 5.72},
+            {"time": 0.5, "value": 2.86}
           ]
         },
         "hair": {

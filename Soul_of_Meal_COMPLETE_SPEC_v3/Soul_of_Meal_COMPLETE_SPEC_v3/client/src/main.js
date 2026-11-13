@@ -14,7 +14,7 @@ import { spriteRenderer } from './render/spriteRenderer.js';
 import { actorArt, chapterArt, combatArt, cutinArt, effectArt, HERO_ID, HERO_NAMES as characterNames, originalCardArt, preloadGameAssets, propArt, sceneArt, TRAVEL_HERO } from './render/spriteAssets.js';
 import { drawEffectTexture, drawElementEffect } from './render/elementEffects.js';
 import { ADVENTURE_TICK_RATE, adventureBalance, adventureEncounters } from './modes/adventureBalance.js';
-import { adventureSpiritStats, canAffordSpiritCost, changeSpiritProgress, MAX_SPIRIT_RANK, SPIRIT_BONDS, SPIRIT_GEAR, SPIRIT_GIFTS, SPIRIT_MEMORIES, SPIRIT_RANKS, spiritProfile } from './modes/spiritProgress.js';
+import { adventureSpiritStats, canAffordSpiritCost, changeSpiritProgress, MAX_SPIRIT_RANK, SPIRIT_AWAKENING, SPIRIT_BONDS, SPIRIT_GEAR, SPIRIT_GIFTS, SPIRIT_MEMORIES, SPIRIT_RANKS, spiritProfile } from './modes/spiritProgress.js';
 import { BattleEffects } from './render/battleEffects.js';
 import { BattleRigClock, loadSpiritRigs } from './render/spiritRig.js';
 import { adventureViewport, battleActorPoint, SPIRIT_RIG_SCALE } from './render/adventureStage.js';
@@ -36,6 +36,9 @@ import { createAccountApi, accountErrorMessage } from './core/accountApi.js';
 import { createCloudSave } from './core/cloudSave.js';
 import { activeContentRelease, pinnedContentRelease } from './core/contentRelease.js';
 import { openAccountDialog } from './shell/accountDialog.js';
+import { adventureParty, BANNERS, changeParty, drawSpirits, finishOnboarding, META, recruitSpirit, SPIRITS } from './modes/metaProgress.js';
+import { ADVENTURE_OFFERS, adventureGearFor, changeAdventureInventory } from './modes/adventureStore.js';
+import { gachaHistory, gachaOdds, gachaPanel, inventoryRows, renderOnboarding, revealGacha, spiritImage, storeDetail } from './shell/metaPanels.js';
 import { openStoryDialog } from './shell/storyDialog.js';
 
 const app = document.querySelector('#app');
@@ -52,7 +55,8 @@ const runtime = {
   deckDrafts: new Map(), deckSlot: null, chessUpgrade: null,
   account: null, cloud: null, cloudStatus: 'saved', cloudError: null, deckFilters: { search: '', type: '', element: '', view: 'all' },
   selectedBoard: null, chessLock: null, chessReplayPaused: false, chessReplaySpeed: 1, notice: '', lastSavedLocation: 0, heldKeys: new Set(), tcgImpacts: new Map(),
-  rosterId: HERO_ID, rosterTab: 'info', showMinimap: true, worldStick: null, rigClocks: new Map(), tcgReveal: null, tcgCutIn: null,
+  rosterId: HERO_ID, rosterTab: 'info', rosterFilter: 'owned', bannerId: 'featured_bunbo_001', gachaPayment: 'ticket',
+  pendingDraw: null, storeTab: 'all', storeMember: null, storeFrom: 'home', showMinimap: true, worldStick: null, rigClocks: new Map(), tcgReveal: null, tcgCutIn: null,
 };
 runtime.adventure = createAdventureState(runtime.save);
 runtime.tcg = runtime.save.modes.tcg;
@@ -256,12 +260,16 @@ function syncMotion() {
 async function enterGame(report) {
   runtime.audio.unlock();
   if (!runtime.animations) await loadContent(report);
+  if (!runtime.save.meta.profile) return navigate('onboarding');
   saveNow();
   navigate('home');
 }
 
 function replaceProfile(save) {
   runtime.save = save;
+  runtime.pendingDraw = null;
+  runtime.rosterFilter = 'owned';
+  runtime.storeMember = null;
   runtime.adventure = createAdventureState(save);
   runtime.tcg = save.modes.tcg;
   runtime.chess = save.modes.chess;
@@ -289,21 +297,53 @@ function replaceProfile(save) {
   syncMotion();
 }
 
-function applyCloudProfile({ account, practiceSave }) {
+function mergeServerMeta(save, meta) {
+  if (!meta) return;
+  save.meta.serverOwned = true;
+  save.meta.profile = meta.profile;
+  save.meta.wallet = meta.wallet;
+  save.meta.pity = meta.pity;
+  save.meta.history = meta.history;
+  const earned = meta.duplicateEssence - (save.meta.appliedDuplicateEssence ?? 0);
+  save.player.essence += Math.max(0, earned);
+  save.meta.appliedDuplicateEssence = meta.duplicateEssence;
+  if (meta.profile) save.player.name = meta.profile.name;
+  for (const id of meta.owned) if (Object.hasOwn(SPIRITS, id)) recruitSpirit(save, id);
+}
+
+function applyCloudProfile({ account, practiceSave, meta }) {
   runtime.account = account;
   runtime.cloud = createCloudSave(accountApi, account.id, practiceSave, updateCloudStatus);
-  const save = migrateSave(practiceSave.snapshot);
-  save.player.name = account.username;
+  let save = migrateSave(practiceSave.snapshot);
+  if (meta?.profile?.starter && !save.meta.profile) save = finishOnboarding(save, meta.profile);
+  mergeServerMeta(save, meta);
   replaceProfile(save);
   updateCloudStatus('saved');
-  if (practiceSave.snapshot === null) saveNow();
+  if (save.meta.profile) saveNow();
 }
 
 async function enterAccount(bootstrap, report) {
   runtime.audio.unlock();
   if (!runtime.animations) await loadContent(report);
   applyCloudProfile(bootstrap);
-  navigate('home');
+  navigate(runtime.save.meta.profile ? 'home' : 'onboarding');
+}
+
+function showOnboarding() {
+  const username = runtime.account?.username;
+  renderOnboarding(app, /^(guest|google)_/.test(username ?? '') ? '' : username, async input => {
+    const next = finishOnboarding(runtime.save, input);
+    if (runtime.cloud) {
+      try {
+        mergeServerMeta(next, await accountApi.createPlayer(runtime.account.id, next.meta.profile));
+      } catch (error) {
+        throw new Error(accountErrorMessage(error));
+      }
+    }
+    replaceProfile(next);
+    saveNow();
+    navigate('adventure');
+  });
 }
 
 function updateCloudStatus(state, error) {
@@ -352,7 +392,7 @@ async function runCloudAction(action) {
       }
       if (bootstrap?.account.id === account.id) {
         applyCloudProfile(bootstrap);
-        navigate('home');
+        navigate(runtime.save.meta.profile ? 'home' : 'onboarding');
       } else {
         openAccountDialog(app, accountApi, async (confirmed) => {
           applyCloudProfile(confirmed);
@@ -388,6 +428,7 @@ window.addEventListener('beforeunload', event => {
 });
 
 function navigate(page) {
+  if (page === 'store' && runtime.page !== 'store') runtime.storeFrom = runtime.page === 'adventure' ? 'adventure' : 'home';
   if (['adventure', 'chess'].includes(runtime.page) && runtime.page !== page) saveNow();
   runtime.heldKeys.clear();
   runtime.worldStick = null;
@@ -450,7 +491,7 @@ function shell(content) {
     <div class="shell" data-screen="${runtime.page}">
       <header class="game-bar">
         <button class="brand" data-page="home" aria-label="Về sảnh Soul of Meal">SOUL <em>OF</em> MEAL</button>
-        <div class="profile-chip"><img class="profile-avatar" src="${actorArt(HERO_ID)}" alt=""><div class="profile-copy">${escapeHtml(player.name)}<small>Cấp ${escapeHtml(player.level)}</small></div></div>
+        <div class="profile-chip"><img class="profile-avatar" src="${actorArt(runtime.save.meta.profile?.avatar ?? HERO_ID)}" alt=""><div class="profile-copy">${escapeHtml(player.name)}<small>Cấp ${escapeHtml(player.level)}</small></div></div>
         <div class="game-resources">
           <span title="Vàng" aria-label="${gold} vàng"><i aria-hidden="true">◈</i> ${gold}</span>
           <span title="Tinh hoa" aria-label="${essence} tinh hoa"><i aria-hidden="true">✦</i> ${essence}</span>
@@ -513,6 +554,8 @@ function renderHome() {
       <div class="lobby-modes" role="group" aria-label="Chọn lối chơi">
         <button class="lobby-mode" data-page="tcg"><img src="${originalCardArt('card_demo_10')}" alt=""><span><strong>Thẻ chiến thuật</strong><small>${runtime.tcg && !runtime.tcg.result ? 'Tiếp tục ván đấu' : 'Đấu thẻ với bot'}</small></span><b aria-hidden="true">›</b></button>
         <button class="lobby-mode" data-page="chess"><img src="${sceneArt('chess_court')}" alt=""><span><strong>Auto Chess</strong><small>${runtime.chess && runtime.chess.phase !== 'finished' ? 'Tiếp tục vòng ' + chessRoundInfo(runtime.chess).label : 'Đấu cờ với bot'}</small></span><b aria-hidden="true">›</b></button>
+        <button class="lobby-mode lobby-service" data-page="gacha"><span><strong>Giao Ước Vị Linh</strong><small>Triệu hồi N–SSR</small></span><b aria-hidden="true">›</b></button>
+        <button class="lobby-mode lobby-service" data-page="store"><span><strong>Cửa hàng Adventure</strong><small>Vật phẩm và trang bị</small></span><b aria-hidden="true">›</b></button>
       </div>
     </section>`);
   void checkForContentUpdate();
@@ -587,12 +630,12 @@ function renderAdventure() {
   const mapTitle = challenge ? challenge.boss.name : getAdventureMap(runtime.maps, adventure.map)?.display_name ?? 'Làng Ẩm Thực';
   runtime.worldStick = null;
   const actionLabel = target ? `Tương tác · ${target.label}` : 'Tiến gần điểm tương tác';
-  const actorRows = save.roster.map((member, index) => {
-    const actor = battle?.actors.find((candidate) => candidate.actor_id === member.id) ?? adventureSpiritStats(member, spiritProfile(save, member.id));
+  const actorRows = adventureParty(save).map((member, index) => {
+    const actor = battle?.actors.find((candidate) => candidate.actor_id === member.id) ?? adventureSpiritStats(member, spiritProfile(save, member.id), undefined, save);
     const skill = adventureBalance.ultimates[actor.id];
     return `<div class="combatant skill-card" data-actor="${actor.id}" data-primed="${actor.energy >= 100}">
-      <button type="button" class="party-avatar" data-profile-id="${escapeAttr(actor.id)}" aria-label="Hồ sơ ${escapeAttr(characterNames[actor.id])}"><img src="${escapeAttr(actorArt(actor.id))}" alt=""></button>
-      <div class="skill-info"><strong>${escapeHtml(characterNames[actor.id])}</strong>
+      <button type="button" class="party-avatar" data-profile-id="${escapeAttr(actor.id)}" aria-label="Hồ sơ ${escapeAttr(SPIRITS[actor.id]?.name)}">${spiritImage(actor.id)}</button>
+      <div class="skill-info"><strong>${escapeHtml(SPIRITS[actor.id]?.name)}</strong>
         <div class="meter" aria-label="Sinh lực"><i data-hp style="width:${actor.hp / actor.maxHp * 100}%"></i></div>
         <div class="meter energy" aria-label="Năng lượng"><i data-energy style="width:${actor.energy}%"></i></div>
       </div>
@@ -665,6 +708,7 @@ function renderAdventure() {
   app.querySelector('[data-adventure-challenges]')?.addEventListener('click', openAdventureChallenges);
   app.querySelectorAll('[data-profile-id]').forEach(button => button.addEventListener('click', () => {
     runtime.rosterId = button.dataset.profileId;
+    runtime.rosterFilter = 'owned';
     runtime.rosterTab = 'info';
     navigate('roster');
   }));
@@ -924,8 +968,8 @@ function doAdventureInteract() {
 
 function openVillageService(service, offer) {
   if (service === 'gear') {
-    runtime.rosterTab = 'gear';
-    return navigate('roster');
+    runtime.storeTab = 'gear';
+    return navigate('store');
   }
   if (service === 'journal') return navigate('journey');
   if (service !== 'supplies' || !offer) return;
@@ -933,7 +977,8 @@ function openVillageService(service, offer) {
   const dialog = openInfoDialog('Tiệm Nguyên Liệu', `
     <p>Đổi vàng lấy tinh hoa dùng để nâng cấp, chế tác và tặng quà Vị Linh.</p>
     <p><b>${escapeHtml(offer.essence)} tinh hoa</b> · ${escapeHtml(offer.gold)} vàng</p>
-    <button type="button" class="button" data-buy-supplies ${affordable ? '' : 'disabled'}>${affordable ? 'Đổi nguyên liệu' : 'Chưa đủ vàng'}</button>`);
+    <div class="action-row"><button class="button light" data-open-store>Cửa hàng</button><button type="button" class="button" data-buy-supplies ${affordable ? '' : 'disabled'}>${affordable ? 'Đổi nguyên liệu' : 'Chưa đủ vàng'}</button></div>`);
+  dialog.querySelector('[data-open-store]').addEventListener('click', () => { dialog.close(); navigate('store'); });
   dialog.querySelector('[data-buy-supplies]').addEventListener('click', () => {
     const purchase = purchaseAdventureSupplies(runtime.adventure, runtime.save, runtime.maps);
     if (purchase.purchased) {
@@ -1314,8 +1359,15 @@ function drawActor(context, actor, animation, guarded, x, y, rigMotion) {
     drawFitted(context, propArt(actor.artId ?? actor.id), x, y, 150, 129);
   } else if (!drawn) {
     const pose = placeholderPose(animation);
-    drawFitted(context, actorArt(actor.id), x, y + pose.offsetY,
-      (actor.boss ? 150 : 77) * pose.scaleX, (actor.boss ? 128 : 78) * pose.scaleY);
+    const art = actorArt(actor.id);
+    if (art) {
+      context.save();
+      context.translate(x, 0);
+      if (actor.direction === 'W' && actor.id.startsWith('chr_som_')) context.scale(-1, 1);
+      drawFitted(context, art, 0, y + pose.offsetY,
+        (actor.boss ? 150 : 77) * pose.scaleX, (actor.boss ? 128 : 78) * pose.scaleY);
+      context.restore();
+    }
   }
   if (actor.shield || guarded) {
     const options = { x, y: y - (guarded ? 66 : 47), size: guarded ? 210 : 123, opacity: guarded ? .56 : .43 };
@@ -2562,33 +2614,222 @@ function renderSynergies(counts, traits) {
   }).join('')}</div>`;
 }
 
-const SPIRIT_TABS = { info: 'Thông tin', skills: 'Kỹ năng', gear: 'Trang bị', bond: 'Quan hệ' };
-const SPIRIT_ROLES = { fighter: 'Đấu sĩ', mage: 'Pháp sư', support: 'Hỗ trợ', guardian: 'Hộ vệ', assassin: 'Sát thủ' };
+function showGachaReceipt(receipt) {
+  const dialog = openInfoDialog('Kết quả giao ước', '');
+  dialog.classList.add('meta-reveal-dialog');
+  revealGacha(dialog, receipt, id => {
+    runtime.rosterId = id;
+    runtime.rosterFilter = 'owned';
+    runtime.rosterTab = 'info';
+    navigate('roster');
+  }, app.dataset.motion === 'reduced');
+}
+
+function renderGacha() {
+  const { save, bannerId, gachaPayment, pendingDraw } = runtime;
+  shell(`${pageHeader('Triệu hồi', 'Giao Ước Vị Linh', '')}
+    ${gachaPanel(save, bannerId, gachaPayment)}
+    ${pendingDraw ? '<div class="action-row"><button class="button" data-gacha-retry>Thử lại giao dịch</button></div>' : ''}
+    ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}`);
+  app.querySelectorAll('[data-gacha-banner]').forEach(button => button.addEventListener('click', () => {
+    runtime.bannerId = button.dataset.gachaBanner;
+    runtime.notice = '';
+    renderGacha();
+  }));
+  app.querySelector('[data-gacha-payment]').addEventListener('change', event => {
+    runtime.gachaPayment = event.target.value;
+    renderGacha();
+    app.querySelector('[data-gacha-payment]').focus();
+  });
+  app.querySelector('[data-gacha-odds]').addEventListener('click', () =>
+    openInfoDialog('Tỷ lệ triệu hồi', gachaOdds(runtime.save, BANNERS[bannerId])));
+  app.querySelector('[data-gacha-history]').addEventListener('click', () => {
+    const dialog = openInfoDialog('Lịch sử triệu hồi', gachaHistory(runtime.save));
+    dialog.querySelectorAll('[data-gacha-receipt]').forEach(button => button.addEventListener('click', () => {
+      dialog.close();
+      showGachaReceipt(runtime.save.meta.history[Number(button.dataset.gachaReceipt)]);
+    }));
+  });
+  app.querySelector('[data-gacha-retry]')?.addEventListener('click', () => settleGachaDraw(pendingDraw));
+  app.querySelectorAll('[data-gacha-draw]').forEach(button => {
+    if (pendingDraw) button.disabled = true;
+    button.addEventListener('click', () => {
+      const count = Number(button.dataset.gachaDraw);
+      const price = gachaPayment === 'gem' ? count * META.gemCost : count;
+      const dialog = openInfoDialog('Xác nhận triệu hồi', `<p>Dùng <strong>${price} ${gachaPayment === 'gem' ? 'Tinh Thạch' : 'vé'}</strong> cho ${count} lượt tại ${BANNERS[bannerId].name}?</p>
+        <button type="button" class="button" data-confirm-draw>Triệu hồi</button>`);
+      dialog.querySelector('[data-confirm-draw]').addEventListener('click', () => {
+        dialog.close();
+        void settleGachaDraw({ bannerId, count, payment: gachaPayment, key: crypto.randomUUID() });
+      }, { once: true });
+    });
+  });
+}
+
+async function settleGachaDraw(request) {
+  const shellElement = app.querySelector('.shell');
+  shellElement.inert = true;
+  app.querySelector('[data-shell-status]').textContent = 'Đang xử lý triệu hồi…';
+  runtime.pendingDraw = request;
+  try {
+    let receipt;
+    if (runtime.cloud) {
+      if (!await runtime.cloud.flush()) throw runtime.cloudError ?? new Error('Tiến trình chưa được lưu.');
+      const result = await accountApi.draw(runtime.account.id, request);
+      mergeServerMeta(runtime.save, result.meta);
+      receipt = result.receipt;
+    } else {
+      const result = drawSpirits(runtime.save, request);
+      runtime.save = result.save;
+      receipt = result.receipt;
+    }
+    runtime.pendingDraw = null;
+    runtime.notice = '';
+    saveNow();
+    runtime.audio.play(receipt.items.some(item => SPIRITS[item.id].rarity === 'SSR') ? 'sfx_victory' : 'sfx_ui_confirm');
+    renderGacha();
+    showGachaReceipt(receipt);
+  } catch (error) {
+    if (!runtime.cloud || (error.status && error.status !== 401 && error.status < 500)) runtime.pendingDraw = null;
+    runtime.notice = runtime.cloud ? accountErrorMessage(error) : error.message;
+    renderGacha();
+  } finally {
+    shellElement.inert = false;
+  }
+}
+
+function handleInventoryAction(action, member, redraw) {
+  try {
+    runtime.save = changeAdventureInventory(runtime.save, { ...action, characterId: member.id,
+      expectedRevision: runtime.save.adventure.inventory.revision }, Boolean(runtime.adventure.battle));
+    saveNow();
+    runtime.notice = ({ buy: 'Đã mua và đưa vào túi.', sell: 'Đã bán vật phẩm.', use: 'Vị Linh đã hồi HP.',
+      equip: 'Đã trang bị.', unequip: 'Đã tháo trang bị.', lock: 'Đã cập nhật khóa.', upgrade: 'Đã tinh luyện.' })[action.type];
+    runtime.audio.play('sfx_ui_confirm');
+  } catch (error) {
+    runtime.notice = error.message;
+  }
+  redraw();
+}
+
+function bindInventoryActions(member, redraw) {
+  app.querySelectorAll('[data-store-action]').forEach(button => button.addEventListener('click', () => {
+    const type = button.dataset.storeAction;
+    const id = button.dataset.item;
+    if (type !== 'sell') return handleInventoryAction({ type, id }, member, redraw);
+    const item = runtime.save.adventure.inventory.gear[id]?.item ?? id;
+    const dialog = openInfoDialog('Bán vật phẩm', `<p>Bán ${ADVENTURE_OFFERS[item].name} để nhận ${Math.floor(ADVENTURE_OFFERS[item].price / 2)} vàng?</p>
+      <button class="button" data-sell-confirm>Bán</button>`);
+    dialog.querySelector('[data-sell-confirm]').addEventListener('click', () => {
+      dialog.close();
+      handleInventoryAction({ type, id }, member, redraw);
+    }, { once: true });
+  }));
+}
+
+function renderStore() {
+  const { save, storeTab } = runtime;
+  const member = save.roster.find(spirit => spirit.id === runtime.storeMember) ?? adventureParty(save)[0];
+  const tabs = { all: 'Tất cả', consumable: 'Hồi phục', gear: 'Trang bị', material: 'Vật liệu', bag: 'Túi đồ' };
+  const inBattle = Boolean(runtime.adventure.battle);
+  shell(`${pageHeader('Làng Ẩm Thực', 'Cửa hàng Adventure', '', runtime.storeFrom)}
+    <section class="meta-store panel"><div class="meta-banner-tabs" role="group" aria-label="Mục cửa hàng">
+    ${Object.entries(tabs).map(([id, label]) => `<button class="button light" data-store-tab="${id}" aria-pressed="${id === storeTab}">${label}</button>`).join('')}</div>
+    <label>Vị Linh <select data-store-member>${save.roster.map(spirit => `<option value="${escapeAttr(spirit.id)}"
+      ${spirit.id === member.id ? 'selected' : ''}>${escapeHtml(SPIRITS[spirit.id]?.name)}</option>`).join('')}</select></label>
+    ${inBattle ? '<p class="notice">Kết thúc trận Adventure để mua, dùng hoặc đổi trang bị.</p>' : ''}
+    <fieldset class="meta-shop-body" ${inBattle ? 'disabled' : ''}><legend class="sr-only">Vật phẩm</legend>
+    ${storeTab === 'bag' ? inventoryRows(save, member) : `<div class="meta-offers">${Object.entries(ADVENTURE_OFFERS)
+      .filter(([, offer]) => storeTab === 'all' || offer.category === storeTab).map(([id, offer]) =>
+        `<article><h2>${offer.name}</h2><p>${storeDetail(offer)}</p><button class="button" data-store-offer="${id}"
+          ${save.player.gold < offer.price ? 'disabled' : ''}>Mua · ${offer.price} ◈</button></article>`).join('')}</div>`}</fieldset>
+    ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}</section>`);
+  app.querySelectorAll('[data-store-tab]').forEach(button => button.addEventListener('click', () => {
+    runtime.storeTab = button.dataset.storeTab;
+    runtime.notice = '';
+    renderStore();
+  }));
+  app.querySelector('[data-store-member]').addEventListener('change', event => {
+    runtime.storeMember = event.target.value;
+    renderStore();
+    app.querySelector('[data-store-member]').focus();
+  });
+  app.querySelectorAll('[data-store-offer]').forEach(button => button.addEventListener('click', () => {
+    const id = button.dataset.storeOffer;
+    const offer = ADVENTURE_OFFERS[id];
+    const comparison = adventureGearFor(save, member.id).find(([, item]) => ADVENTURE_OFFERS[item.item].slot === offer.slot)?.[1];
+    const cap = Math.min(10, Math.floor(save.player.gold / offer.price));
+    const dialog = openInfoDialog(offer.name, `<p>${storeDetail(offer)}</p>
+      ${comparison ? `<p>Đang dùng ${ADVENTURE_OFFERS[comparison.item].name} · ${storeDetail(ADVENTURE_OFFERS[comparison.item], comparison.level)}</p>` : ''}
+      <form data-store-purchase><label>Số lượng <input name="quantity" type="number" required min="1" max="${cap}" value="1"></label>
+      <button class="button" type="submit">Mua · ${offer.price} ◈</button></form>`);
+    const form = dialog.querySelector('form');
+    form.elements.quantity.addEventListener('input', () => {
+      form.querySelector('button').textContent = 'Mua · ' + (offer.price * (form.elements.quantity.valueAsNumber || 0)) + ' ◈';
+    });
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      dialog.close();
+      handleInventoryAction({ type: 'buy', id, quantity: form.elements.quantity.valueAsNumber }, member, renderStore);
+    }, { once: true });
+  }));
+  bindInventoryActions(member, renderStore);
+}
+
+const SPIRIT_TABS = { info: 'Thông tin', skills: 'Kỹ năng', gear: 'Trang bị', bond: 'Quan hệ', stars: 'Thức tỉnh' };
+const SPIRIT_ROLES = { fighter: 'Đấu sĩ', mage: 'Pháp sư', support: 'Hỗ trợ', guardian: 'Hộ vệ', assassin: 'Sát thủ', healer: 'Hồi phục', ranged: 'Xạ thủ', controller: 'Khống chế' };
 
 function renderRoster() {
   const { save } = runtime;
-  const member = save.roster.find(actor => actor.id === runtime.rosterId) ?? save.roster[0];
-  const profile = spiritProfile(save, member.id);
+  const available = META.characters.filter(spirit => runtime.rosterFilter === 'owned'
+    ? save.roster.some(member => member.id === spirit.id) : runtime.rosterFilter === 'all' || spirit.rarity === runtime.rosterFilter);
+  const definition = available.find(spirit => spirit.id === runtime.rosterId) ?? available[0];
+  const member = save.roster.find(actor => actor.id === definition.id);
+  const profile = member && spiritProfile(save, member.id);
   const battleActive = Boolean(runtime.adventure.battle);
-  const name = characterNames[member.id];
-  const title = `Hệ ${ELEMENT_NAMES[member.element]} · ${SPIRIT_ROLES[member.role]}`;
+  const { name, rarity, element, role } = definition;
+  const title = `Hệ ${ELEMENT_NAMES[element]} · ${SPIRIT_ROLES[role]}`;
+  const party = adventureParty(save);
+  const deployed = party.some(actor => actor.id === member?.id);
   shell(`${pageHeader('Phiêu lưu', 'Hồ sơ Vị Linh', '', 'adventure')}
     <section class="panel spirit-profile">
-      <div class="spirit-portrait" style="--unit-color:${elementColors[member.element]}">
-        <img src="${escapeAttr(actorArt(member.id))}" alt="">
-        <div class="spirit-portrait-label"><span>${title}</span><h2>${escapeHtml(name)}</h2></div>
+      <div class="spirit-portrait" style="--unit-color:${elementColors[element]}" data-rarity="${rarity}">
+        ${spiritImage(definition.id, Boolean(member))}
+        <div class="spirit-portrait-label"><span>${rarity} · ${title}</span><h2>${escapeHtml(name)}</h2></div>
       </div>
       <div class="spirit-detail">
-        <div class="spirit-tabs" role="group" aria-label="Mục hồ sơ">${Object.entries(SPIRIT_TABS).map(([id, label]) =>
+        ${member ? `<div class="spirit-tabs" role="group" aria-label="Mục hồ sơ">${Object.entries(SPIRIT_TABS).map(([id, label]) =>
           `<button class="button light" data-spirit-tab="${id}" aria-pressed="${runtime.rosterTab === id}">${label}</button>`).join('')}</div>
         <div class="spirit-tab-body">${renderSpiritTab(member, profile, battleActive)}</div>
+        <div class="action-row"><button class="button light" data-party-toggle
+          ${battleActive || (deployed ? party.length <= 1 : party.length >= 5) ? 'disabled' : ''}>${deployed ? 'Rút khỏi đội' : 'Thêm vào đội'}</button><small>Đội Adventure · ${party.length}/5</small></div>` :
+          `<div class="spirit-tab-body"><h3>Chưa chiêu mộ</h3><p>${escapeHtml(definition.lore)}</p><p><strong>${escapeHtml(definition.ultimate)}</strong> · ${escapeHtml(definition.concept)}</p>
+          <button class="button" data-page="gacha">Tới Giao Ước</button></div>`}
         ${battleActive && runtime.rosterTab !== 'skills' ? '<p class="muted-copy">Kết thúc trận Adventure để nâng cấp, đổi trang bị hoặc tặng quà.</p>' : ''}
         ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}
       </div>
-      <div class="spirit-picker" role="group" aria-label="Chọn Vị Linh">${save.roster.map(actor =>
-        `<button class="spirit-choice" data-spirit-choice="${escapeAttr(actor.id)}" aria-pressed="${actor.id === member.id}">
-          <img src="${escapeAttr(actorArt(actor.id))}" alt=""><span>${escapeHtml(characterNames[actor.id])}</span></button>`).join('')}</div>
+      <label class="meta-roster-filter">Bộ sưu tập <select data-roster-filter>${Object.entries({ owned: 'Đã chiêu mộ', all: 'Tất cả', N: 'N', R: 'R', SR: 'SR', SSR: 'SSR' }).map(([id, label]) =>
+        `<option value="${id}" ${runtime.rosterFilter === id ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
+      <div class="spirit-picker meta-roster-picker" role="group" aria-label="Chọn Vị Linh">${available.map(spirit =>
+        `<button class="spirit-choice" data-rarity="${spirit.rarity}" data-spirit-choice="${spirit.id}" aria-pressed="${spirit.id === definition.id}">
+          ${spiritImage(spirit.id)}<span>${spirit.name}</span><small>${spirit.rarity}${save.roster.some(actor => actor.id === spirit.id) ? '' : ' · Chưa có'}</small></button>`).join('')}</div>
     </section>`);
+  app.querySelector('[data-roster-filter]').addEventListener('change', event => {
+    runtime.rosterFilter = event.target.value;
+    renderRoster();
+    app.querySelector('[data-roster-filter]').focus();
+  });
+  app.querySelector('[data-party-toggle]')?.addEventListener('click', () => {
+    try {
+      runtime.save = changeParty(runtime.save, member.id);
+      saveNow();
+      runtime.notice = 'Đã cập nhật đội hình Adventure.';
+    } catch (error) {
+      runtime.notice = error.message;
+    }
+    renderRoster();
+  });
+  if (member && !battleActive) bindInventoryActions(member, renderRoster);
   app.querySelectorAll('[data-spirit-choice], [data-spirit-tab]').forEach(button => button.addEventListener('click', () => {
     const { spiritChoice, spiritTab } = button.dataset;
     if (spiritChoice) runtime.rosterId = spiritChoice;
@@ -2603,7 +2844,7 @@ function renderRoster() {
       runtime.save = changeSpiritProgress(runtime.save, { type, id: member.id, gearId }, Boolean(runtime.adventure.battle));
       saveNow();
       runtime.audio.play('sfx_ui_confirm');
-      runtime.notice = ({ rank: 'Đã nâng cấp Vị Linh.', craft: 'Đã chế tác và đưa vào kho.', equip: 'Đã trang bị.', unequip: 'Đã đưa trang bị về kho.', gift: 'Mức quan hệ đã tăng.' })[type];
+      runtime.notice = ({ rank: 'Đã nâng cấp Vị Linh.', awaken: 'Đã thức tỉnh Vị Linh.', craft: 'Đã chế tác và đưa vào kho.', equip: 'Đã trang bị.', unequip: 'Đã đưa trang bị về kho.', gift: 'Mức quan hệ đã tăng.' })[type];
     } catch (error) {
       runtime.notice = error.message;
     }
@@ -2622,7 +2863,10 @@ function renderSpiritTab(member, profile, battleActive) {
   }
   if (runtime.rosterTab === 'gear') {
     const { ownedGear, profiles } = save.adventure.spirits;
-    return `<h3>Kho trang bị · ${ownedGear.length}/${Object.keys(SPIRIT_GEAR).length}</h3>
+    return `<fieldset class="meta-shop-body" ${battleActive ? 'disabled' : ''}><legend>Trang bị cửa hàng</legend>
+      ${inventoryRows(save, member, { equipmentOnly: true })}</fieldset>
+      <button class="button light" data-page="store">Mở cửa hàng</button>
+      <h3>Trang bị chế tác · ${ownedGear.length}/${Object.keys(SPIRIT_GEAR).length}</h3>
       <div class="spirit-gear-grid">${Object.entries(SPIRIT_GEAR).map(([id, gear]) => {
         const owner = save.roster.find(actor => profiles[actor.id]?.equipped.includes(id));
         let action = 'craft';
@@ -2633,20 +2877,27 @@ function renderSpiritTab(member, profile, battleActive) {
           label = action === 'unequip' ? 'Tháo' : owner ? 'Đang dùng' : 'Trang bị';
           disabled = battleActive || Boolean(owner && owner.id !== member.id);
         }
-        return `<div class="spirit-gear-item"><span aria-hidden="true">${gear.symbol}</span><div><small>${gear.slot}</small><strong>${gear.name}</strong><small>${gear.detail}${owner ? ' · ' + escapeHtml(characterNames[owner.id]) : ''}</small></div>
+        return `<div class="spirit-gear-item"><span aria-hidden="true">${gear.symbol}</span><div><small>${gear.slot}</small><strong>${gear.name}</strong><small>${gear.detail}${owner ? ' · ' + escapeHtml(SPIRITS[owner.id]?.name) : ''}</small></div>
           <button class="button light" data-spirit-action="${action}" data-gear-id="${id}" ${disabled ? 'disabled' : ''}>${label}</button></div>`;
       }).join('')}</div>`;
+  }
+  if (runtime.rosterTab === 'stars') {
+    const star = profile.star ?? 1;
+    const price = SPIRIT_AWAKENING[star - 1];
+    return `<h3>${'★'.repeat(star)}${'☆'.repeat(5 - star)} · ${star}/5 sao</h3>
+      <p>Tăng HP, ATK và DEF trong Adventure.</p>
+      ${price ? `<button class="button" data-spirit-action="awaken" ${battleActive || save.player.essence < price ? 'disabled' : ''}>Thức tỉnh · ${price} ✦</button>` : '<p>Đã đạt 5 sao.</p>'}`;
   }
   if (runtime.rosterTab === 'bond') {
     const essence = SPIRIT_GIFTS[profile.bond];
     return `<h3>${SPIRIT_BONDS[profile.bond]}</h3>
       <progress max="${SPIRIT_GIFTS.length}" value="${profile.bond}" aria-label="Mức quan hệ"></progress>
-      <p>${profile.bond >= 2 ? escapeHtml(SPIRIT_MEMORIES[member.id]) : 'Tặng quà để mở ký ức khi đạt mức Tin cậy.'}</p>
+      <p>${profile.bond >= 2 ? escapeHtml(SPIRIT_MEMORIES[member.id] ?? SPIRITS[member.id].lore) : 'Tặng quà để mở ký ức khi đạt mức Tin cậy.'}</p>
       ${essence ? `<button class="button" data-spirit-action="gift" ${battleActive || save.player.essence < essence ? 'disabled' : ''}>Tặng quà · ${essence} ✦</button>` : ''}`;
   }
-  const stats = adventureSpiritStats(member, profile);
+  const stats = adventureSpiritStats(member, profile, undefined, save);
   const cost = SPIRIT_RANKS[profile.rank - 1];
-  const next = cost ? adventureSpiritStats(member, profile, profile.rank + 1) : stats;
+  const next = cost ? adventureSpiritStats(member, profile, profile.rank + 1, save) : stats;
   const values = [['HP tối đa', stats.maxHp, next.maxHp], ['ATK', stats.atk, next.atk], ['DEF', stats.def, next.def],
     ['Tốc độ/giây', Math.round(stats.speed * ADVENTURE_TICK_RATE), Math.round(next.speed * ADVENTURE_TICK_RATE)]];
   return `<div class="spirit-rank"><strong>Cấp ${profile.rank}/${MAX_SPIRIT_RANK}</strong><progress max="${MAX_SPIRIT_RANK}" value="${profile.rank}" aria-label="Cấp Vị Linh"></progress></div>
@@ -2675,11 +2926,35 @@ function renderSettings() {
 
 function render() {
   if (runtime.page === 'title') {
+    const loginResult = new URL(location.href).searchParams.get('login');
     runtime.audio.setScene(resolveSoundScene('title', runtime.adventure));
-    return renderEntry(app, enterGame, accountApi
-      ? () => openAccountDialog(app, accountApi, enterAccount)
-      : null);
+    const resume = renderEntry(app, enterGame, accountApi ? () => openAccountDialog(app, accountApi, enterAccount) : null,
+      accountApi ? async report => enterAccount(await accountApi.bootstrap(), report) : null);
+    if (resume) {
+      const status = app.querySelector('.entry-loading [role=status]');
+      if (loginResult === 'google_error') {
+        status.closest('.entry-loading').hidden = false;
+        app.querySelector('.entry-loading progress').hidden = true;
+        status.textContent = 'Đăng nhập Google chưa hoàn tất. Bạn có thể thử lại.';
+      }
+      if (loginResult) {
+        const url = new URL(location.href);
+        url.searchParams.delete('login');
+        history.replaceState(history.state, '', url);
+      }
+      void accountApi.bootstrap().then(() => {
+        resume.hidden = false;
+        if (loginResult === 'google' && app.contains(resume) && !resume.disabled) resume.click();
+      }).catch(() => {});
+    }
+    return;
   }
+  if (runtime.page === 'onboarding') {
+    runtime.audio.setScene('login');
+    return showOnboarding();
+  }
+  if (runtime.page === 'gacha') return renderGacha();
+  if (runtime.page === 'store') return renderStore();
   if (runtime.page === 'home') return renderHome();
   if (runtime.page === 'adventure') return renderAdventure();
   if (runtime.page === 'journey') return renderAdventureJournal();
