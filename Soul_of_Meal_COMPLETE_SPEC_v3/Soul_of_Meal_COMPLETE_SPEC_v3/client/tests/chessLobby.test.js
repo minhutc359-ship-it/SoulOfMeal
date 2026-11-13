@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import {
-  advanceChessRound, buyChessExperience, buyChessOffer, chessPoolCounts, chessRoundInfo, chessStandings,
+  advanceChessRound, arrangeChessUnit, chessBenchSlots, chessDropState, buyChessExperience, buyChessOffer, chessPoolCounts, chessRoundInfo, chessStandings,
   createChessRun, equipChessItem, nextChessOpponent, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat,
 } from '../src/modes/autoChess.js';
 import { chessHexDistance, chessPathStep } from '../src/modes/chessCombat.js';
@@ -91,4 +91,31 @@ test('hex movement goes around occupied tiles and legacy runs keep their format 
   oldRun = advanceChessRound(oldRun, units, config);
   assert.equal(chessRoundInfo(oldRun).label, '2');
   assert.equal(oldRun.lobby, undefined);
+});
+
+test('bench slots persist and permit swaps with a full bench and a capped board', () => {
+  let run = createChessRun(units, config);
+  const [a, b] = units.filter(unit => unit.cost === 1);
+  run.shop = [a, b];
+  run = buyChessOffer(run, 0);
+  run = buyChessOffer(run, 1);
+  run = placeChessUnit(run, 0, 0, 0);
+  run.level = 1;
+  const guest = run.bench[0];
+  const original = run.board[0];
+  run.bench = Array.from({ length: 9 }, (_, slot) => ({ ...guest, id: units.filter(unit => unit.id !== original.id)[slot % (units.length - 1)].id, uid: 'bench-' + slot, benchSlot: slot }));
+  assert.equal(chessDropState(run, { zone: 'bench', index: 8 }, { zone: 'board', x: 1, y: 0 }), 'blocked');
+  assert.equal(chessDropState(run, { zone: 'bench', index: 8 }, { zone: 'board', x: 0, y: 0 }), 'swap');
+  run = arrangeChessUnit(run, { zone: 'bench', index: 8 }, { zone: 'board', x: 0, y: 0 });
+  assert.equal(run.board[0].uid, 'bench-8');
+  assert.equal(run.bench[chessBenchSlots(run)[8]].id, original.id);
+  run = arrangeChessUnit(run, { zone: 'board', index: 0 }, { zone: 'bench', slot: 6 });
+  assert.equal(run.board[0].uid, 'bench-6');
+  assert.equal(run.bench[chessBenchSlots(run)[6]].uid, 'bench-8');
+  run = arrangeChessUnit(run, { zone: 'bench', index: chessBenchSlots(run)[6] }, { zone: 'bench', slot: 3 });
+  assert.equal(run.bench.length, 9);
+  const profile = createDefaultSave();
+  profile.modes.chess = run;
+  const restored = migrateSave(JSON.parse(JSON.stringify(profile))).modes.chess;
+  assert.equal(restored.bench[chessBenchSlots(restored)[3]].uid, 'bench-8');
 });

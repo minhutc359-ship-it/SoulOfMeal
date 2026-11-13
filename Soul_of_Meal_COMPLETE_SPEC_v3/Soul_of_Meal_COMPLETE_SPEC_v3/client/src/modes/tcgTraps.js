@@ -1,4 +1,4 @@
-import { TCG_BOARD_LIMIT, TCG_MAX_HP, TCG_RULES_VERSION, tcgTurnSerial } from './tcgCards.js';
+import { hasModernTcgRules, tcgBoardLimit, tcgCommanderMax, tcgTurnSerial } from './tcgCards.js';
 import { tcgUnitAttack } from './tcgStrategy.js';
 
 export const TCG_TRAP_LABELS = {
@@ -19,14 +19,14 @@ const TRAP_EFFECTS = {
   revive_unit: { when: 'ally_fallen', text: n => `Gọi lại đúng quân vừa bị hạ với tối đa ${n} DEF. Quân trở lại ở trạng thái nghỉ.` },
 };
 
-export function tcgTrapRule(card) {
+export function tcgTrapRule(card, table = false) {
   const { when, condition = {} } = card.trigger ?? {};
   const effect = TRAP_EFFECTS[tcgTrapKind(card)];
   if (!effect || effect.when !== when) return '';
   const filter = condition.card_type === 'fast_spell' ? ' · chỉ Tốc chú'
     : condition.min_cost ? ` · lá giá từ ${condition.min_cost}`
     : condition.max_cost ? ` · lá giá tối đa ${condition.max_cost}`
-    : condition.min_attackers > 1 ? ` · từ ${condition.min_attackers} quân đánh` : '';
+    : !table && condition.min_attackers > 1 ? ` · từ ${condition.min_attackers} quân đánh` : '';
   return `${TCG_TRAP_LABELS[when]}${filter}. ${effect.text(card.effect.value)}`;
 }
 
@@ -36,7 +36,7 @@ export function tcgTrapKind(card) {
 }
 
 export function tcgTrapArmed(match, trap) {
-  return match.rulesVersion === TCG_RULES_VERSION && Number.isInteger(trap.setTurn)
+  return hasModernTcgRules(match) && Number.isInteger(trap.setTurn)
     ? trap.setTurn < tcgTurnSerial(match) : trap.setRound < match.round;
 }
 
@@ -49,13 +49,17 @@ export function tcgAttackLanes(match) {
     && pending.attackerIds.includes(unit.instance_id) && !unit.rootedUntil && !pending.prevented?.includes(unit.lane))
     .map(unit => ({
       unit,
-      blocker: defenders.find(candidate => candidate.instance_id === blockers.get(unit.lane) && candidate.current_def > 0 && !candidate.rootedUntil),
+      blocker: defenders.find(candidate => candidate.instance_id === blockers.get(unit.lane) && candidate.current_def > 0 && (pending.direct || !candidate.rootedUntil)),
     }));
 }
 
 export function tcgTrapOptions(match, owner = match.pendingTrap?.owner, intent = match.pendingTrap?.intent) {
   if (!intent || match.result || !match.players[owner]) return [];
   return match.players[owner].traps.filter(trap => tcgTrapArmed(match, trap) && trapMatches(match, owner, trap.card, intent));
+}
+
+function pendingMinimum(match, kind, configured) {
+  return match.pendingAttack?.direct && kind === 'burn_attackers' ? 1 : configured ?? 1;
 }
 
 function trapMatches(match, owner, card, intent) {
@@ -67,13 +71,13 @@ function trapMatches(match, owner, card, intent) {
   if (condition.max_cost && !(intent.cost <= condition.max_cost)) return false;
   if (when === 'attack_declared') {
     const lanes = tcgAttackLanes(match);
-    if (lanes.length < (condition.min_attackers ?? 1)) return false;
+    if (lanes.length < (pendingMinimum(match, kind, condition.min_attackers))) return false;
     if (kind === 'guard_commander') return lanes.some(lane => !lane.blocker);
     if (kind === 'ward_blockers') return lanes.some(lane => lane.blocker);
   }
   if (when === 'spell_cast') return match.stack.some(item => item.id === intent.stackId && item.kind === 'spell' && item.owner !== owner);
   if (when === 'unit_summoned') return match.players[1 - owner].units.some(unit => unit.instance_id === intent.unitId && unit.current_def > 0);
-  if (when === 'ally_fallen') return match.players[owner].units.length < TCG_BOARD_LIMIT
+  if (when === 'ally_fallen') return match.players[owner].units.length < tcgBoardLimit(match)
     && match.players[owner].graveyard.some(unit => unit.instance_id === intent.unitId && unit.type === 'unit');
   return true;
 }
@@ -93,7 +97,7 @@ export function chooseTcgTrap(match) {
       burn_attackers: lanes.length * (value ?? 0),
       counter_spell: 500 + (match.pendingTrap?.intent.cost ?? 0) * 110,
       bind_summon: 600 + (match.pendingTrap?.intent.cost ?? 0) * 110,
-      summon_reserve: Math.min(value ?? 0, TCG_MAX_HP - match.players[owner].hp) + 380,
+      summon_reserve: Math.min(value ?? 0, tcgCommanderMax(match, owner) - match.players[owner].hp) + 380,
       revive_unit: 500 + (match.pendingTrap?.intent.cost ?? 0) * 180,
     }[kind];
     return { id: trap.card.instance_id, score };

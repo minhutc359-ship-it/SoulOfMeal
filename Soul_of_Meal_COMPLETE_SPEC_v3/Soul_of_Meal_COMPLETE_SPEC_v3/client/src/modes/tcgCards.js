@@ -1,10 +1,34 @@
 export const TCG_RULES_VERSION = 2;
+export const TCG_TABLE_VERSION = 3;
+export const TCG_TABLE_DECK_SIZE = 24;
+export const usesTcgTable = match => match?.rulesVersion === TCG_TABLE_VERSION;
+export const hasModernTcgRules = match => match.rulesVersion === TCG_RULES_VERSION || usesTcgTable(match);
+export const tcgBoardLimit = match => usesTcgTable(match) ? 4 : TCG_BOARD_LIMIT;
+export const tcgTrapLimit = match => usesTcgTable(match) ? 1 : TCG_TRAP_LIMIT;
+export const tcgCommanderMax = (match, player) => match.players[player].maxHp ?? TCG_MAX_HP;
 export const TCG_MAX_HP = 8000;
 export const TCG_HAND_LIMIT = 9;
 export const TCG_BOARD_LIMIT = 5;
 export const TCG_TRAP_LIMIT = 2;
 export const TCG_SPELL_TYPES = ['fast_spell', 'slow_spell', 'burst_spell'];
 export const TCG_REACTIONS = ['fast_spell', 'burst_spell'];
+
+export const TCG_RECIPES = {
+  fire: { name: 'Quà phố', finish: ['deal_damage', 'sweep_damage'], reward: 'Gây thêm 100 HP lên chủ soái địch và rút 1 lá.', bonus: 'damage' },
+  water: { name: 'Bến nước ký ức', finish: ['scout_trap', 'draw_cards'], reward: 'Trói Vị Linh địch có ATK cao nhất. Nếu sân địch trống, rút 1 lá.', bonus: 'root' },
+  wood: { name: 'Vườn sau cơn mưa', finish: ['restore_defense', 'team_heal'], reward: 'Hồi tối đa 150 DEF cho mỗi đồng minh.', bonus: 'heal' },
+  light: { name: 'Bếp Tết sum vầy', finish: ['grant_shield', 'team_shield'], reward: 'Mỗi đồng minh nhận 100 ATK và 100 hộ thuẫn đến hết lượt.', bonus: 'buff' },
+  shadow: { name: 'Đêm rước đèn', finish: ['execute', 'counter_reaction'], reward: 'Mỗi đồng minh nhận 100 hộ thuẫn và bạn rút 1 lá.', bonus: 'ward' },
+};
+
+export function tcgRecipeFor(match, playerIndex, card) {
+  if (!usesTcgTable(match) || match.activePlayer !== playerIndex) return null;
+  const player = match.players[playerIndex];
+  const anchor = player.units.find(unit => unit.instance_id === player.recipeAnchor);
+  const recipe = anchor && TCG_RECIPES[anchor.element];
+  return recipe && !player.recipesUsed?.includes(anchor.element) && recipe.finish.includes(card.effect?.kind)
+    ? anchor.element : null;
+}
 
 const EFFECTS = {
   deal_damage: { target: 'enemy', text: n => `Gây ${n} sát thương lên một Vị Linh địch hoặc chủ soái địch.`, badge: n => `${n} ST` },
@@ -39,7 +63,7 @@ export function tcgTurnSerial(match) {
 
 export function tcgCardCost(match, playerIndex, card) {
   const player = match.players[playerIndex];
-  const resonance = match.rulesVersion === TCG_RULES_VERSION && card.type !== 'trap' && card.cost > 0
+  const resonance = hasModernTcgRules(match) && card.type !== 'trap' && card.cost > 0
     && player.chainElement === card.element && !player.resonanceUsed;
   return card.cost - Number(resonance);
 }
@@ -72,7 +96,7 @@ export function tcgSpellTargets(match, playerIndex, card) {
     case 'enemy_row': return group(enemies, enemyIndex, 'Toàn bộ Vị Linh địch');
     case 'ally_row': return group(allies, playerIndex, 'Toàn bộ đồng minh');
     case 'injured_row': return group(injured, playerIndex, 'Mọi đồng minh bị thương');
-    case 'own_commander': return ally.hp < TCG_MAX_HP ? [commander(playerIndex)] : [];
+    case 'own_commander': return ally.hp < tcgCommanderMax(match, playerIndex) ? [commander(playerIndex)] : [];
     case 'own_deck': return ally.deck.length ? [{ id: 'deck', player: playerIndex, label: 'Bộ bài của bạn' }] : [];
     case 'any_trap':
     case 'hidden_trap': return enemy.traps.flatMap((trap, slot) => {
@@ -87,6 +111,7 @@ export function tcgSpellTargets(match, playerIndex, card) {
 }
 
 export const TCG_KEYWORDS = {
+  guard: 'Hộ vệ · Đòn thường phải nhắm một Hộ vệ còn trên sân.',
   haste: 'Xung phong · Được đánh ngay khi vào sân.',
   pierce: 'Xuyên kích · Sát thương vượt DEF và hộ thuẫn của quân chặn chuyển sang chủ soái địch.',
   lifesteal: 'Hút vị · Hồi chủ soái bằng 35% DEF hoặc HP thực sự đã trừ khi giao tranh.',

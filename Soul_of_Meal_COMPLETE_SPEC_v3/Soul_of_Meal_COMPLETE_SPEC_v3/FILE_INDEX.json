@@ -289,13 +289,13 @@
     },
     {
       "path": "docs/01_gameplay/AUTO_CHESS_RULEBOOK.md",
-      "bytes": 5841,
-      "sha256": "e489b978304b1f094d5980d2f1046f19c67ce972959ca02a249c427c689122da"
+      "bytes": 6372,
+      "sha256": "8ba3e24dff7ad73db72177e745b27d1911ebb3933ee14b7662abc0fbca176f69"
     },
     {
       "path": "docs/01_gameplay/TCG_RULEBOOK.md",
-      "bytes": 9011,
-      "sha256": "c14296ae0696b28dd2332f6f54aa14d9d71cef40e0a8f88be33b8cf95974e961"
+      "bytes": 10776,
+      "sha256": "7340ae7f03a6f5bde275cbcee0afdfc9e428a648fea42b4084501dac143869d8"
     },
     {
       "path": "docs/02_art/LICENSE_AND_PROVENANCE.md",
@@ -349,8 +349,8 @@
     },
     {
       "path": "examples/cards/cards.catalog.json",
-      "bytes": 17978,
-      "sha256": "dd72d7b6dca7103d3b10c7fd9642adbcba129c362cc8ba781a62297e799cb48c"
+      "bytes": 19739,
+      "sha256": "3c4b5d16133aa7d7810b703db00972d8b2e6a50a01c7c2d7196aeb72bc2a981d"
     },
     {
       "path": "examples/cards/starter_deck.json",
@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 18173,
-      "sha256": "831ae58263a6865c9dcdcc5f0a34ea6a4184d0969630b23cd422da0f5e7ae464"
+      "bytes": 18293,
+      "sha256": "32b7c74debf8edd93c624b3daebc137bb61a65b3d89a3cb92924f3130b3b3db6"
     },
     {
       "path": "client/index.html",
@@ -794,8 +794,8 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 157405,
-      "sha256": "5afc65a82cbfb22567aba9eecf143bbd41745549e231c9ee8b9739c0cbad215d"
+      "bytes": 170638,
+      "sha256": "f234c7c694eeaa5cc40f44a4c4b81e0b0db8bf0370724ed0207f91f292f56b0c"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -804,13 +804,13 @@
     },
     {
       "path": "client/src/modes/autoChess.js",
-      "bytes": 22939,
-      "sha256": "b4711078ba5ac57efd1ac77e03c80352f48b20ac260a3b58aded3af61fdd0635"
+      "bytes": 25054,
+      "sha256": "b1669186aea7a2bca500e6776ee304faba3e7408430258d3d7d3ae5388f0d160"
     },
     {
       "path": "client/src/modes/tcg.js",
-      "bytes": 42680,
-      "sha256": "bae83f07d8daee12ac1c2fbe5a4f3bc47e22c17b679e87168c168d27a4ce6b76"
+      "bytes": 51707,
+      "sha256": "c0ee32cf47783c95364db9f0951a550416bb76fee57885e35465e0c0eb353a59"
     },
     {
       "path": "client/styles.css",
@@ -2944,8 +2944,8 @@
     },
     {
       "path": "client/arena.css",
-      "bytes": 28993,
-      "sha256": "e81b9a9d319f4c72b1798992fd4c2e8643f81a82071e325753b0ab4691b158f9"
+      "bytes": 35643,
+      "sha256": "b9e6451d0854939c26a313ca8e80a58edd3ee76d9cd99c55e34d30cbdb4da474"
     },
     {
       "path": "client/src/modes/adventureChallenges.js",
@@ -2969,18 +2969,18 @@
     },
     {
       "path": "client/tests/chessLobby.test.js",
-      "bytes": 4657,
-      "sha256": "49b3f76e6d0439a474a1975491a6770cd6b9eb6c7d04f7af54b04b1d87aecafa"
+      "bytes": 6283,
+      "sha256": "7b9b2d1d188bc88841672dd993f421c640589bc00c76d7165d901b4fcdc20b3f"
     },
     {
       "path": "client/src/modes/tcgCards.js",
-      "bytes": 6413,
-      "sha256": "60051a1a8f4e75fb6c82db30614c7797a73349378b65a7dbbfe5d191d71b18de"
+      "bytes": 8398,
+      "sha256": "f4f5783223ad14019ec10fe879383995e8586e15b125baffa5117f3b2c0242e2"
     },
     {
       "path": "client/src/modes/tcgTraps.js",
-      "bytes": 5901,
-      "sha256": "d666ab907d802ea738e56f5e825edccbfebbb61fe2d662c5b773e9dcfef61619"
+      "bytes": 6124,
+      "sha256": "366d5a271b1187ba90989ea7df17f8d173b95e8c647b8194fbbdca9f16208fea"
     },
     {
       "path": "client/src/render/canvasSurface.js",
@@ -2991,6 +2991,21 @@
       "path": "client/tests/tcgTactics.test.js",
       "bytes": 13801,
       "sha256": "2822c193e0c6be36b5f680ca3c3ff4647721fc23032dde7f5eeab35271277ce2"
+    },
+    {
+      "path": "client/src/render/tableDrag.js",
+      "bytes": 4858,
+      "sha256": "2f1877f3c914379de616eda266db82d6b795b0843bc816b21944308d53081459"
+    },
+    {
+      "path": "client/src/render/tcgCardMotion.js",
+      "bytes": 2987,
+      "sha256": "45b84342e097f6fa1193a3e13f0e7c9e2575ee939f67a570acb23db30d9b069a"
+    },
+    {
+      "path": "client/tests/tcgTable.test.js",
+      "bytes": 5675,
+      "sha256": "05597f2ce98042fd814f20517d3b1d2d8d65939001787b2910e48e2e3df89534"
     }
   ]
 }

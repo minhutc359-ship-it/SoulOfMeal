@@ -36,7 +36,7 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 ## Lối chơi
 
 - **Adventure** · Chơi sáu chương bắt đầu với **Hương Vị Đầu Tiên**. Dùng **Dẫn đường** trên bản đồ hoặc trong **Nhật ký hành trình**. Nhật ký lưu manh mối đã tìm và cho đọc lại đối thoại đã mở. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
-- **TCG** · Đấu bot với bộ 36 lá từ danh mục 46 lá. Chọn độ khó và bộ bài bot riêng. Trình sửa có bốn ô lưu bộ bài, biểu đồ mana, bộ lọc và bốn mẫu **Hộ Trận**, **Tiên Phong**, **Triều Sương**, **Mầm Sống**.
+- **TCG** · Đấu bot với bộ 24 lá từ danh mục 46 lá. Chọn độ khó và bộ bài bot riêng. Trình sửa có bốn ô lưu bộ bài, biểu đồ mana, bộ lọc và bốn mẫu **Hộ Trận**, **Tiên Phong**, **Triều Sương**, **Mầm Sống**.
 - **Auto Chess** · Xếp đội hình trên bàn lục giác, mua quân từ kho chung, hợp thể ba bản sao và mua XP. Ván mới có bảy bot đánh cùng lúc, các vòng quái thưởng linh kiện và kết thúc khi bị loại, về nhất hoặc đến giới hạn 37 vòng. Phát lại giao tranh dùng vị trí, đòn đánh, kỹ năng và HP do mô phỏng ghi lại. Ván lưu từ bản trước tiếp tục theo thể thức cũ.
 
 ## Bếp Trưởng Hỏa Diệm
@@ -70,7 +70,7 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 - **Adventure.** Bản đồ nhỏ đánh dấu vị trí người chơi, lối đi và mục tiêu nhiệm vụ hiện tại. Trên màn hình cảm ứng, dùng cần điều khiển hoặc chạm đích để đi. Mở **Nhật ký hành trình** để đọc lại các cảnh đã mở kèm minh họa sáu chương.
 - **Khiêu chiến boss.** Boss mở trong bảng khi đã thắng trận tương ứng ở cốt truyện. Tái đấu ở ba độ khó với đội hình đầy HP. Mỗi boss và độ khó có phần thưởng lần đầu, số lần thắng, thời gian tốt nhất và số Vị Linh sống sót cao nhất. Chỉ số và phần thưởng là cân bằng thử nghiệm.
 - **Làng Ẩm Thực.** Chạm cửa hoặc đi đến trước Nhà Bếp, Hội Quán hay Tiệm Nguyên Liệu rồi nhấn E. Bàn chế tác mở kho trang bị. Bàn nhiệm vụ mở nhật ký. Tiệm đổi 30 vàng lấy 5 tinh hoa theo cân bằng thử nghiệm. Nút **Ra quảng trường** đưa nhân vật về đúng cửa. Bản lưu nhớ cả vị trí bên trong.
-- **TCG.** Chạm lá phép để chọn rồi chọn mục tiêu sáng trên bàn hoặc trong danh sách. Bấm **Thi triển** để xác nhận. Có thể xem hiệu ứng từng lá trong **Hàng chờ phản ứng**. Khi đủ điều kiện bẫy, bàn hiện **Kích hoạt bẫy** và **Giữ bẫy**. Tên bẫy địch chỉ hiện sau khi lật hoặc do thám.
+- **TCG.** Kéo thẻ từ tay tới ô trống, ô bẫy hoặc mục tiêu phép. Bạn cũng có thể chạm thẻ, chọn mục tiêu rồi xác nhận. Có thể xem hiệu ứng từng lá trong **Hàng chờ phản ứng**. Khi đủ điều kiện bẫy, bàn hiện **Kích hoạt bẫy** và **Giữ bẫy**. Tên bẫy địch chỉ hiện sau khi lật hoặc do thám.
 - **Auto Chess.** Lưới dùng khi xếp quân. Khi giao tranh, sân chỉ hiện cảnh đấu, Vị Linh, thanh HP, năng lượng và hiệu ứng. Mua quân rồi kéo từ ghế hoặc chạm quân và ô để đặt. Kéo quân từ bàn về ghế để rút, kéo lên ô có quân để đổi chỗ. Chọn quân để hiện nút **Bán quân** hoặc **Rút về ghế**. Đồng hồ luyện tập 30 giây tạm dừng khi mở hộp thoại. Khi hết giờ hoặc bấm **Chiến đấu**, trận bắt đầu sau một giây. Phát lại hỗ trợ tạm dừng và tốc độ 2×.
 - **Giảm chuyển động.** Tùy chọn trong **Cài đặt** giảm chuyển cảnh, hiệu ứng lật bẫy và chuyển động minh họa mà luật giao tranh vẫn chạy theo tick.
 
@@ -86,9 +86,9 @@ Cấp 1–5, công thức và giá là cân bằng thử nghiệm. Nâng cấp v
 
 ## Giao tranh TCG
 
-- Sau khi kết thúc giai đoạn triển khai, chạm các Vị Linh đang sẵn sàng để chọn nhóm tấn công. Các Vị Linh sẵn sàng được chọn mặc định.
-- Khi bot tuyên bố tấn công, chạm quân địch rồi chạm một đồng minh để chặn, hoặc chọn trong danh sách. Bấm **Chốt phòng thủ**. Một Vị Linh chỉ chặn một đường. Dự báo sát thương chủ soái tính cả Xuyên kích.
-- Sau khi chọn quân chặn, dùng tốc chú nếu cửa sổ phản ứng mở. Nếu quân chặn rời sân trước khi giao tranh được xử lý, đòn của đường đó đi thẳng vào chủ soái.
+- Đặt tối đa bốn Vị Linh và một bẫy. Mỗi Vị Linh sẵn sàng đánh một lần trong lượt. Kéo hoặc chạm quân rồi chọn mục tiêu để xem sát thương, phản đòn và Xuyên kích trước khi xác nhận.
+- Khi đối thủ còn Hộ vệ, chọn một Hộ vệ làm mục tiêu đòn thường. Khi hết Hộ vệ, chọn Vị Linh địch hoặc chủ soái. Đổi tối đa ba lá mở màn và tăng tối đa đến bảy mana.
+- Năm combo theo hệ kích hoạt khi bạn nối triệu hồi với phép tương ứng trong cùng lượt. Mỗi combo dùng một lần mỗi lượt khi phép xử lý thành công.
 - **Diệp Mộc Hồi Phục** hồi DEF qua hàng chờ tốc chú. **Ấn Bạch Ngọc** là tức chú dùng ngay và giữ ưu tiên. **Khai Hỏa Tiên Phong** là chậm chú tăng ATK. Hộ thuẫn và ATK cộng thêm hết hiệu lực cuối lượt hiện tại.
 - Cộng hưởng giảm một mana cho lá lộ hệ thứ hai cùng hệ, tối đa một lần mỗi lượt. Năm tuyệt kỹ gắn với năm Vị Linh đầu. Vị Linh thi triển phải còn trên bàn khi phép xử lý.
 - Chín bẫy phản ứng khi tấn công, dùng phép, triệu hồi hoặc đồng minh bị hạ. Bẫy sẵn sàng sau khi đổi lượt và có thể được giữ cho lần khác. **Soi Dấu Bẫy** làm lộ một ô, **Phá Ấn Thất Vị** gỡ một ô và **Phản Chú Hư Vị** hóa giải phép hoặc bẫy đang chờ.
@@ -98,7 +98,7 @@ Cấp 1–5, công thức và giá là cân bằng thử nghiệm. Nâng cấp v
 ## Chuẩn bị Auto Chess
 
 - Dùng **Do thám** để xem đúng đối thủ kế tiếp, nửa bàn và vị trí quân của họ. Số lãi dự kiến cập nhật theo vàng hiện có.
-- Chọn một quân trên bàn rồi bấm **Rút về ghế** để giữ quân và số sao. Ghế có chỗ thì có thể triển khai lại ở vị trí khác trước khi khóa đội hình.
+- Kéo thả bằng chuột hoặc cảm ứng. Thả vào vị trí đã có quân để đổi chỗ, kể cả khi bàn đã đủ quân hoặc cả chín ghế đã đầy. Giữ quân để xem chỉ số và số bản sao. Thả vào **Kéo để bán** hoặc chọn quân rồi bấm **Bán quân**.
 - **Túi vật phẩm** cho gắn linh kiện lên quân. Gắn linh kiện thứ hai lên quân đang giữ một linh kiện để ghép thành món hoàn chỉnh. Bán quân trả vật phẩm về túi và trả bản sao về kho chung. Tỉ lệ cửa hàng, ngưỡng XP và các món là cân bằng thử nghiệm.
 
 ## Cài nhạc theo cảnh

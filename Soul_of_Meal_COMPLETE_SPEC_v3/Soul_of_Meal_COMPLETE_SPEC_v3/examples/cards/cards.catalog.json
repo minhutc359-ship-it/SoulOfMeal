@@ -730,5 +730,82 @@
         "card_demo_18": "card_tcg_resupply"
       }
     }
+  ],
+  "table_decks": {
+    "starter": [
+      "card_demo_01",
+      "card_demo_02",
+      "card_wood_scout",
+      "card_lantern_guard",
+      "card_shadow_hunter",
+      "card_hearth_pepper",
+      "card_jade_mushroom",
+      "card_demo_11",
+      "card_spirit_renewal",
+      "card_spirit_ward",
+      "card_trap_mirror",
+      "card_tcg_resupply"
+    ],
+    "guard": [
+      "card_demo_04",
+      "card_lantern_guard",
+      "card_wood_scout",
+      "card_demo_03",
+      "card_jade_mushroom",
+      "card_demo_02",
+      "card_spirit_ward",
+      "card_ultimate_light",
+      "card_spirit_renewal",
+      "card_tcg_tonic",
+      "card_trap_rally",
+      "card_tcg_disarm"
+    ],
+    "assault": [
+      "card_demo_01",
+      "card_hearth_pepper",
+      "card_demo_06",
+      "card_fire_guard",
+      "card_demo_05",
+      "card_shadow_hunter",
+      "card_demo_17",
+      "card_ultimate_fire",
+      "card_ultimate_shadow",
+      "card_spirit_rally",
+      "card_demo_16",
+      "card_tcg_refute"
+    ],
+    "tide": [
+      "card_demo_02",
+      "card_rain_keeper",
+      "card_tide_mage",
+      "card_demo_07",
+      "card_lantern_guard",
+      "card_shadow_duelist",
+      "card_demo_11",
+      "card_ultimate_water",
+      "card_trap_mirror",
+      "card_tcg_scout",
+      "card_tcg_refute",
+      "card_tcg_disarm"
+    ],
+    "grove": [
+      "card_wood_scout",
+      "card_demo_03",
+      "card_jade_mushroom",
+      "card_demo_08",
+      "card_rain_keeper",
+      "card_lantern_guard",
+      "card_spirit_renewal",
+      "card_ultimate_wood",
+      "card_trap_roots",
+      "card_trap_recall",
+      "card_tcg_resupply",
+      "card_tcg_tonic"
+    ]
+  },
+  "table_guard_units": [
+    "card_demo_04",
+    "card_lantern_guard",
+    "card_jade_mushroom"
   ]
 }

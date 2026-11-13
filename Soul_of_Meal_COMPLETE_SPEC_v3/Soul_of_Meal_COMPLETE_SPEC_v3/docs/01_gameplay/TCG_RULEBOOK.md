@@ -1,9 +1,19 @@
 # Tactical Card Game — Rules Baseline v3
 **Status: PROPOSED** · deterministic, seeded bot PvE P0 · standalone stats. The screenshot values, art text and special effect previews do **not** define legal game rules.
 
-## Browser playtest, rules version 2
+## Browser playtest, rules version 3
 
-The 0.5-proposed catalog contains 46 cards, including nine traps and five character-bound ultimates. All four themed presets have 36 cards. The rules use the established five unit lanes and two trap slots. Spell order, attack resolution and save recovery are deterministic. Open a new match to use version 2. Existing saved matches use the earlier automatic triggers and spell timings.
+New matches adapt the [MealGacha f9d3925 battle table](https://github.com/minhutc359-ship-it/MealGacha/commit/f9d39257d17b4dd378a2fbd2a9f936724754fc16). The Soul of Meal catalog supplies 46 cards, five starter or themed decks, nine traps and five character-bound ultimates.
+
+- Exactly 24 cards, up to two copies per card. Four starting cards, up to three replacements, eight-card hand, four unit positions and one trap slot. Commanders start with 3,400 and 3,000 HP in bot play. Max mana increases to seven. Mandatory draws on an empty deck deal 100, 200, then 300 fatigue damage per draw.
+- An active player may send each ready unit into a separate attack. When an enemy Hộ vệ is alive, basic attacks must target a Hộ vệ. Otherwise choose a unit or the commander. Unit attacks exchange damage simultaneously. Haste grants immediate readiness, and summoning an ally of an existing element grants the new unit 100 temporary shield.
+- Drag a card to a valid target to play it. Tap controls provide a selection and confirmation path. Dropping an attacker on an enemy opens the preview before committing. Card placement, dealing, face-down sets and reveals have separate cues. An enemy trap exposes only its card back until revealed or scouted.
+- A Vị Linh immediately followed by an eligible spell can trigger a themed recipe once per turn. A countered or fizzled spell cannot grant the recipe reward. Setting a trap still interrupts elemental resonance. Reactions, traps and ultimates retain the stack and trigger checks listed below.
+- Ongoing v1 and v2 matches continue with their recorded rules. The editor shows up to 24 known cards from a previously saved list. Saving a draft applies it to future games.
+
+## Existing saved matches, rules version 2
+
+The 0.5-proposed catalog contains 46 cards, including nine traps and five character-bound ultimates. All four themed presets have 36 cards. The rules use the established five unit lanes and two trap slots. Spell order, attack resolution and save recovery are deterministic. Existing version 1 saves use the earlier automatic triggers and spell timings.
 
 - A face-down trap becomes armed on the next active-player turn. After an attack's blockers are confirmed, a summon is placed, a fast or slow spell is queued, or a unit falls, the matching owner may activate one eligible trap for that trigger or keep the traps. A chosen trap enters the visible response stack. The attack then continues on the surviving, unblocked lanes. Scout reveals a trap without consuming it. Disarm removes it while preserving the privacy of its identity if it is still face down.
 - Slow spells can only join an empty stack during deployment. Fast spells can join an open reaction. Both wait for resolution. Burst effects resolve immediately and retain priority. An ultimate needs its original caster on the board through resolution.
@@ -13,7 +23,9 @@ The 0.5-proposed catalog contains 46 cards, including nine traps and five charac
 
 Interaction and mechanic references from MealGacha's prior TCG are [Trap Decision](https://github.com/minhutc359-ship-it/MealGacha/blob/f73b44a3901ee7fa58ad42cbe212004d234c9b18/src/components/game/TrapZone.tsx), [card and trap rules](https://github.com/minhutc359-ship-it/MealGacha/blob/f73b44a3901ee7fa58ad42cbe212004d234c9b18/dev/docs/TCG_RULES.md), and [Deck Builder](https://github.com/minhutc359-ship-it/MealGacha/blob/f73b44a3901ee7fa58ad42cbe212004d234c9b18/src/components/game/DeckBuilder.tsx). Visual and audio assets for this browser playtest use the local Soul of Meal v3 source inventory.
 
-## 1. Match setup and card zones
+## Legacy 36-card rules baseline
+
+### 1. Match setup and card zones
 Two commanders at **8000 HP**, 36-card deck each, max two copies per non-token card. Zones: deck, hand, graveyard, exile, 5 friendly unit slots, 2 friendly face-down trap slots, stack, and commander. Hand cap 9; excess draws burn and are logged. Initial hand 4; optional one mulligan (choose cards to replace, once), first player skips first draw. Card types: `unit`, `slow_spell`, `fast_spell`, `burst_spell`, `trap`, `ultimate` (a subtype/keyword, not a free extra slot). Units have `atk`, `max_def` (durability), `current_def`, keywords and effects. No generic damage reduction based on DEF: DEF is unit hit points in this mode.
 
 ## 2. Timeline and priority

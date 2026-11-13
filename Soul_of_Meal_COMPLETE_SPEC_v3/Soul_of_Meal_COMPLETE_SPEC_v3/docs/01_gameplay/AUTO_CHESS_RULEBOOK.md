@@ -31,6 +31,8 @@ Each row sums to 100. The browser practice lobby uses the finite shared pool in 
 ## 5. Merge and placement
 Three copies of **same character ID and same star** combine into one unit +1 star; 1→2→3 stars maximum. Merge priority: board copies before bench if any, destination at the first occupied original cell with stable `placement_order`; overflow moves to bench, then refund/compensation policy must be explicit. Merge only between rounds. Merge increases HP/ATK according to unit-specific star multiplier content, not a hardcoded global double.
 
+The browser supports mouse and touch dragging between exact bench slots and board cells. Dropping on an occupied valid destination swaps the two units, including at the board and bench caps. The shop previews an available upgrade; the surviving unit shows its stars and a short merge cue. Tap to select and then tap a destination for keyboard-compatible formation changes. Formation interaction was adapted from [MealGacha f9d3925](https://github.com/minhutc359-ship-it/MealGacha/commit/f9d39257d17b4dd378a2fbd2a9f936724754fc16).
+
 ## 6. Element/role synergies
 Elements: fire, water, wood, light, shadow. Jobs: fighter, guardian, mage, ranged, support, assassin. A unique deployed character counts once; 2-star duplicate does not count three times. Example PROPOSED thresholds `fire(2/4/6)` burn bonus, `water(2/4/6)` mana regen and slow, `wood(2/4/6)` sustain, `guardian(2/4)` bonus frontline shield, `chef(2/4/6)` team-wide buff. Synergy application happens at phase lock; changes during battle from summon effects require `dynamic_synergy` flag.
 

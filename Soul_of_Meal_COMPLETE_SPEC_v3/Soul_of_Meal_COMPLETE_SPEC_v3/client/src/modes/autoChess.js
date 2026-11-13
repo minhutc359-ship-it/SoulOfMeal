@@ -104,7 +104,14 @@ export function buyChessOffer(run, slot) {
   const updated = structuredClone(run);
   updated.shop[slot] = null;
   updated.gold -= offer.cost;
-  updated.bench.push(newChessUnit(offer, updated.bench.length));
+  const free = chessBenchSlots(run).indexOf(null);
+  const piece = newChessUnit(offer, updated.bench.length);
+  if (free >= 0) piece.benchSlot = free;
+  // Keep the visual positions of existing bench units when filling a hole.
+  chessBenchSlots(run).forEach((index, slot) => {
+    if (index !== null) updated.bench[index].benchSlot = slot;
+  });
+  updated.bench.push(piece);
   mergeChessCopies(updated);
   record(updated, `Đã mua ${offer.display_name}.`);
   gameEvents.emit('chess_unit_bought', { unit_id: offer.id, cost: offer.cost });
@@ -115,45 +122,89 @@ function newChessUnit(offer, placementOrder) {
   return { ...offer, ...chessStats(offer.id, 1), star: 1, placementOrder };
 }
 
-export function placeChessUnit(run, benchIndex, x, y) {
+export function chessBenchSlots(run) {
+  const slots = Array(BENCH_SIZE).fill(null);
+  const unplaced = [];
+  for (const [index, unit] of run.bench.entries()) {
+    if (Number.isInteger(unit.benchSlot) && unit.benchSlot >= 0 && slots[unit.benchSlot] === null) slots[unit.benchSlot] = index;
+    else unplaced.push(index);
+  }
+  for (const index of unplaced) {
+    const empty = slots.indexOf(null);
+    if (empty >= 0) slots[empty] = index;
+  }
+  return slots;
+}
+
+function chessPlacement(run, source, destination) {
+  if (run.phase !== 'prepare' || !['board', 'bench'].includes(source.zone) || !run[source.zone][source.index]) return null;
+  const slots = chessBenchSlots(run);
+  if (destination.zone === 'board') {
+    const { x, y } = destination;
+    if (![x, y].every(Number.isInteger) || x < 0 || x >= BOARD_COLUMNS || y < 0 || y >= BOARD_ROWS) return null;
+    const other = run.board.findIndex(unit => unit.x === x && unit.y === y);
+    if (source.zone === 'bench' && other < 0 && run.board.length >= run.level) return null;
+    return { slots, other };
+  }
+  if (destination.zone !== 'bench') return null;
+  const slot = destination.slot ?? slots.indexOf(null);
+  if (!Number.isInteger(slot) || slot < 0 || slot >= BENCH_SIZE) return null;
+  return { slots, slot, other: slots[slot] ?? -1 };
+}
+
+export function chessDropState(run, source, destination) {
+  const placement = chessPlacement(run, source, destination);
+  if (!placement) return 'blocked';
+  return placement.other < 0 || source.zone === destination.zone && source.index === placement.other ? 'valid' : 'swap';
+}
+
+export function arrangeChessUnit(run, source, destination) {
   assertPrepare(run);
-  if (run.board.length >= run.level) throw new Error(`Cấp ${run.level} chỉ dùng được ${run.level} quân.`);
-  assertCell(x, y);
-  if (!Number.isInteger(benchIndex) || !run.bench[benchIndex]) throw new Error('Không tìm thấy quân trên ghế dự bị.');
+  const placement = chessPlacement(run, source, destination);
+  if (!placement) throw new Error(destination.zone === 'bench' ? 'Băng ghế không có chỗ.' : 'Chọn ô hợp lệ hoặc đổi chỗ với một quân trên bàn.');
+  if (source.zone === destination.zone && source.index === placement.other) return run;
   const updated = structuredClone(run);
-  const existingIndex = updated.board.findIndex((unit) => unit.x === x && unit.y === y);
-  if (existingIndex >= 0) throw new Error('Ô này đã có quân.');
-  const [unit] = updated.bench.splice(benchIndex, 1);
-  if (!unit) throw new Error('Không tìm thấy quân trên ghế dự bị.');
-  const stats = chessStats(unit.id, unit.star);
-  updated.board.push({ ...unit, ...stats, x, y, placementOrder: updated.board.length });
-  mergeChessCopies(updated);
-  record(updated, `${unit.display_name} đã vào vị trí (${x + 1}, ${y + 1}).`);
-  gameEvents.emit('chess_unit_placed', { unit_id: unit.id, x, y });
+  placement.slots.forEach((index, slot) => {
+    if (index !== null) updated.bench[index].benchSlot = slot;
+  });
+  const piece = updated[source.zone][source.index];
+  const other = updated[destination.zone][placement.other];
+  const from = source.zone === 'board' ? { x: piece.x, y: piece.y } : { slot: piece.benchSlot };
+  function position(unit, zone, place) {
+    if (zone === 'board') {
+      delete unit.benchSlot;
+      Object.assign(unit, { x: place.x, y: place.y });
+    } else {
+      delete unit.x;
+      delete unit.y;
+      unit.benchSlot = place.slot;
+    }
+  }
+  position(piece, destination.zone, { ...destination, slot: placement.slot });
+  if (other) position(other, source.zone, from);
+  if (source.zone !== destination.zone) {
+    updated[source.zone].splice(source.index, 1, ...(other ? [other] : []));
+    if (other) updated[destination.zone][placement.other] = piece;
+    else updated[destination.zone].push(piece);
+  }
+  if (destination.zone === 'board') {
+    mergeChessCopies(updated);
+    record(updated, `${piece.display_name} vào ô (${destination.x + 1}, ${destination.y + 1}).`);
+    gameEvents.emit('chess_unit_placed', { unit_id: piece.id, x: destination.x, y: destination.y });
+  } else record(updated, `${piece.display_name} vào ghế ${placement.slot + 1}.`);
   return updated;
+}
+
+export function placeChessUnit(run, benchIndex, x, y) {
+  return arrangeChessUnit(run, { zone: 'bench', index: benchIndex }, { zone: 'board', x, y });
 }
 
 export function moveChessUnit(run, boardIndex, x, y) {
-  assertPrepare(run);
-  assertCell(x, y);
-  const updated = structuredClone(run);
-  const selected = updated.board[boardIndex];
-  if (!selected) throw new Error('Không tìm thấy quân.');
-  const other = updated.board.find((unit) => unit.x === x && unit.y === y);
-  if (other) { other.x = selected.x; other.y = selected.y; }
-  selected.x = x; selected.y = y;
-  return updated;
+  return arrangeChessUnit(run, { zone: 'board', index: boardIndex }, { zone: 'board', x, y });
 }
 
 export function benchChessUnit(run, boardIndex) {
-  assertPrepare(run);
-  if (!Number.isInteger(boardIndex) || !run.board[boardIndex]) throw new Error('Hãy chọn một quân trên bàn.');
-  if (run.bench.length >= BENCH_SIZE) throw new Error('Băng ghế đã đủ 9 vị trí.');
-  const updated = structuredClone(run);
-  const [{ x, y, ...unit }] = updated.board.splice(boardIndex, 1);
-  updated.bench.push(unit);
-  record(updated, `${unit.display_name} đã về băng ghế.`);
-  return updated;
+  return arrangeChessUnit(run, { zone: 'board', index: boardIndex }, { zone: 'bench' });
 }
 
 export function sellChessUnit(run, zone, index) {
@@ -434,7 +485,11 @@ function mergeChessCopies(run, announce = true) {
     }
     if (announce) {
       record(run, `${survivor.display_name} hợp thể ${survivor.star} sao.`);
-      gameEvents.emit('chess_units_merged', { unit_id: survivor.id, star: survivor.star });
+      const onBoard = run.board.includes(survivor);
+      gameEvents.emit('chess_units_merged', {
+        unit_id: survivor.id, star: survivor.star, x: survivor.x, y: survivor.y,
+        bench_slot: onBoard ? null : chessBenchSlots(run).indexOf(run.bench.indexOf(survivor)),
+      });
     }
   }
 }
@@ -483,12 +538,6 @@ function chessStats(id, star) {
   }[id] ?? [500, 60, 30];
   const multiplier = star === 1 ? 1 : star === 2 ? 1.8 : 3.2;
   return { hp: Math.floor(base[0] * multiplier), maxHp: Math.floor(base[0] * multiplier), atk: Math.floor(base[1] * multiplier), def: Math.floor(base[2] * multiplier) };
-}
-
-function assertCell(x, y) {
-  if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || x >= BOARD_COLUMNS || y < 0 || y >= BOARD_ROWS) {
-    throw new Error('Chọn ô hợp lệ ở nửa bàn của bạn.');
-  }
 }
 
 function record(run, message) { run.log.unshift(message); run.log = run.log.slice(0, 30); }
