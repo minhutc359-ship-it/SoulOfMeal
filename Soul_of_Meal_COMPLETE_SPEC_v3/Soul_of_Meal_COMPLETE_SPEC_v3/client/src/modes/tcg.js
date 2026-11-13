@@ -1,6 +1,6 @@
 import { gameEvents } from '../core/events.js';
 import { planTcgAttacks, planTcgBlocks, tcgCanAttack, tcgCanBlock, tcgPierce, tcgUnitAttack, tcgUnitDurability } from './tcgStrategy.js';
-import { TCG_HAND_LIMIT, TCG_MAX_HP, TCG_REACTIONS, TCG_RULES_VERSION, TCG_SPELL_TYPES, TCG_TABLE_VERSION, TCG_TABLE_DECK_SIZE,
+import { tcgHandLimit, TCG_MAX_HP, TCG_REACTIONS, TCG_RULES_VERSION, TCG_SPELL_TYPES, TCG_TABLE_VERSION, TCG_TABLE_DECK_SIZE,
   hasModernTcgRules, tcgBoardLimit, tcgCommanderMax, tcgTrapLimit, tcgCardCost, tcgCaster, tcgEffectText, tcgRecipeFor, TCG_RECIPES, tcgSpellTargets, tcgTurnSerial, usesTcgTable } from './tcgCards.js';
 import { chooseTcgTrap, tcgAttackLanes, tcgTrapArmed, tcgTrapKind, tcgTrapOptions, tcgTrapRule } from './tcgTraps.js';
 
@@ -21,8 +21,9 @@ export function tcgPresetDeck(catalog, starter, presetId) {
 }
 
 export function tcgTableDeck(catalog, preset = 'starter') {
-  const ids = catalog.table_decks[preset] ?? catalog.table_decks.starter;
-  const deck = { deck_id: 'deck_' + preset, catalog_version: catalog.catalog_version, cards: ids.map(card_id => ({ card_id, count: 2 })) };
+  const key = Object.hasOwn(catalog.table_decks, preset) ? preset : 'starter';
+  const ids = catalog.table_decks[key];
+  const deck = { deck_id: 'deck_' + key, catalog_version: catalog.catalog_version, cards: ids.map(card_id => ({ card_id, count: 2 })) };
   validateDeck(deck, catalog, TCG_TABLE_DECK_SIZE);
   return deck;
 }
@@ -65,6 +66,25 @@ export function createTcgMatch(catalog, deck, seed = 41, botDeck = deck, difficu
     passes: 0, stack: [], mulliganDone: false, nextStackId: 1, nextTrapId: 1, pendingAttack: null, winner: null, result: null,
     difficulty: Object.hasOwn(TCG_DIFFICULTIES, difficulty) ? difficulty : 'normal', players, eventSeq: 0, log: [{ type: 'match_started', text: 'Trận đấu bắt đầu. Người chơi đi trước không rút bài ở lượt đầu.' }],
   };
+}
+
+export function createTcgChallenge(catalog, deck, seed, challengeId) {
+  const challenge = catalog.table_challenges?.find(item => item.id === challengeId);
+  if (!challenge) throw new Error('Không tìm thấy thử thách.');
+  const match = createTcgMatch(catalog, deck, seed, tcgTableDeck(catalog, challenge.preset), challenge.difficulty, TCG_TABLE_VERSION);
+  const bot = match.players[1];
+  const openingId = challenge.opening_unit ?? challenge.opening_trap;
+  const zone = bot.deck.some(card => card.card_id === openingId) ? bot.deck : bot.hand;
+  const index = zone.findIndex(card => card.card_id === openingId);
+  if (index < 0) throw new Error('Bộ bài thử thách thiếu lá mở màn.');
+  const [opening] = zone.splice(index, 1);
+  if (zone === bot.hand) bot.hand.push(bot.deck.pop());
+  if (challenge.opening_unit) bot.units.push({ ...opening, lane: 1, current_def: opening.max_def, ready: false });
+  else bot.traps.push({ card: opening, token: match.nextTrapId++, setRound: 0, setTurn: 0, faceDown: true });
+  Object.assign(bot, { hp: challenge.commander_hp, maxHp: challenge.commander_hp });
+  if (challenge.opening_shield) bot.units[0].shield = challenge.opening_shield;
+  match.challengeId = challenge.id;
+  return match;
 }
 
 export function validateDeck(deck, catalog, size = 36) {
@@ -300,7 +320,9 @@ export function strikeTcg(match, playerIndex, attackerId, targetId) {
   const target = tcgStrikeTargets(match, playerIndex).find(candidate => candidate.id === targetId);
   if (!target) throw new Error('Hãy chọn một mục tiêu hợp lệ. Hộ vệ phải bị đánh trước.');
   const updated = structuredClone(match);
-  updated.players[playerIndex].units.find(unit => unit.instance_id === attackerId).ready = false;
+  const fighter = updated.players[playerIndex].units.find(unit => unit.instance_id === attackerId);
+  fighter.ready = false;
+  fighter.struckTurn = tcgTurnSerial(updated);
   updated.pendingAttack = {
     playerIndex, attackerIds: [attackerId], targetId, direct: true, resume: match.phase, canceled: false,
     blocks: target.unit ? [{ lane: attacker.lane, blockerId: targetId }] : [],
@@ -408,6 +430,13 @@ export function runTcgBot(match, { yieldToPlayer = false } = {}) {
     if (updated.phase === 'action' || updated.phase === 'reaction') {
       if (updated.priority === 1) {
         const move = chooseBotCard(updated.players[1], updated);
+        // A ready ally can only be rallied after the first strike.
+        const strike = !move && usesTcgTable(updated) && updated.phase === 'action' && updated.players[1].hand.some(card => card.effect?.kind === 'rally_unit' && tcgCardCost(updated, 1, card) <= updated.players[1].mana)
+          ? chooseTcgStrike(updated, 1) : null;
+        if (strike) {
+          updated = strikeTcg(updated, 1, strike.attacker.instance_id, strike.target.id);
+          continue;
+        }
         updated = move ? playTcgCard(updated, 1, move.instance_id, move.target_id) : passTcgPriority(updated, 1);
       } else {
         if (yieldToPlayer && (!usesTcgTable(updated) || updated.players[0].hand.some(card => canPlayTcgCard(updated, 0, card)))) return updated;
@@ -467,9 +496,9 @@ function chooseBotCard(player, match) {
   const moves = playable.flatMap(card => {
     if (card.type === 'unit') return [{ card, score: advanced ? card.atk + card.max_def * .35 : 3000 }];
     if (card.type === 'trap') return [{ card, score: advanced ? 340 : 2000 }];
-    return tcgSpellTargets(match, 1, card).map(target => {
+    return tcgSpellTargets(match, 1, card).flatMap(target => {
       const score = scoreTcgSpell(match, card, target);
-      return { card, targetId: target.id, score: advanced ? score / (1 + .09 * tcgCardCost(match, 1, card)) : score };
+      return score > 0 ? [{ card, targetId: target.id, score: advanced ? score / (1 + .09 * tcgCardCost(match, 1, card)) : score }] : [];
     });
   });
   const best = moves.reduce((prior, move) => !prior || move.score > prior.score ? move : prior, null);
@@ -493,8 +522,14 @@ function scoreTcgSpell(match, card, target) {
     case 'team_heal': return 150 + units.reduce((total, item) => total + heal(item, value), 0);
     case 'team_shield': return 150 + units.length * value * .54 + reacting;
     case 'execute': return 1100 + tcgUnitAttack(unit);
+    case 'shatter_shield': return damage({ ...unit, shield: 0 }, value) + unit.shield * .7;
+    case 'recall_enemy': return 320 + unit.cost * 110 + tcgUnitAttack(unit) * .48 + Number(unit.keywords?.includes('guard')) * 240;
+    case 'weaken_enemy': return match.pendingAttack?.attackerIds.includes(unit.instance_id) ? Math.min(tcgUnitAttack(unit), value) * 2.5 : 0;
+    case 'raise_ally': return 330 + target.fallen.atk * .55 + Math.min(target.fallen.max_def, value) * .28;
+    case 'rally_unit': return 180 + tcgUnitAttack(unit) * 1.05;
+    case 'drain_unit': return damage(unit, value) + Math.min(value, unit.current_def, tcgCommanderMax(match, 1) - match.players[1].hp) * .8;
     case 'heal_commander': return Math.min(value, tcgCommanderMax(match, 1) - match.players[1].hp) * (match.players[1].hp < 2000 ? 1.65 : .55);
-    case 'draw_cards': return 150 + Math.min(value, TCG_HAND_LIMIT - match.players[1].hand.length + 1) * 260;
+    case 'draw_cards': return 150 + Math.min(value, tcgHandLimit(match) - match.players[1].hand.length + 1) * 260;
     case 'disarm_trap': return 680;
     case 'scout_trap': return 450;
     case 'counter_reaction': return 770 + item.card.cost * 180;
@@ -660,7 +695,7 @@ function resolveSpell(match, card, ownerIndex, targetId, caster, recipe) {
     logEvent(match, 'spell_fizzled', `${card.display_name} mất mục tiêu.`);
     return;
   }
-  const { unit, units, player, slot, item } = target;
+  const { unit, units, player, slot, item, fallen } = target;
   const source = { card, owner: ownerIndex, caster, kind: 'spell' };
   logEvent(match, 'spell_resolved', `${card.display_name} được thi triển.`);
   if (card.requires_character) gameEvents.emit('tcg_ultimate_resolved', {
@@ -670,6 +705,23 @@ function resolveSpell(match, card, ownerIndex, targetId, caster, recipe) {
     case 'deal_damage': damageTcgTargets(match, source, player, [unit], value); break;
     case 'sweep_damage': damageTcgTargets(match, source, player, units, value); break;
     case 'bind_damage': bindTcgUnit(match, player, unit); damageTcgTargets(match, source, player, [unit], value); break;
+    case 'shatter_shield':
+      delete unit.shield;
+      damageTcgTargets(match, source, player, [unit], value);
+      break;
+    case 'recall_enemy': recallTcgUnit(match, source, player, unit); break;
+    case 'weaken_enemy': weakenTcgUnit(match, card, player, unit, value); break;
+    case 'raise_ally': raiseTcgUnit(match, player, fallen.instance_id, value); break;
+    case 'rally_unit':
+      unit.ready = true;
+      showTcgUnitChange(match, card, player, unit, 'rally', 'Tái chiến');
+      break;
+    case 'drain_unit': {
+      const healed = Math.min(unit.current_def, Math.max(0, value - (unit.shield ?? 0)));
+      damageTcgTargets(match, source, player, [unit], value);
+      if (healed && !match.result) applyTcgSupport(match, card, ownerIndex, null, 'heal', healed, caster);
+      break;
+    }
     case 'execute': damageTcgTargets(match, source, player, [unit], tcgUnitDurability(unit)); break;
     case 'restore_defense': applyTcgSupport(match, card, player, unit, 'heal', value, caster); break;
     case 'team_heal': for (const ally of units) applyTcgSupport(match, card, player, ally, 'heal', value, caster); break;
@@ -683,6 +735,45 @@ function resolveSpell(match, card, ownerIndex, targetId, caster, recipe) {
     case 'counter_reaction': cancelTcgStackItem(match, card, item.id); break;
   }
   if (recipe && !match.result) resolveTcgRecipe(match, ownerIndex, card, caster, recipe);
+}
+
+function showTcgUnitChange(match, card, owner, unit, kind, label, amount = 0) {
+  gameEvents.emit('tcg_unit_changed', { element: card.element, kind, label, amount, target_player: owner, target_lane: unit.lane },
+    tcgContext(match, card.instance_id, unit.instance_id));
+  logEvent(match, 'unit_' + kind, `${unit.display_name} · ${label}.`);
+}
+
+function weakenTcgUnit(match, card, owner, unit, value) {
+  const amount = Math.min(tcgUnitAttack(unit), value);
+  if (!amount) return;
+  unit.attackBuff = (unit.attackBuff ?? 0) - amount;
+  showTcgUnitChange(match, card, owner, unit, 'weakened', `−${amount} ATK`, amount);
+}
+
+function clearTcgUnitState(unit) {
+  const { shield, attackBuff, rootedUntil, struckTurn, ready, current_def, lane, ...card } = unit;
+  return card;
+}
+
+function recallTcgUnit(match, source, owner, unit) {
+  const player = match.players[owner];
+  const overflow = player.hand.length >= tcgHandLimit(match);
+  player.units = player.units.filter(candidate => candidate.instance_id !== unit.instance_id);
+  (overflow ? player.graveyard : player.hand).push(clearTcgUnitState(unit));
+  showTcgUnitChange(match, source.card, owner, unit, 'recalled', overflow ? 'Tay đầy · Vào mộ' : 'Về tay');
+}
+
+function raiseTcgUnit(match, owner, instanceId, defense) {
+  const player = match.players[owner];
+  const index = player.graveyard.findIndex(unit => unit.instance_id === instanceId && unit.type === 'unit');
+  const limit = tcgBoardLimit(match);
+  if (index < 0 || player.units.length >= limit) return;
+  const unit = clearTcgUnitState(player.graveyard.splice(index, 1)[0]);
+  Object.assign(unit, { current_def: Math.min(unit.max_def, defense), ready: false, lane: firstOpenLane(player.units, limit) });
+  player.units.push(unit);
+  logEvent(match, 'unit_revived', `${unit.display_name} trở lại bàn đấu.`);
+  gameEvents.emit('unit_summoned', { card_id: unit.card_id, player_index: owner, element: unit.element, target_lane: unit.lane, revived: true },
+    tcgContext(match, null, unit.instance_id));
 }
 
 function resolveTcgRecipe(match, owner, card, caster, element) {
@@ -816,17 +907,14 @@ function resolveTrap(match, { card, owner, intent }) {
       applyTcgSupport(match, card, owner, null, 'heal', value);
       drawTcgEffect(match, owner, 1, card);
       break;
-    case 'revive_unit': {
-      const index = player.graveyard.findIndex(unit => unit.instance_id === intent.unitId && unit.type === 'unit');
-      if (index < 0 || player.units.length >= tcgBoardLimit(match)) break;
-      const [{ shield, attackBuff, rootedUntil, ...unit }] = player.graveyard.splice(index, 1);
-      Object.assign(unit, { current_def: Math.min(unit.max_def, value), ready: false, lane: firstOpenLane(player.units, tcgBoardLimit(match)) });
-      player.units.push(unit);
-      logEvent(match, 'unit_revived', `${unit.display_name} trở lại bàn đấu.`);
-      gameEvents.emit('unit_summoned', { card_id: unit.card_id, player_index: owner, element: unit.element, target_lane: unit.lane, revived: true },
-        tcgContext(match, null, unit.instance_id));
+    case 'revive_unit': raiseTcgUnit(match, owner, intent.unitId, value); break;
+    case 'weaken_attackers':
+      for (const { unit } of tcgAttackLanes(match)) weakenTcgUnit(match, card, opponent, unit, value);
       break;
-    }
+    case 'ward_after_summon':
+      for (const ally of player.units) applyTcgSupport(match, card, owner, ally, 'shield', value);
+      break;
+    case 'draw_after_loss': drawTcgEffect(match, owner, value, card); break;
   }
 }
 
@@ -948,7 +1036,7 @@ function drawCard(match, playerIndex) {
     return;
   }
   const card = player.deck.pop();
-  if (player.hand.length < (usesTcgTable(match) ? 8 : TCG_HAND_LIMIT)) player.hand.push(card);
+  if (player.hand.length < tcgHandLimit(match)) player.hand.push(card);
   else {
     player.graveyard.push(card);
     logEvent(match, 'hand_overflow', playerIndex === 0 ? 'Tay bạn đã đầy. Lá vừa rút chuyển vào mộ bài.' : 'Tay đối thủ đã đầy. Một lá chuyển vào mộ bài.');

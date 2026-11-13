@@ -16,6 +16,9 @@ const TRAP_EFFECTS = {
   burn_attackers: { when: 'attack_declared', text: n => `Gây ${n} sát thương lên từng quân đang tấn công. Quân còn sống vẫn đánh.` },
   bind_summon: { when: 'unit_summoned', text: n => `Gây ${n} sát thương và trói quân vừa vào sân đến khi lượt của chủ kết thúc.` },
   summon_reserve: { when: 'unit_summoned', text: n => `Hồi tối đa ${n} HP cho chủ soái bạn và rút tối đa một lá.` },
+  weaken_attackers: { when: 'attack_declared', text: n => `Giảm tối đa ${n} ATK của mỗi quân đang tấn công đến hết lượt.` },
+  ward_after_summon: { when: 'unit_summoned', text: n => `Cấp ${n} hộ thuẫn đến hết lượt cho mọi Vị Linh của bạn.` },
+  draw_after_loss: { when: 'ally_fallen', text: n => `Rút tối đa ${n} lá.` },
   revive_unit: { when: 'ally_fallen', text: n => `Gọi lại đúng quân vừa bị hạ với tối đa ${n} DEF. Quân trở lại ở trạng thái nghỉ.` },
 };
 
@@ -76,6 +79,8 @@ function trapMatches(match, owner, card, intent) {
     if (kind === 'ward_blockers') return lanes.some(lane => lane.blocker);
   }
   if (when === 'spell_cast') return match.stack.some(item => item.id === intent.stackId && item.kind === 'spell' && item.owner !== owner);
+  if (kind === 'ward_after_summon' && !match.players[owner].units.length) return false;
+  if (kind === 'draw_after_loss') return match.players[owner].deck.length > 0;
   if (when === 'unit_summoned') return match.players[1 - owner].units.some(unit => unit.instance_id === intent.unitId && unit.current_def > 0);
   if (when === 'ally_fallen') return match.players[owner].units.length < tcgBoardLimit(match)
     && match.players[owner].graveyard.some(unit => unit.instance_id === intent.unitId && unit.type === 'unit');
@@ -98,6 +103,9 @@ export function chooseTcgTrap(match) {
       counter_spell: 500 + (match.pendingTrap?.intent.cost ?? 0) * 110,
       bind_summon: 600 + (match.pendingTrap?.intent.cost ?? 0) * 110,
       summon_reserve: Math.min(value ?? 0, tcgCommanderMax(match, owner) - match.players[owner].hp) + 380,
+      weaken_attackers: lanes.reduce((score, { unit }) => score + Math.min(tcgUnitAttack(unit), value), 0),
+      ward_after_summon: match.players[owner].units.length * value,
+      draw_after_loss: Math.min(value, match.players[owner].deck.length) * 240,
       revive_unit: 500 + (match.pendingTrap?.intent.cost ?? 0) * 180,
     }[kind];
     return { id: trap.card.instance_id, score };

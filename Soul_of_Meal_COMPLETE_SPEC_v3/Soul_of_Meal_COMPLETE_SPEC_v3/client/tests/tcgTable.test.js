@@ -2,9 +2,10 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { gameEvents } from '../src/core/events.js';
-import { createTcgMatch, endTcgTurn, mulliganTcg, passTcgPriority, playTcgCard,
-  strikeTcg, tcgCardIssue, tcgStrikePreview, tcgStrikeTargets, tcgTableDeck, validateDeck } from '../src/modes/tcg.js';
+import { createTcgChallenge, createTcgMatch, decideTcgTrap, endTcgTurn, mulliganTcg, passTcgPriority, playTcgCard,
+  strikeTcg, tcgCardIssue, tcgStrikePreview, tcgStrikeTargets, tcgSpellTargets, tcgTableDeck, validateDeck } from '../src/modes/tcg.js';
 import { TCG_TABLE_VERSION, tcgRecipeFor } from '../src/modes/tcgCards.js';
+import { tcgTrapArmed } from '../src/modes/tcgTraps.js';
 
 const catalog = JSON.parse(await readFile(new URL('../../examples/cards/cards.catalog.json', import.meta.url)));
 const deck = tcgTableDeck(catalog);
@@ -105,4 +106,120 @@ test('mana stops at seven and empty decks take increasing capped fatigue', () =>
     assert.equal(match.players[1].hp, 3000 - [100, 300, 600, 900][round - 1]);
     match = endTcgTurn(match, 1);
   }
+});
+
+test('the challenges draw their opening piece from the opponent deck and keep the rest of the match deterministic', () => {
+  for (const scenario of catalog.table_challenges) {
+    const match = createTcgChallenge(catalog, deck, 41, scenario.id);
+    assert.deepEqual(match, createTcgChallenge(catalog, deck, 41, scenario.id));
+    const bot = match.players[1];
+    assert.equal(match.challengeId, scenario.id);
+    assert.equal(bot.hp, scenario.commander_hp);
+    assert.equal(bot.hand.length, 4);
+    const owned = [...bot.deck, ...bot.hand, ...bot.units, ...bot.traps.map(trap => trap.card)];
+    assert.equal(new Set(owned.map(card => card.instance_id)).size, 24);
+    if (scenario.opening_trap) {
+      assert.ok(bot.traps[0].faceDown);
+      assert.ok(tcgTrapArmed(match, bot.traps[0]));
+    } else assert.equal(bot.units[0].card_id, scenario.opening_unit);
+  }
+});
+
+test('shatter breaks shields before applying damage and recall removes a guard without duplicating the unit', () => {
+  let match = fresh();
+  const [ally, enemy] = match.players;
+  ally.hand = [card('card_ember_break'), card('card_mist_recall')];
+  enemy.units = [unit('card_jade_watch', 'guard', 1, { shield: 500, keywords: ['guard'], rootedUntil: 6 })];
+  match = resolve(playTcgCard(match, 0, 'card_ember_break', 'guard'));
+  assert.equal(match.players[1].units[0].current_def, 320);
+  assert.equal(match.players[1].units[0].shield, undefined);
+  if (match.priority === 1) match = passTcgPriority(match, 1);
+  match = resolve(playTcgCard(match, 0, 'card_mist_recall', 'guard'));
+  assert.equal(match.players[1].units.length, 0);
+  const returned = match.players[1].hand[0];
+  assert.equal(returned.instance_id, 'guard');
+  assert.equal(returned.current_def, undefined);
+  assert.equal(returned.rootedUntil, undefined);
+  assert.equal(match.players[1].graveyard.length, 0);
+  assert.equal(tcgStrikeTargets(match, 0).at(-1).id, 'commander');
+});
+
+test('revive targets an exact grave entry and does not restore a spent strike', () => {
+  let match = fresh();
+  const ally = match.players[0];
+  ally.graveyard = [unit('card_night_reaper', 'fallen-a', 2, { current_def: 0, struckTurn: 3 }),
+    unit('card_night_reaper', 'fallen-b', 2, { current_def: 0, shield: 300 })];
+  ally.hand = [card('card_leaf_reclaim'), card('card_jade_encore')];
+  match = resolve(playTcgCard(match, 0, 'card_leaf_reclaim', 'grave:fallen-b'));
+  const revived = match.players[0].units[0];
+  assert.equal(revived.instance_id, 'fallen-b');
+  assert.equal(revived.current_def, 540);
+  assert.equal(revived.ready, false);
+  assert.equal(revived.shield, undefined);
+  assert.ok(match.players[0].graveyard.some(item => item.instance_id === 'fallen-a'));
+  assert.deepEqual(tcgSpellTargets(match, 0, card('card_jade_encore')), []);
+});
+
+test('weaken applies during a strike, expires at turn change and rally only readies a unit that struck', () => {
+  let match = fresh();
+  const [ally, enemy] = match.players;
+  ally.units = [unit('card_ember_runner', 'runner', 0)];
+  ally.hand = [card('card_jade_encore')];
+  enemy.hand = [card('card_mist_dampen')];
+  assert.deepEqual(tcgSpellTargets(match, 0, ally.hand[0]), []);
+  match = strikeTcg(match, 0, 'runner', 'commander');
+  assert.equal(match.priority, 1);
+  match = resolve(playTcgCard(match, 1, 'card_mist_dampen', 'runner'));
+  assert.equal(match.players[1].hp, 2840);
+  match = playTcgCard(match, 0, 'card_jade_encore', 'runner');
+  assert.ok(match.players[0].units[0].ready);
+  match = strikeTcg(match, 0, 'runner', 'commander');
+  assert.equal(match.players[1].hp, 2680);
+  match = endTcgTurn(match, 0);
+  assert.equal(match.players[0].units[0].attackBuff, undefined);
+});
+
+test('Dạ Yến drains only damage through shields and the mist trap can reduce an attack to zero', () => {
+  let match = fresh();
+  const [ally, enemy] = match.players;
+  ally.hp = 2600;
+  ally.hand = [card('card_night_feast')];
+  enemy.units = [unit('card_jade_watch', 'target', 0, { shield: 410 })];
+  match = resolve(playTcgCard(match, 0, 'card_night_feast', 'target'));
+  assert.equal(match.players[0].hp, 2710);
+  assert.equal(match.players[1].units[0].current_def, 490);
+
+  match = fresh();
+  match.players[0].units = [unit('card_demo_01', 'attacker', 0)];
+  match.players[1].traps = [{ card: card('card_trap_mist'), faceDown: true, setRound: 0, setTurn: 0, token: 1 }];
+  match = strikeTcg(match, 0, 'attacker', 'commander');
+  assert.equal(match.phase, 'trap_choice');
+  match = resolve(decideTcgTrap(match, 1, 'card_trap_mist'));
+  assert.equal(match.players[1].hp, 3000);
+  assert.equal(match.players[0].units[0].attackBuff, -300);
+});
+
+test('the ward trap protects survivors and the dusk trap draws even from a full board', () => {
+  const armed = id => ({ card: card(id), faceDown: true, setRound: 0, setTurn: 0, token: 1 });
+  let match = fresh();
+  match.players[0].hand = [card('card_demo_01')];
+  match.players[1].traps = [armed('card_trap_jade')];
+  match.players[1].units = [unit('card_demo_04', 'first', 0), unit('card_demo_02', 'second', 3)];
+  match = playTcgCard(match, 0, 'card_demo_01');
+  assert.equal(match.phase, 'trap_choice');
+  match = resolve(decideTcgTrap(match, 1, 'card_trap_jade'));
+  assert.deepEqual(match.players[1].units.map(item => item.shield), [250, 250]);
+
+  match = fresh();
+  const [ally, enemy] = match.players;
+  ally.hand = [card('card_ember_runner')];
+  ally.units = [unit('card_ember_runner', 'runner', 0)];
+  enemy.traps = [armed('card_trap_night')];
+  enemy.units = Array.from({ length: 4 }, (_, lane) => unit('card_jade_watch', 'enemy-' + lane, lane,
+    { current_def: lane === 0 ? 200 : 600, keywords: ['guard'] }));
+  match = strikeTcg(match, 0, 'runner', 'enemy-0');
+  assert.equal(match.phase, 'trap_choice');
+  match = resolve(decideTcgTrap(match, 1, 'card_trap_night'));
+  assert.equal(match.players[1].hand.length, 2);
+  assert.equal(match.players[1].graveyard.filter(item => item.type === 'unit').length, 1);
 });

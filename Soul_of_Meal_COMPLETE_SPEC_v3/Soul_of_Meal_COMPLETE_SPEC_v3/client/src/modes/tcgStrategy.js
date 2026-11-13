@@ -1,5 +1,5 @@
 export function tcgUnitAttack(unit) {
-  return unit.atk + (unit.attackBuff ?? 0);
+  return Math.max(0, unit.atk + (unit.attackBuff ?? 0));
 }
 
 export function tcgUnitDurability(unit) {

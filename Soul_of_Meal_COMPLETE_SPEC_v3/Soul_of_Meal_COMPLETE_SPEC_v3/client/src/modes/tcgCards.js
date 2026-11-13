@@ -8,6 +8,7 @@ export const tcgTrapLimit = match => usesTcgTable(match) ? 1 : TCG_TRAP_LIMIT;
 export const tcgCommanderMax = (match, player) => match.players[player].maxHp ?? TCG_MAX_HP;
 export const TCG_MAX_HP = 8000;
 export const TCG_HAND_LIMIT = 9;
+export const tcgHandLimit = match => usesTcgTable(match) ? 8 : TCG_HAND_LIMIT;
 export const TCG_BOARD_LIMIT = 5;
 export const TCG_TRAP_LIMIT = 2;
 export const TCG_SPELL_TYPES = ['fast_spell', 'slow_spell', 'burst_spell'];
@@ -15,10 +16,10 @@ export const TCG_REACTIONS = ['fast_spell', 'burst_spell'];
 
 export const TCG_RECIPES = {
   fire: { name: 'Quà phố', finish: ['deal_damage', 'sweep_damage'], reward: 'Gây thêm 100 HP lên chủ soái địch và rút 1 lá.', bonus: 'damage' },
-  water: { name: 'Bến nước ký ức', finish: ['scout_trap', 'draw_cards'], reward: 'Trói Vị Linh địch có ATK cao nhất. Nếu sân địch trống, rút 1 lá.', bonus: 'root' },
-  wood: { name: 'Vườn sau cơn mưa', finish: ['restore_defense', 'team_heal'], reward: 'Hồi tối đa 150 DEF cho mỗi đồng minh.', bonus: 'heal' },
+  water: { name: 'Bến nước ký ức', finish: ['scout_trap', 'draw_cards', 'recall_enemy'], reward: 'Trói Vị Linh địch có ATK cao nhất. Nếu sân địch trống, rút 1 lá.', bonus: 'root' },
+  wood: { name: 'Vườn sau cơn mưa', finish: ['restore_defense', 'team_heal', 'raise_ally'], reward: 'Hồi tối đa 150 DEF cho mỗi đồng minh.', bonus: 'heal' },
   light: { name: 'Bếp Tết sum vầy', finish: ['grant_shield', 'team_shield'], reward: 'Mỗi đồng minh nhận 100 ATK và 100 hộ thuẫn đến hết lượt.', bonus: 'buff' },
-  shadow: { name: 'Đêm rước đèn', finish: ['execute', 'counter_reaction'], reward: 'Mỗi đồng minh nhận 100 hộ thuẫn và bạn rút 1 lá.', bonus: 'ward' },
+  shadow: { name: 'Đêm rước đèn', finish: ['execute', 'counter_reaction', 'drain_unit'], reward: 'Mỗi đồng minh nhận 100 hộ thuẫn và bạn rút 1 lá.', bonus: 'ward' },
 };
 
 export function tcgRecipeFor(match, playerIndex, card) {
@@ -44,6 +45,12 @@ const EFFECTS = {
   draw_cards: { target: 'own_deck', text: n => `Rút tối đa ${n} lá còn trong bộ bài. Lá vượt giới hạn tay bài vào mộ bài.`, badge: n => `Rút ${n} lá` },
   disarm_trap: { target: 'any_trap', text: () => 'Gỡ một bẫy địch. Bẫy úp rời sân mà không lộ danh tính.', badge: () => 'Gỡ bẫy' },
   scout_trap: { target: 'hidden_trap', text: () => 'Lộ một bẫy địch, giữ nguyên hiệu lực bẫy. Sau đó rút tối đa một lá.', badge: () => 'Do thám · Rút 1' },
+  shatter_shield: { target: 'shielded_enemy', text: n => `Phá toàn bộ hộ thuẫn của một Vị Linh địch, sau đó gây ${n} sát thương.`, badge: n => `Phá khiên · ${n} ST` },
+  recall_enemy: { target: 'enemy_unit', text: () => 'Đưa một Vị Linh địch về tay chủ, xóa trạng thái. Nếu tay đầy, đưa vào mộ bài.', badge: () => 'Về tay' },
+  weaken_enemy: { target: 'enemy_unit', text: n => `Giảm tối đa ${n} ATK của một Vị Linh địch đến hết lượt.`, badge: n => `−${n} ATK` },
+  raise_ally: { target: 'fallen_ally', text: n => `Gọi một Vị Linh trong mộ về ô trống đầu tiên với tối đa ${n} DEF. Quân trở lại ở trạng thái nghỉ.`, badge: n => `Hồi sinh · ${n} DEF` },
+  rally_unit: { target: 'spent_ally', text: () => 'Cho một đồng minh đã đánh trong lượt này sẵn sàng đánh thêm một lần. Chỉ dùng trong lượt của bạn.', badge: () => 'Tái chiến' },
+  drain_unit: { target: 'enemy_unit', text: n => `Gây ${n} sát thương lên một Vị Linh địch. Chủ soái bạn hồi bằng DEF thực sự đã trừ.`, badge: n => `Hút tối đa ${n} DEF` },
   counter_reaction: { target: 'stack', text: () => 'Hóa giải một phép hoặc bẫy địch đang chờ. Đối thủ đã trả mana khi sử dụng.', badge: () => 'Hóa giải' },
 };
 
@@ -90,6 +97,11 @@ export function tcgSpellTargets(match, playerIndex, card) {
   switch (target) {
     case 'enemy': return [commander(enemyIndex), ...units(enemies, enemyIndex)];
     case 'enemy_unit': return units(enemies, enemyIndex);
+    case 'shielded_enemy': return units(enemies.filter(unit => unit.shield > 0), enemyIndex);
+    case 'fallen_ally': return allies.length < tcgBoardLimit(match)
+      ? ally.graveyard.filter(card => card.type === 'unit').map(card => ({ id: 'grave:' + card.instance_id, player: playerIndex, fallen: card, label: card.display_name })) : [];
+    case 'spent_ally': return match.activePlayer === playerIndex && !match.pendingAttack
+      ? units(allies.filter(unit => !unit.ready && !unit.rootedUntil && unit.struckTurn === tcgTurnSerial(match)), playerIndex) : [];
     case 'wounded_enemy': return units(enemies.filter(unit => unit.current_def * 100 <= unit.max_def * value), enemyIndex);
     case 'ally': return units(allies, playerIndex);
     case 'injured': return units(injured, playerIndex);

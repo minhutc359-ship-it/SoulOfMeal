@@ -3,13 +3,21 @@
 
 ## Browser playtest, rules version 3
 
-New matches adapt the [MealGacha f9d3925 battle table](https://github.com/minhutc359-ship-it/MealGacha/commit/f9d39257d17b4dd378a2fbd2a9f936724754fc16). The Soul of Meal catalog supplies 46 cards, five starter or themed decks, nine traps and five character-bound ultimates.
+New matches adapt the [MealGacha f9d3925 battle table](https://github.com/minhutc359-ship-it/MealGacha/commit/f9d39257d17b4dd378a2fbd2a9f936724754fc16). The Soul of Meal catalog supplies 60 cards, seven starter or themed decks, twelve traps and five character-bound ultimates.
 
 - Exactly 24 cards, up to two copies per card. Four starting cards, up to three replacements, eight-card hand, four unit positions and one trap slot. Commanders start with 3,400 and 3,000 HP in bot play. Max mana increases to seven. Mandatory draws on an empty deck deal 100, 200, then 300 fatigue damage per draw.
 - An active player may send each ready unit into a separate attack. When an enemy Hộ vệ is alive, basic attacks must target a Hộ vệ. Otherwise choose a unit or the commander. Unit attacks exchange damage simultaneously. Haste grants immediate readiness, and summoning an ally of an existing element grants the new unit 100 temporary shield.
 - Drag a card to a valid target to play it. Tap controls provide a selection and confirmation path. Dropping an attacker on an enemy opens the preview before committing. Card placement, dealing, face-down sets and reveals have separate cues. An enemy trap exposes only its card back until revealed or scouted.
 - A Vị Linh immediately followed by an eligible spell can trigger a themed recipe once per turn. A countered or fizzled spell cannot grant the recipe reward. Setting a trap still interrupts elemental resonance. Reactions, traps and ultimates retain the stack and trigger checks listed below.
 - Ongoing v1 and v2 matches continue with their recorded rules. The editor shows up to 24 known cards from a previously saved list. Saving a draft applies it to future games.
+
+### Expansion 0.6 playtest
+
+- Shatter removes the target's current shield before damage. Recall moves a unit to its owner's hand and resets its combat state. A full hand sends the recalled card to the graveyard.
+- Weaken reduces ATK through the active turn, with a floor of zero. Rally requires a unit that already struck in the active player's turn. It cannot be cast during an unresolved attack or give a newly deployed non-Haste unit an early attack.
+- Revive selects a specific allied unit in the graveyard and requires an open lane. Revived units keep their identity, enter resting and skip summon effects. Drain heals only for DEF actually lost through the shield.
+- Three challenge presets seed an opponent unit or armed trap from its normal 24-card deck. A win records the earliest winning round per challenge in the player save. Free duels and existing matches retain their original setup.
+- Current balance and challenge difficulty are proposed. New entries reuse the project's original portraits and elemental effect art.
 
 ## Existing saved matches, rules version 2
 

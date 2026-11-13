@@ -36,7 +36,7 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 ## Lối chơi
 
 - **Adventure** · Chơi sáu chương bắt đầu với **Hương Vị Đầu Tiên**. Dùng **Dẫn đường** trên bản đồ hoặc trong **Nhật ký hành trình**. Nhật ký lưu manh mối đã tìm và cho đọc lại đối thoại đã mở. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
-- **TCG** · Đấu bot với bộ 24 lá từ danh mục 46 lá. Chọn độ khó và bộ bài bot riêng. Trình sửa có bốn ô lưu bộ bài, biểu đồ mana, bộ lọc và bốn mẫu **Hộ Trận**, **Tiên Phong**, **Triều Sương**, **Mầm Sống**.
+- **TCG** · Đấu bot với bộ 24 lá từ danh mục 60 lá. Chọn độ khó và bộ bài bot riêng. Trình sửa có bốn ô lưu bộ bài, biểu đồ mana, bộ lọc và bảy bộ mẫu gồm **Khởi đầu**, **Hộ Trận**, **Tiên Phong**, **Triều Sương**, **Mầm Sống**, **Dạ Yến** và **Triều Hỏa**.
 - **Auto Chess** · Xếp đội hình trên bàn lục giác, mua quân từ kho chung, hợp thể ba bản sao và mua XP. Ván mới có bảy bot đánh cùng lúc, các vòng quái thưởng linh kiện và kết thúc khi bị loại, về nhất hoặc đến giới hạn 37 vòng. Phát lại giao tranh dùng vị trí, đòn đánh, kỹ năng và HP do mô phỏng ghi lại. Ván lưu từ bản trước tiếp tục theo thể thức cũ.
 
 ## Bếp Trưởng Hỏa Diệm
@@ -91,8 +91,10 @@ Cấp 1–5, công thức và giá là cân bằng thử nghiệm. Nâng cấp v
 - Năm combo theo hệ kích hoạt khi bạn nối triệu hồi với phép tương ứng trong cùng lượt. Mỗi combo dùng một lần mỗi lượt khi phép xử lý thành công.
 - **Diệp Mộc Hồi Phục** hồi DEF qua hàng chờ tốc chú. **Ấn Bạch Ngọc** là tức chú dùng ngay và giữ ưu tiên. **Khai Hỏa Tiên Phong** là chậm chú tăng ATK. Hộ thuẫn và ATK cộng thêm hết hiệu lực cuối lượt hiện tại.
 - Cộng hưởng giảm một mana cho lá lộ hệ thứ hai cùng hệ, tối đa một lần mỗi lượt. Năm tuyệt kỹ gắn với năm Vị Linh đầu. Vị Linh thi triển phải còn trên bàn khi phép xử lý.
-- Chín bẫy phản ứng khi tấn công, dùng phép, triệu hồi hoặc đồng minh bị hạ. Bẫy sẵn sàng sau khi đổi lượt và có thể được giữ cho lần khác. **Soi Dấu Bẫy** làm lộ một ô, **Phá Ấn Thất Vị** gỡ một ô và **Phản Chú Hư Vị** hóa giải phép hoặc bẫy đang chờ.
+- Mười hai bẫy phản ứng khi tấn công, dùng phép, triệu hồi hoặc đồng minh bị hạ. Bẫy sẵn sàng sau khi đổi lượt và có thể được giữ cho lần khác. **Soi Dấu Bẫy** làm lộ một ô, **Phá Ấn Thất Vị** gỡ một ô và **Phản Chú Hư Vị** hóa giải phép hoặc bẫy đang chờ.
 - Bản lưu giữ cả cửa sổ chặn và cửa sổ bẫy đã mở. Ván lưu từ bản trước giữ nhịp bẫy và phép cũ. Mở **Ván mới** để dùng bộ bài đã lưu và các luật hiện tại.
+- **Thử thách** trong menu trận có ba đối thủ với thế mở màn khác nhau. Bạch Ngọc vào sân với hộ thuẫn, Lam Vũ có bẫy đã sẵn sàng, Dạ Vũ mở màn bằng một quân Hút vị. Thắng sẽ lưu số vòng ít nhất cho từng thử thách.
+- **Lửa Rạn Khiên** phá hộ thuẫn trước khi trừ DEF. **Triều Rút Về** đưa quân đối thủ về tay. **Mầm Về Đất** cho chọn Vị Linh trong mộ. **Ngọc Tái Chiến** mở thêm một đòn cho quân đã đánh trong lượt. **Sương Hạ Nhiệt** giảm ATK và **Dạ Yến** hồi HP chủ soái theo DEF thực sự gây mất.
 - Chọn **Chi tiết** trên tay bài hoặc tên thẻ trong trình sửa bộ bài để xem điều kiện dùng và hiệu ứng. **Mộ bài** cho xem các lá của bạn đã rời ván. Nút **Đầu hàng** kết thúc ván và ghi kết quả vào nhật ký.
 
 ## Chuẩn bị Auto Chess

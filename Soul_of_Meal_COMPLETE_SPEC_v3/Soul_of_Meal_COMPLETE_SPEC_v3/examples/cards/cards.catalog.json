@@ -1,5 +1,5 @@
 {
-  "catalog_version": "0.5-proposed",
+  "catalog_version": "0.6-proposed",
   "cards": [
     {
       "card_id": "card_demo_01",
@@ -666,7 +666,219 @@
         "value": 700
       },
       "art_card": "card_demo_13"
+    },
+  {
+    "card_id": "card_ember_runner",
+    "display_name": "Tiêu Tinh · Bếp Lửa",
+    "type": "unit",
+    "element": "fire",
+    "cost": 2,
+    "rarity": "SR",
+    "version": "0.6-proposed",
+    "atk": 460,
+    "max_def": 420,
+    "character_id": "mob_pepper_01",
+    "keywords": [
+      "haste"
+    ]
+  },
+  {
+    "card_id": "card_mist_keeper",
+    "display_name": "Phở Lam Vũ · Bến Sương",
+    "type": "unit",
+    "element": "water",
+    "cost": 3,
+    "rarity": "SR",
+    "version": "0.6-proposed",
+    "atk": 500,
+    "max_def": 700,
+    "character_id": "chr_pho_lamvu",
+    "on_play": {
+      "kind": "draw",
+      "value": 1
     }
+  },
+  {
+    "card_id": "card_sprout_guard",
+    "display_name": "Diệp Nhi · Chồi Ngọc",
+    "type": "unit",
+    "element": "wood",
+    "cost": 2,
+    "rarity": "SR",
+    "version": "0.6-proposed",
+    "atk": 300,
+    "max_def": 630,
+    "character_id": "chr_goicuon_diepnhi",
+    "on_play": {
+      "kind": "shield",
+      "value": 140
+    }
+  },
+  {
+    "card_id": "card_jade_watch",
+    "display_name": "Bạch Ngọc · Trấn Bếp",
+    "type": "unit",
+    "element": "light",
+    "cost": 3,
+    "rarity": "SR",
+    "version": "0.6-proposed",
+    "atk": 470,
+    "max_def": 880,
+    "character_id": "chr_banhbao_bachngoc",
+    "keywords": [
+      "guard"
+    ]
+  },
+  {
+    "card_id": "card_night_reaper",
+    "display_name": "Dạ Vũ · Thu Hương",
+    "type": "unit",
+    "element": "shadow",
+    "cost": 3,
+    "rarity": "SR",
+    "version": "0.6-proposed",
+    "atk": 690,
+    "max_def": 540,
+    "character_id": "chr_caphe_davu",
+    "keywords": [
+      "lifesteal"
+    ]
+  },
+  {
+    "card_id": "card_ember_break",
+    "display_name": "Lửa Rạn Khiên",
+    "type": "fast_spell",
+    "element": "fire",
+    "cost": 2,
+    "rarity": "SR",
+    "version": "0.6-proposed",
+    "effect": {
+      "kind": "shatter_shield",
+      "value": 280
+    },
+    "art_effect": "shield_break"
+  },
+  {
+    "card_id": "card_mist_recall",
+    "display_name": "Triều Rút Về",
+    "type": "slow_spell",
+    "element": "water",
+    "cost": 3,
+    "rarity": "SR",
+    "version": "0.6-proposed",
+    "effect": {
+      "kind": "recall_enemy",
+      "value": 0
+    },
+    "art_effect": "water_impact"
+  },
+  {
+    "card_id": "card_mist_dampen",
+    "display_name": "Sương Hạ Nhiệt",
+    "type": "fast_spell",
+    "element": "water",
+    "cost": 1,
+    "rarity": "SR",
+    "version": "0.6-proposed",
+    "effect": {
+      "kind": "weaken_enemy",
+      "value": 300
+    },
+    "art_effect": "water_trail"
+  },
+  {
+    "card_id": "card_leaf_reclaim",
+    "display_name": "Mầm Về Đất",
+    "type": "slow_spell",
+    "element": "wood",
+    "cost": 4,
+    "rarity": "SR",
+    "version": "0.6-proposed",
+    "effect": {
+      "kind": "raise_ally",
+      "value": 550
+    },
+    "art_effect": "wood_impact"
+  },
+  {
+    "card_id": "card_jade_encore",
+    "display_name": "Ngọc Tái Chiến",
+    "type": "burst_spell",
+    "element": "light",
+    "cost": 3,
+    "rarity": "SR",
+    "version": "0.6-proposed",
+    "effect": {
+      "kind": "rally_unit",
+      "value": 0
+    },
+    "art_effect": "light_trail"
+  },
+  {
+    "card_id": "card_night_feast",
+    "display_name": "Dạ Yến",
+    "type": "slow_spell",
+    "element": "shadow",
+    "cost": 4,
+    "rarity": "SR",
+    "version": "0.6-proposed",
+    "effect": {
+      "kind": "drain_unit",
+      "value": 520
+    },
+    "art_effect": "shadow_impact"
+  },
+  {
+    "card_id": "card_trap_mist",
+    "display_name": "Sương Phủ Lối",
+    "type": "trap",
+    "element": "water",
+    "cost": 2,
+    "rarity": "SR",
+    "version": "0.6-proposed",
+    "trigger": {
+      "when": "attack_declared"
+    },
+    "effect": {
+      "kind": "weaken_attackers",
+      "value": 400
+    },
+    "art_effect": "water_impact"
+  },
+  {
+    "card_id": "card_trap_jade",
+    "display_name": "Ấn Ngọc Giữ Nhà",
+    "type": "trap",
+    "element": "light",
+    "cost": 2,
+    "rarity": "SR",
+    "version": "0.6-proposed",
+    "trigger": {
+      "when": "unit_summoned"
+    },
+    "effect": {
+      "kind": "ward_after_summon",
+      "value": 250
+    },
+    "art_effect": "light_impact"
+  },
+  {
+    "card_id": "card_trap_night",
+    "display_name": "Dạ Hương Dư Âm",
+    "type": "trap",
+    "element": "shadow",
+    "cost": 2,
+    "rarity": "SR",
+    "version": "0.6-proposed",
+    "trigger": {
+      "when": "ally_fallen"
+    },
+    "effect": {
+      "kind": "draw_after_loss",
+      "value": 2
+    },
+    "art_effect": "shadow_impact"
+  }
   ],
   "presets": [
     {
@@ -748,7 +960,7 @@
     ],
     "guard": [
       "card_demo_04",
-      "card_lantern_guard",
+      "card_jade_watch",
       "card_wood_scout",
       "card_demo_03",
       "card_jade_mushroom",
@@ -757,12 +969,12 @@
       "card_ultimate_light",
       "card_spirit_renewal",
       "card_tcg_tonic",
-      "card_trap_rally",
-      "card_tcg_disarm"
+      "card_trap_jade",
+      "card_jade_encore"
     ],
     "assault": [
       "card_demo_01",
-      "card_hearth_pepper",
+      "card_ember_runner",
       "card_demo_06",
       "card_fire_guard",
       "card_demo_05",
@@ -770,14 +982,14 @@
       "card_demo_17",
       "card_ultimate_fire",
       "card_ultimate_shadow",
-      "card_spirit_rally",
+      "card_ember_break",
       "card_demo_16",
       "card_tcg_refute"
     ],
     "tide": [
       "card_demo_02",
       "card_rain_keeper",
-      "card_tide_mage",
+      "card_mist_keeper",
       "card_demo_07",
       "card_lantern_guard",
       "card_shadow_duelist",
@@ -785,13 +997,13 @@
       "card_ultimate_water",
       "card_trap_mirror",
       "card_tcg_scout",
-      "card_tcg_refute",
-      "card_tcg_disarm"
+      "card_mist_recall",
+      "card_trap_mist"
     ],
     "grove": [
       "card_wood_scout",
       "card_demo_03",
-      "card_jade_mushroom",
+      "card_sprout_guard",
       "card_demo_08",
       "card_rain_keeper",
       "card_lantern_guard",
@@ -799,13 +1011,83 @@
       "card_ultimate_wood",
       "card_trap_roots",
       "card_trap_recall",
-      "card_tcg_resupply",
+      "card_leaf_reclaim",
       "card_tcg_tonic"
+    ],
+    "night": [
+      "card_shadow_hunter",
+      "card_night_reaper",
+      "card_demo_05",
+      "card_shadow_duelist",
+      "card_wood_scout",
+      "card_jade_watch",
+      "card_leaf_reclaim",
+      "card_night_feast",
+      "card_ultimate_shadow",
+      "card_tcg_refute",
+      "card_trap_night",
+      "card_trap_recall"
+    ],
+    "tempo": [
+      "card_demo_02",
+      "card_mist_keeper",
+      "card_ember_runner",
+      "card_fire_guard",
+      "card_demo_07",
+      "card_jade_watch",
+      "card_mist_dampen",
+      "card_mist_recall",
+      "card_ember_break",
+      "card_jade_encore",
+      "card_trap_mist",
+      "card_tcg_scout"
     ]
   },
   "table_guard_units": [
     "card_demo_04",
     "card_lantern_guard",
     "card_jade_mushroom"
+  ],
+  "table_presets": [
+    {
+      "id": "night",
+      "name": "Dạ Yến",
+      "description": "Hút vị, đưa quân trở lại từ mộ và tích bài khi đồng minh ngã xuống."
+    },
+    {
+      "id": "tempo",
+      "name": "Triều Hỏa",
+      "description": "Đánh sớm, phá khiên, kéo địch về tay và hồi lượt đánh cho chủ lực."
+    }
+  ],
+  "table_challenges": [
+    {
+      "id": "jade",
+      "name": "Trấn Bếp Bạch Ngọc",
+      "preset": "guard",
+      "difficulty": "hard",
+      "commander_hp": 3400,
+      "opening_unit": "card_jade_watch",
+      "opening_shield": 250,
+      "description": "Bạch Ngọc mở màn ở ô giữa với 250 hộ thuẫn. Dùng Lửa Rạn Khiên hoặc Triều Rút Về để mở đường."
+    },
+    {
+      "id": "mist",
+      "name": "Bến Sương Lam Vũ",
+      "preset": "tempo",
+      "difficulty": "hard",
+      "commander_hp": 3000,
+      "opening_trap": "card_trap_mist",
+      "description": "Đối thủ có sẵn một bẫy đã kích hoạt được. Do thám, gỡ bẫy hoặc đánh bằng quân phụ trước."
+    },
+    {
+      "id": "night",
+      "name": "Dạ Yến Thất Vị",
+      "preset": "night",
+      "difficulty": "extreme",
+      "commander_hp": 3600,
+      "opening_unit": "card_night_reaper",
+      "description": "Dạ Vũ mở màn với Hút vị. Giữ Hộ vệ hoặc dùng Trói để hạn chế các đòn đánh hồi HP."
+    }
   ]
 }

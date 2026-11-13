@@ -294,8 +294,8 @@
     },
     {
       "path": "docs/01_gameplay/TCG_RULEBOOK.md",
-      "bytes": 10776,
-      "sha256": "7340ae7f03a6f5bde275cbcee0afdfc9e428a648fea42b4084501dac143869d8"
+      "bytes": 11813,
+      "sha256": "548df617ab3bd4091dc87ccb38493dfd5f8d5856b2bec1dd5141d70069be21c5"
     },
     {
       "path": "docs/02_art/LICENSE_AND_PROVENANCE.md",
@@ -349,8 +349,8 @@
     },
     {
       "path": "examples/cards/cards.catalog.json",
-      "bytes": 19739,
-      "sha256": "3c4b5d16133aa7d7810b703db00972d8b2e6a50a01c7c2d7196aeb72bc2a981d"
+      "bytes": 26423,
+      "sha256": "049e72b26b040b9f9d43fffaf0fcd6c5c48784fa950691b505637aeff93038d8"
     },
     {
       "path": "examples/cards/starter_deck.json",
@@ -629,8 +629,8 @@
     },
     {
       "path": "scripts/validate_package.py",
-      "bytes": 4692,
-      "sha256": "e31291c9644191c9fa4803fcfce8173d4dc26762db03f2fd6057ecf9e9384e00"
+      "bytes": 4693,
+      "sha256": "a42b18be7ee99bc836f5c8e89065238fbc4f1e5a8287eea8f1be36e247931b01"
     },
     {
       "path": "game_rules/auto_chess.py",
@@ -649,8 +649,8 @@
     },
     {
       "path": "scripts/update_file_index.py",
-      "bytes": 1533,
-      "sha256": "0175fdb8e4bb7c0f91ef6d8470e692758ebe1661b07571416505dd0490b74705"
+      "bytes": 1571,
+      "sha256": "a547124e6a9129fcc982208f1d097b05c0551e41afbe6ecba53dc3fe8c905b22"
     },
     {
       "path": "docs/03_engineering/TCG_RULES_REFERENCE.md",
@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 18293,
-      "sha256": "32b7c74debf8edd93c624b3daebc137bb61a65b3d89a3cb92924f3130b3b3db6"
+      "bytes": 19024,
+      "sha256": "08fbf71cb899d4fb08586d1ff47e5e9f9ab12474ced6d4aaea780b1cfedf2738"
     },
     {
       "path": "client/index.html",
@@ -794,8 +794,8 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 170638,
-      "sha256": "f234c7c694eeaa5cc40f44a4c4b81e0b0db8bf0370724ed0207f91f292f56b0c"
+      "bytes": 174045,
+      "sha256": "34f3829515c9ccc51b20eb6f7eb4bc503ce53ca41dcdd9b60d50db326d2dde21"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -809,8 +809,8 @@
     },
     {
       "path": "client/src/modes/tcg.js",
-      "bytes": 51707,
-      "sha256": "c0ee32cf47783c95364db9f0951a550416bb76fee57885e35465e0c0eb353a59"
+      "bytes": 56731,
+      "sha256": "2c13d32839b6a4de95b2b1ddd33a2d09d5f2f3a76729b0cf5e0d2804cca61a1c"
     },
     {
       "path": "client/styles.css",
@@ -2309,8 +2309,8 @@
     },
     {
       "path": "client/assets/audio/soundtracks.json",
-      "bytes": 166,
-      "sha256": "b6343acca2deacc587ab49aec3b6ac5d14dea58f8d860bb362879c9817d98fe5"
+      "bytes": 386,
+      "sha256": "91c06934eb221b1f2b7b8f3001541eb6a3aa48e1e499e32d4c1f84fcd45e6632"
     },
     {
       "path": "client/assets/characters/boss_bep_truong/original_battle/poses/boss_bep_truong_pose_00.png",
@@ -2944,8 +2944,8 @@
     },
     {
       "path": "client/arena.css",
-      "bytes": 35643,
-      "sha256": "b9e6451d0854939c26a313ca8e80a58edd3ee76d9cd99c55e34d30cbdb4da474"
+      "bytes": 35752,
+      "sha256": "cf2f063df6717ff8f31276a10053b9f6ac7741dd08aef0873dfefce447e0b606"
     },
     {
       "path": "client/src/modes/adventureChallenges.js",
@@ -2964,8 +2964,8 @@
     },
     {
       "path": "client/src/modes/tcgStrategy.js",
-      "bytes": 2308,
-      "sha256": "42e8cbe0df05e09ee7c4825bd13495636d06334f384b0a66d0d2a946baf8a68d"
+      "bytes": 2321,
+      "sha256": "fb6d07e02a64fdf1cacdaaefec4751b558e4fd3d27684da191c8f2719b17237c"
     },
     {
       "path": "client/tests/chessLobby.test.js",
@@ -2974,13 +2974,13 @@
     },
     {
       "path": "client/src/modes/tcgCards.js",
-      "bytes": 8398,
-      "sha256": "f4f5783223ad14019ec10fe879383995e8586e15b125baffa5117f3b2c0242e2"
+      "bytes": 10273,
+      "sha256": "b2695f9ca009fad81c16d18084aef692591baa625eb69971ebab64d54dd5cee4"
     },
     {
       "path": "client/src/modes/tcgTraps.js",
-      "bytes": 6124,
-      "sha256": "366d5a271b1187ba90989ea7df17f8d173b95e8c647b8194fbbdca9f16208fea"
+      "bytes": 6917,
+      "sha256": "b107184d9fa11f5da1b162182e7b83a55088100db88ed6a2ceb517f18044f035"
     },
     {
       "path": "client/src/render/canvasSurface.js",
@@ -2989,8 +2989,8 @@
     },
     {
       "path": "client/tests/tcgTactics.test.js",
-      "bytes": 13801,
-      "sha256": "2822c193e0c6be36b5f680ca3c3ff4647721fc23032dde7f5eeab35271277ce2"
+      "bytes": 13802,
+      "sha256": "8b6b059bda586363e08debc62129c9f2434800143ac3e8f966ac72b13adefb24"
     },
     {
       "path": "client/src/render/tableDrag.js",
@@ -3004,8 +3004,63 @@
     },
     {
       "path": "client/tests/tcgTable.test.js",
-      "bytes": 5675,
-      "sha256": "05597f2ce98042fd814f20517d3b1d2d8d65939001787b2910e48e2e3df89534"
+      "bytes": 11735,
+      "sha256": "a3eea8f7d91af04f5a49d0721b0018e4d56b6e7c6af0e1df01c34b70945e0a41"
+    },
+    {
+      "path": "client/assets/audio/sound_track/ORIGINAL_FILENAMES.md",
+      "bytes": 1417,
+      "sha256": "e36dc8ee21a58de60733c5ab7e9e5dfd5cb849f18e95d063868f39fedcf3b470"
+    },
+    {
+      "path": "client/assets/audio/sound_track/adventure_battle_v1.mp3",
+      "bytes": 4287493,
+      "sha256": "3ac29b37c40f3a10b04adf16354d6c1c38ddd254640efdc62cd3e0390647222c"
+    },
+    {
+      "path": "client/assets/audio/sound_track/adventure_battle_v2.mp3",
+      "bytes": 4397232,
+      "sha256": "9f733d162fdba9d68ea3d4e89684af2558436e8e70d63da93cc0a3c23b6c40ff"
+    },
+    {
+      "path": "client/assets/audio/sound_track/auto_chess_theme.mp3",
+      "bytes": 3985189,
+      "sha256": "c4339dd61ae541659b832a19789114466b91b47f42181792e2fe94455841b1c0"
+    },
+    {
+      "path": "client/assets/audio/sound_track/epic_boss_battle.mp3",
+      "bytes": 4168000,
+      "sha256": "34797c637ad9499f93d5e3c719652fbced8e1f2e9cdffc874881f137e843bc76"
+    },
+    {
+      "path": "client/assets/audio/sound_track/forest_theme.mp3",
+      "bytes": 4573597,
+      "sha256": "6ee55dd8bd62fac8a5cfea01846e69f096be246eabd76a4865829d19c4830658"
+    },
+    {
+      "path": "client/assets/audio/sound_track/login_theme.mp3",
+      "bytes": 8133446,
+      "sha256": "4bca939e1178b52344a28c1679407911f35a8a63c60924dfafeb7f071285fb0c"
+    },
+    {
+      "path": "client/assets/audio/sound_track/opening_theme.mp3",
+      "bytes": 4824466,
+      "sha256": "422f08defb2e74a2326b9bff2d9364d557fddc8cf19afe545c668623fbde8dcd"
+    },
+    {
+      "path": "client/assets/audio/sound_track/soul_of_meal_theme_song.mp3",
+      "bytes": 4690048,
+      "sha256": "ca0baa622ade1128b194e806d5f7c61c969d260d384ad244ca57603d0f17d28c"
+    },
+    {
+      "path": "client/assets/audio/sound_track/tcg_theme.mp3",
+      "bytes": 4316331,
+      "sha256": "c8dbd9e54163c22aab11ff9edb2237e428e9e65945af3f97684321b9b5e39ce7"
+    },
+    {
+      "path": "client/assets/audio/sound_track/village_theme.mp3",
+      "bytes": 4131197,
+      "sha256": "dc0dfdce1fe97cc72dbc65bbd5e4de575b58c1e5e06342362f59723ef338747d"
     }
   ]
 }

@@ -50,8 +50,8 @@ function roundTrip(match) {
 }
 
 test('the catalog has legal themed decks and a playable rule for every spell and trap', () => {
-  assert.equal(catalog.cards.length, 46);
-  assert.equal(catalog.cards.filter(item => item.type === 'trap').length, 9);
+  assert.equal(catalog.cards.length, 60);
+  assert.equal(catalog.cards.filter(item => item.type === 'trap').length, 12);
   assert.equal(catalog.cards.filter(item => item.requires_character).length, 5);
   for (const preset of catalog.presets) {
     const deck = tcgPresetDeck(catalog, starter, preset.id);

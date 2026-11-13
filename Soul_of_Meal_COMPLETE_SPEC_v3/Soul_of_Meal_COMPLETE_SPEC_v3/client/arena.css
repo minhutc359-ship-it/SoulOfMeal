@@ -474,3 +474,6 @@
 #app[data-motion="reduced"] .tcg-recipe-flash { position: relative; inset: auto; transform: none; animation: none; }
 /* Sprites and portraits can extend past a tile for animation, but the hit area stays on the tile. */
 .match-layout :is(.board-chibi, .tcg-unit-avatar, .chess-portrait, .chess-item-marker, .chess-stars) { pointer-events: none; }
+
+.tcg-new-options label[hidden] { display: none; }
+.tcg-match .lane-stats .lane-weakened { color: #92c8ef; }
