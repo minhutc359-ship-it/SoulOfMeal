@@ -1,28 +1,34 @@
 import { getAdventureMap } from './mapCatalog.js';
+import { firstObstacleHit, walkablePoint } from './worldCollision.js';
 
 export const PLAYER_COLLISION_RADIUS = 14;
 export const PATH_GRID_SIZE = 24;
-const COLLISION_EPSILON = 1e-6;
-
-export function getAdventureObstacles(mapId, maps) {
-  return getAdventureMap(maps, mapId)?.collision?.obstacles ?? [];
-}
 
 export function collidesWithWorld(mapId, x, y, radius = PLAYER_COLLISION_RADIUS, maps) {
-  const world = getAdventureMap(maps, mapId)?.world;
-  if (!world || x - radius < 0 || x + radius > world.width || y - radius < 0 || y + radius > world.height) return true;
-  return getAdventureObstacles(mapId, maps).some(obstacle => {
-    const rect = inflateRect(obstacle, radius);
-    return insideEdge(x, rect.x, rect.width) && insideEdge(y, rect.y, rect.height);
-  });
+  return !walkablePoint(getAdventureMap(maps, mapId), x, y, radius);
 }
 
 export function moveWithCollision(mapId, x, y, deltaX, deltaY, radius = PLAYER_COLLISION_RADIUS, maps) {
-  const world = getAdventureMap(maps, mapId)?.world;
-  if (!world) return { x, y, blockedX: true, blockedY: true };
-  const movedX = resolveAxis(mapId, x, y, deltaX, true, radius, maps, world);
-  const movedY = resolveAxis(mapId, movedX, y, deltaY, false, radius, maps, world);
-  return { x: movedX, y: movedY, blockedX: Math.abs(movedX - (x + deltaX)) > 0.01, blockedY: Math.abs(movedY - (y + deltaY)) > 0.01 };
+  const map = getAdventureMap(maps, mapId);
+  if (!map) return { x, y, blockedX: true, blockedY: true };
+  const dx = clamp(x + deltaX, radius, map.world.width - radius) - x;
+  const dy = clamp(y + deltaY, radius, map.world.height - radius) - y;
+  const solids = map.collision.obstacles;
+  const t = firstObstacleHit(solids, { x, y }, dx, dy, radius);
+  const point = { x: x + dx * t, y: y + dy * t };
+  if (t < 1) {
+    const restX = dx * (1 - t);
+    const restY = dy * (1 - t);
+    point.x += restX * firstObstacleHit(solids, point, restX, 0, radius);
+    point.y += restY * firstObstacleHit(solids, point, 0, restY, radius);
+  }
+  return { ...point, blockedX: Math.abs(point.x - x - deltaX) > .01, blockedY: Math.abs(point.y - y - deltaY) > .01 };
+}
+
+export function safeAdventurePosition(mapId, position, maps) {
+  const map = getAdventureMap(maps, mapId);
+  if (!map || walkablePoint(map, position.x, position.y)) return position;
+  return { ...map.world.spawn };
 }
 
 export function findAdventurePath(mapId, start, destination, radius = PLAYER_COLLISION_RADIUS, maps) {
@@ -30,14 +36,15 @@ export function findAdventurePath(mapId, start, destination, radius = PLAYER_COL
   if (!world) return [];
   const columns = Math.ceil(world.width / PATH_GRID_SIZE);
   const rows = Math.ceil(world.height / PATH_GRID_SIZE);
-  const startNode = nearestWalkableNode(mapId, start, columns, rows, radius, maps, world);
+  if (hasClearLine(mapId, start, destination, radius, maps)) return [{ x: destination.x, y: destination.y }];
+  const startNode = nearestWalkableNode(mapId, start, columns, rows, radius, maps, world, true);
   const endNode = nearestWalkableNode(mapId, destination, columns, rows, radius, maps, world);
   if (!startNode || !endNode) return [];
 
   const startId = nodeId(startNode.column, startNode.row, columns);
   const endId = nodeId(endNode.column, endNode.row, columns);
   if (startId === endId) {
-    return [collidesWithWorld(mapId, destination.x, destination.y, radius, maps) ? nodePoint(endNode.column, endNode.row, world, radius) : destination];
+    return [nodePoint(endNode.column, endNode.row, world, radius)];
   }
 
   const open = new MinHeap();
@@ -56,17 +63,13 @@ export function findAdventurePath(mapId, start, destination, radius = PLAYER_COL
     if (current.id === endId) return reconstructPath(mapId, cameFrom, current, columns, destination, start, radius, maps, world);
     closed.add(current.id);
 
+    const origin = nodePoint(current.column, current.row, world, radius);
     for (const [offsetX, offsetY, cost] of directions) {
       const column = current.column + offsetX;
       const row = current.row + offsetY;
       if (column < 0 || column >= columns || row < 0 || row >= rows) continue;
       const point = nodePoint(column, row, world, radius);
-      if (collidesWithWorld(mapId, point.x, point.y, radius, maps)) continue;
-      if (offsetX && offsetY) {
-        const sideA = nodePoint(current.column + offsetX, current.row, world, radius);
-        const sideB = nodePoint(current.column, current.row + offsetY, world, radius);
-        if (collidesWithWorld(mapId, sideA.x, sideA.y, radius, maps) || collidesWithWorld(mapId, sideB.x, sideB.y, radius, maps)) continue;
-      }
+      if (!hasClearLine(mapId, origin, point, radius, maps)) continue;
       const neighborId = nodeId(column, row, columns);
       if (closed.has(neighborId)) continue;
       const newCost = costs.get(current.id) + cost;
@@ -79,36 +82,7 @@ export function findAdventurePath(mapId, start, destination, radius = PLAYER_COL
   return [];
 }
 
-function resolveAxis(mapId, x, y, delta, horizontal, radius, maps, world) {
-  if (!delta) return horizontal ? x : y;
-  const current = horizontal ? x : y;
-  const other = horizontal ? y : x;
-  const proposed = clamp(current + delta, radius, (horizontal ? world.width : world.height) - radius);
-  const blocked = getAdventureObstacles(mapId, maps).filter((obstacle) => {
-    const rect = inflateRect(obstacle, radius);
-    if (horizontal) {
-      const crossesObstacle = delta > 0
-        ? current <= rect.x && proposed > rect.x
-        : current >= rect.x + rect.width && proposed < rect.x + rect.width;
-      return insideEdge(other, rect.y, rect.height) && crossesObstacle;
-    }
-    const crossesObstacle = delta > 0
-      ? current <= rect.y && proposed > rect.y
-      : current >= rect.y + rect.height && proposed < rect.y + rect.height;
-    return insideEdge(other, rect.x, rect.width) && crossesObstacle;
-  });
-  if (!blocked.length) return proposed;
-  let resolved = proposed;
-  for (const obstacle of blocked) {
-    const rect = inflateRect(obstacle, radius);
-    const low = horizontal ? rect.x : rect.y;
-    const high = low + (horizontal ? rect.width : rect.height);
-    resolved = delta > 0 ? Math.min(resolved, low) : Math.max(resolved, high);
-  }
-  return clamp(resolved, radius, (horizontal ? world.width : world.height) - radius);
-}
-
-function nearestWalkableNode(mapId, position, columns, rows, radius, maps, world) {
+function nearestWalkableNode(mapId, position, columns, rows, radius, maps, world, connected = false) {
   const idealColumn = clamp(Math.floor(position.x / PATH_GRID_SIZE), 0, columns - 1);
   const idealRow = clamp(Math.floor(position.y / PATH_GRID_SIZE), 0, rows - 1);
   let best = null;
@@ -116,7 +90,7 @@ function nearestWalkableNode(mapId, position, columns, rows, radius, maps, world
   for (let row = 0; row < rows; row += 1) {
     for (let column = 0; column < columns; column += 1) {
       const point = nodePoint(column, row, world, radius);
-      if (collidesWithWorld(mapId, point.x, point.y, radius, maps)) continue;
+      if (collidesWithWorld(mapId, point.x, point.y, radius, maps) || connected && !hasClearLine(mapId, position, point, radius, maps)) continue;
       const gridDistance = Math.abs(column - idealColumn) + Math.abs(row - idealRow);
       const targetDistance = Math.hypot(point.x - position.x, point.y - position.y);
       const score = targetDistance + gridDistance * 0.001;
@@ -142,14 +116,10 @@ function reconstructPath(mapId, cameFrom, current, columns, destination, start, 
   return points;
 }
 
-function hasClearLine(mapId, start, end, radius, maps) {
-  const distance = Math.hypot(end.x - start.x, end.y - start.y);
-  const steps = Math.ceil(distance / 6);
-  for (let step = 1; step <= steps; step += 1) {
-    const ratio = step / steps;
-    if (collidesWithWorld(mapId, start.x + (end.x - start.x) * ratio, start.y + (end.y - start.y) * ratio, radius, maps)) return false;
-  }
-  return true;
+export function hasClearLine(mapId, start, end, radius = PLAYER_COLLISION_RADIUS, maps) {
+  const map = getAdventureMap(maps, mapId);
+  return Boolean(end && walkablePoint(map, start.x, start.y, radius) && walkablePoint(map, end.x, end.y, radius)
+    && firstObstacleHit(map.collision.obstacles, start, end.x - start.x, end.y - start.y, radius) === 1);
 }
 
 function compressPath(points) {
@@ -170,7 +140,7 @@ function directionBetween(first, second) {
 }
 
 function nodePoint(column, row, world, radius) {
-  return { x: Math.min(column * PATH_GRID_SIZE + PATH_GRID_SIZE / 2, world.width - radius), y: Math.min(row * PATH_GRID_SIZE + PATH_GRID_SIZE / 2, world.height - radius) };
+  return { x: clamp(column * PATH_GRID_SIZE + PATH_GRID_SIZE / 2, radius, world.width - radius), y: clamp(row * PATH_GRID_SIZE + PATH_GRID_SIZE / 2, radius, world.height - radius) };
 }
 
 function nodeId(column, row, columns) {
@@ -181,14 +151,6 @@ function heuristic(first, second) {
   const dx = Math.abs(first.column - second.column);
   const dy = Math.abs(first.row - second.row);
   return Math.max(dx, dy) + (Math.SQRT2 - 1) * Math.min(dx, dy);
-}
-
-function insideEdge(value, start, length) {
-  return value > start + COLLISION_EPSILON && value < start + length - COLLISION_EPSILON;
-}
-
-function inflateRect(rect, amount) {
-  return { x: rect.x - amount, y: rect.y - amount, width: rect.width + amount * 2, height: rect.height + amount * 2 };
 }
 
 function clamp(value, minimum, maximum) {

@@ -1,3 +1,6 @@
+import village from '../../../examples/maps/village.json' with { type: 'json' };
+import { walkablePoint } from './worldCollision.js';
+
 export function validateAdventureMap(map) {
   const errors = [];
   if (!isRecord(map)) return { valid: false, errors: ['map must be an object'] };
@@ -18,8 +21,9 @@ export function validateAdventureMap(map) {
   if (!Number.isFinite(map.world?.player_radius) || map.world.player_radius <= 0) errors.push('world.player_radius must be positive');
   if (!isRecord(map.world?.spawn) || !insideWorld(map.world.spawn, width, height)) errors.push('world.spawn must be inside world bounds');
 
+  const list = value => Array.isArray(value) ? value : [];
   const seenIds = new Set();
-  for (const [index, obstacle] of (map.collision?.obstacles ?? []).entries()) {
+  for (const [index, obstacle] of list(map.collision?.obstacles).entries()) {
     const path = `collision.obstacles[${index}]`;
     if (!isRecord(obstacle) || !isId(obstacle.id)) {
       errors.push(`${path}.id must be a non-empty ID`);
@@ -27,6 +31,10 @@ export function validateAdventureMap(map) {
     }
     if (seenIds.has(obstacle.id)) errors.push(`${path}.id is duplicated: ${obstacle.id}`);
     seenIds.add(obstacle.id);
+    if (obstacle.type === 'polygon') {
+      if (!validPolygon(obstacle.points, width, height)) errors.push(`${path}.points must describe a convex polygon inside the world`);
+      continue;
+    }
     if (obstacle.type !== 'rect') errors.push(`${path}.type must be rect`);
     if (![obstacle.x, obstacle.y, obstacle.width, obstacle.height].every(Number.isFinite) || obstacle.width <= 0 || obstacle.height <= 0) {
       errors.push(`${path} must have finite position and positive dimensions`);
@@ -35,18 +43,26 @@ export function validateAdventureMap(map) {
     if (obstacle.x < 0 || obstacle.y < 0 || obstacle.x + obstacle.width > width || obstacle.y + obstacle.height > height) errors.push(`${path} is outside world bounds`);
   }
 
-  for (const [index, transition] of (map.transitions ?? []).entries()) {
+  if (map.layers?.occlusion !== undefined && !Array.isArray(map.layers.occlusion)) errors.push('layers.occlusion must be an array');
+  for (const [index, layer] of list(map.layers?.occlusion).entries()) {
+    if (!isId(layer?.id) || !validPolygon(layer.points, width, height) || !Number.isFinite(layer.depth)) {
+      errors.push(`layers.occlusion[${index}] needs an id, depth and convex polygon`);
+    }
+  }
+  if (!errors.length && !walkablePoint(map, map.world.spawn.x, map.world.spawn.y)) errors.push('world.spawn overlaps collision');
+
+  for (const [index, transition] of list(map.transitions).entries()) {
     if (!isRecord(transition) || !isId(transition.id) || !isId(transition.type) || !isId(transition.to)) errors.push(`transitions[${index}] needs id, type and target`);
-    if (transition.spawn && (!isRecord(transition.spawn) || !Number.isFinite(transition.spawn.x) || !Number.isFinite(transition.spawn.y))) errors.push(`transitions[${index}].spawn must be numeric x/y`);
+    if (transition?.spawn && (!isRecord(transition.spawn) || !Number.isFinite(transition.spawn.x) || !Number.isFinite(transition.spawn.y))) errors.push(`transitions[${index}].spawn must be numeric x/y`);
   }
 
-  for (const [index, item] of (map.interactables ?? []).entries()) {
+  for (const [index, item] of list(map.interactables).entries()) {
     if (!isRecord(item) || !isId(item.id) || !isId(item.kind) || !isId(item.action) || !isId(item.label)) errors.push(`interactables[${index}] needs id, kind, action and label`);
     else if (!insideWorld(item, width, height)) errors.push(`interactables[${index}] is outside world bounds`);
-    if (!Number.isFinite(item.radius) || item.radius <= 0) errors.push(`interactables[${index}].radius must be positive`);
+    if (!Number.isFinite(item?.radius) || item.radius <= 0) errors.push(`interactables[${index}].radius must be positive`);
   }
 
-  for (const [index, visual] of (map.visuals ?? []).entries()) {
+  for (const [index, visual] of list(map.visuals).entries()) {
     if (!isRecord(visual) || !isId(visual.id) || !isId(visual.kind) || !Number.isFinite(visual.x) || !Number.isFinite(visual.y)) errors.push(`visuals[${index}] needs id, kind and finite position`);
   }
 
@@ -62,43 +78,30 @@ export function createAdventureMapRegistry(maps) {
     if (registry.has(map.runtime_key)) throw new Error(`Duplicate map runtime_key: ${map.runtime_key}`);
     registry.set(map.runtime_key, map);
   }
+  for (const map of registry.values()) {
+    for (const transition of map.transitions ?? []) {
+      const target = registry.get(transition.to);
+      const spawn = transition.spawn;
+      if (target && spawn && !walkablePoint(target, spawn.x, spawn.y)) {
+        throw new Error(`Invalid transition ${transition.id}: spawn overlaps collision in ${target.runtime_key}`);
+      }
+    }
+  }
   return registry;
 }
 
+function validPolygon(points, width, height) {
+  if (!Array.isArray(points) || points.length < 3 || !points.every(point => Array.isArray(point) && point.length === 2 && insideWorld({ x: point[0], y: point[1] }, width, height))) return false;
+  const turns = points.map(([x, y], index) => {
+    const [nx, ny] = points[(index + 1) % points.length];
+    const [px, py] = points[(index + 2) % points.length];
+    return (nx - x) * (py - ny) - (ny - y) * (px - nx);
+  });
+  return turns.every(turn => turn > 0) || turns.every(turn => turn < 0);
+}
+
 const DEFAULT_ADVENTURE_MAPS = createAdventureMapRegistry([
-  {
-    schema_version: 1,
-    catalog_version: 'client-p0-v1',
-    map_id: 'env_village_square',
-    runtime_key: 'village',
-    display_name: 'Làng Ẩm Thực',
-    world: { width: 960, height: 540, player_radius: 14, spawn: { x: 120, y: 310 } },
-    collision: {
-      obstacles: [
-        { id: 'building_kitchen', type: 'rect', x: 60, y: 105, width: 176, height: 118 },
-        { id: 'building_guild', type: 'rect', x: 400, y: 90, width: 176, height: 118 },
-        { id: 'building_merchant', type: 'rect', x: 640, y: 100, width: 176, height: 118 },
-        { id: 'plaza_table', type: 'rect', x: 270, y: 395, width: 85, height: 52 },
-      ],
-    },
-    transitions: [
-      { id: 'portal_ingredient_forest', type: 'door', from: 'village', to: 'forest', targetMap: 'forest', spawn: { x: 82, y: 420 }, label: 'Cổng Rừng Nguyên Liệu' },
-    ],
-    interactables: [
-      { id: 'npc_lilia', kind: 'npc', action: 'lilia', label: 'Lilia', x: 235, y: 260, radius: 62 },
-      { id: 'village_supply_chest_p0', kind: 'chest', action: 'chest', label: 'Rương nguyên liệu', x: 680, y: 355, radius: 62 },
-      { id: 'portal_ingredient_forest', kind: 'portal', action: 'portal', label: 'Cổng Rừng Nguyên Liệu', x: 878, y: 260, radius: 62 },
-    ],
-    visuals: [
-      { id: 'building_kitchen', kind: 'house', x: 60, y: 105, width: 176, height: 118, palette: 'coral' },
-      { id: 'building_guild', kind: 'house', x: 400, y: 90, width: 176, height: 118, palette: 'sage' },
-      { id: 'building_merchant', kind: 'house', x: 640, y: 100, width: 176, height: 118, palette: 'gold' },
-      { id: 'plaza_table', kind: 'table', x: 270, y: 395, width: 85, height: 52 },
-      { id: 'npc_lilia', kind: 'marker', x: 235, y: 260, label: 'LILIA', palette: 'wood' },
-      { id: 'village_supply_chest_p0', kind: 'chest', x: 680, y: 355, label: 'RƯƠNG' },
-      { id: 'portal_ingredient_forest', kind: 'portal', x: 878, y: 260, label: 'RỪNG' },
-    ],
-  },
+  village,
   {
     schema_version: 1,
     catalog_version: 'client-p0-v1',
@@ -124,7 +127,7 @@ const DEFAULT_ADVENTURE_MAPS = createAdventureMapRegistry([
       ],
     },
     transitions: [
-      { id: 'forest_return_portal', type: 'door', from: 'forest', to: 'village', targetMap: 'village', spawn: { x: 878, y: 260 }, label: 'Về làng' },
+      { id: 'forest_return_portal', type: 'door', from: 'forest', to: 'village', targetMap: 'village', spawn: { x: 485, y: 122 }, label: 'Về làng' },
     ],
     interactables: [
       { id: 'forest_clue_salt', kind: 'clue', action: 'forest_clue_salt', label: 'Muối đã mất vị', x: 268, y: 435, radius: 48 },

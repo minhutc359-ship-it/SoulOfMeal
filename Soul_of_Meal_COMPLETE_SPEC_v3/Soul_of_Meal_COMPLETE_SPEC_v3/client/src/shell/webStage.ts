@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import titleUrl from '../../assets/original/scenes/title.webp';
-import homeUrl from '../../assets/original/scenes/home.webp';
+import homeUrl from '../../assets/original/scenes/village.webp';
 
 export function mountWebStage(host: HTMLElement) {
   let page = host.dataset.scene ?? 'title';

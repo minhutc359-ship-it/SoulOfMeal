@@ -398,7 +398,7 @@
 .table-drag-ghost[data-valid="true"] { border-color: #a6eed1; box-shadow: 0 0 12px #a6eed15c; }
 .table-drag-ghost img { width: 62px; height: 60px; object-fit: contain; }
 .table-drag-ghost b { font: 700 10px/1.1 system-ui, sans-serif; }
-.chess-match :is([data-chess-board-index], [data-bench]), .tcg-match [data-tcg-attacker] { touch-action: none; cursor: grab; }
+.chess-match :is([data-chess-board-index], [data-bench], [data-buy]:enabled), .tcg-match [data-tcg-attacker] { touch-action: none; cursor: grab; }
 .tcg-match[data-direct] [data-card]:not(:disabled) { touch-action: pan-x; cursor: grab; }
 .chess-match .bench-slot { width: 100%; padding: 0; color: inherit; }
 .chess-match .chess-ready:not(.has-board-selection) { grid-template-columns: repeat(3, minmax(0, 1fr)); }

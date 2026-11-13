@@ -95,12 +95,15 @@ export function createChessRun(units, shopConfig, seed = 2077) {
   return run;
 }
 
-export function buyChessOffer(run, slot) {
+export function buyChessOffer(run, slot, destination) {
   assertPrepare(run);
   if (!Number.isInteger(slot) || !run.shop[slot]) throw new Error('Ô cửa hàng trống.');
   const offer = run.shop[slot];
   if (run.gold < offer.cost) throw new Error('Không đủ vàng.');
   if (!canBuyChessOffer(run, slot)) throw new Error('Băng ghế đã đủ 9 vị trí.');
+  if (destination && chessDropState(run, { zone: 'shop', index: slot }, destination) !== 'valid') {
+    throw new Error('Chọn một ô trống còn chỗ trong đội hình.');
+  }
   const updated = structuredClone(run);
   updated.shop[slot] = null;
   updated.gold -= offer.cost;
@@ -111,10 +114,15 @@ export function buyChessOffer(run, slot) {
   chessBenchSlots(run).forEach((index, slot) => {
     if (index !== null) updated.bench[index].benchSlot = slot;
   });
-  updated.bench.push(piece);
+  if (destination) {
+    delete piece.benchSlot;
+    Object.assign(piece, { x: destination.x, y: destination.y });
+    updated.board.push(piece);
+  } else updated.bench.push(piece);
   mergeChessCopies(updated);
   record(updated, `Đã mua ${offer.display_name}.`);
   gameEvents.emit('chess_unit_bought', { unit_id: offer.id, cost: offer.cost });
+  if (destination) gameEvents.emit('chess_unit_placed', { unit_id: offer.id, x: destination.x, y: destination.y });
   return updated;
 }
 
@@ -153,6 +161,13 @@ function chessPlacement(run, source, destination) {
 }
 
 export function chessDropState(run, source, destination) {
+  if (source.zone === 'shop') {
+    const { x, y } = destination;
+    const fits = destination.zone === 'board' && [x, y].every(Number.isInteger)
+      && x >= 0 && x < BOARD_COLUMNS && y >= 0 && y < BOARD_ROWS
+      && run.board.length < run.level && !run.board.some(unit => unit.x === x && unit.y === y);
+    return fits && canBuyChessOffer(run, source.index) ? 'valid' : 'blocked';
+  }
   const placement = chessPlacement(run, source, destination);
   if (!placement) return 'blocked';
   return placement.other < 0 || source.zone === destination.zone && source.index === placement.other ? 'valid' : 'swap';

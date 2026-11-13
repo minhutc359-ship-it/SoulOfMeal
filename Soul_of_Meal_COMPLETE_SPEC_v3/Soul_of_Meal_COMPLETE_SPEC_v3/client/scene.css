@@ -129,10 +129,20 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
 .chess-hud { flex: none; padding: 3px 6px; }
 .chess-hud b { font-size: clamp(12px, 2.25vw, 19px); }
 .main .chess-match .chess-stage { position: relative; min-height: 0; }
+.chess-board-fit { flex: 1 1 0; min-height: 0; display: grid; place-items: center; container-type: size; border-radius: 9px;
+  background: radial-gradient(ellipse, #354d3b, #152923 80%); }
 .main .chess-match .chess-formation {
-  grid-template-rows: auto minmax(0, 1fr) auto minmax(0, 1fr) auto; padding: 4px min(8vw, 110px);
+  width: min(100cqw, 177.778cqh); height: auto; min-height: 0; aspect-ratio: 16 / 9;
+  grid-template-rows: minmax(0, 1fr) 1px minmax(0, 1fr); gap: 2%; padding: 4px 4%; position: relative;
   background-size: cover; background-position: center;
 }
+.main .chess-match .chess-formation .formation-label { position: absolute; top: 1px; left: 3%; right: 3%; z-index: 1; width: max-content; min-height: 0; padding: 1px 5px; font-size: 10px; }
+.main .chess-match .chess-formation .formation-label:last-child { inset: auto 3% 1px auto; }
+.main .chess-match .chess-formation .formation-divider i { display: none; }
+.main .chess-match .chess-formation .chess-grid { padding-block: 2px; }
+.main .chess-match .chess-formation .chess-cell { min-width: 0; }
+.main .chess-match .chess-formation .chess-cell .board-chibi { bottom: -7%; height: 162%; }
+.main .chess-match .chess-formation .chess-cell .chess-portrait { height: 110%; }
 .main .chess-match .enemy-formation { display: grid; }
 .main .chess-match .rival-lineup { display: none; }
 .main .chess-match .chess-bench { gap: 2px; padding: 2px 4px 3px; }
@@ -186,7 +196,6 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
   .main .tcg-match .hand-card { flex-basis: clamp(80px, 24vw, 118px); }
   .main .tcg-match .tcg-hand-dock .playing-card { height: clamp(78px, 14dvh, 112px); }
   .main .tcg-match .hand-heading { font-size: 12px; }
-  .main .chess-match .chess-formation { padding-inline: 3px; }
   .main .chess-match .chess-controls { grid-template-columns: minmax(0, 1fr); grid-template-areas: "heading" "shop" "actions" "notice"; }
 }
 @media (orientation: landscape) and (max-height: 480px) {
@@ -202,7 +211,6 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
   .main .tcg-match .card-copy { padding: 2px 3px; }
   .main .chess-match .chess-controls { padding: 2px 5px; }
   .main .chess-match .shop-unit { height: clamp(52px, 16dvh, 71px); }
-  .main .chess-match .chess-formation { padding-inline: 9vw; }
   .main .chess-match .formation-label { min-height: 13px; padding-block: 0; }
   .adventure-heading > div { padding-block: 3px; }
   .adventure-context, .adventure-layout .minimap-widget { top: calc(var(--scene-top) + 46px); }
@@ -260,18 +268,26 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
   .spirit-model { width: 82px; bottom: 48px; }
 }
 
-@media (orientation: landscape) and (max-height: 480px) {
-  .main .chess-match .chess-controls { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); grid-template-areas: "shop actions" "notice notice"; }
-  .main .chess-match .shop-heading { display: none; }
-  .main .chess-match .chess-shop-actions { grid-template-columns: 1fr 1fr; }
-  .main .chess-match .chess-shop-actions :is(.shop-tools, .chess-ready) {
-    display: grid; grid-template-columns: 1fr; grid-template-rows: repeat(3, minmax(26px, auto)); gap: 2px;
+@media (orientation: landscape) and (max-height: 500px) {
+  .main .chess-match[data-chess-phase="prep"] {
+    grid-template-columns: minmax(0, 1fr) clamp(198px, 29vw, 290px); grid-template-rows: minmax(0, 1fr);
   }
-  .main .chess-match .chess-shop-actions .button, .main .chess-match .chess-sell-zone { min-height: 26px; line-height: 1.1; }
+  .main .chess-match[data-chess-phase="prep"] .chess-controls {
+    align-self: stretch; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto auto;
+    grid-template-areas: "heading" "shop" "actions" "notice"; gap: 4px; padding: 4px;
+  }
+  .main .chess-match .shop-row { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 4px; }
+  .main .chess-match .shop-unit { height: auto; min-height: 0; }
+  .main .chess-match .shop-unit .card-copy { padding: 1px 3px; }
+  .main .chess-match .shop-unit .card-copy :is(b, small) { font-size: 10px; }
+  .main .chess-match .shop-unit .card-copy small { display: none; }
+  .main .chess-match .chess-shop-actions .button { min-height: 32px; padding-inline: 2px; }
   .main .chess-match .chess-shop-actions [data-chess-fight] { min-height: 44px; }
-  .main .chess-match :is(.bench-slot, .bench-unit) { height: 24px; }
-  .main .chess-match .bench-heading { min-height: 18px; }
-  .main .chess-match .chess-bag { min-height: 18px; }
+  .main .chess-match :is(.bench-slot, .bench-unit) { height: 30px; }
+}
+@media (orientation: portrait) and (max-width: 760px) {
+  .main .chess-match .chess-shop-actions { grid-template-columns: 1fr; }
+  .main .chess-match .shop-unit { height: clamp(58px, 11dvh, 90px); }
 }
 
 .lobby-companion {
@@ -314,3 +330,65 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
   .game-resources { gap: 3px; font-size: 12px; }
   .game-resources > span { padding-inline: 4px; }
 }
+
+.adventure-layout .adventure-interact { inset: auto var(--scene-right) var(--scene-bottom) auto; translate: none; }
+.adventure-layout .adventure-party-toggle { position: absolute; inset: auto auto var(--scene-bottom) 50%; translate: -50% 0; min-height: 44px; }
+.adventure-layout .world-stick { bottom: var(--scene-bottom); }
+.adventure-layout .adventure-message { bottom: calc(var(--scene-bottom) + 52px); }
+.main .tcg-match[data-mulligan="true"] .tcg-hand-dock {
+  align-self: center; justify-self: center; z-index: 3; width: min(94%, 760px);
+  grid-row: 1; grid-column: 1; box-shadow: 0 0 0 100vmax #101d1abd; padding: 12px;
+}
+.main .tcg-match[data-mulligan="true"] { grid-template-rows: minmax(0, 1fr); }
+.main .tcg-match[data-mulligan="true"] .duel-field { grid-row: 1; grid-column: 1; pointer-events: none; }
+.main .tcg-match[data-mulligan="true"] .hand-heading { display: flex; }
+.main .tcg-match .hand-card .playing-card .card-copy small { display: none; }
+.main .tcg-match .hand-card .playing-card .card-copy { background: #101c1bec; }
+.main .tcg-match .hand-card:focus-within .playing-card { outline: 2px solid #ffe1a3; outline-offset: -2px; }
+@media (max-width: 600px) and (orientation: portrait) {
+  .adventure-layout .adventure-party-toggle { inset: auto var(--scene-right) calc(var(--scene-bottom) + 49px) auto; translate: none; }
+  .adventure-layout .adventure-message { bottom: calc(var(--scene-bottom) + 100px); }
+}
+
+.shell[data-screen="roster"] .spirit-profile { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); grid-template-rows: minmax(0, 1fr) auto; }
+.shell[data-screen="roster"] .spirit-portrait { background: radial-gradient(ellipse at 50% 61%, color-mix(in srgb, var(--unit-color) 62%, #173229), #152e2700 73%); }
+.spirit-stage-art, .shell[data-screen="roster"] .spirit-model { position: absolute; inset: 2% 2% 0; width: auto; height: auto; display: grid; place-items: center; animation: spirit-enter .24s ease-out both; }
+.spirit-stage-art[hidden], .shell[data-screen="roster"] .spirit-model[hidden] { display: none; }
+.spirit-stage-art > img { width: 100%; height: 100%; min-height: 0; object-fit: contain; filter: drop-shadow(0 8px 10px #0b1e1699); }
+.spirit-view-toggle { position: absolute; z-index: 2; right: 5px; bottom: 5px; min-height: 44px; }
+.spirit-identity { padding-block: 6px; }
+.spirit-identity p { margin: 0 0 4px; font-size: 12px; color: #f1dcba; }
+.spirit-identity b { color: var(--rarity); margin-right: 3px; }
+.spirit-scene-heading { margin-bottom: 0; }
+.spirit-detail .spirit-tab-body { padding: 8px; }
+.spirit-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 8px; margin-block: 6px; }
+.spirit-stats div { display: grid; gap: 2px; padding: 3px 0; }
+.spirit-stats dt { font-size: 11px; }
+.spirit-loadout { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; margin-block: 7px; }
+.spirit-loadout div { padding: 4px; border: 1px solid #cfb58e; border-radius: 5px; }
+.spirit-loadout :is(small,b) { display: block; font-size: 10px; overflow-wrap: anywhere; }
+.spirit-collection { display: grid; grid-template-columns: repeat(auto-fit, minmax(103px, 1fr)); gap: 7px; margin-top: 9px; }
+.spirit-collection .spirit-choice[hidden] { display: none; }
+.spirit-collection .spirit-choice { min-height: 95px; max-width: none; border-bottom: 3px solid var(--rarity); }
+.spirit-collection .spirit-choice :is(strong,small) { display: block; }
+.spirit-collection .spirit-choice img { width: 56px; height: 56px; object-fit: contain; }
+.spirit-browse .button { min-height: 42px; }
+@keyframes spirit-enter { from { opacity: .3; } }
+[data-motion=reduced] .spirit-stage-art, [data-motion=reduced] .spirit-model { animation: none; }
+.shell[data-screen="home"] .lobby-world { width: 100%; height: 100%; padding: 0; overflow: hidden; background: linear-gradient(0deg, #14271e90, transparent 32%); }
+.shell[data-screen="home"] .lobby-companion { inset: 5% auto 4% 34%; width: 40%; height: auto; padding: 0; }
+.shell[data-screen="home"] .lobby-companion span { inset: auto 0 0; color: #ffe7b5; }
+.lobby-quest { position: absolute; top: var(--scene-top); left: var(--scene-left); display: grid; gap: 3px; max-width: min(28%, 240px); min-height: 44px; padding: 7px 9px; text-align: left; color: var(--scene-text); background: var(--scene-panel); border: 1px solid var(--scene-edge); border-radius: 7px; cursor: pointer; }
+.lobby-quest small { color: var(--scene-gold); }
+.shell[data-screen="home"] .game-dock [data-page=adventure] { border-color: #e2ba77; background: #66462b; }
+.shell[data-screen="home"] .release-update { position: absolute; top: var(--scene-top); right: var(--scene-right); }
+@media (orientation: portrait) and (max-width: 760px) {
+  .shell[data-screen="roster"] .spirit-profile { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 1.05fr) auto; }
+  .shell[data-screen="home"] .game-dock { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .shell[data-screen="home"] .lobby-companion { inset: 19% auto 6% 18%; width: 64%; }
+  .lobby-quest { max-width: 52%; }
+}
+
+.lobby-world .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.tcg-target-line { position: absolute; z-index: 5; height: 2px; transform-origin: left center; pointer-events: none; background: #ffdd8b; box-shadow: 0 0 6px #ffad4d; }
+.tcg-target-line::after { content: ''; position: absolute; right: 0; top: -4px; border-left: 8px solid #ffdd8b; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
