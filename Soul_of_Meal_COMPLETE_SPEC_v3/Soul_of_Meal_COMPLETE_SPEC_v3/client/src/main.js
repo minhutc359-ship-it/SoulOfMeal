@@ -1,4 +1,4 @@
-import { adventureCheckpoint, createAdventureState, interactAdventure, nearestInteraction, availableAdventureInteractions, purchaseAdventureSupplies, setAdventureInput, stepAdventure, activateUltimate, activateLanternWard, retreatFromTide, activateBossCounter, beginAdventureChallenge, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, leaveAdventureDefeat, WORLD, resolveCameraViewport } from './modes/adventure.js';
+import { adventureCheckpoint, createAdventureState, interactAdventure, nearestInteraction, availableAdventureInteractions, purchaseAdventureSupplies, setAdventureInput, stepAdventure, activateUltimate, activateLanternWard, retreatFromTide, activateBossCounter, beginAdventureChallenge, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, leaveAdventureDefeat, WORLD } from './modes/adventure.js';
 import { createTcgChallenge, createTcgMatch, playTcgCard, passTcgPriority, runBotPriority, runTcgBot, attackTcg, assignTcgBlockers, declaredTcgAttackers, endTcgTurn, mulliganTcg, surrenderTcg, validateDeck, tcgCardIssue, tcgEffectText, tcgTableDeck, tcgTableDraft, tcgSpellTargets, strikeTcg, tcgStrikePreview, tcgStrikeTargets, decideTcgTrap, tcgExposedDamage, tcgTrapAnchor, TCG_DIFFICULTIES } from './modes/tcg.js';
 import { tcgCanAttack, tcgCanBlock, tcgUnitAttack } from './modes/tcgStrategy.js';
 import { tcgCardCost, tcgEffectBadge, tcgRecipeFor, TCG_RECIPES, tcgBoardLimit, tcgTrapLimit, tcgHandLimit, tcgCommanderMax, usesTcgTable, TCG_TABLE_VERSION, TCG_TABLE_DECK_SIZE, TCG_KEYWORDS } from './modes/tcgCards.js';
@@ -17,7 +17,7 @@ import { ADVENTURE_TICK_RATE, adventureBalance, adventureEncounters } from './mo
 import { adventureSpiritStats, canAffordSpiritCost, changeSpiritProgress, MAX_SPIRIT_RANK, SPIRIT_AWAKENING, SPIRIT_BONDS, SPIRIT_GEAR, SPIRIT_GIFTS, SPIRIT_MEMORIES, SPIRIT_RANKS, spiritProfile } from './modes/spiritProgress.js';
 import { BattleEffects } from './render/battleEffects.js';
 import { BattleRigClock, loadSpiritRigs } from './render/spiritRig.js';
-import { adventureViewport, battleActorPoint, SPIRIT_RIG_SCALE } from './render/adventureStage.js';
+import { adventureCamera, battleCamera, adventureViewport, battleActorPoint, SPIRIT_RIG_SCALE } from './render/adventureStage.js';
 import { GameAudio } from './core/audio.js';
 import { resolveSoundScene } from './core/soundScenes.js';
 import { ADVENTURE_CHALLENGE_TIERS, adventureChallenge, adventureChallenges } from './modes/adventureChallenges.js';
@@ -40,6 +40,7 @@ import { adventureParty, BANNERS, changeParty, drawSpirits, finishOnboarding, ME
 import { ADVENTURE_OFFERS, adventureGearFor, changeAdventureInventory } from './modes/adventureStore.js';
 import { gachaHistory, gachaOdds, gachaPanel, inventoryRows, renderOnboarding, revealGacha, spiritImage, storeDetail } from './shell/metaPanels.js';
 import { openStoryDialog } from './shell/storyDialog.js';
+import { bindSceneNavigation } from './shell/sceneNavigation.js';
 
 const app = document.querySelector('#app');
 const stageHost = document.querySelector('#web-stage');
@@ -56,7 +57,7 @@ const runtime = {
   account: null, cloud: null, cloudStatus: 'saved', cloudError: null, deckFilters: { search: '', type: '', element: '', view: 'all' },
   selectedBoard: null, chessLock: null, chessReplayPaused: false, chessReplaySpeed: 1, notice: '', lastSavedLocation: 0, heldKeys: new Set(), tcgImpacts: new Map(),
   rosterId: HERO_ID, rosterTab: 'info', rosterFilter: 'owned', bannerId: 'featured_bunbo_001', gachaPayment: 'ticket',
-  pendingDraw: null, storeTab: 'all', storeMember: null, storeFrom: 'home', showMinimap: true, worldStick: null, rigClocks: new Map(), tcgReveal: null, tcgCutIn: null,
+  pendingDraw: null, storeTab: 'all', storeMember: null, showMinimap: true, worldStick: null, rigClocks: new Map(), tcgReveal: null, tcgCutIn: null,
 };
 runtime.adventure = createAdventureState(runtime.save);
 runtime.tcg = runtime.save.modes.tcg;
@@ -342,7 +343,7 @@ function showOnboarding() {
     }
     replaceProfile(next);
     saveNow();
-    navigate('adventure');
+    navigate('adventure', { replace: true });
   });
 }
 
@@ -427,8 +428,46 @@ window.addEventListener('beforeunload', event => {
   event.returnValue = true;
 });
 
-function navigate(page) {
-  if (page === 'store' && runtime.page !== 'store') runtime.storeFrom = runtime.page === 'adventure' ? 'adventure' : 'home';
+function sceneHasLiveMatch(page = runtime.page) {
+  if (page === 'adventure') return runtime.adventure.battle?.phase === 'battle_running';
+  if (page === 'tcg') return Boolean(runtime.tcg && !runtime.tcg.result);
+  return page === 'chess' && (runtime.chessReplay || runtime.chessLock !== null);
+}
+
+function closeSceneOverlay() {
+  const dialog = [...app.querySelectorAll('dialog[open]')].at(-1);
+  if (dialog) {
+    if (dialog.requestClose) dialog.requestClose();
+    else if (dialog.dispatchEvent(new Event('cancel', { cancelable: true }))) dialog.close();
+    return true;
+  }
+  const menu = app.querySelector('.match-menu[open]');
+  if (!menu) return false;
+  menu.open = false;
+  menu.querySelector('summary').focus();
+  return true;
+}
+
+function confirmSceneExit(page, proceed) {
+  if (!['title', 'home'].includes(page) || !sceneHasLiveMatch()) return false;
+  const dialog = openInfoDialog('Về sảnh?', '<p>Trận hiện tại sẽ chờ tại vị trí đang chơi.</p><button type="button" class="button" data-confirm-exit>Về sảnh</button>');
+  dialog.querySelector('[data-confirm-exit]').addEventListener('click', () => { dialog.close(); proceed(); }, { once: true });
+  return true;
+}
+
+const sceneNavigation = bindSceneNavigation({
+  current: () => runtime.page,
+  show: showScene,
+  closeOverlay: closeSceneOverlay,
+  confirmExit: confirmSceneExit,
+});
+
+function navigate(page, options) {
+  const show = () => sceneNavigation.go(page, options);
+  if (!confirmSceneExit(page, show)) show();
+}
+
+function showScene(page) {
   if (['adventure', 'chess'].includes(runtime.page) && runtime.page !== page) saveNow();
   runtime.heldKeys.clear();
   runtime.worldStick = null;
@@ -447,7 +486,7 @@ function navigate(page) {
   runtime.notice = '';
   syncStage();
   render();
-  app.querySelector('main h1')?.focus({ preventScroll: true });
+  if (!app.querySelector('dialog[open]')) app.querySelector('main h1')?.focus({ preventScroll: true });
 }
 
 function navButton(page, label) {
@@ -469,6 +508,7 @@ function syncFullscreenButton() {
   const label = document.fullscreenElement ? 'Thoát toàn màn hình' : 'Toàn màn hình';
   button.setAttribute('aria-label', label);
   button.title = label;
+  if (button.closest('.match-menu')) button.textContent = label;
   button.setAttribute('aria-pressed', String(Boolean(document.fullscreenElement)));
 }
 
@@ -477,9 +517,12 @@ document.addEventListener('fullscreenchange', syncFullscreenButton);
 function shell(content) {
   if (runtime.page !== 'settings') runtime.audio.setScene(resolveSoundScene(runtime.page, runtime.adventure));
   const player = runtime.save.player;
+  const lobby = runtime.page === 'home';
+  const playScene = ['adventure', 'tcg', 'chess'].includes(runtime.page);
   const sameScreen = app.querySelector('.shell')?.dataset.screen === runtime.page;
   const scrollTop = sameScreen ? app.querySelector('.main').scrollTop : 0;
   const handScroll = sameScreen ? app.querySelector('.hand-row')?.scrollLeft : undefined;
+  const rosterScroll = sameScreen ? app.querySelector('.meta-roster-picker')?.scrollLeft : undefined;
   const previousFocus = document.activeElement;
   const focusKey = sameScreen && app.contains(previousFocus)
     ? ['data-card', 'data-tcg-pass', 'data-tcg-end', 'data-bench', 'data-cell', 'data-buy'].find(key => previousFocus.hasAttribute(key))
@@ -488,8 +531,8 @@ function shell(content) {
   const gold = escapeHtml(player.gold);
   const essence = escapeHtml(player.essence);
   app.innerHTML = `
-    <div class="shell" data-screen="${runtime.page}">
-      <header class="game-bar">
+    <div class="shell" data-screen="${runtime.page}" data-gameplay="${playScene}">
+      ${playScene ? '' : `<header class="game-bar">${lobby ? '' : '<button class="shell-icon" type="button" data-scene-back aria-label="Quay lại">←</button>'}
         <button class="brand" data-page="home" aria-label="Về sảnh Soul of Meal">SOUL <em>OF</em> MEAL</button>
         <div class="profile-chip"><img class="profile-avatar" src="${actorArt(runtime.save.meta.profile?.avatar ?? HERO_ID)}" alt=""><div class="profile-copy">${escapeHtml(player.name)}<small>Cấp ${escapeHtml(player.level)}</small></div></div>
         <div class="game-resources">
@@ -498,31 +541,41 @@ function shell(content) {
         </div>
         ${runtime.cloud ? '<button class="cloud-badge" data-page="settings" title="Trạng thái lưu trên máy chủ"></button>' : ''}
         ${document.fullscreenEnabled ? '<button class="shell-icon" type="button" data-fullscreen>⛶</button>' : ''}
-      </header>
+      </header>`}
       <main class="main">${content}</main>
-      <nav class="game-dock" aria-label="Chế độ chơi">
+      ${lobby ? `<nav class="game-dock" aria-label="Chế độ chơi">
         ${navButton('home', 'Sảnh')}${navButton('adventure', 'Phiêu lưu')}${navButton('tcg', 'Đấu thẻ')}${navButton('chess', 'Đấu cờ')}${navButton('roster', 'Vị Linh')}${navButton('settings', 'Cài đặt')}
-      </nav>
+      </nav>` : ''}
       <p class="shell-status" data-shell-status role="status"></p>
     </div>`;
   const viewport = app.querySelector('main');
   viewport.scrollTop = scrollTop;
   const hand = viewport.querySelector('.hand-row');
   if (hand && handScroll !== undefined) hand.scrollLeft = handScroll;
+  const picker = viewport.querySelector('.meta-roster-picker');
+  if (picker && rosterScroll !== undefined) picker.scrollLeft = rosterScroll;
   if (focusKey) app.querySelector(`[${focusKey}="${CSS.escape(focusValue)}"]:not([disabled])`)?.focus({ preventScroll: true });
   if (!sameScreen) viewport.querySelector('.topline')?.classList.add('scene-enter');
   const heading = viewport.querySelector('h1');
   if (heading) heading.tabIndex = -1;
   app.querySelectorAll('[data-page]').forEach((button) => button.addEventListener('click', () => navigate(button.dataset.page)));
-  app.querySelector('[data-fullscreen]')?.addEventListener('click', toggleFullscreen);
+  app.querySelectorAll('[data-fullscreen]').forEach(button => button.addEventListener('click', toggleFullscreen));
+  app.querySelectorAll('[data-scene-back]').forEach(button => button.addEventListener('click', () => sceneNavigation.back('home')));
+  app.querySelector('[data-scene-settings]')?.addEventListener('click', openSceneSettings);
   syncFullscreenButton();
   const menu = viewport.querySelector('.match-menu');
   if (menu) {
+    menu.addEventListener('toggle', () => {
+      if (!menu.open) return;
+      runtime.heldKeys.clear();
+      runtime.worldStick = null;
+    });
     viewport.addEventListener('click', event => {
-      if (!menu.contains(event.target)) menu.open = false;
+      if (!menu.contains(event.target) || event.target.closest('.match-menu button')) menu.open = false;
     });
     menu.addEventListener('keydown', event => {
       if (event.key === 'Escape' && menu.open) {
+        event.preventDefault();
         menu.open = false;
         menu.querySelector('summary').focus();
       }
@@ -531,8 +584,8 @@ function shell(content) {
   if (runtime.cloud) updateCloudStatus(runtime.cloudStatus, runtime.cloudError);
 }
 
-function pageHeader(kicker, title, description, back = 'home') {
-  return `<div class="topline"><div><div class="eyebrow">${kicker}</div><h1>${title}</h1>${description ? `<p class="subtitle">${description}</p>` : ''}</div><button class="button light compact" data-page="${back}" aria-label="Quay lại">←</button></div>`;
+function pageHeader(kicker, title, description) {
+  return `<div class="topline"><div><div class="eyebrow">${kicker}</div><h1>${title}</h1>${description ? `<p class="subtitle">${description}</p>` : ''}</div><button class="button light compact" data-scene-back aria-label="Quay lại">←</button></div>`;
 }
 
 function renderHome() {
@@ -551,6 +604,10 @@ function renderHome() {
           <button type="button" class="button light" data-apply-release>Cập nhật</button>
         </div>` : ''}
       </div>
+      <button type="button" class="lobby-companion" data-lobby-companion aria-label="Xem hồ sơ Bánh Bao Bạch Ngọc">
+        ${boardChibi(META.mascot, 'lobby:' + META.mascot, 'E', spiritImage(META.mascot))}
+        <span>Bánh Bao Bạch Ngọc</span>
+      </button>
       <div class="lobby-modes" role="group" aria-label="Chọn lối chơi">
         <button class="lobby-mode" data-page="tcg"><img src="${originalCardArt('card_demo_10')}" alt=""><span><strong>Thẻ chiến thuật</strong><small>${runtime.tcg && !runtime.tcg.result ? 'Tiếp tục ván đấu' : 'Đấu thẻ với bot'}</small></span><b aria-hidden="true">›</b></button>
         <button class="lobby-mode" data-page="chess"><img src="${sceneArt('chess_court')}" alt=""><span><strong>Auto Chess</strong><small>${runtime.chess && runtime.chess.phase !== 'finished' ? 'Tiếp tục vòng ' + chessRoundInfo(runtime.chess).label : 'Đấu cờ với bot'}</small></span><b aria-hidden="true">›</b></button>
@@ -558,6 +615,12 @@ function renderHome() {
         <button class="lobby-mode lobby-service" data-page="store"><span><strong>Cửa hàng Adventure</strong><small>Vật phẩm và trang bị</small></span><b aria-hidden="true">›</b></button>
       </div>
     </section>`);
+  app.querySelector('[data-lobby-companion]').addEventListener('click', () => {
+    runtime.rosterId = META.mascot;
+    runtime.rosterFilter = 'owned';
+    runtime.rosterTab = 'info';
+    navigate('roster');
+  });
   void checkForContentUpdate();
 }
 
@@ -629,7 +692,7 @@ function renderAdventure() {
   const firstClear = challenge && !save.adventure.challengeRecords[challenge.key];
   const mapTitle = challenge ? challenge.boss.name : getAdventureMap(runtime.maps, adventure.map)?.display_name ?? 'Làng Ẩm Thực';
   runtime.worldStick = null;
-  const actionLabel = target ? `Tương tác · ${target.label}` : 'Tiến gần điểm tương tác';
+  const actionLabel = target?.label ?? '';
   const actorRows = adventureParty(save).map((member, index) => {
     const actor = battle?.actors.find((candidate) => candidate.actor_id === member.id) ?? adventureSpiritStats(member, spiritProfile(save, member.id), undefined, save);
     const skill = adventureBalance.ultimates[actor.id];
@@ -642,7 +705,7 @@ function renderAdventure() {
       ${battle ? `<button class="button skill-button" data-ultimate="${actor.id}" title="${escapeAttr(skill.description)}" disabled>
         <span class="key-tag" aria-hidden="true">${index + 1}</span><img class="skill-art" src="${effectArt(actor.element, 'impact')}" alt="">
         <span class="skill-name">${escapeHtml(skill.name)}</span><small data-charge>${actor.energy}%</small>
-      </button>` : `<small>${escapeHtml(skill.name)}</small>`}
+      </button>` : ''}
     </div>`;
   }).join('');
   const resultPanel = battle?.phase === 'battle_end' ? `<div class="result-box ${battle.result}">
@@ -667,19 +730,21 @@ function renderAdventure() {
   const party = `<section class="panel party-panel ${battle ? 'battle-party' : ''}" aria-label="${battle ? 'Tuyệt kỹ đội hình' : 'Đội hình Vị Linh'}">
     ${battle ? '' : '<h2>Đội hình Vị Linh</h2>'}<div class="actor-list">${actorRows}</div></section>`;
   shell(`
-    ${pageHeader(challenge ? 'Khiêu chiến · ' + challenge.name : 'Phiêu lưu', escapeHtml(mapTitle), '', 'home')}
-    <div class="game-layout adventure-layout ${battle ? 'in-battle' : ''}"><section class="panel world-panel">
-      <div class="canvas-wrap"><canvas id="adventure-canvas" width="960" height="540" aria-label="Bản đồ phiêu lưu tương tác"></canvas>
+    <div class="adventure-layout ${battle ? 'in-battle' : ''}">
+      <section class="world-panel" aria-label="${battle ? 'Chiến trường' : 'Thế giới'}">
+        <div class="canvas-wrap"><canvas id="adventure-canvas" width="960" height="540" aria-label="${battle ? 'Trận đánh' : 'Bản đồ phiêu lưu tương tác'}"></canvas></div>
+      </section>
+      <header class="adventure-heading">
+        <div><small class="world-phase">${battle ? challenge ? 'Khiêu chiến' : `Đợt ${battle.wave + 1}/${encounter.waves.length}` : 'Phiêu lưu'}</small><h1>${escapeHtml(mapTitle)}</h1></div>
+        ${sceneMenu()}
+      </header>
       ${battle ? '' : `<div class="minimap-widget">
-        <button class="map-toggle" type="button" data-map-toggle aria-controls="world-minimap" aria-expanded="${runtime.showMinimap}">Bản đồ</button>
+        <button class="map-toggle" type="button" data-map-toggle aria-haspopup="dialog">Bản đồ</button>
         <canvas id="world-minimap" width="180" height="102" aria-hidden="true" ${runtime.showMinimap ? '' : 'hidden'}></canvas>
-      </div><div class="world-stick" data-world-stick aria-hidden="true"><i></i></div>`}
-      <span class="phase-pill world-phase ${battle ? 'combat' : ''}">${battle ? battle.phase === 'battle_end' ? 'Kết quả' : challenge ? 'Boss · ' + challenge.name : `Đợt ${battle.wave + 1}/${encounter.waves.length}` : 'Khám phá'}</span></div>
-      ${battle ? '' : `<p class="controls-hint" data-adventure-message role="status">${escapeHtml(adventure.lastMessage)}</p>
-        <div class="action-row"><button class="button" data-interact ${!target ? 'disabled' : ''}>${escapeHtml(actionLabel)}</button><span class="key-hint">WASD hoặc chạm để đi · E để tương tác</span></div>`}
-      ${resultPanel}
-    </section>
-    <aside class="side-stack">
+      </div><div class="world-stick" data-world-stick aria-hidden="true"><i></i></div>
+      <button class="button adventure-interact" data-interact ${target ? '' : 'hidden'}>${escapeHtml(actionLabel)}</button>
+      <p class="adventure-message controls-hint" data-adventure-message role="status">${escapeHtml(adventure.lastMessage)}</p>`}
+      <aside class="adventure-context">
       ${battle ? `<section class="panel battle-target"><h2 data-enemy-name>Đối thủ</h2><div class="meter enemy"><i data-enemy-hp></i></div>
         <p class="controls-hint" data-adventure-message role="status">${escapeHtml(adventure.lastMessage)}</p>
         ${battleControls ? `<div class="action-row battle-controls">${battleControls}</div>` : ''}
@@ -694,18 +759,17 @@ function renderAdventure() {
           <button class="button light" data-lantern-ward type="button" disabled>F · Đèn Giữ Vị</button></div>` : ''}
         ${battle.encounter === 'tide' && battle.phase === 'battle_running' ? `<div class="tide-controls" data-tide-controls hidden>
           <p data-tide-threat></p><button class="button light" data-tide-retreat type="button">R · Lùi về vùng khô</button></div>` : ''}
-        </section>` : `<section class="panel"><h2>${journal.title}</h2>
-          <p class="quest-objective">${journal.labels[journal.step]?.title ?? journal.nextChapterLabel ?? (journal.completedCampaign ? 'Hành Trình Vị Linh đã hoàn thành' : 'Chương đã hoàn thành')}</p>
-          <div class="action-row">${inRoom ? '<button class="button" data-leave-room>Ra quảng trường</button>'
-            : guideAction ? '<button class="button" data-guide-objective>Dẫn đường</button>' : ''}
-            <button class="button light" data-page="journey">Nhật ký hành trình</button>
-            ${adventureChallenges(save).some(item => item.unlocked) ? '<button type="button" class="button light" data-adventure-challenges>Khiêu chiến</button>' : ''}</div>
+        </section>` : `<section class="quest-hud">
+          <button type="button" data-open-journal aria-haspopup="dialog"><small>${escapeHtml(journal.title)}</small>
+            <strong>${escapeHtml(journal.labels[journal.step]?.title ?? journal.nextChapterLabel ?? (journal.completedCampaign ? 'Hành Trình Vị Linh đã hoàn thành' : 'Chương đã hoàn thành'))}</strong></button>
+          ${inRoom ? '<button class="button light" data-leave-room>Ra quảng trường</button>'
+            : guideAction ? '<button class="button light" data-guide-objective>Dẫn đường</button>' : ''}
         </section>`}
-      ${battle ? '' : party}
-    </aside>${battle ? party : ''}</div>
+      </aside>${party}
+    </div>
   `);
   app.querySelector('[data-interact]')?.addEventListener('click', doAdventureInteract);
-  app.querySelector('[data-adventure-challenges]')?.addEventListener('click', openAdventureChallenges);
+  app.querySelector('[data-open-journal]')?.addEventListener('click', () => renderAdventureJournal(true));
   app.querySelectorAll('[data-profile-id]').forEach(button => button.addEventListener('click', () => {
     runtime.rosterId = button.dataset.profileId;
     runtime.rosterFilter = 'owned';
@@ -737,22 +801,29 @@ function renderAdventure() {
     battle.speed = battle.speed === 2 ? 1 : 2;
     updateBattleHud(battle);
   });
-  app.querySelector('[data-battle-result]')?.addEventListener('click', claimAdventureBattle);
+  if (resultPanel) showBattleResult('Kết quả phiêu lưu', resultPanel);
+  app.querySelector('[data-battle-result]')?.addEventListener('click', claimAdventureBattle, { once: true });
   app.querySelector('[data-adventure-prepare]')?.addEventListener('click', () => {
     if (leaveAdventureDefeat(adventure)) navigate('roster');
   });
   const canvas = app.querySelector('#adventure-canvas');
   canvas?.addEventListener('pointerdown', onWorldPointer);
-  const minimap = app.querySelector('#world-minimap');
-  const toggle = app.querySelector('[data-map-toggle]');
-  if (toggle) {
-    toggle.addEventListener('click', () => {
+  app.querySelector('[data-map-toggle]')?.addEventListener('click', () => {
+    const map = getAdventureMap(runtime.maps, adventure.map);
+    if (!map) return;
+    const points = availableAdventureInteractions(adventure.map, save, runtime.maps);
+    const dialog = openInfoDialog(mapTitle, `<canvas class="world-map-expanded" width="720" height="405" aria-label="Bản đồ khu vực"></canvas>
+      <div class="action-row"><button class="button light" data-minimap-visibility>${runtime.showMinimap ? 'Ẩn bản đồ nhỏ' : 'Hiện bản đồ nhỏ'}</button>
+      ${guideAction ? '<button class="button" data-map-guide>Dẫn đường</button>' : ''}</div>`);
+    drawWorldMinimap(dialog.querySelector('canvas'), map, adventure, points, guideAction);
+    dialog.querySelector('[data-minimap-visibility]').addEventListener('click', event => {
       runtime.showMinimap = !runtime.showMinimap;
-      minimap.hidden = !runtime.showMinimap;
-      toggle.setAttribute('aria-expanded', String(runtime.showMinimap));
+      app.querySelector('#world-minimap').hidden = !runtime.showMinimap;
+      event.currentTarget.textContent = runtime.showMinimap ? 'Ẩn bản đồ nhỏ' : 'Hiện bản đồ nhỏ';
     });
-    runtime.minimapObjective = guideAction;
-  }
+    dialog.querySelector('[data-map-guide]')?.addEventListener('click', () => { dialog.close(); guideToObjective(guideAction); });
+  });
+  runtime.minimapObjective = guideAction;
   const stick = app.querySelector('[data-world-stick]');
   if (stick) bindWorldStick(stick, input => {
     runtime.worldStick = input;
@@ -763,14 +834,13 @@ function renderAdventure() {
   if (battle) updateBattleHud(battle);
 }
 
-function renderAdventureJournal() {
+function renderAdventureJournal(asOverlay = false) {
   const { save, adventure } = runtime;
   const journal = adventureJournal(save);
   const guideAction = journal.action ?? journal.nextChapterAction;
   const chronicle = adventureChronicle(save);
   const statusText = { done: 'Hoàn thành', current: 'Mục tiêu hiện tại', upcoming: 'Sắp tới' };
-  shell(`
-    ${pageHeader('Phiêu lưu', 'Nhật ký hành trình', '', 'adventure')}
+  const journalContent = `
     <section class="panel journey-panel">
       <h2>${journal.title}</h2>
       ${journal.completedCampaign ? '<p class="quest-objective">Hành Trình Vị Linh đã hoàn thành</p>' : ''}
@@ -784,7 +854,7 @@ function renderAdventureJournal() {
       <div class="action-row">
         ${guideAction && !adventure.battle ? `<button class="button" data-guide-objective>${guideAction === ROOM_EXIT ? 'Dẫn đến lối ra' : 'Dẫn đường'}</button>` : ''}
         ${!adventure.battle && adventureChallenges(save).some(item => item.unlocked) ? '<button type="button" class="button light" data-adventure-challenges>Khiêu chiến</button>' : ''}
-        <button class="button light" data-page="adventure">Về bản đồ</button>
+        ${asOverlay ? '' : '<button class="button light" data-scene-back>Về bản đồ</button>'}
       </div>
     </section>
     <section class="panel chronicle-panel" aria-label="Manga Hành Trình Vị Linh">
@@ -794,10 +864,16 @@ function renderAdventureJournal() {
         <div class="chronicle-copy"><span>Chương ${chapter.number}${chapter.scenes.length ? '' : ' · Chưa mở'}</span><h3>${chapter.title}</h3>
           ${chapter.scenes.map(scene => `<button class="button light compact" data-story-replay="${scene}">${CHAPTER_DIALOGUES[scene].title}</button>`).join('')}
         </div></article>`).join('')}</div>
-    </section>`);
-  app.querySelector('[data-guide-objective]')?.addEventListener('click', () => guideToObjective(guideAction));
-  app.querySelector('[data-adventure-challenges]')?.addEventListener('click', openAdventureChallenges);
-  app.querySelectorAll('[data-story-replay]').forEach(button => {
+    </section>`;
+  let dialog;
+  if (asOverlay) {
+    dialog = openInfoDialog('Nhật ký hành trình', journalContent);
+    dialog.classList.add('quest-dialog');
+  } else shell(pageHeader('Phiêu lưu', 'Nhật ký hành trình', '') + journalContent);
+  const host = dialog ?? app;
+  host.querySelector('[data-guide-objective]')?.addEventListener('click', () => { dialog?.close(); guideToObjective(guideAction); });
+  host.querySelector('[data-adventure-challenges]')?.addEventListener('click', () => { dialog?.close(); openAdventureChallenges(); });
+  host.querySelectorAll('[data-story-replay]').forEach(button => {
     button.addEventListener('click', () => openStoryDialog(app, button.dataset.storyReplay));
   });
 }
@@ -971,7 +1047,7 @@ function openVillageService(service, offer) {
     runtime.storeTab = 'gear';
     return navigate('store');
   }
-  if (service === 'journal') return navigate('journey');
+  if (service === 'journal') return renderAdventureJournal(true);
   if (service !== 'supplies' || !offer) return;
   const affordable = runtime.save.player.gold >= offer.gold;
   const dialog = openInfoDialog('Tiệm Nguyên Liệu', `
@@ -1016,11 +1092,11 @@ function claimAdventureBattle() {
 }
 
 function onWorldPointer(event) {
-  if (app.querySelector('dialog[open]')) return;
+  if (app.querySelector('dialog[open], .match-menu[open]')) return;
   const canvas = event.currentTarget;
   const rect = canvas.getBoundingClientRect();
   const battle = runtime.adventure.battle;
-  const view = adventureViewport(battle, compactBattle.matches, portraitBattle.matches);
+  const view = adventureSceneCamera(canvas);
   const x = view.left + (event.clientX - rect.left) / rect.width * view.width;
   const y = view.top + (event.clientY - rect.top) / rect.height * view.height;
   if (battle) {
@@ -1047,17 +1123,21 @@ function queueWorldPath(destination, action = null) {
   return path.length;
 }
 
-function drawAdventureFrame(deltaSeconds) {
+function adventureSceneCamera(canvas) {
+  const { adventure, maps } = runtime;
+  if (adventure.battle) {
+    const arena = adventureViewport(true, compactBattle.matches, portraitBattle.matches);
+    return battleCamera(arena, canvas.clientWidth, canvas.clientHeight);
+  }
+  return adventureCamera(adventure, getAdventureMap(maps, adventure.map)?.world ?? WORLD,
+    canvas.clientWidth, canvas.clientHeight);
+}
+
+function drawAdventureFrame(deltaSeconds, modalOpen) {
   const canvas = app.querySelector('#adventure-canvas');
   if (!canvas) return;
   const adventure = runtime.adventure;
-  const view = adventureViewport(adventure.battle, compactBattle.matches, portraitBattle.matches);
-  const resolution = canvasResolution(canvas, view.width, view.height);
-  const context = canvasContext(canvas, resolution, view.width, view.height, view.left, view.top);
-  if (!context) return;
-  const camera = resolveCameraViewport(adventure.x, adventure.y, { width: 960, height: 540 }, WORLD.width, WORLD.height);
-  const cameraContext = { ...camera };
-  if (adventure.walkPath?.length && !adventure.battle && runtime.heldKeys.size === 0 && !runtime.worldStick) {
+  if (!modalOpen && adventure.walkPath?.length && !adventure.battle && runtime.heldKeys.size === 0 && !runtime.worldStick) {
     const waypoint = adventure.walkPath[0];
     if (Math.hypot(waypoint.x - adventure.x, waypoint.y - adventure.y) < .01) adventure.walkPath.shift();
     const next = adventure.walkPath[0];
@@ -1071,7 +1151,7 @@ function drawAdventureFrame(deltaSeconds) {
       if (action && nearestInteraction(adventure, runtime.save, runtime.maps)?.id === action) return doAdventureInteract();
     }
   }
-  if (adventure.battle) setAdventureInput(adventure, 0, 0);
+  if (modalOpen || adventure.battle) setAdventureInput(adventure, 0, 0);
   else if (runtime.heldKeys.size) {
     const x = Number(runtime.heldKeys.has('ArrowRight') || runtime.heldKeys.has('d')) - Number(runtime.heldKeys.has('ArrowLeft') || runtime.heldKeys.has('a'));
     const y = Number(runtime.heldKeys.has('ArrowDown') || runtime.heldKeys.has('s')) - Number(runtime.heldKeys.has('ArrowUp') || runtime.heldKeys.has('w'));
@@ -1090,7 +1170,11 @@ function drawAdventureFrame(deltaSeconds) {
   const oldX = adventure.x;
   const oldY = adventure.y;
   const playbackDelta = adventure.battle?.paused ? 0 : deltaSeconds * (adventure.battle?.speed ?? 1);
-  stepAdventure(adventure, runtime.save, playbackDelta, runtime.maps);
+  if (!modalOpen) stepAdventure(adventure, runtime.save, playbackDelta, runtime.maps);
+  const view = adventureSceneCamera(canvas);
+  const resolution = canvasResolution(canvas, view.width, view.height);
+  const context = canvasContext(canvas, resolution, view.width, view.height, view.left, view.top);
+  if (!context) return;
   const moved = Math.hypot(adventure.x - oldX, adventure.y - oldY);
   if (!adventure.battle && moved > 0) runtime.audio.footstep(adventure.map, moved);
   syncAdventureAnimations(adventure, moved > .1);
@@ -1105,12 +1189,19 @@ function drawAdventureFrame(deltaSeconds) {
     updateBattleHud(adventure.battle);
   }
   const message = app.querySelector('[data-adventure-message]');
-  if (message.textContent !== adventure.lastMessage) message.textContent = adventure.lastMessage;
+  if (message && message.textContent !== adventure.lastMessage) message.textContent = adventure.lastMessage;
   const target = nearestInteraction(adventure, runtime.save, runtime.maps);
   const interactButton = app.querySelector('[data-interact]');
   if (interactButton && !adventure.battle) {
-    interactButton.disabled = !target;
-    interactButton.textContent = target ? `Tương tác · ${target.label}` : 'Tiến gần một điểm tương tác';
+    interactButton.hidden = !target;
+    if (target) {
+      const label = 'Tương tác · ' + target.label;
+      if (interactButton.textContent !== label) interactButton.textContent = label;
+      const x = (target.x - view.left) / view.width;
+      const y = (target.y - view.top) / view.height;
+      interactButton.style.left = Math.min(77, Math.max(23, x * 100)) + '%';
+      interactButton.style.top = Math.min(72, Math.max(29, y * 100 - 7)) + '%';
+    }
   }
   const now = Date.now();
   if (now - runtime.lastSavedLocation > 900 && !adventure.battle
@@ -1126,12 +1217,11 @@ function drawAdventureFrame(deltaSeconds) {
   canvas.dataset.animationClip = heroAnimation?.requestedClipId ?? 'idle';
   canvas.dataset.animationFallback = String(heroAnimation?.missingClip ?? true);
   canvas.dataset.battleRig = adventure.battle && spriteRenderer.rigs.has(HERO_ID) ? 'bunbo' : '';
+  context.fillStyle = '#1b3028';
+  context.fillRect(view.left, view.top, view.width, view.height);
   if (adventure.battle) drawBattleScene(context, adventure.battle, view);
   else {
-    context.save();
-    context.translate(-cameraContext.x, -cameraContext.y);
     drawWorldScene(context, adventure, runtime.save, moved > .25);
-    context.restore();
     const minimap = app.querySelector('#world-minimap:not([hidden])');
     const map = getAdventureMap(runtime.maps, adventure.map);
     if (minimap && map) drawWorldMinimap(minimap, map, adventure,
@@ -1464,8 +1554,16 @@ function matchCardArt(card) {
 }
 
 function matchHeader(title, controls) {
-  return `<header class="match-header"><h1>${title}</h1>
-    <details class="match-menu"><summary aria-label="Tùy chọn trận đấu">⋯</summary><div>${controls}</div></details></header>`;
+  return `<header class="match-header"><h1>${title}</h1><small class="rotate-hint">Xoay ngang để mở rộng sân</small>
+    ${sceneMenu(controls)}</header>`;
+}
+
+function sceneMenu(controls = '') {
+  return `<details class="match-menu"><summary aria-label="Menu game">☰</summary><div>${controls}
+    <button type="button" data-scene-settings>Cài đặt</button>
+    ${document.fullscreenEnabled ? '<button type="button" data-fullscreen>Toàn màn hình</button>' : ''}
+    <button type="button" data-page="home">Về sảnh</button>
+    </div></details>`;
 }
 
 function tcgCommander(match, index, targets, strikes) {
@@ -1617,7 +1715,7 @@ function renderTcg() {
     ${recipe ? `<small class="tcg-recipe-hint" title="${escapeAttr(recipe.reward)}">Combo · ${recipe.name}</small>` : ''}
     <button class="button" data-tcg-cast ${runtime.selectedTarget ? '' : 'disabled'}>${verb}</button><button class="button light" data-tcg-cancel-spell>Hủy chọn</button>
   </div>` : '';
-  const action = match.result ? '<button class="button" data-tcg-new>Ván mới</button>'
+  const action = match.result ? ''
     : opening ? `<button class="button" data-tcg-mulligan>${runtime.mulligan.size ? 'Đổi ' + runtime.mulligan.size + ' lá' : 'Giữ bài và vào trận'}</button>`
     : spell ? spellControls
     : attacker ? strikeControls
@@ -1633,7 +1731,7 @@ function renderTcg() {
       <button type="button" data-tcg-graveyard ${user.graveyard.length ? '' : 'disabled'}>Mộ bài · ${user.graveyard.length}</button>
       <button type="button" data-tcg-restart>Ván mới · Bot ${TCG_DIFFICULTIES[match.difficulty] ?? TCG_DIFFICULTIES.normal}</button>
       ${match.result ? '' : '<button type="button" data-tcg-surrender>Đầu hàng</button>'}`)}
-    <div class="match-layout tcg-match" data-targeting="${Boolean(spell)}" data-tcg-phase="${match.phase}" ${table ? 'data-direct' : ''}>
+    <div class="match-layout tcg-match" data-match-result="${Boolean(match.result)}" data-targeting="${Boolean(spell)}" data-tcg-phase="${match.phase}" ${table ? 'data-direct' : ''}>
       <section class="duel-field" aria-label="Bàn đấu thẻ">
         ${tcgCommander(match, 1, targets, strikes)}
         <div class="unit-row enemy-row" data-tcg-row="1">${tcgLanes(bot.units, false, declared, blocked, targetIds, defending, canStrike, strikes)}</div>
@@ -1651,18 +1749,21 @@ function renderTcg() {
         ${tcgStageBanners(match)}
         ${runtime.tcgRecipeFlash?.matchId === match.battleId && runtime.tcgRecipeFlash.expires > performance.now() ? `<span class="tcg-recipe-flash" role="status">Combo · ${runtime.tcgRecipeFlash.name}</span>` : ''}
       </section>
-      <section class="match-command tcg-hand-dock" aria-label="Điều khiển đấu thẻ">
+      ${match.result ? '' : `<section class="match-command tcg-hand-dock" aria-label="Điều khiển đấu thẻ">
         ${trapChoice ? tcgTrapPanel(match) : defending ? tcgDefensePanel(incoming, user.units) : `
           <div class="hand-heading"><strong>${opening ? table ? 'Đổi tối đa 3 lá' : 'Chọn lá muốn đổi' : 'Bài trên tay'}</strong><span>${!opening && user.chainElement && !user.resonanceUsed ? `Cộng hưởng ${ELEMENT_NAMES[user.chainElement]} · ` : ''}${user.hand.length}/${tcgHandLimit(match)} lá</span></div>
           <div class="hand-row">${hand || '<p class="empty-message">Không còn bài trên tay.</p>'}</div>
           ${showCombat && selected ? '<p class="match-hint">Chạm Vị Linh để chọn quân tấn công.</p>' : ''}
-          ${action ? `<div class="match-actions">${action}</div>` : ''}`}
-        ${match.result ? `<p class="tcg-result-note">${escapeHtml(match.log.find(entry => entry.type === 'match_finished')?.text ?? phaseLabel)}${challenge && match.winner === 0 ? ` Kỷ lục thử thách: vòng ${runtime.save.tcgChallengeBests[challenge.id]}.` : ''}</p>` : ''}
+          ${action ? `<div class="match-actions tcg-actions">${action}</div>` : ''}`}
         ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}
-      </section>
+      </section>`}
     </div>
   `);
-  tcgCardMotion.render(app, user.hand, app.dataset.motion === 'reduced');
+  if (match.result) showBattleResult('Kết quả đấu thẻ', `<div class="result-box ${match.winner === 0 ? 'victory' : match.winner === null ? 'draw' : 'defeat'}">
+    <strong>${phaseLabel}</strong><p>${escapeHtml(match.log.find(entry => entry.type === 'match_finished')?.text ?? phaseLabel)}
+    ${challenge && match.winner === 0 ? ` Kỷ lục thử thách: vòng ${runtime.save.tcgChallengeBests[challenge.id]}.` : ''}</p>
+    <div class="action-row"><button class="button" data-tcg-new>Ván mới</button></div></div>`);
+  else tcgCardMotion.render(app, user.hand, app.dataset.motion === 'reduced');
   app.querySelector('[data-tcg-log]').addEventListener('click', () => openInfoDialog('Nhật ký trận', renderTextLog(match.log)));
   app.querySelector('[data-tcg-rules]').addEventListener('click', showTcgRules);
   app.querySelector('[data-tcg-challenges]').addEventListener('click', () => openTcgSetup(match, true));
@@ -1678,7 +1779,11 @@ function renderTcg() {
   }));
   app.querySelector('[data-tcg-graveyard]').addEventListener('click', () => showTcgGraveyard(user.graveyard));
   app.querySelector('[data-tcg-surrender]')?.addEventListener('click', () => {
-    if (confirm('Đầu hàng ván đấu này?')) actTcg(() => surrenderTcg(runtime.tcg, 0));
+    const dialog = openInfoDialog('Đầu hàng ván đấu này?', '<button type="button" class="button danger" data-confirm-surrender>Đầu hàng</button>');
+    dialog.querySelector('[data-confirm-surrender]').addEventListener('click', () => {
+      dialog.close();
+      actTcg(() => surrenderTcg(runtime.tcg, 0));
+    }, { once: true });
   });
   function selectSpellTarget(value) {
     runtime.selectedTarget = value || null;
@@ -1742,7 +1847,11 @@ function renderTcg() {
   if (trapChoice) bindTcgTrapPanel(match);
   app.querySelector('[data-tcg-skip]')?.addEventListener('click', () => actTcg(() => attackTcg(runtime.tcg, 0, [])));
   app.querySelector('[data-tcg-end]')?.addEventListener('click', () => actTcg(() => endTcgTurn(runtime.tcg, 0)));
-  app.querySelector('[data-tcg-new]')?.addEventListener('click', () => openTcgSetup(match));
+  app.querySelector('[data-tcg-new]')?.addEventListener('click', () => {
+    const result = app.querySelector('.battle-result-dialog');
+    const setup = openTcgSetup(match);
+    setup?.addEventListener('close', () => result?.querySelector('[data-tcg-new]')?.focus(), { once: true });
+  });
   app.querySelector('[data-tcg-restart]')?.addEventListener('click', () => openTcgSetup(match));
   saveNow();
 }
@@ -1816,6 +1925,16 @@ function bindTcgDrag(match, canStrike) {
     preview({ card, unit }, ghost) {
       paintTableGhost(ghost, matchCardArt(card ?? unit), cardName(card ?? unit));
     },
+    inspect({ card, unit }) {
+      const selected = card ?? unit;
+      showTcgCard(selected.card_id, selected.instance_id);
+    },
+    reject({ card, unit }) {
+      runtime.notice = unit ? 'Chọn mục tiêu đang được đánh dấu.'
+        : card.type === 'unit' ? 'Thả Vị Linh vào ô trống của bạn.'
+        : card.type === 'trap' ? 'Thả lá bẫy vào ô bẫy của bạn.' : 'Chọn mục tiêu hợp lệ cho lá bài.';
+      renderTcg();
+    },
   });
 }
 
@@ -1873,6 +1992,7 @@ function openTcgSetup(match, challenges = false) {
     renderTcg();
   });
   update();
+  return dialog;
 }
 
 function actTcg(action) {
@@ -2112,7 +2232,7 @@ function renderDeck() {
   }
   const presets = tcgPresets();
   const library = [...runtime.cards.cards].sort((a, b) => a.cost - b.cost || a.display_name.localeCompare(b.display_name, 'vi'));
-  shell(`${pageHeader('Thẻ chiến thuật', 'Bộ bài của bạn', 'Chọn 24 lá, tối đa hai bản sao mỗi lá.', 'tcg')}
+  shell(`${pageHeader('Thẻ chiến thuật', 'Bộ bài của bạn', 'Chọn 24 lá, tối đa hai bản sao mỗi lá.')}
     <section class="panel deck-editor">
       <div class="deck-workbench">
         <div class="deck-summary" data-deck-drop><div><strong>${count}/${TCG_TABLE_DECK_SIZE} lá</strong><small>${totals.unit} Vị Linh · ${totals.spell} phép · ${totals.trap} bẫy</small><small>Kéo thẻ vào đây để thêm.</small></div>
@@ -2216,11 +2336,14 @@ function renderTextLog(items) {
 function openInfoDialog(title, body) {
   const menu = app.querySelector('.match-menu[open]');
   const previousFocus = menu?.querySelector('summary') ?? document.activeElement;
+  runtime.heldKeys.clear();
+  runtime.worldStick = null;
   if (menu) menu.open = false;
   const dialog = document.createElement('dialog');
+  const titleId = 'game-info-' + crypto.randomUUID();
   dialog.className = 'game-info-dialog';
-  dialog.setAttribute('aria-labelledby', 'game-info-title');
-  dialog.innerHTML = `<header class="story-heading"><h2 id="game-info-title">${escapeHtml(title)}</h2>
+  dialog.setAttribute('aria-labelledby', titleId);
+  dialog.innerHTML = `<header class="story-heading"><h2 id="${titleId}">${escapeHtml(title)}</h2>
     <button class="button light compact" type="button" data-close-info aria-label="Đóng" autofocus>×</button></header>${body}`;
   dialog.querySelector('[data-close-info]').addEventListener('click', () => dialog.close());
   dialog.addEventListener('close', () => {
@@ -2230,6 +2353,17 @@ function openInfoDialog(title, body) {
   app.append(dialog);
   dialog.showModal();
   return dialog;
+}
+
+function showBattleResult(title, content) {
+  const dialog = openInfoDialog(title, content);
+  dialog.classList.add('battle-result-dialog');
+  dialog.querySelector('[data-close-info]').remove();
+  dialog.querySelector('.result-box').insertAdjacentHTML('beforeend',
+    '<div class="action-row"><button type="button" class="button light" data-result-home>Về sảnh</button></div>');
+  dialog.querySelector('[data-result-home]').addEventListener('click', () => { dialog.close(); navigate('home'); }, { once: true });
+  dialog.addEventListener('cancel', event => event.preventDefault());
+  dialog.querySelector('.result-box button')?.focus({ preventScroll: true });
 }
 
 function renderChess() {
@@ -2309,9 +2443,9 @@ function renderChess() {
       <div><small>${locking ? 'Đã khóa' : preparing ? 'Chuẩn bị' : replaying ? 'Giao tranh' : 'Kết quả'}</small>
         ${preparing ? `<b class="${run.preparationSeconds <= 5 ? 'clock-urgent' : ''}" data-chess-clock role="timer">${Math.ceil(run.preparationSeconds)} s</b>` : `<b>${run.wins}T · ${run.losses}B</b>`}</div>
     </div>
-    <div class="match-layout chess-match"><section class="chess-stage" aria-label="Bàn cờ">
+    <div class="match-layout chess-match" data-chess-phase="${preparing ? 'prep' : replaying ? 'combat' : locking ? 'locking' : 'result'}"><section class="chess-stage" aria-label="Bàn cờ">
       ${replaying ? '<div class="chess-replay-stage"><canvas class="chess-replay" id="chess-replay" width="760" height="480" aria-label="Giao tranh Auto Chess"></canvas></div>'
-        : `<div class="chess-formation ${run.lobby ? 'chess-hex' : ''}">
+        : !preparing && !locking ? '<div class="chess-result-stage" aria-hidden="true"></div>' : `<div class="chess-formation ${run.lobby ? 'chess-hex' : ''}">
           <div class="formation-label rival-label">${escapeHtml(opponentName)}${opponent ? `${opponent.neutral ? '' : ` <span>${opponent.hp} HP</span>`}<span class="rival-lineup" aria-hidden="true">${opponent.units.map(chessPortrait).join('')}</span>` : ''}</div>
           <div class="chess-grid enemy-formation" role="group" aria-label="Nửa bàn đối thủ">${enemyCells}</div>
           <div class="formation-divider" aria-hidden="true"><i>◆</i></div>
@@ -2319,11 +2453,10 @@ function renderChess() {
           <div class="formation-label">Đội hình <span>${run.board.length}/${run.level} quân</span></div>
         </div>`}
       ${preparing ? `<div class="chess-bench"><div class="bench-heading"><strong>Băng ghế · ${run.bench.length}/9</strong>${run.lobby ? `<button type="button" class="chess-bag" data-chess-items>Túi vật phẩm · ${run.items.length}</button>` : ''}</div><div class="bench-row" data-chess-bench-zone>${bench}</div></div>` : ''}
-    </section><section class="match-command chess-controls" aria-label="Điều khiển đấu cờ">
-      ${result}
+    </section>${preparing || replaying || locking ? `<section class="match-command chess-controls" aria-label="Điều khiển đấu cờ">
       ${replaying ? '<div class="replay-controls"><progress data-chess-replay-progress max="1" value="0" aria-label="Tiến độ giao tranh"></progress><div class="match-actions"><button class="button light" data-chess-pause>Tạm dừng</button><button class="button light" data-chess-speed aria-pressed="false">2×</button><button class="button" data-chess-skip>Bỏ qua</button></div></div>' : ''}
       ${preparing ? `<div class="shop-heading"><strong>Cửa hàng</strong><span>${hasSelection ? selectionHint : `${run.shopLocked ? 'Đã khóa · ' : ''}Lãi +${Math.min(Math.floor(run.gold / 10), 5)} ◈`}</span></div>
-      <div class="shop-row">${shop}</div><div class="match-actions shop-tools">
+      <div class="shop-row">${shop}</div><div class="chess-shop-actions"><div class="match-actions shop-tools">
         <button class="button light" data-chess-refresh ${run.gold < 2 || run.shopLocked ? 'disabled' : ''}>Làm mới · 2 ◈</button>
         <button class="button light" data-chess-xp ${run.gold < 4 || run.level >= 9 ? 'disabled' : ''}>${run.lobby ? '+4 XP' : 'Nâng cấp'} · 4 ◈</button>
         <button class="button light" data-chess-lock aria-pressed="${run.shopLocked}">${run.shopLocked ? 'Mở khóa' : 'Khóa chợ'}</button>
@@ -2332,11 +2465,12 @@ function renderChess() {
         ${hasSelection ? `${runtime.selectedBoard !== null ? `<button class="button light" data-chess-bench ${run.bench.length >= 9 ? 'disabled' : ''}>Rút về ghế</button>` : ''}
           <button class="button danger" data-chess-sell data-chess-sell-zone>Bán quân</button>` : `<button type="button" class="button light" data-chess-synergy>Hiệp lực · ${activeSynergies}</button><span class="chess-sell-zone" data-chess-sell-zone>Kéo để bán</span>`}
         <button class="button" data-chess-fight ${!run.board.length || !opponent ? 'disabled' : ''}>Chiến đấu</button>
-      </div>` : ''}
+      </div></div>` : ''}
       ${locking ? '<p class="match-hint" role="status">Đang vào giao tranh…</p>' : ''}
       ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}
-    </section></div>
+    </section>` : ''}</div>
   `);
+  if (result) showBattleResult('Kết quả đấu cờ', result);
   app.querySelector('[data-chess-log]').addEventListener('click', () => openInfoDialog('Nhật ký đấu trường', renderTextLog(run.log)));
   app.querySelector('[data-chess-standings]').addEventListener('click', () => showChessStandings(run));
   app.querySelector('[data-chess-items]')?.addEventListener('click', () => showChessItems(run));
@@ -2406,7 +2540,7 @@ function lockChessRound() {
 
 function updateChessClock(delta) {
   const run = runtime.chess;
-  if (run?.phase !== 'prepare' || document.hidden || app.querySelector('dialog[open]')) return;
+  if (run?.phase !== 'prepare' || document.hidden || app.querySelector('dialog[open], .match-menu[open]')) return;
   if (runtime.chessLock !== null) {
     runtime.chessLock = Math.max(0, runtime.chessLock - delta);
     if (runtime.chessLock === 0) {
@@ -2732,8 +2866,10 @@ function renderStore() {
   const member = save.roster.find(spirit => spirit.id === runtime.storeMember) ?? adventureParty(save)[0];
   const tabs = { all: 'Tất cả', consumable: 'Hồi phục', gear: 'Trang bị', material: 'Vật liệu', bag: 'Túi đồ' };
   const inBattle = Boolean(runtime.adventure.battle);
-  shell(`${pageHeader('Làng Ẩm Thực', 'Cửa hàng Adventure', '', runtime.storeFrom)}
-    <section class="meta-store panel"><div class="meta-banner-tabs" role="group" aria-label="Mục cửa hàng">
+  shell(`${pageHeader('Làng Ẩm Thực', 'Cửa hàng Adventure', '')}
+    <section class="meta-store"><div class="store-shopkeeper" aria-label="Tiệm Nguyên Liệu">
+      <img src="${actorArt('npc_lilia')}" alt=""><div><small>Tiệm Nguyên Liệu</small><strong>Lilia</strong></div>
+    </div><div class="store-workspace"><div class="meta-banner-tabs" role="group" aria-label="Mục cửa hàng">
     ${Object.entries(tabs).map(([id, label]) => `<button class="button light" data-store-tab="${id}" aria-pressed="${id === storeTab}">${label}</button>`).join('')}</div>
     <label>Vị Linh <select data-store-member>${save.roster.map(spirit => `<option value="${escapeAttr(spirit.id)}"
       ${spirit.id === member.id ? 'selected' : ''}>${escapeHtml(SPIRITS[spirit.id]?.name)}</option>`).join('')}</select></label>
@@ -2743,7 +2879,7 @@ function renderStore() {
       .filter(([, offer]) => storeTab === 'all' || offer.category === storeTab).map(([id, offer]) =>
         `<article><h2>${offer.name}</h2><p>${storeDetail(offer)}</p><button class="button" data-store-offer="${id}"
           ${save.player.gold < offer.price ? 'disabled' : ''}>Mua · ${offer.price} ◈</button></article>`).join('')}</div>`}</fieldset>
-    ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}</section>`);
+    ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}</div></section>`);
   app.querySelectorAll('[data-store-tab]').forEach(button => button.addEventListener('click', () => {
     runtime.storeTab = button.dataset.storeTab;
     runtime.notice = '';
@@ -2791,13 +2927,14 @@ function renderRoster() {
   const title = `Hệ ${ELEMENT_NAMES[element]} · ${SPIRIT_ROLES[role]}`;
   const party = adventureParty(save);
   const deployed = party.some(actor => actor.id === member?.id);
-  shell(`${pageHeader('Phiêu lưu', 'Hồ sơ Vị Linh', '', 'adventure')}
-    <section class="panel spirit-profile">
+  const from = available.findIndex(spirit => spirit.id === definition.id);
+  shell(`<section class="spirit-profile" aria-label="Hồ sơ Vị Linh">
       <div class="spirit-portrait" style="--unit-color:${elementColors[element]}" data-rarity="${rarity}">
         ${spiritImage(definition.id, Boolean(member))}
+        ${spriteRenderer.sheets.has(definition.id) ? `<div class="spirit-model" aria-label="Mô hình chibi">${boardChibi(definition.id, 'roster:' + definition.id, 'E', '')}</div>` : ''}
         <div class="spirit-portrait-label"><span>${rarity} · ${title}</span><h2>${escapeHtml(name)}</h2></div>
       </div>
-      <div class="spirit-detail">
+      <div class="spirit-detail"><h1 class="spirit-scene-heading">Hồ sơ Vị Linh</h1>
         ${member ? `<div class="spirit-tabs" role="group" aria-label="Mục hồ sơ">${Object.entries(SPIRIT_TABS).map(([id, label]) =>
           `<button class="button light" data-spirit-tab="${id}" aria-pressed="${runtime.rosterTab === id}">${label}</button>`).join('')}</div>
         <div class="spirit-tab-body">${renderSpiritTab(member, profile, battleActive)}</div>
@@ -2808,12 +2945,26 @@ function renderRoster() {
         ${battleActive && runtime.rosterTab !== 'skills' ? '<p class="muted-copy">Kết thúc trận Adventure để nâng cấp, đổi trang bị hoặc tặng quà.</p>' : ''}
         ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}
       </div>
+      <div class="spirit-browse"><button type="button" class="button light" data-roster-cycle="-1" aria-label="Vị Linh trước" ${available.length < 2 ? 'disabled' : ''}>‹</button>
       <label class="meta-roster-filter">Bộ sưu tập <select data-roster-filter>${Object.entries({ owned: 'Đã chiêu mộ', all: 'Tất cả', N: 'N', R: 'R', SR: 'SR', SSR: 'SSR' }).map(([id, label]) =>
         `<option value="${id}" ${runtime.rosterFilter === id ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
+      <button type="button" class="button light" data-roster-cycle="1" aria-label="Vị Linh tiếp theo" ${available.length < 2 ? 'disabled' : ''}>›</button></div>
       <div class="spirit-picker meta-roster-picker" role="group" aria-label="Chọn Vị Linh">${available.map(spirit =>
         `<button class="spirit-choice" data-rarity="${spirit.rarity}" data-spirit-choice="${spirit.id}" aria-pressed="${spirit.id === definition.id}">
           ${spiritImage(spirit.id)}<span>${spirit.name}</span><small>${spirit.rarity}${save.roster.some(actor => actor.id === spirit.id) ? '' : ' · Chưa có'}</small></button>`).join('')}</div>
     </section>`);
+  if (runtime.spiritUpgrade?.id === definition.id && runtime.spiritUpgrade.until > performance.now()) {
+    app.querySelector('.spirit-portrait').classList.add('spirit-upgrade-flash');
+  }
+  app.querySelectorAll('[data-roster-cycle]').forEach(button => button.addEventListener('click', () => {
+    const offset = Number(button.dataset.rosterCycle);
+    runtime.rosterId = available[(from + offset + available.length) % available.length].id;
+    runtime.notice = '';
+    renderRoster();
+    app.querySelector(`[data-roster-cycle="${offset}"]`)?.focus({ preventScroll: true });
+  }));
+  const activePortrait = app.querySelector('[data-spirit-choice][aria-pressed="true"]');
+  activePortrait?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   app.querySelector('[data-roster-filter]').addEventListener('change', event => {
     runtime.rosterFilter = event.target.value;
     renderRoster();
@@ -2844,6 +2995,7 @@ function renderRoster() {
       runtime.save = changeSpiritProgress(runtime.save, { type, id: member.id, gearId }, Boolean(runtime.adventure.battle));
       saveNow();
       runtime.audio.play('sfx_ui_confirm');
+      if (type === 'rank' || type === 'awaken') runtime.spiritUpgrade = { id: member.id, until: performance.now() + 500 };
       runtime.notice = ({ rank: 'Đã nâng cấp Vị Linh.', awaken: 'Đã thức tỉnh Vị Linh.', craft: 'Đã chế tác và đưa vào kho.', equip: 'Đã trang bị.', unequip: 'Đã đưa trang bị về kho.', gift: 'Mức quan hệ đã tăng.' })[type];
     } catch (error) {
       runtime.notice = error.message;
@@ -2907,21 +3059,28 @@ function renderSpiritTab(member, profile, battleActive) {
 
 function spiritCostLabel(cost) { return `${cost.gold} ◈ + ${cost.essence} ✦`; }
 
-function renderSettings() {
+function renderSettings(asOverlay = false) {
   const settings = runtime.save.settings;
   const guestActions = runtime.cloud ? '' : '<div class="action-row"><button class="button light" data-page="title">Về màn hình bắt đầu</button><button class="button danger" data-reset-save>Khởi tạo lại tiến trình</button></div>';
   const cloudPanel = runtime.cloud ? `<section class="settings-list panel cloud-panel"><h2>Tài khoản ${escapeHtml(runtime.account.username)}</h2><p>Tiến trình luyện tập lưu trên máy chủ.</p><p role="status" data-cloud-status></p><div class="action-row"><button class="button light" data-cloud-action="retry" hidden>Thử lưu lại</button><button class="button light" data-cloud-action="reload" hidden>Tải bản trên máy chủ</button><button class="button light" data-cloud-action="reauth" hidden>Đăng nhập lại</button><button class="button danger" data-cloud-action="logout">Lưu và đăng xuất</button></div></section>` : '';
-  shell(`${pageHeader(runtime.cloud ? 'Tài khoản' : 'Thiết bị này', 'Cài đặt', '', 'home')}<section class="settings-list panel">${[['music', 'Nhạc'], ['sfx', 'Hiệu ứng'], ['ambience', 'Môi trường']].map(([key, label]) => `<label class="setting-row"><span>${label}</span><input type="range" min="0" max="100" value="${settings[key]}" data-setting="${key}"><b>${settings[key]}%</b></label>`).join('')}<label class="setting-row"><span>Giảm chuyển động</span><input type="checkbox" data-setting-motion ${settings.reducedMotion ? 'checked' : ''}><b>${settings.reducedMotion ? 'Bật' : 'Tắt'}</b></label>${guestActions}</section>${cloudPanel}`);
-  app.querySelectorAll('[data-setting]').forEach((input) => input.addEventListener('input', () => { runtime.save.settings[input.dataset.setting] = Number(input.value); input.nextElementSibling.textContent = `${input.value}%`; runtime.audio.setSettings(runtime.save.settings); saveNow(); }));
-  app.querySelector('[data-setting-motion]')?.addEventListener('change', (event) => { runtime.save.settings.reducedMotion = event.target.checked; syncMotion(); saveNow(); renderSettings(); });
-  app.querySelector('[data-reset-save]')?.addEventListener('click', () => {
+  const content = `<section class="settings-list panel">${[['music', 'Nhạc'], ['sfx', 'Hiệu ứng'], ['ambience', 'Môi trường']].map(([key, label]) => `<label class="setting-row"><span>${label}</span><input type="range" min="0" max="100" value="${settings[key]}" data-setting="${key}"><b>${settings[key]}%</b></label>`).join('')}<label class="setting-row"><span>Giảm chuyển động</span><input type="checkbox" data-setting-motion ${settings.reducedMotion ? 'checked' : ''}><b>${settings.reducedMotion ? 'Bật' : 'Tắt'}</b></label>${asOverlay ? '' : guestActions}</section>${asOverlay ? '' : cloudPanel}`;
+  const host = asOverlay ? openInfoDialog('Cài đặt', content) : app;
+  if (!asOverlay) shell(pageHeader(runtime.cloud ? 'Tài khoản' : 'Thiết bị này', 'Cài đặt', '') + content);
+  host.querySelectorAll('[data-setting]').forEach((input) => input.addEventListener('input', () => { runtime.save.settings[input.dataset.setting] = Number(input.value); input.nextElementSibling.textContent = `${input.value}%`; runtime.audio.setSettings(runtime.save.settings); saveNow(); }));
+  host.querySelector('[data-setting-motion]')?.addEventListener('change', (event) => { runtime.save.settings.reducedMotion = event.target.checked; syncMotion(); saveNow(); event.target.nextElementSibling.textContent = settings.reducedMotion ? 'Bật' : 'Tắt'; });
+  host.querySelector('[data-reset-save]')?.addEventListener('click', () => {
     if (!confirm('Xóa tiến trình đã lưu trên thiết bị này?')) return;
     localStorage.removeItem(SAVE_KEY);
     localStorage.removeItem('soul-of-meal.save.v1');
     window.location.reload();
   });
-  app.querySelectorAll('[data-cloud-action]').forEach(button =>
+  host.querySelectorAll('[data-cloud-action]').forEach(button =>
     button.addEventListener('click', () => runCloudAction(button.dataset.cloudAction)));
+}
+
+
+function openSceneSettings() {
+  renderSettings(true);
 }
 
 function render() {
@@ -2975,6 +3134,12 @@ function escapeAttr(value = '') { return escapeHtml(value); }
 window.addEventListener('keydown', (event) => {
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
   if (event.target?.matches?.('input, select, textarea') || app.querySelector('dialog[open]')) return;
+  if (key === 'Escape' && !event.repeat) {
+    const summary = app.querySelector('.match-menu summary');
+    if (summary && !event.defaultPrevented) { summary.click(); summary.focus(); }
+    return;
+  }
+  if (app.querySelector('.match-menu[open]')) return;
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'w', 'a', 's', 'd'].includes(key) && runtime.page === 'adventure') {
     runtime.heldKeys.add(key); event.preventDefault();
   }
@@ -3000,12 +3165,13 @@ let lastFrame = 0;
 function animate(now) {
   const delta = Math.min(.1, (now - (lastFrame || now)) / 1000);
   lastFrame = now;
-  if (runtime.page === 'adventure' && runtime.animations) drawAdventureFrame(delta);
-  if (runtime.page === 'chess') {
+  const modalOpen = Boolean(app.querySelector('dialog[open], .match-menu[open]'));
+  if (runtime.page === 'adventure' && runtime.animations) drawAdventureFrame(modalOpen ? 0 : delta, modalOpen);
+  if (runtime.page === 'chess' && !modalOpen) {
     if (runtime.chessReplay) drawChessReplay(delta);
     else updateChessClock(delta);
   }
-  if (runtime.page === 'tcg' || (runtime.page === 'chess' && !runtime.chessReplay)) {
+  if (['home', 'tcg', 'roster'].includes(runtime.page) || (runtime.page === 'chess' && !runtime.chessReplay)) {
     const reducedMotion = app.dataset.motion === 'reduced';
     boardSprites.paint(app, delta, now, reducedMotion);
     if (runtime.page === 'tcg') {
