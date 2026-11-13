@@ -1,5 +1,5 @@
 /** One pointer owns a gesture. Rules stay in each mode's drop callback. */
-export function bindTableDrag(surface, { sources, read, locate, drop, inspect, preview }) {
+export function bindTableDrag(surface, { sources, read, locate, drop, inspect, preview, reject }) {
   let gesture;
   let suppressClick = false;
   const doc = surface.ownerDocument;
@@ -30,7 +30,7 @@ export function bindTableDrag(surface, { sources, read, locate, drop, inspect, p
   }, true);
 
   surface.addEventListener('pointerdown', event => {
-    if (gesture || event.button !== 0 || !event.isPrimary || doc.querySelector('dialog[open]')) return;
+    if (gesture || event.button !== 0 || !event.isPrimary || doc.querySelector('dialog[open], .match-menu[open]')) return;
     suppressClick = false;
     const source = event.target.closest(sources);
     const payload = source && read(source);
@@ -90,6 +90,7 @@ export function bindTableDrag(surface, { sources, read, locate, drop, inspect, p
       }
       suppressClick = true;
       if (target && target.state !== 'blocked') drop(payload, target);
+      else reject?.(payload, target);
     }, options);
     doc.addEventListener('pointercancel', event => { if (event.pointerId === id) cancel(); }, options);
     source.addEventListener('lostpointercapture', event => { if (event.target === source) cancel(); }, options);

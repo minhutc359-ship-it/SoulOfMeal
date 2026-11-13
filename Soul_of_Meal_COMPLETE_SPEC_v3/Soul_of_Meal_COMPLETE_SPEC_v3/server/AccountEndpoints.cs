@@ -33,6 +33,7 @@ internal static partial class AccountEndpoints
         var mutations = api.MapGroup("").AddEndpointFilter(ValidateCsrf);
         mutations.MapPost("/auth/register", Register).RequireRateLimiting("credentials");
         mutations.MapPost("/auth/login", Login).RequireRateLimiting("credentials");
+        mutations.MapPost("/auth/guest", Guest).RequireRateLimiting("credentials");
         mutations.MapPost("/auth/logout", async (HttpContext context) =>
         {
             if (context.Request.Headers.TryGetValue("X-Soul-Account", out var expected)
@@ -42,6 +43,7 @@ internal static partial class AccountEndpoints
             return Results.NoContent();
         }).RequireAuthorization();
         mutations.MapPut("/me/practice-save", Save).RequireAuthorization();
+        MetaEndpoints.MapMetaEndpoints(api, mutations);
     }
 
     private static async ValueTask<object?> ValidateCsrf(EndpointFilterInvocationContext invocation, EndpointFilterDelegate next)
@@ -91,18 +93,22 @@ internal static partial class AccountEndpoints
         return Results.NoContent();
     }
 
-    private static Task SignIn(HttpContext context, Account account)
+    private static async Task<IResult> Guest(HttpContext context, GameStore store,
+        IPasswordHasher<Account> hasher, CancellationToken cancellationToken)
     {
-        var claims = new Claim[]
-        {
-            new(ClaimTypes.NameIdentifier, account.Id.ToString()),
-            new(ClaimTypes.Name, account.Username),
-        };
-        return context.SignInAsync(Scheme, new ClaimsPrincipal(new ClaimsIdentity(claims, Scheme)),
-            new AuthenticationProperties { IsPersistent = true });
+        if (context.User.Identity?.IsAuthenticated == true) return Error("session_active", 409);
+        var account = await store.CreateGeneratedAccountAsync("guest", hasher, cancellationToken);
+        await SignIn(context, account);
+        return Results.StatusCode(StatusCodes.Status201Created);
     }
 
-    private static async Task<IResult> Bootstrap(ClaimsPrincipal user, GameStore store, CancellationToken cancellationToken)
+    internal static ClaimsPrincipal AccountPrincipal(Account account) => new(new ClaimsIdentity(
+        [new(ClaimTypes.NameIdentifier, account.Id.ToString()), new(ClaimTypes.Name, account.Username)], Scheme));
+
+    private static Task SignIn(HttpContext context, Account account) =>
+        context.SignInAsync(Scheme, AccountPrincipal(account), new AuthenticationProperties { IsPersistent = true });
+
+    private static async Task<IResult> Bootstrap(ClaimsPrincipal user, GameStore store, MetaStore metaStore, CancellationToken cancellationToken)
     {
         var id = Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var save = await store.ReadAsync(id, cancellationToken);
@@ -110,6 +116,7 @@ internal static partial class AccountEndpoints
         {
             account = new { id, username = user.Identity!.Name },
             practiceSave = save,
+            meta = await metaStore.ReadAsync(id, user.Identity!.Name!, cancellationToken),
         });
     }
 

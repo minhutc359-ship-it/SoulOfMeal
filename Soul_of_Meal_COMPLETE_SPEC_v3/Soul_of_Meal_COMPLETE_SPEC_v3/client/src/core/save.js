@@ -2,6 +2,8 @@ import { restoreChapterThree, restoreChapterTwo, restoreForestClues } from '../m
 import { restoreFinale } from '../modes/adventureFinale.js';
 import { restoreSpiritProgress } from '../modes/spiritProgress.js';
 import { restoreChallengeRecords } from '../modes/adventureChallenges.js';
+import { newMeta, restoreMeta, spiritMember, SPIRITS, MAX_PARTY } from '../modes/metaProgress.js';
+import { restoreInventory } from '../modes/adventureStore.js';
 import { VILLAGE_ROOMS } from '../modes/villageRooms.js';
 
 export const SAVE_KEY = 'soul-of-meal.save.v2';
@@ -10,6 +12,7 @@ export const SAVE_VERSION = 2;
 export function createDefaultSave() {
   return {
     version: SAVE_VERSION,
+    meta: newMeta(),
     player: { name: 'Người Kết Vị', level: 1, experience: 0, gold: 120, essence: 24 },
     adventure: {
       map: 'village', x: 120, y: 310, quest: 'not_started', chestOpened: false,
@@ -18,14 +21,9 @@ export function createDefaultSave() {
       chapterThree: { stage: 'not_started', clues: [] },
       finale: restoreFinale({ chapterThree: { stage: 'not_started' } }),
       spirits: { ownedGear: [], profiles: {} },
+      inventory: { stacks: {}, gear: {}, revision: 0 },
     },
-    roster: [
-      { id: 'chr_bunbo_holinh', hp: 3000, maxHp: 3000, atk: 320, def: 100, element: 'fire', role: 'fighter', energy: 0 },
-      { id: 'chr_pho_lamvu', hp: 2200, maxHp: 2200, atk: 390, def: 60, element: 'water', role: 'mage', energy: 0 },
-      { id: 'chr_goicuon_diepnhi', hp: 2500, maxHp: 2500, atk: 250, def: 90, element: 'wood', role: 'support', energy: 0 },
-      { id: 'chr_banhbao_bachngoc', hp: 3400, maxHp: 3400, atk: 210, def: 150, element: 'light', role: 'guardian', energy: 0 },
-      { id: 'chr_caphe_davu', hp: 2000, maxHp: 2000, atk: 430, def: 50, element: 'shadow', role: 'assassin', energy: 0 },
-    ],
+    roster: ['chr_bunbo_holinh', 'chr_pho_lamvu', 'chr_goicuon_diepnhi', 'chr_banhbao_bachngoc', 'chr_caphe_davu'].map(spiritMember),
     completedBattles: 0,
     modes: { tcg: null, chess: null },
     settings: { music: 70, sfx: 80, voice: 80, ambience: 65, reducedMotion: false },
@@ -41,6 +39,7 @@ export function migrateSave(input) {
   adventure.chapterThree = restoreChapterThree(adventure);
   adventure.finale = restoreFinale(adventure);
   adventure.challengeRecords = restoreChallengeRecords(adventure.challengeRecords);
+  adventure.inventory = restoreInventory(adventure.inventory);
   const mapAllowed = {
     village: true,
     forest: true,
@@ -54,11 +53,22 @@ export function migrateSave(input) {
   }
   if (input.version === SAVE_VERSION) {
     const roster = Array.isArray(input.roster) && input.roster.length ? input.roster : fresh.roster;
+    const meta = restoreMeta(input.meta, !Object.hasOwn(input, 'meta'), input.player?.name);
+    const ownedIds = new Set(roster.map(member => member.id));
+    for (const item of Object.values(adventure.inventory.gear)) {
+      if (!ownedIds.has(item.owner)) item.owner = null;
+    }
+    if (Array.isArray(adventure.party)) {
+      const owned = new Set(roster.filter(member => Object.hasOwn(SPIRITS, member.id)).map(member => member.id));
+      adventure.party = [...new Set(adventure.party)].filter(id => owned.has(id)).slice(0, MAX_PARTY);
+      if (!adventure.party.length) delete adventure.party;
+    } else delete adventure.party;
     adventure.spirits = restoreSpiritProgress(adventure.spirits, roster);
     return {
       ...fresh,
       ...input,
-      player: { ...fresh.player, ...input.player },
+      meta,
+      player: { ...fresh.player, ...input.player, name: meta.profile?.name ?? input.player?.name ?? fresh.player.name },
       adventure,
       settings: { ...fresh.settings, ...input.settings },
       modes: { ...fresh.modes, ...input.modes },
@@ -69,6 +79,7 @@ export function migrateSave(input) {
     adventure.spirits = restoreSpiritProgress(null, fresh.roster);
     const migrated = {
       ...fresh,
+      meta: restoreMeta(null, true, input.player?.name),
       player: { ...fresh.player, ...input.player },
       adventure,
       roster: fresh.roster,

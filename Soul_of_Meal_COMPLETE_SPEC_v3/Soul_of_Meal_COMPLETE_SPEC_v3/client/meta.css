@@ -1,0 +1,96 @@
+.entry-onboarding { justify-content: center; background: #102321a6; padding: 12px; }
+.meta-onboarding { width: min(100%, 580px); padding: clamp(12px, 3vw, 25px); }
+.meta-onboarding h1 { color: var(--ink); font: 700 clamp(22px, 5vw, 36px)/1.05 Georgia, serif; letter-spacing: -.025em; text-shadow: none; margin: 0; }
+.meta-onboarding p { margin: 7px 0; }
+.meta-onboarding fieldset { min-width: 0; margin: 8px 0; padding: 6px; border: 1px solid #c7a878; border-radius: 7px; }
+.meta-onboarding label { font-weight: 700; }
+.meta-onboarding input[name=name], .meta-store select, .meta-gacha select, .meta-roster-filter select, [data-store-purchase] input {
+  background: #fffaf0; color: #38291c; border: 1px solid #af8c59; border-radius: 5px; min-height: 34px; padding: 4px 8px;
+}
+.meta-onboarding input[name=name] { display: block; width: 100%; margin-top: 3px; }
+.meta-avatar-options, .meta-starter-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+.meta-starter-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.meta-avatar-options label, .meta-starter-options label {
+  position: relative; display: grid; justify-items: center; align-content: start; gap: 3px; min-width: 0;
+  padding: 5px; border: 1px solid #c5a579; border-radius: 7px; background: #f9ecd5; cursor: pointer;
+}
+.meta-starter-options label { text-align: center; font-size: 12px; }
+.meta-onboarding label:has(input[type=radio]:checked) { background: #ffe4a8; border-color: #9a5d29; box-shadow: inset 0 0 0 1px #9a5d29; }
+.meta-onboarding input[type=radio] { position: absolute; inset: 4px auto auto 4px; margin: 0; accent-color: #8f5222; }
+.meta-onboarding :is(.spirit-art, .spirit-emblem) { width: 100%; height: clamp(30px, 10dvh, 75px); object-fit: contain; }
+.meta-avatar-options .spirit-art { height: clamp(28px, 7dvh, 53px); }
+.lobby-service { grid-template-columns: minmax(0, 1fr) auto; padding: 9px 12px; }
+.meta-gacha { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 12px; align-items: center; }
+.meta-banner-tabs { display: flex; flex-wrap: wrap; gap: 5px; grid-column: 1 / -1; }
+.meta-banner-tabs button[aria-pressed=true] { background: #ffe3a1; border-color: #a56b36; }
+.meta-gacha-hero { height: min(43dvh, 365px); min-height: 130px; position: relative; isolation: isolate; overflow: hidden; display: grid; place-items: center;
+  border-radius: 12px; border: 1px solid var(--rarity, #bd965d); background: radial-gradient(ellipse at 50% 65%, #936041, #22172c 75%); }
+.meta-gacha-hero::before { content: ''; position: absolute; width: min(78%, 300px); aspect-ratio: 1; border: 1px solid #ffe5a18c; border-radius: 50%; box-shadow: 0 0 25px #ffa9578c, inset 0 0 42px #ffb45d55; z-index: -1; }
+.meta-gacha-hero .spirit-art { width: 100%; height: 100%; object-fit: contain; min-height: 0; }
+.meta-gacha-controls h2 { margin: 0; }
+.meta-gacha-controls p { margin: 6px 0; }
+.meta-wallet { font-weight: 800; color: #75472a; }
+.meta-odds { border-collapse: collapse; width: 100%; }
+.meta-odds :is(th, td) { border-bottom: 1px solid #d8bd96; padding: 5px; text-align: left; }
+.meta-history, .meta-inventory { list-style: none; padding: 0; }
+.meta-history li, .meta-inventory li { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; padding: 6px 0; border-bottom: 1px solid #dec7a7; }
+.meta-history small, .meta-inventory small { display: block; }
+.meta-inventory .action-row { margin: 0; }
+.meta-inventory .button { padding: 5px 8px; }
+.meta-reveal-dialog { width: min(740px, calc(100vw - 24px)); }
+.meta-reveal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 112px), 1fr)); gap: 6px; margin-top: 12px; }
+.meta-reveal-card { position: relative; min-height: 112px; overflow: hidden; border-radius: 7px; background: #291d2b; border: 2px solid #bd965d; }
+.meta-card-back, .meta-card-front { width: 100%; height: 100%; }
+.meta-card-back { position: absolute; inset: 0; display: grid; place-items: center; color: #f7dca0; font-size: 28px; }
+.meta-card-front { visibility: hidden; display: grid; justify-items: center; align-content: center; gap: 2px; padding: 4px; border: 0; color: #fff5df;
+  background: radial-gradient(ellipse at 50% 32%, var(--rarity), #2c252f 70%); cursor: pointer; font-size: 11px; }
+.meta-card-front :is(.spirit-art, .spirit-emblem) { width: 100%; height: 57px; object-fit: contain; }
+.meta-reveal-card[data-revealed=true] { border-color: var(--rarity); }
+.meta-reveal-card[data-revealed=true] .meta-card-front { visibility: visible; animation: meta-flip .3s ease-out both; }
+.meta-reveal-card[data-revealed=true] .meta-card-back { display: none; }
+@keyframes meta-flip { from { transform: perspective(280px) rotateY(90deg); } to { transform: perspective(280px) rotateY(0deg); } }
+[data-rarity=N] { --rarity: #e1d0a9; }
+[data-rarity=R] { --rarity: #559bcd; }
+[data-rarity=SR] { --rarity: #9c67cb; }
+[data-rarity=SSR] { --rarity: #e6ae56; }
+.spirit-emblem { display: grid; place-items: center; width: 100%; height: 100%; font-size: clamp(20px, 6vw, 52px); color: #fff3da; text-shadow: 0 1px 4px #19101d; }
+.spirit-emblem.element-fire { background: radial-gradient(ellipse, #b35845, #442633); }
+.spirit-emblem.element-water { background: radial-gradient(ellipse, #548faa, #1a3b55); }
+.spirit-emblem.element-wood { background: radial-gradient(ellipse, #598e58, #1f4137); }
+.spirit-emblem.element-light { background: radial-gradient(ellipse, #ac8a54, #4e352c); }
+.spirit-emblem.element-shadow { background: radial-gradient(ellipse, #8870a8, #352a50); }
+.meta-roster-filter { grid-column: 1 / -1; }
+.meta-roster-picker { grid-row: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); justify-content: start; max-height: 180px; overflow: auto; }
+.meta-roster-picker .spirit-choice { max-width: none; border-bottom: 3px solid var(--rarity); }
+.meta-roster-picker :is(.spirit-art, .spirit-emblem) { width: 40px; height: 40px; margin: 0 auto 3px; object-fit: contain; border-radius: 5px; font-size: 20px; }
+.meta-roster-picker small { display: block; }
+.spirit-tabs { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.party-avatar .spirit-emblem { font-size: 18px; border-radius: 5px; }
+.meta-store { display: grid; gap: 9px; }
+.meta-shop-body { padding: 4px 0; margin: 0; border: 0; min-width: 0; }
+.meta-shop-body > .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.meta-offers { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 185px), 1fr)); gap: 8px; }
+.meta-offers article { display: grid; gap: 5px; padding: 9px; border: 1px solid #d4b78b; border-radius: 7px; background: #fff8e7; }
+.meta-offers h2 { font-size: 15px; margin: 0; }
+.meta-offers p { margin: 0; font-size: 12px; }
+[data-store-purchase] { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+[data-store-purchase] input { width: 64px; }
+[data-motion=reduced] .meta-card-front { animation: none !important; }
+@media (max-width: 620px) {
+  .meta-gacha { grid-template-columns: minmax(0, 1fr); }
+  .meta-gacha-hero { height: min(27dvh, 220px); }
+  .meta-gacha-controls .button, .meta-banner-tabs .button { padding: 6px; font-size: 12px; }
+  .meta-reveal-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 95px), 1fr)); }
+}
+
+.meta-ssr-dialog { isolation: isolate; }
+.meta-ssr-cut {
+  position: absolute; z-index: 1; inset: 56px 0 62px; margin: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto;
+  padding: 8px; min-height: 0; overflow: hidden; text-align: center; color: #fff3da;
+  background: radial-gradient(ellipse at 50% 46%, #a66b49, #24182c 72%); animation: meta-ssr-reveal .55s ease-out both;
+}
+.meta-ssr-cut[hidden] { display: none; }
+.meta-ssr-cut img { width: 100%; height: 100%; object-fit: contain; }
+.meta-ssr-cut figcaption { background: #261927c4; padding: 3px; }
+.meta-ssr-cut strong { display: block; font-size: clamp(16px, 4vw, 28px); }
+@keyframes meta-ssr-reveal { from { opacity: 0; scale: .93; } to { opacity: 1; scale: 1; } }

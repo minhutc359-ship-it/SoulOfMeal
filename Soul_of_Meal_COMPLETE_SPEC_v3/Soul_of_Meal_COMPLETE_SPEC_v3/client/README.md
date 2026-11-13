@@ -138,3 +138,19 @@ python3 scripts/validate_package.py .
 ```
 
 Battle Adventure và Auto Chess dùng Canvas 2D. Cả ba chế độ dùng bot. Tài khoản đồng bộ bản luyện tập lên PostgreSQL. Client xử lý luật chiến đấu. Các phần còn cần hoàn thiện trước phát hành gồm rig và hoạt ảnh đầy đủ, duyệt mỹ thuật và quyền sử dụng, voice, benchmark WebGL trên thiết bị thật và cân bằng dài hạn. Bản chơi thử lưu manh mối, mốc nhiệm vụ, phần thưởng, checkpoint Adventure, ván TCG và vòng Auto Chess. Khi tải lại Adventure giữa trận, game khôi phục mốc đã lưu và chờ người chơi bấm **Tiếp tục**.
+
+## Hồ sơ và Giao Ước Vị Linh v4
+
+Người chơi mới chọn tên, ảnh đại diện và một trong ba Vị Linh SR. Bánh Bao đi cùng từ đầu. Nhiệm vụ của Lilia và trận boss đầu trao thêm Cơm Nắm và Bánh Mì. Hồ sơ cũ giữ đội hình đã lưu.
+
+Từ sảnh, mở **Giao Ước Vị Linh** để xem tỷ lệ theo lượt kế tiếp, triệu hồi 1 hoặc 10 và xem lại kết quả. Bộ sưu tập hiển thị 24 Vị Linh theo độ hiếm, cho thêm tối đa năm Vị Linh vào đội Adventure và thức tỉnh đến năm sao. **Cửa hàng Adventure** mở từ sảnh hoặc quầy trong làng. Vật phẩm mua được đưa vào túi và có thể dùng, trang bị, khóa, bán hoặc tinh luyện tùy loại.
+
+Giá cửa hàng dùng thang vàng của chiến dịch đang có. Chỉ số nâng cấp và trang bị áp dụng cho Adventure. Kỹ năng của các Vị Linh mới hiện dùng cơ chế thử nghiệm theo vai trò.
+
+### Kiểm tra giao diện Web Game Client
+
+Chạy `npm --prefix client run dev` rồi mở `/client/`. Từ sảnh có thể mở Adventure, TCG, Auto Chess, Vị Linh, Giao Ước và Cửa hàng. Trong vùng chơi, mở menu `☰` hoặc nhấn `Esc` để vào cài đặt hay về sảnh. Bản build cục bộ dùng `npm --prefix client run build` và `npm --prefix client run preview`.
+
+Để chạy smoke test giao diện, cài Playwright tạm vào thư mục client bằng `npm --prefix client install --no-save --package-lock=false playwright`, chạy `client/node_modules/.bin/playwright install chromium`, rồi chạy `node client/scripts/smoke-web-client.cjs` khi dev server đang chạy. Dùng `SOM_UI_BASE` nếu đổi port. Đặt `SOM_UI_OUTPUT` để xuất ảnh, hoặc `SOM_UI_SIZE=844x390` để thử một viewport. Bản baseline có thể chụp với `SOM_UI_BASELINE=1` và cùng script trỏ tới bản cũ.
+
+Ma trận gồm 1920×1080, 1366×768, 844×390, 390×844, 360×740 và 1024×768. Script kiểm tra đường đi tới NPC và nhật ký, các thao tác TCG từ đổi bài tới kết quả, mua/xếp quân bằng kéo thả hoặc chạm, đủ chín ghế và giới hạn ảnh trong ghế, không có lưới khi giao tranh và lớp phủ kết quả, cùng đường dẫn Vị Linh, Gacha và Cửa hàng. Script thu lỗi JavaScript của trang và đo tràn ở GameShell, vùng chơi và nhóm nút. Safari iOS thật, kích thước vùng chạm đầy đủ trong bố cục ngang thấp và ngân sách hiệu năng trên thiết bị vẫn cần nghiệm thu.

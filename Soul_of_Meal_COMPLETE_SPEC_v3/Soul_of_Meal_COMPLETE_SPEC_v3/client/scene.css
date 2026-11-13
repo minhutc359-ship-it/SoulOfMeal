@@ -1,0 +1,316 @@
+:root {
+  --scene-gold: #e9ba73;
+  --scene-text: #fff2d7;
+  --scene-edge: #b99561;
+  --scene-panel: linear-gradient(155deg, #263c34f5, #132722f5);
+  --scene-gap: clamp(6px, 1.15vw, 18px);
+  --scene-top: max(6px, env(safe-area-inset-top));
+  --scene-right: max(var(--scene-gap), env(safe-area-inset-right));
+  --scene-bottom: max(6px, env(safe-area-inset-bottom));
+  --scene-left: max(var(--scene-gap), env(safe-area-inset-left));
+}
+html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
+#app { height: 100vh; height: 100dvh; }
+#app:has(.entry) { overflow: hidden; }
+.entry { height: 100%; overflow: auto; overscroll-behavior: contain; }
+.shell { grid-template-columns: minmax(0, 1fr); overflow: hidden; }
+.shell[data-screen="home"] .main { overflow: hidden; }
+.shell[data-gameplay="true"] { grid-template-rows: minmax(0, 1fr); padding: 0; }
+.shell[data-gameplay="true"] .main { position: relative; padding: 0; overflow: hidden; }
+.shell[data-gameplay="true"] .main > * { max-width: none; width: 100%; margin: 0; }
+.shell[data-gameplay="true"] .match-menu { flex: none; --frame: var(--scene-edge); }
+.shell[data-gameplay="true"] .match-menu summary { width: 44px; min-height: 44px; font-size: 20px; }
+.shell[data-gameplay="true"] .match-menu > div { max-height: calc(100dvh - 62px); overflow: auto; min-width: 175px; }
+.shell[data-gameplay="true"] .match-menu button { min-height: 40px; }
+.shell .shell-icon[data-scene-back] { font-size: 20px; }
+.rotate-hint { display: none; }
+
+.main .adventure-layout { position: relative; isolation: isolate; height: 100%; }
+.main .adventure-layout .world-panel,
+.main .adventure-layout .canvas-wrap {
+  position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none;
+  padding: 0; border: 0; border-radius: 0; background: #1b3028; box-shadow: none;
+}
+.main .adventure-layout #adventure-canvas { width: 100%; height: 100%; display: block; border-radius: 0; touch-action: none; }
+.adventure-heading {
+  position: absolute; inset: var(--scene-top) var(--scene-right) auto var(--scene-left);
+  display: flex; align-items: start; justify-content: space-between; gap: 8px; color: var(--scene-text); pointer-events: none; z-index: 4;
+}
+.adventure-heading > div {
+  background: var(--scene-panel); padding: 6px 12px; border: 1px solid var(--scene-edge); border-radius: 3px 11px 3px 11px;
+}
+.adventure-heading h1 { margin: 0; font: 700 clamp(17px, 2.4vw, 30px)/1.08 var(--display); }
+.adventure-heading small { color: var(--scene-gold); font-size: 11px; }
+.adventure-heading details { pointer-events: auto; }
+.adventure-layout .minimap-widget { top: calc(var(--scene-top) + 54px); right: var(--scene-right); width: clamp(84px, 13vw, 164px); }
+.adventure-layout .minimap-widget #world-minimap { height: auto; }
+.adventure-layout .map-toggle { min-height: 34px; font-size: 12px; }
+.adventure-context { position: absolute; top: calc(var(--scene-top) + 65px); left: var(--scene-left); width: min(330px, 39vw); }
+.quest-hud { width: max-content; max-width: 100%; display: grid; justify-items: start; gap: 4px; }
+.quest-hud [data-open-journal] {
+  display: grid; gap: 2px; text-align: left; min-width: 0; max-width: 100%; min-height: 44px; cursor: pointer;
+  padding: 6px 9px; color: var(--scene-text); background: var(--scene-panel); border: 1px solid var(--scene-edge); border-radius: 7px;
+}
+.quest-hud small { color: var(--scene-gold); font-size: 11px; }
+.quest-hud strong { font-size: 13px; line-height: 1.2; }
+.quest-hud .button { min-height: 36px; padding: 4px 9px; font-size: 12px; }
+.adventure-layout .adventure-interact { position: absolute; translate: -50% -50%; min-height: 44px; max-width: 48%; z-index: 2; box-shadow: 0 2px 9px #0c1f19a0; }
+.adventure-layout .adventure-message {
+  position: absolute; inset: auto var(--scene-right) calc(var(--scene-bottom) + 66px) auto; max-width: min(355px, 65vw);
+  margin: 0; color: var(--scene-text); background: #112a24ed; border-radius: 5px; padding: 6px 9px; font-size: 12px; pointer-events: none;
+}
+.adventure-layout .world-stick { inset: auto auto calc(var(--scene-bottom) + 65px) var(--scene-left); z-index: 2; width: clamp(58px, 16vw, 88px); }
+.main .adventure-layout .party-panel {
+  position: absolute; inset: auto var(--scene-right) var(--scene-bottom) auto; width: min(820px, calc(100% - var(--scene-right) - var(--scene-left)));
+  margin: 0; padding: 4px; background: var(--scene-panel); color: var(--scene-text); border: 1px solid var(--scene-edge); box-shadow: 0 4px 12px #081b15a0;
+}
+.main .adventure-layout:not(.in-battle) .party-panel { width: min(480px, calc(100% - var(--scene-right) - var(--scene-left))); }
+.main .adventure-layout .party-panel h2 { display: none; }
+.main .adventure-layout .actor-list { display: flex; gap: 4px; }
+.main .adventure-layout .skill-card {
+  display: grid; flex: 1 1 0; min-width: 0; grid-template-columns: 35px minmax(0, 1fr); gap: 3px; align-items: center;
+  padding: 3px; border: 1px solid #b99a6d88; background: #294138; color: var(--scene-text); border-radius: 6px;
+}
+.main .adventure-layout .party-avatar { width: 35px; height: 35px; margin: 0; }
+.main .adventure-layout .skill-info { min-width: 0; }
+.main .adventure-layout .skill-info strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+.main .adventure-layout .skill-card .meter { height: 4px; margin: 3px 0 0; background: #11241e; }
+.main .adventure-layout .skill-button { min-height: 42px; }
+.main .adventure-layout .skill-button .skill-art { display: block; width: 24px; height: 22px; object-fit: contain; grid-row: 1 / 3; }
+.main .adventure-layout .skill-button .key-tag { display: none; }
+.main .adventure-layout .skill-button { grid-template-columns: auto minmax(0, 1fr); }
+.main .adventure-layout .battle-target {
+  padding: 7px 9px; color: var(--scene-text); background: var(--scene-panel); border: 1px solid var(--scene-edge); font-size: 12px;
+}
+.main .adventure-layout .battle-target h2 { font-size: clamp(13px, 2vw, 18px); margin: 0; }
+.main .adventure-layout .battle-target .controls-hint { margin: 3px 0; }
+.main .adventure-layout .battle-controls { margin: 3px 0; }
+.main .adventure-layout .battle-controls .button { min-height: 34px; padding: 4px 7px; }
+.world-map-expanded { width: 100%; aspect-ratio: 16 / 9; border-radius: 7px; }
+.quest-dialog { width: min(760px, calc(100vw - 24px)); }
+.quest-dialog .panel { box-shadow: none; }
+
+.shell:is([data-screen="tcg"], [data-screen="chess"]) .main {
+  display: grid; grid-template-rows: auto minmax(0, 1fr);
+  gap: 4px; padding: var(--scene-top) var(--scene-right) var(--scene-bottom) var(--scene-left);
+  background: radial-gradient(ellipse at 60% 42%, #354d3b, #121f1c 75%);
+}
+.shell[data-screen="chess"] .main { grid-template-rows: auto auto minmax(0, 1fr); }
+.match-header { min-height: 44px; gap: 5px; }
+.match-header h1 { font-size: clamp(18px, 3vw, 30px); }
+.main .match-layout { min-height: 0; grid-template-columns: minmax(0, 1fr); align-content: stretch; gap: 4px; }
+.main .tcg-match { grid-template-rows: minmax(0, 1fr) auto; }
+.main .tcg-match[data-match-result="true"] { grid-template-rows: minmax(0, 1fr); }
+.main .tcg-match .duel-field {
+  min-width: 0; min-height: 0; padding: 5px clamp(5px, 2vw, 28px);
+  grid-template-rows: auto minmax(0, 1fr) auto minmax(0, 1fr) auto;
+  background-size: cover; background-position: center; align-self: stretch;
+}
+.main .tcg-match .unit-row { width: min(100%, 990px); justify-self: center; }
+.main .tcg-match .duel-field .tcg-unit-avatar .board-chibi { width: 117%; height: 130%; top: -17%; left: -8.5%; object-fit: contain; }
+.main .tcg-match .stack-strip { font-size: clamp(10px, 1.5vw, 13px); }
+.main .tcg-match .tcg-hand-dock {
+  grid-template-columns: minmax(0, 1fr) auto; align-items: center; align-self: stretch;
+  padding: 4px 7px; min-width: 0;
+}
+.main .tcg-match .hand-heading { grid-column: 1 / -1; }
+.main .tcg-match .hand-row { min-width: 0; overflow-y: hidden; }
+.main .tcg-match .hand-card { flex-basis: clamp(76px, 12vw, 148px); }
+.main .tcg-match .tcg-hand-dock .playing-card { height: clamp(72px, 19dvh, 151px); }
+.main .tcg-match .tcg-hand-dock .playing-card .card-copy strong { font-size: clamp(10px, 1.45vw, 13px); }
+.main .tcg-match .tcg-actions { max-width: min(34vw, 370px); justify-self: end; }
+.main .tcg-match .tcg-actions > .button { min-width: 115px; }
+.main .tcg-match .notice { grid-column: 1 / -1; padding: 4px 8px; }
+.main .tcg-match :is(.tcg-defense, .tcg-reaction) { grid-column: 1 / -1; max-height: 30dvh; overflow: auto; }
+.main .tcg-match .target-select { min-width: 0; }
+
+.main .chess-match { grid-template-rows: minmax(0, 1fr); }
+.main .chess-match[data-chess-phase="prep"] { grid-template-rows: minmax(0, 1fr) auto; }
+.chess-hud { flex: none; padding: 3px 6px; }
+.chess-hud b { font-size: clamp(12px, 2.25vw, 19px); }
+.main .chess-match .chess-stage { position: relative; min-height: 0; }
+.main .chess-match .chess-formation {
+  grid-template-rows: auto minmax(0, 1fr) auto minmax(0, 1fr) auto; padding: 4px min(8vw, 110px);
+  background-size: cover; background-position: center;
+}
+.main .chess-match .enemy-formation { display: grid; }
+.main .chess-match .rival-lineup { display: none; }
+.main .chess-match .chess-bench { gap: 2px; padding: 2px 4px 3px; }
+.main .chess-match :is(.bench-slot, .bench-unit) { height: clamp(24px, 6dvh, 54px); }
+.main .chess-match .chess-controls {
+  grid-template-columns: minmax(0, 1fr) minmax(145px, .48fr);
+  grid-template-areas: "heading actions" "shop actions" "notice notice"; gap: 4px 7px; padding: 4px 6px;
+}
+.main .chess-match .shop-heading { grid-area: heading; }
+.main .chess-match .shop-row { grid-area: shop; }
+.main .chess-match .chess-shop-actions { grid-area: actions; display: grid; align-content: center; gap: 4px; min-width: 0; }
+.main .chess-match .notice { grid-area: notice; padding: 3px 6px; }
+.main .chess-match .shop-unit { height: clamp(62px, 13dvh, 122px); }
+.main .chess-match .shop-row { grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 0; overflow: visible; }
+.main .chess-match[data-chess-phase="combat"] .chess-controls,
+.main .chess-match[data-chess-phase="locking"] .chess-controls {
+  position: absolute; inset: auto var(--scene-right) var(--scene-bottom) auto; z-index: 2;
+  display: block; padding: 4px 6px; min-width: min(320px, 84vw);
+}
+.main .chess-match .chess-replay-stage, .chess-result-stage {
+  flex: 1; width: 100%; height: 100%; min-height: 0; border: 0; border-radius: 6px;
+  background: #162a24 url('./assets/original/scenes/chess_court.webp') center / cover;
+}
+.main .chess-match .chess-replay { width: 100%; height: 100%; max-width: none; max-height: none; object-fit: contain; }
+.main .chess-match .replay-controls { gap: 3px; }
+.main .chess-match .replay-controls .match-actions { justify-content: end; }
+
+.battle-result-dialog {
+  border: 1px solid var(--scene-gold); width: min(540px, calc(100vw - 30px)); background: var(--scene-panel); color: var(--scene-text);
+  box-shadow: 0 16px 85px #081a14c4, 0 0 30px #e9ba7330; text-align: center;
+}
+.battle-result-dialog::backdrop { background: #0a1b1b88; }
+.battle-result-dialog .story-heading { justify-content: center; color: var(--scene-gold); }
+.battle-result-dialog .result-box { background: transparent; border: 0; color: inherit; margin: 6px 0 0; }
+.battle-result-dialog .result-box > strong { display: block; color: #ffdd99; font: 700 clamp(24px, 5vw, 43px)/1.1 var(--display); }
+.battle-result-dialog .result-box.defeat > strong { color: #ffc0a3; }
+.battle-result-dialog .action-row { justify-content: center; }
+
+@media (orientation: portrait) and (max-width: 760px) {
+  .rotate-hint { display: block; margin-left: auto; color: #eed5ac; font-size: 10px; text-align: right; }
+  .adventure-heading > div { max-width: 80%; }
+  .adventure-context { width: min(218px, 61vw); top: calc(var(--scene-top) + 58px); }
+  .adventure-layout .minimap-widget { width: 90px; }
+  .main .adventure-layout .skill-card { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+  .main .adventure-layout .skill-info { width: 100%; }
+  .main .adventure-layout .skill-info strong { display: none; }
+  .main .adventure-layout .skill-button { display: flex; width: 100%; flex-direction: column; gap: 1px; align-items: center; padding: 2px; }
+  .main .adventure-layout .skill-button .skill-name { display: none; }
+  .main .tcg-match .tcg-hand-dock { grid-template-columns: minmax(0, 1fr); }
+  .main .tcg-match .tcg-actions { max-width: none; width: 100%; }
+  .main .tcg-match .hand-card { flex-basis: clamp(80px, 24vw, 118px); }
+  .main .tcg-match .tcg-hand-dock .playing-card { height: clamp(78px, 14dvh, 112px); }
+  .main .tcg-match .hand-heading { font-size: 12px; }
+  .main .chess-match .chess-formation { padding-inline: 3px; }
+  .main .chess-match .chess-controls { grid-template-columns: minmax(0, 1fr); grid-template-areas: "heading" "shop" "actions" "notice"; }
+}
+@media (orientation: landscape) and (max-height: 480px) {
+  .shell:is([data-screen="tcg"], [data-screen="chess"]) .main { gap: 2px; }
+  .main .match-header { min-height: 32px; }
+  .shell[data-gameplay="true"] .match-header .match-menu summary { min-height: 32px; }
+  .main .tcg-match .duel-field { padding: 2px 6px; gap: 2px; }
+  .main .tcg-match .tcg-hand-dock { gap: 2px; padding: 2px 5px; }
+  .main .tcg-match .hand-heading { display: none; }
+  .main .tcg-match .tcg-hand-dock .playing-card { height: clamp(62px, 19dvh, 86px); }
+  .main .tcg-match .hand-card { flex-basis: clamp(70px, 11.2vw, 96px); }
+  .main .tcg-match .tcg-actions > .button { min-width: 100px; }
+  .main .tcg-match .card-copy { padding: 2px 3px; }
+  .main .chess-match .chess-controls { padding: 2px 5px; }
+  .main .chess-match .shop-unit { height: clamp(52px, 16dvh, 71px); }
+  .main .chess-match .chess-formation { padding-inline: 9vw; }
+  .main .chess-match .formation-label { min-height: 13px; padding-block: 0; }
+  .adventure-heading > div { padding-block: 3px; }
+  .adventure-context, .adventure-layout .minimap-widget { top: calc(var(--scene-top) + 46px); }
+  .main .adventure-layout .battle-target .controls-hint { display: none; }
+}
+@media (pointer: coarse) {
+  .quest-hud .button, .adventure-layout .map-toggle, .main .adventure-layout .skill-button,
+  .main .match-layout .match-actions .button { min-height: 44px; }
+  .main .tcg-match .hand-inspect { min-width: 36px; min-height: 36px; }
+}
+
+.shell[data-screen="roster"] .main {
+  padding: 0; overflow: hidden; background: #142c25 url('./assets/original/scenes/home.webp') center / cover;
+}
+.shell[data-screen="roster"] .spirit-profile {
+  position: relative; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  grid-template-rows: minmax(0, 1fr) auto auto; gap: 5px clamp(6px, 2vw, 24px); width: 100%; height: 100%;
+  max-width: none; padding: 5px var(--scene-right) 5px var(--scene-left);
+  background: linear-gradient(90deg, #16342928 35%, #122820f5 75%); color: var(--scene-text);
+}
+.shell[data-screen="roster"] .spirit-portrait {
+  display: grid; place-items: center; min-width: 0; min-height: 0; width: 100%; height: 100%; aspect-ratio: auto; justify-self: stretch;
+  border: 0; border-radius: 8px; background: radial-gradient(ellipse at 50% 58%, var(--unit-color), #152e2700 72%);
+}
+.shell[data-screen="roster"] .spirit-portrait > img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center;
+  filter: drop-shadow(0 12px 16px #0b1e16b8);
+}
+.spirit-model { position: absolute; z-index: 1; inset: auto 7% 62px auto; width: clamp(66px, 12vw, 128px); aspect-ratio: 1.15; }
+.spirit-model .board-chibi { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 4px #0d1c18); }
+.shell[data-screen="roster"] .spirit-portrait-label { background: linear-gradient(transparent, #142620f0 50%); }
+.spirit-scene-heading { font: 700 clamp(19px, 3vw, 30px)/1.15 var(--display); margin: 0 0 5px; color: var(--scene-gold); }
+.shell[data-screen="roster"] .spirit-detail { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+.shell[data-screen="roster"] .spirit-tab-body {
+  flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; margin-top: 5px; background: #fbefd6f5; color: #2d3c30;
+}
+.shell[data-screen="roster"] .spirit-detail > .action-row { margin: 4px 0 0; flex: none; }
+.shell[data-screen="roster"] .spirit-detail > :is(.notice,.muted-copy) { margin: 3px 0 0; }
+.spirit-browse { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.spirit-browse .button { min-width: 44px; min-height: 36px; padding: 2px 8px; }
+.shell[data-screen="roster"] .meta-roster-picker {
+  grid-column: 1 / -1; display: flex; justify-content: flex-start; flex-wrap: nowrap; overflow: auto hidden;
+  min-width: 0; max-height: none; padding-bottom: 3px; overscroll-behavior: contain;
+}
+.shell[data-screen="roster"] .meta-roster-picker .spirit-choice { flex: 0 0 clamp(80px, 11vw, 138px); }
+.spirit-upgrade-flash::after { position: absolute; inset: 0; content: ''; pointer-events: none;
+  background: radial-gradient(ellipse, #ffe6a1b0, transparent 69%); animation: spirit-upgrade .5s ease-out both; }
+@keyframes spirit-upgrade { to { opacity: 0; } }
+[data-motion=reduced] .spirit-upgrade-flash::after { animation: none; display: none; }
+@media (orientation: portrait) and (max-width: 760px) {
+  .shell[data-screen="roster"] .spirit-profile {
+    grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, .9fr) minmax(0, 1.1fr) auto auto;
+    background: linear-gradient(180deg, #16342928 20%, #122820fa 58%);
+  }
+  .spirit-model { width: 82px; bottom: 48px; }
+}
+
+@media (orientation: landscape) and (max-height: 480px) {
+  .main .chess-match .chess-controls { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); grid-template-areas: "shop actions" "notice notice"; }
+  .main .chess-match .shop-heading { display: none; }
+  .main .chess-match .chess-shop-actions { grid-template-columns: 1fr 1fr; }
+  .main .chess-match .chess-shop-actions :is(.shop-tools, .chess-ready) {
+    display: grid; grid-template-columns: 1fr; grid-template-rows: repeat(3, minmax(26px, auto)); gap: 2px;
+  }
+  .main .chess-match .chess-shop-actions .button, .main .chess-match .chess-sell-zone { min-height: 26px; line-height: 1.1; }
+  .main .chess-match .chess-shop-actions [data-chess-fight] { min-height: 44px; }
+  .main .chess-match :is(.bench-slot, .bench-unit) { height: 24px; }
+  .main .chess-match .bench-heading { min-height: 18px; }
+  .main .chess-match .chess-bag { min-height: 18px; }
+}
+
+.lobby-companion {
+  position: absolute; z-index: 1; inset: auto auto 8% 44%; width: clamp(100px, 17vw, 224px); aspect-ratio: 1.2;
+  border: 0; color: #fff3d7; background: none; cursor: pointer; font: 750 12px system-ui; text-shadow: 0 2px 4px #12241e;
+}
+.lobby-companion :is(.board-chibi,.spirit-art) { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 4px #0d2c1e); }
+.lobby-companion span { position: absolute; inset: auto 0 0; }
+.lobby-companion:hover :is(.board-chibi,.spirit-art) { filter: drop-shadow(0 0 9px #eabc70); }
+.shell[data-screen="home"] .lobby { position: relative; }
+.shell[data-screen="home"] .lobby-modes { z-index: 2; }
+.shell[data-screen="gacha"] .main {
+  background: radial-gradient(ellipse at 32% 53%, #81534840, #19212b 69%), url('./assets/original/scenes/sanctum.webp') center / cover;
+}
+.shell[data-screen="gacha"] .meta-gacha { color: var(--scene-text); background: #1f1d2ddb; border-color: #dba96b; }
+.shell[data-screen="gacha"] .meta-wallet { color: #ffe1a3; }
+.shell[data-screen="gacha"] .meta-gacha-controls h2 { color: #fff0cb; }
+.shell[data-screen="gacha"] .meta-gacha .muted-copy { color: #e6cdb2; }
+.shell[data-screen="gacha"] .meta-gacha-hero { height: min(57dvh, 610px); }
+.shell[data-screen="store"] .main { background: #222e26 url('./assets/original/scenes/village_merchant.webp') center / cover; }
+.shell[data-screen="store"] .meta-store { display: grid; grid-template-columns: minmax(130px, .6fr) minmax(0, 1.4fr); }
+.store-shopkeeper { position: relative; display: grid; place-items: end center; min-height: 190px; color: var(--scene-text); }
+.store-shopkeeper img { width: 90%; height: min(52dvh, 520px); object-fit: contain; filter: drop-shadow(0 12px 14px #091e15a3); }
+.store-shopkeeper > div { display: grid; gap: 2px; position: absolute; bottom: 0; padding: 5px 13px; text-align: center;
+  background: var(--scene-panel); border: 1px solid var(--scene-edge); border-radius: 7px; }
+.store-workspace { display: flex; flex-direction: column; gap: 6px; min-height: 0; padding: clamp(7px, 1.6vw, 19px); background: #faeed9f5; border: 1px solid var(--scene-edge); border-radius: 9px; }
+.store-workspace .meta-shop-body { min-height: 0; overflow: auto; max-height: min(57dvh, 560px); overscroll-behavior: contain; }
+@media (orientation: portrait) and (max-width: 760px) {
+  .lobby-companion { inset: auto 6% 45% auto; width: 110px; }
+  .shell[data-screen="gacha"] .meta-gacha-hero { height: min(26dvh, 270px); }
+  .shell[data-screen="store"] .meta-store { grid-template-columns: minmax(0, 1fr); }
+  .store-shopkeeper { min-height: 86px; justify-items: start; }
+  .store-shopkeeper img { height: 106px; width: 122px; }
+  .store-shopkeeper > div { left: 102px; bottom: 10px; }
+  .store-workspace .meta-shop-body { max-height: 44dvh; }
+}
+
+@media (orientation: portrait) and (max-width: 390px) {
+  .shell:not([data-screen="home"]) .game-bar .profile-chip { display: none; }
+  .game-resources { gap: 3px; font-size: 12px; }
+  .game-resources > span { padding-inline: 4px; }
+}

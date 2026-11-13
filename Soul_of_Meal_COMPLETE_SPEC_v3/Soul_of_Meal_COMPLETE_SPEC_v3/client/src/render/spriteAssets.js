@@ -1,4 +1,5 @@
 import { validateAnimationManifest } from './clipPlayer.js';
+import { META } from '../modes/metaProgress.js';
 import { VILLAGE_ROOMS } from '../modes/villageRooms.js';
 
 const ORIGINAL = './assets/original';
@@ -18,7 +19,7 @@ export const HERO_NAMES = Object.freeze({
   chr_caphe_davu: 'Cà Phê Dạ Vũ',
 });
 
-const ACTORS = [...Object.keys(HERO_NAMES), 'npc_lilia', ...MONSTER_IDS, BOSS_ID];
+const ACTORS = [...META.characters.map(spirit => spirit.id), 'npc_lilia', ...MONSTER_IDS, BOSS_ID];
 const CARD_IDS = new Set([7, 10, 11, 12, 13, 14, 15, 16, 17, 18].map((id) => 'card_demo_' + String(id).padStart(2, '0')));
 const PROPS = ['house_kitchen', 'house_guild', 'house_merchant', 'tree', 'chest_closed', 'chest_open', 'portal', 'table', ...ENCOUNTER_PROPS];
 

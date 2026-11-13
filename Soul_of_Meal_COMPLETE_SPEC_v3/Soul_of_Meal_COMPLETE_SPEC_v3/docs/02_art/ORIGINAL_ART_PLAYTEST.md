@@ -90,3 +90,7 @@ Dùng ID trong bảng cho ba nhân vật còn lại, hoặc bỏ `--character` �
 ## Nội thất Làng Ẩm Thực
 
 Ba nền anime mới phục vụ đi bộ trong Nhà Bếp, Hội Quán và Tiệm Nguyên Liệu. Map định nghĩa riêng vùng sàn, cửa, quầy và điểm trở về làng. Xuất bằng `python3 scripts/build_original_art.py /path/to/sheets village_kitchen village_guild village_merchant`. Tên sheet, prompt và SHA-256 nằm trong [manifest nguồn](ORIGINAL_ART_SOURCES.json). Duyệt mỹ thuật và quyền sử dụng đang chờ.
+
+## Chân dung chibi Vị Linh v4
+
+19 ảnh `client/assets/original/actors/chr_som_*.webp` được tạo riêng cho Soul of Meal bằng ImageGen từ mô tả Vị Linh trong spec v4. Ảnh nguồn là lưới RGBA 5×4, được cắt theo ID và đặt chân về cùng đường chuẩn. Gacha, hồ sơ và Adventure sử dụng cùng ảnh. Trong Adventure, nhân vật mới dùng chuyển động sprite tĩnh theo trạng thái và hiệu ứng nguyên tố. Bộ rig nhiều lớp, key pose và voice riêng cần duyệt mỹ thuật trước phát hành.

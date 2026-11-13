@@ -13,6 +13,7 @@ var connectionString = builder.Configuration.GetConnectionString("SoulOfMeal")
 builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = AccountEndpoints.MaxSaveBytes + 4096);
 builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(connectionString));
 builder.Services.AddSingleton<GameStore>();
+builder.Services.AddSingleton<MetaStore>();
 builder.Services.AddSingleton<PostgresTicketStore>();
 builder.Services.AddSingleton<IPasswordHasher<Account>, PasswordHasher<Account>>();
 builder.Services.AddSingleton<DummyPassword>();
@@ -23,7 +24,7 @@ var protection = builder.Services.AddDataProtection().SetApplicationName("SoulOf
 if (builder.Configuration["DataProtection:KeyPath"] is { Length: > 0 } keyPath)
     protection.PersistKeysToFileSystem(Directory.CreateDirectory(keyPath));
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+var authentication = builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
     options.Cookie.Name = "som_session";
     options.Cookie.HttpOnly = true;
@@ -37,6 +38,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         return Task.CompletedTask;
     };
 });
+var googleEnabled = authentication.AddGoogleSignIn(builder.Configuration);
 builder.Services.AddOptions<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme)
     .Configure<PostgresTicketStore>((options, store) => options.SessionStore = store);
 builder.Services.AddAuthorization();
@@ -51,6 +53,9 @@ builder.Services.AddAntiforgery(options =>
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("meta", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 30, Window = TimeSpan.FromMinutes(1) }));
     options.AddPolicy("credentials", context => RateLimitPartition.GetFixedWindowLimiter(
         context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 12, Window = TimeSpan.FromMinutes(1) }));
@@ -84,4 +89,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
 app.MapAccountEndpoints();
+app.MapGoogleSignIn(googleEnabled);
 await app.RunAsync();

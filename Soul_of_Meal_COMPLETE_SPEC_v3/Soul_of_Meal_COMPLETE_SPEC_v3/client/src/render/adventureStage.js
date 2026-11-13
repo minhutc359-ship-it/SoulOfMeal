@@ -1,4 +1,4 @@
-import { WORLD } from '../modes/adventure.js';
+import { resolveCameraViewport, WORLD } from '../modes/adventure.js';
 
 const FULL_ARENA = Object.freeze({ left: 0, top: 0, width: WORLD.width, height: WORLD.height });
 const WIDE_ARENA = Object.freeze({ left: 0, top: 100, width: WORLD.width, height: 360 });
@@ -23,4 +23,24 @@ export function battleActorPoint(actor, blend = 1, safeX) {
   const shift = x > safeX ? Math.min(stagger, (x - safeX) * .5) : stagger;
   const depth = actor.role === 'guardian' ? -10 : actor.role === 'assassin' ? 6 : 0;
   return { x: x - shift, y: y + (actor.homeY - y) * .76 + depth * advance };
+}
+
+export function adventureCamera(player, bounds, screenWidth, screenHeight) {
+  const aspect = Math.max(1, screenWidth) / Math.max(1, screenHeight);
+  const width = Math.min(bounds.width, bounds.height * aspect);
+  const height = width / aspect;
+  const { x, y } = resolveCameraViewport(player.x, player.y, { width, height }, bounds.width, bounds.height);
+  return { left: x, top: y, width, height };
+}
+
+export function battleCamera(arena, screenWidth, screenHeight) {
+  const aspect = Math.max(1, screenWidth) / Math.max(1, screenHeight);
+  const width = Math.max(arena.width, arena.height * aspect);
+  const height = width / aspect;
+  return {
+    left: arena.left + (arena.width - width) / 2,
+    top: arena.top + (arena.height - height) / 2,
+    width,
+    height,
+  };
 }
