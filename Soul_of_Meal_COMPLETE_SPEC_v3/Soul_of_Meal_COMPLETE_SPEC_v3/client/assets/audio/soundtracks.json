@@ -1,10 +1,10 @@
 {
-  "login": null,
-  "village": null,
-  "forest": null,
-  "tcg": null,
-  "chess": null,
-  "adventure": null,
-  "adventure_battle": null,
-  "epic_boss_battle": null
+  "login": "sound_track/login_theme.mp3",
+  "village": "sound_track/village_theme.mp3",
+  "forest": "sound_track/forest_theme.mp3",
+  "tcg": "sound_track/tcg_theme.mp3",
+  "chess": "sound_track/auto_chess_theme.mp3",
+  "adventure": "sound_track/forest_theme.mp3",
+  "adventure_battle": "sound_track/adventure_battle_v1.mp3",
+  "epic_boss_battle": "sound_track/epic_boss_battle.mp3"
 }
