@@ -769,13 +769,13 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 20025,
-      "sha256": "15a2834bd1ca0dbb3fae4e9778835aef2bf05d3d661b5330c804695905fce3b4"
+      "bytes": 21648,
+      "sha256": "d3e904b9664c68866b2cd35f75190074a1d44d05c99e76fec8a5065279d41f12"
     },
     {
       "path": "client/index.html",
-      "bytes": 763,
-      "sha256": "0bdd3fd2d4f89eed31d7f757e2e388a609b8e12e7327b52a359b8d349167910c"
+      "bytes": 810,
+      "sha256": "c56e864d705150f7c2727b36e9509d262b7e5f76cbff5b9658a6bf1edb7fc42f"
     },
     {
       "path": "client/package.json",
@@ -794,8 +794,8 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 190243,
-      "sha256": "c7ab514c5f2e156c8c7781e62a85379cd4ae2a354f37e173de7477a0e601376a"
+      "bytes": 199726,
+      "sha256": "6222ce6070d7752ee6a1d859b0cb6239c00398f395e6be8d188844f3df19e1d9"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -2544,8 +2544,8 @@
     },
     {
       "path": "client/tests/ux.test.js",
-      "bytes": 2437,
-      "sha256": "2113f653c0be922769e613b2b587de8f4b8128b25b9d1c9a52867f503c14e14b"
+      "bytes": 3616,
+      "sha256": "66d14648a62b909eb7428b1d7413af0852a25931fc8e0fb732778da114e44158"
     },
     {
       "path": "client/assets/characters/mob_mushroom_01/original_battle/poses/mob_mushroom_01_pose_00.png",
@@ -2885,7 +2885,7 @@
     {
       "path": "client/assets/original/rigs/chr_caphe_davu/chr_caphe_davu.json",
       "bytes": 34623,
-      "sha256": "8fb2444ec8a4c5e729404272b2e208410ef8608ead2b4206b81b2d64a039632d"
+      "sha256": "d3a7deb1e4d34f650efa82f708e05cc8671791c7a3931bbc95b360396559715d"
     },
     {
       "path": "client/assets/original/rigs/chr_caphe_davu/parts.webp",
@@ -2900,7 +2900,7 @@
     {
       "path": "client/assets/original/rigs/chr_goicuon_diepnhi/chr_goicuon_diepnhi.json",
       "bytes": 34561,
-      "sha256": "108af60bb96c59195cfde7de3ca09fd1b9d5747c37f66e9595b6c2163440c3f1"
+      "sha256": "f760f145e17fc628a23a901b3758b65520ef9cd5cae1cec23dfd78f3048301e8"
     },
     {
       "path": "client/assets/original/rigs/chr_goicuon_diepnhi/parts.webp",
@@ -2915,7 +2915,7 @@
     {
       "path": "client/assets/original/rigs/chr_pho_lamvu/chr_pho_lamvu.json",
       "bytes": 34483,
-      "sha256": "3ed1c0fe1532661cc6d7e324b115b845b3a6cd820c45aaa8b1ccc153f8d24df8"
+      "sha256": "d4a0885eae0db5c044712d7365f809d2c1cc76dc778977bc738469f02b086310"
     },
     {
       "path": "client/assets/original/rigs/chr_pho_lamvu/parts.webp",
@@ -2934,13 +2934,13 @@
     },
     {
       "path": "client/tests/spiritRig.test.js",
-      "bytes": 8752,
-      "sha256": "23f6ad98c2a2856c0cf0e49bf2bf100064b84797198a0c6024cd74c786478161"
+      "bytes": 8847,
+      "sha256": "34fc36682f2d5aa28583a49580eea0f9d0b6059d87e4e03320188e9ad5bc185e"
     },
     {
       "path": "client/src/render/adventureStage.js",
-      "bytes": 1419,
-      "sha256": "c3a3d03a9789a587d6f9ed13c353714be7832f80f9d2b129df261fa4d2e4da8a"
+      "bytes": 2218,
+      "sha256": "521c618cc60b77010cf9a91b8043f80b09a76d1a6c90affdfeda40010ca037f1"
     },
     {
       "path": "client/arena.css",
@@ -2994,8 +2994,8 @@
     },
     {
       "path": "client/src/render/tableDrag.js",
-      "bytes": 4858,
-      "sha256": "2f1877f3c914379de616eda266db82d6b795b0843bc816b21944308d53081459"
+      "bytes": 4923,
+      "sha256": "6c5a90f9d63a508b75e6189accc864e24aa35bffffb5b79dfe5dd6775fb8df40"
     },
     {
       "path": "client/src/render/tcgCardMotion.js",
@@ -3201,6 +3201,26 @@
       "path": "server/MetaStore.cs",
       "bytes": 9399,
       "sha256": "04628c4162d623a69d6d2ddebcf7b5db5b170b75ee24ebff639f73aae9c7f3ef"
+    },
+    {
+      "path": "client/scene.css",
+      "bytes": 21693,
+      "sha256": "d5846bf40247de5b159ae667f21bd8e7df450bed1e11a546136773961d917ea7"
+    },
+    {
+      "path": "client/scripts/smoke-web-client.cjs",
+      "bytes": 9947,
+      "sha256": "57e46334929570fc6bfd0f0c3c19188b5c5607e02f6b41c4278b13d73d3fe222"
+    },
+    {
+      "path": "client/src/shell/sceneNavigation.js",
+      "bytes": 1259,
+      "sha256": "ffa3be64519a61f18ca3655e17744022e7cc319ec9c529719ba317556ae1d0dc"
+    },
+    {
+      "path": "docs/05_production/WEB_CLIENT_PLAYTEST.md",
+      "bytes": 4650,
+      "sha256": "fe39fc40e7598d118d4331e4d11eab6eabb486d4aacbe32f4f5d8c2d319db58a"
     }
   ]
 }
