@@ -212,6 +212,10 @@ async function check(page, width, height) {
     await capture(page, 'gacha', size);
     await click(page, '[data-gacha-draw="1"]');
     await click(page, '[data-confirm-draw]');
+    if (width === 1366) {
+      await page.waitForSelector('dialog[open][data-cinematic] canvas');
+      await click(page, '[data-gacha-skip]');
+    }
     await page.waitForSelector('dialog[open] .meta-reveal-card[data-revealed="true"]');
     assert.match(await page.locator('.meta-wallet').textContent(), /9 vé/);
     await close(page);

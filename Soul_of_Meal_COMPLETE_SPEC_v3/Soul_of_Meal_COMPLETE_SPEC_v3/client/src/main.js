@@ -39,6 +39,7 @@ import { openAccountDialog } from './shell/accountDialog.js';
 import { adventureParty, BANNERS, changeParty, drawSpirits, finishOnboarding, META, onboardingName, recruitSpirit, rollStarters, SPIRITS, starterSpirits } from './modes/metaProgress.js';
 import { ADVENTURE_OFFERS, adventureGearFor, changeAdventureInventory } from './modes/adventureStore.js';
 import { gachaHistory, gachaOdds, gachaPanel, inventoryRows, renderOnboarding, renderStarterReveal, revealGacha, spiritImage, storeDetail } from './shell/metaPanels.js';
+import { playGachaCinematic } from './shell/gachaCinematicDialog.js';
 import { openStoryDialog } from './shell/storyDialog.js';
 import { bindSceneNavigation } from './shell/sceneNavigation.js';
 
@@ -57,7 +58,7 @@ const runtime = {
   account: null, cloud: null, cloudStatus: 'saved', cloudError: null, deckFilters: { search: '', type: '', element: '', view: 'all' },
   selectedBoard: null, chessLock: null, chessReplayPaused: false, chessReplaySpeed: 1, notice: '', lastSavedLocation: 0, heldKeys: new Set(), tcgImpacts: new Map(),
   rosterId: HERO_ID, rosterTab: 'info', rosterFilter: 'owned', bannerId: 'featured_bunbo_001', gachaPayment: 'ticket',
-  pendingDraw: null, storeTab: 'all', storeMember: null, showMinimap: true, worldStick: null, rigClocks: new Map(), tcgReveal: null, tcgCutIn: null,
+  pendingDraw: null, settlingDraw: null, storeTab: 'all', storeMember: null, showMinimap: true, worldStick: null, rigClocks: new Map(), tcgReveal: null, tcgCutIn: null,
 };
 runtime.adventure = createAdventureState(runtime.save);
 runtime.tcg = runtime.save.modes.tcg;
@@ -268,6 +269,7 @@ async function enterGame(report) {
 function replaceProfile(save) {
   runtime.save = save;
   runtime.pendingDraw = null;
+  runtime.settlingDraw = null;
   runtime.rosterFilter = 'owned';
   runtime.storeMember = null;
   runtime.adventure = createAdventureState(save);
@@ -2791,11 +2793,12 @@ function renderSynergies(counts, traits) {
   }).join('')}</div>`;
 }
 
-function showGachaReceipt(receipt) {
+function showGachaReceipt(receipt, cinematic = false) {
   const dialog = openInfoDialog('Kết quả giao ước', '');
   dialog.classList.add('meta-reveal-dialog');
-  revealGacha(dialog, receipt, {
-    reducedMotion: app.dataset.motion === 'reduced',
+  const reducedMotion = () => runtime.save.settings.reducedSummonMotion || app.dataset.motion === 'reduced';
+  const showResults = () => revealGacha(dialog, receipt, {
+    reducedMotion: true,
     onProfile: id => {
       runtime.rosterId = id;
       runtime.rosterFilter = 'owned';
@@ -2803,13 +2806,23 @@ function showGachaReceipt(receipt) {
       navigate('roster');
     },
   });
+  if (cinematic && !reducedMotion()) {
+    playGachaCinematic(dialog, receipt, {
+      renderer: spriteRenderer, reducedMotion, onComplete: showResults,
+      playCue: (id, options) => runtime.audio.play(id, options),
+    });
+  } else {
+    if (cinematic) runtime.audio.play('sfx_ui_confirm');
+    showResults();
+  }
 }
 
 function renderGacha() {
   const { save, bannerId, gachaPayment, pendingDraw } = runtime;
   shell(`${pageHeader('Gacha', 'Giao Ước Vị Linh', '')}
     ${gachaPanel(save, bannerId, gachaPayment)}
-    ${pendingDraw ? '<div class="action-row"><button class="button" data-gacha-retry>Thử lại giao dịch</button></div>' : ''}
+    ${runtime.settlingDraw ? '<p class="notice" role="status">Đang xử lý triệu hồi…</p>'
+      : pendingDraw ? '<div class="action-row"><button class="button" data-gacha-retry>Thử lại giao dịch</button></div>' : ''}
     ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}`);
   app.querySelectorAll('[data-gacha-banner]').forEach(button => button.addEventListener('click', () => {
     runtime.bannerId = button.dataset.gachaBanner;
@@ -2820,6 +2833,10 @@ function renderGacha() {
     runtime.gachaPayment = event.target.value;
     renderGacha();
     app.querySelector('[data-gacha-payment]').focus();
+  });
+  app.querySelector('[data-gacha-motion]').addEventListener('change', event => {
+    runtime.save.settings.reducedSummonMotion = event.target.checked;
+    saveNow();
   });
   app.querySelector('[data-gacha-odds]').addEventListener('click', () =>
     openInfoDialog('Tỷ lệ triệu hồi', gachaOdds(runtime.save, BANNERS[bannerId])));
@@ -2847,15 +2864,21 @@ function renderGacha() {
 }
 
 async function settleGachaDraw(request) {
+  if (runtime.settlingDraw) return;
   const shellElement = app.querySelector('.shell');
+  const { cloud, account } = runtime;
+  const settlement = {};
   shellElement.inert = true;
   app.querySelector('[data-shell-status]').textContent = 'Đang xử lý triệu hồi…';
   runtime.pendingDraw = request;
+  runtime.settlingDraw = settlement;
+  let receipt;
   try {
-    let receipt;
-    if (runtime.cloud) {
-      if (!await runtime.cloud.flush()) throw runtime.cloudError ?? new Error('Tiến trình chưa được lưu.');
-      const result = await accountApi.draw(runtime.account.id, request);
+    if (cloud) {
+      if (!await cloud.flush()) throw runtime.cloudError ?? new Error('Tiến trình chưa được lưu.');
+      if (runtime.settlingDraw !== settlement) return;
+      const result = await accountApi.draw(account.id, request);
+      if (runtime.settlingDraw !== settlement) return;
       mergeServerMeta(runtime.save, result.meta);
       receipt = result.receipt;
     } else {
@@ -2866,15 +2889,20 @@ async function settleGachaDraw(request) {
     runtime.pendingDraw = null;
     runtime.notice = '';
     saveNow();
-    runtime.audio.play(receipt.items.some(item => SPIRITS[item.id].rarity === 'SSR') ? 'sfx_victory' : 'sfx_ui_confirm');
-    renderGacha();
-    showGachaReceipt(receipt);
   } catch (error) {
-    if (!runtime.cloud || (error.status && error.status !== 401 && error.status < 500)) runtime.pendingDraw = null;
-    runtime.notice = runtime.cloud ? accountErrorMessage(error) : error.message;
-    renderGacha();
+    if (runtime.settlingDraw !== settlement) return;
+    receipt = null;
+    if (!cloud || (error.status && error.status !== 401 && error.status < 500)) runtime.pendingDraw = null;
+    runtime.notice = cloud ? accountErrorMessage(error) : error.message;
   } finally {
     shellElement.inert = false;
+    if (runtime.settlingDraw === settlement) {
+      runtime.settlingDraw = null;
+      if (runtime.page === 'gacha') {
+        renderGacha();
+        if (receipt) showGachaReceipt(receipt, true);
+      }
+    }
   }
 }
 

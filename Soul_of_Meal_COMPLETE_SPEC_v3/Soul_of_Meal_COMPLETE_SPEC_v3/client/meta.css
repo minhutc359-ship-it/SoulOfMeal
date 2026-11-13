@@ -104,14 +104,24 @@
   .meta-reveal-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 95px), 1fr)); }
 }
 
-.meta-ssr-dialog { isolation: isolate; }
-.meta-ssr-cut {
-  position: absolute; z-index: 1; inset: 56px 0 62px; margin: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto;
-  padding: 8px; min-height: 0; overflow: hidden; text-align: center; color: #fff3da;
-  background: radial-gradient(ellipse at 50% 46%, #a66b49, #24182c 72%); animation: meta-ssr-reveal .55s ease-out both;
+.gacha-motion { display: flex; align-items: center; gap: 6px; min-height: 38px; font-size: 13px; }
+.gacha-motion input { accent-color: #efb757; }
+.meta-reveal-dialog .meta-reveal-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 100px), 1fr)); }
+.meta-reveal-dialog .meta-reveal-grid[data-result-count="10"] { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.meta-reveal-dialog .meta-card-front { animation: none; }
+.gacha-cinematic-dialog.game-info-dialog {
+  position: fixed; inset: 0; margin: auto; padding: 0; overflow: hidden;
+  width: min(100%, 177.78dvh); max-width: 100%; max-height: 100dvh;
+  color: #fff1d4; border: 0; border-radius: 0; background: #151025;
 }
-.meta-ssr-cut[hidden] { display: none; }
-.meta-ssr-cut img { width: 100%; height: 100%; object-fit: contain; }
-.meta-ssr-cut figcaption { background: #261927c4; padding: 3px; }
-.meta-ssr-cut strong { display: block; font-size: clamp(16px, 4vw, 28px); }
-@keyframes meta-ssr-reveal { from { opacity: 0; scale: .93; } to { opacity: 1; scale: 1; } }
+.gacha-cinematic-dialog::backdrop { background: #100c19f7; }
+.gacha-cinematic-heading { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+.gacha-cinematic-stage { position: relative; }
+.gacha-cinematic-stage canvas { display: block; width: 100%; aspect-ratio: 16 / 9; }
+.gacha-cinematic-stage [data-gacha-skip] {
+  position: absolute; bottom: max(6px, env(safe-area-inset-bottom)); right: max(7px, env(safe-area-inset-right));
+  min-width: 74px; min-height: 44px; color: #fff4dd; border: 1px solid #e4bc7e; background: #171222e8;
+}
+@media (max-width: 540px) {
+  .meta-reveal-dialog .meta-reveal-grid[data-result-count="10"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

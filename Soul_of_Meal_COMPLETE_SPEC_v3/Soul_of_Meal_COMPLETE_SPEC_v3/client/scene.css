@@ -284,7 +284,7 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
 .shell[data-screen="home"] .lobby { position: relative; }
 .shell[data-screen="home"] .lobby-modes { z-index: 2; }
 .shell[data-screen="gacha"] .main {
-  background: radial-gradient(ellipse at 32% 53%, #81534840, #19212b 69%), url('./assets/original/scenes/sanctum.webp') center / cover;
+  background: radial-gradient(ellipse at 32% 53%, #81534840, #19212b 69%), url('./assets/original/scenes/gacha_banquet.webp') center / cover;
 }
 .shell[data-screen="gacha"] .meta-gacha { color: var(--scene-text); background: #1f1d2ddb; border-color: #dba96b; }
 .shell[data-screen="gacha"] .meta-wallet { color: #ffe1a3; }

@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 21807,
-      "sha256": "349cdb670b8ca0191ef2ad18851b0562b3f234ce4d7e46af7860df1c4aba7aed"
+      "bytes": 22429,
+      "sha256": "d477ab516e57053da0f7c5f5bc85277835fc75670bd5c032279b53ab4680b016"
     },
     {
       "path": "client/index.html",
@@ -789,13 +789,13 @@
     },
     {
       "path": "client/src/core/save.js",
-      "bytes": 4882,
-      "sha256": "c039de8ab8fcbc60794e505208e7a32e7c42d94d20f5dd205eaf8a6100e70f83"
+      "bytes": 4910,
+      "sha256": "4509348264375f32dacc049f8c80154a8357f2684f09b4010ae2b0af59d0b25c"
     },
     {
       "path": "client/src/main.js",
-      "bytes": 201453,
-      "sha256": "65e39394a34917a5d01b9d8393318bab562a3ebe280a554b6f2ef503bc5eb945"
+      "bytes": 202587,
+      "sha256": "fe4de74efcf3395e2d71ddd25d6448e84e2a9fe54881f612eacc453335d9278c"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -2184,8 +2184,8 @@
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_SOURCES.json",
-      "bytes": 54904,
-      "sha256": "7439b113438355268edc5bcc2736b65cd38c24fab98a5d3e5f126e3854d89a61"
+      "bytes": 55373,
+      "sha256": "ade6ee47d2ec1b2b82d0058fc8d73bc90b35ca921a5b01de5fc7a802ae319634"
     },
     {
       "path": "scripts/build_element_sfx.py",
@@ -3159,8 +3159,8 @@
     },
     {
       "path": "client/meta.css",
-      "bytes": 9103,
-      "sha256": "4b1f945d60ef213ffcc5e56b17bacd62cee05f249d9202064af40696ea5b9c70"
+      "bytes": 9778,
+      "sha256": "33c969dfc2e1485a2c8b04325aff4b09fab4573f2aea30c1f74e27e2d67aad3a"
     },
     {
       "path": "client/src/modes/adventureStore.js",
@@ -3179,8 +3179,8 @@
     },
     {
       "path": "client/src/shell/metaPanels.js",
-      "bytes": 12982,
-      "sha256": "59c1a5f38dcb8b6eb7e2490d04fb4bb35cc81cf8ca3d90b9cd9ddb3d7d6de295"
+      "bytes": 12339,
+      "sha256": "150193739a9cfea214f771dee2fd5a29f9c8529a79c3d7c4614f531d254028d6"
     },
     {
       "path": "client/tests/metaProgress.test.js",
@@ -3204,13 +3204,13 @@
     },
     {
       "path": "client/scene.css",
-      "bytes": 21693,
-      "sha256": "d5846bf40247de5b159ae667f21bd8e7df450bed1e11a546136773961d917ea7"
+      "bytes": 21699,
+      "sha256": "d741461424471e60bfd4bd79ffc64925fcbb35da56920ffe115642f81927fafd"
     },
     {
       "path": "client/scripts/smoke-web-client.cjs",
-      "bytes": 11984,
-      "sha256": "696ab2dfc8062f12242634ca21b611bddc766f7456311636eb34ceecaf82839c"
+      "bytes": 12135,
+      "sha256": "036af5674f7a0ae87ee4c7df5ebc2704ac505132150dc194d3b54aa4dcdef2d3"
     },
     {
       "path": "client/src/shell/sceneNavigation.js",
@@ -3221,6 +3221,26 @@
       "path": "docs/05_production/WEB_CLIENT_PLAYTEST.md",
       "bytes": 4650,
       "sha256": "fe39fc40e7598d118d4331e4d11eab6eabb486d4aacbe32f4f5d8c2d319db58a"
+    },
+    {
+      "path": "client/assets/original/scenes/gacha_banquet.webp",
+      "bytes": 130756,
+      "sha256": "df5491360d1ddf8850ac29bfe1de6c4f1b1b632213aba31033c7ecc12c82bb78"
+    },
+    {
+      "path": "client/src/render/gachaCinematic.js",
+      "bytes": 16564,
+      "sha256": "ae7b0615f8d19b2a13bb6b8d97706e2260b1e656e6b745a06bf04b90adb8e9d7"
+    },
+    {
+      "path": "client/src/shell/gachaCinematicDialog.js",
+      "bytes": 3429,
+      "sha256": "f7f315148cca2adfe99194b74ee9a6aa4e677a82d77263abaf714a4def388cc7"
+    },
+    {
+      "path": "client/tests/gachaCinematic.test.js",
+      "bytes": 1858,
+      "sha256": "b1b75687f8fb01fe0ea0508912147e78dfcf543d87f2aeb8587c1f03a9dc26d1"
     }
   ]
 }
