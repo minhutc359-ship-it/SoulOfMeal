@@ -145,6 +145,8 @@ Người chơi mới nhập tên rồi nhận miễn phí hai Vị Linh qua ho�
 
 Sau khi nhận đội khởi đầu hoặc từ thanh điều hướng ở sảnh, mở **Gacha · Giao Ước Vị Linh** để xem tỷ lệ theo lượt kế tiếp, triệu hồi 1 hoặc 10 và xem lại kết quả. Bộ sưu tập hiển thị 24 Vị Linh theo độ hiếm, cho thêm tối đa năm Vị Linh vào đội Adventure và thức tỉnh đến năm sao. **Cửa hàng Adventure** mở từ sảnh hoặc quầy trong làng. Vật phẩm mua được đưa vào túi và có thể dùng, trang bị, khóa, bán hoặc tinh luyện tùy loại.
 
+Gacha phát cinematic N/R 5 giây, SR 7 giây, SSR 10 giây và một cảnh 10 giây cho lượt ×10. Bỏ qua hoặc bật **Giảm hiệu ứng triệu hồi** để vào thẳng kết quả. Khi ×10 có SSR, SSR đầu tiên trong biên nhận xuất hiện ở hai giây cuối. Bảng tổng kết giữ thứ tự và hiển thị đủ cả 10 kết quả. Lịch sử mở lại bảng kết quả trực tiếp. Tài khoản nhận biên nhận từ máy chủ, khách cục bộ dùng cơ chế lưu hiện có. Cảnh Canvas dùng tranh Bàn Tiệc Giao Ước, hiệu ứng và rig có sẵn trong client.
+
 Giá cửa hàng dùng thang vàng của chiến dịch đang có. Chỉ số nâng cấp và trang bị áp dụng cho Adventure. Kỹ năng của các Vị Linh mới hiện dùng cơ chế thử nghiệm theo vai trò.
 
 ### Kiểm tra giao diện Web Game Client

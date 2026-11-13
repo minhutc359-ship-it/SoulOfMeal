@@ -77,7 +77,7 @@ export function gachaPanel(save, bannerId, payment) {
   const highlight = SPIRITS[banner.featured ?? META.mascot];
   const drawButton = count => {
     const cost = count * (payment === 'gem' ? META.gemCost : 1);
-    return `<button type="button" class="button" data-gacha-draw="${count}" ${remaining < count || save.meta.wallet[payment] < cost ? 'disabled' : ''}>Triệu hồi ${count} · ${cost} ${payment === 'gem' ? 'Tinh Thạch' : 'vé'}</button>`;
+    return `<button type="button" class="button" data-gacha-draw="${count}" ${remaining < count || save.meta.wallet[payment] < cost ? 'disabled' : ''}>Triệu hồi ×${count} · ${cost} ${payment === 'gem' ? 'Tinh Thạch' : 'vé'}</button>`;
   };
   return `<section class="meta-gacha panel">
     <div class="meta-banner-tabs" role="group" aria-label="Chọn giao ước">${META.banners.map(item =>
@@ -94,6 +94,7 @@ export function gachaPanel(save, bannerId, payment) {
         <option value="ticket" ${payment === 'ticket' ? 'selected' : ''}>Vé triệu hồi</option>
         <option value="gem" ${payment === 'gem' ? 'selected' : ''}>Tinh Thạch</option></select></label></div>
       <div class="action-row">${drawButton(1)}${drawButton(10)}</div>
+      <label class="gacha-motion"><input type="checkbox" data-gacha-motion ${save.settings.reducedSummonMotion ? 'checked' : ''}> Giảm hiệu ứng triệu hồi</label>
       <div class="action-row"><button class="button light" data-gacha-odds>Tỷ lệ</button><button class="button light" data-gacha-history>Lịch sử</button></div>
       ${!Number.isFinite(remaining) && remaining >= 1 && save.meta.wallet[payment] < (payment === 'gem' ? META.gemCost : 1)
         ? `<p class="muted-copy">${save.meta.serverOwned ? 'Đổi loại thanh toán để dùng số dư còn lại.' : 'Nhận thêm vé khi vượt ải Adventure lần đầu.'}</p>` : ''}
@@ -114,12 +115,7 @@ export function gachaOdds(save, banner) {
 export function revealGacha(host, receipt, { onProfile, onComplete, reducedMotion }) {
   let shown = 0;
   let timer;
-  const spotlight = receipt.items.find(item => SPIRITS[item.id].rarity === 'SSR');
-  const star = spotlight && SPIRITS[spotlight.id];
-  if (star && !reducedMotion) host.classList.add('meta-ssr-dialog');
-  host.insertAdjacentHTML('beforeend', `${star && !reducedMotion ? `<figure class="meta-ssr-cut" data-rarity="SSR" hidden>
-      ${spiritImage(star.id, true)}<figcaption><small>SSR · ${ELEMENTS[star.element]}</small><strong>${star.name}</strong></figcaption></figure>` : ''}
-    <div class="meta-reveal-grid">${receipt.items.map(({ id, isNew, essence }) => {
+  host.insertAdjacentHTML('beforeend', `<div class="meta-reveal-grid" data-result-count="${receipt.items.length}">${receipt.items.map(({ id, isNew, essence }) => {
     const spirit = SPIRITS[id];
     const front = onProfile ? `<button class="meta-card-front" data-result-profile="${id}" disabled>` : '<div class="meta-card-front">';
     return `<div class="meta-reveal-card" data-rarity="${spirit.rarity}" data-revealed="false">
@@ -131,14 +127,9 @@ export function revealGacha(host, receipt, { onProfile, onComplete, reducedMotio
   <div class="action-row"><button class="button" type="button" data-reveal-all>Hiện tất cả</button></div>`);
   const cards = [...host.querySelectorAll('.meta-reveal-card')];
   const skip = host.querySelector('[data-reveal-all]');
-  const cut = host.querySelector('.meta-ssr-cut');
   function finish() {
     onComplete?.();
     skip.hidden = true;
-  }
-  function closeCut() {
-    if (cut) cut.hidden = true;
-    host.classList.remove('meta-ssr-dialog');
   }
   function showNext() {
     const card = cards[shown++];
@@ -148,21 +139,13 @@ export function revealGacha(host, receipt, { onProfile, onComplete, reducedMotio
   }
   function showAll() {
     clearTimeout(timer);
-    closeCut();
     while (shown < cards.length) showNext();
     finish();
   }
   function animate() {
     if (!host.isConnected) return;
     showNext();
-    if (cut && receipt.items[shown - 1] === spotlight) {
-      cut.hidden = false;
-      timer = setTimeout(() => {
-        closeCut();
-        if (shown < cards.length) animate();
-        else finish();
-      }, 2400);
-    } else if (shown < cards.length) timer = setTimeout(animate, onProfile ? 190 : 460);
+    if (shown < cards.length) timer = setTimeout(animate, 460);
     else finish();
   }
   skip.addEventListener('click', showAll);
