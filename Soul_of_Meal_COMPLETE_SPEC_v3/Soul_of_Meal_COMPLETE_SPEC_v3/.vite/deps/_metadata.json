@@ -1,0 +1,15 @@
+{
+  "hash": "bb7a3fd0",
+  "configHash": "c0f7da07",
+  "lockfileHash": "e3b0c442",
+  "browserHash": "53e8416f",
+  "optimized": {
+    "phaser": {
+      "src": "../../client/node_modules/phaser/dist/phaser.esm.js",
+      "file": "phaser.js",
+      "fileHash": "977e864b",
+      "needsInterop": false
+    }
+  },
+  "chunks": {}
+}
