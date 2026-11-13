@@ -1,5 +1,5 @@
 import { ADVENTURE_OFFERS, GEAR_MAX_LEVEL, GEAR_SLOTS, STORE_UPGRADE_GOLD, STORE_UPGRADE_STONES, itemBonus } from '../modes/adventureStore.js';
-import { BANNERS, META, SPIRITS, bannerOdds } from '../modes/metaProgress.js';
+import { BANNERS, META, SPIRITS, bannerOdds, starterSpirits } from '../modes/metaProgress.js';
 import { actorArt, cutinArt, HERO_NAMES } from '../render/spriteAssets.js';
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>"']/g, character =>
@@ -17,29 +17,58 @@ export function spiritImage(id, large = false) {
 }
 
 export function renderOnboarding(app, name, create) {
-  app.innerHTML = `<main class="entry entry-onboarding"><form class="meta-onboarding panel">
-    <header><h1>Gặp gỡ Vị Linh</h1><p>Lilia tặng bạn Bánh Bao Bạch Ngọc. Chọn thêm một Vị Linh SR để cùng khám phá Làng Ẩm Thực.</p></header>
-    <label>Tên Người Kết Vị<input name="name" maxlength="19" required autocomplete="nickname"></label>
-    <fieldset><legend>Ảnh đại diện</legend><div class="meta-avatar-options">${META.onboardingAvatars.map((id, index) =>
-      `<label title="${SPIRITS[id].name}"><input type="radio" name="avatar" value="${id}" ${index === 0 ? 'checked' : ''} aria-label="${SPIRITS[id].name}">${spiritImage(id)}</label>`).join('')}</div></fieldset>
-    <fieldset><legend>Vị Linh đồng hành</legend><div class="meta-starter-options">${META.starters.map(id =>
-      `<label><input type="radio" name="starter" value="${id}" required>${spiritImage(id)}<b>${SPIRITS[id].name}</b><small>${ELEMENTS[SPIRITS[id].element]} · SR</small></label>`).join('')}</div></fieldset>
-    <button type="submit" class="button">Vào Làng Ẩm Thực</button><p class="notice" role="status"></p>
+  app.innerHTML = `<main class="entry entry-onboarding"><form class="meta-onboarding panel" aria-labelledby="onboarding-title">
+    <h1 id="onboarding-title" tabindex="-1">Gặp gỡ Vị Linh</h1><p>Nhập tên để triệu hồi miễn phí hai Vị Linh đồng hành.</p>
+    <label>Tên Người Kết Vị<input name="name" minlength="3" maxlength="19" required autocomplete="nickname"></label>
+    <button type="submit" class="button">Triệu hồi Vị Linh</button><p class="notice" role="status"></p>
   </form></main>`;
   const form = app.querySelector('form');
+  const submit = form.querySelector('[type=submit]');
+  const status = form.querySelector('[role=status]');
   form.elements.name.value = name ?? '';
   form.addEventListener('submit', async event => {
     event.preventDefault();
-    const submit = form.querySelector('[type=submit]');
+    if (submit.disabled) return;
     submit.disabled = true;
+    status.textContent = 'Đang chuẩn bị giao ước…';
     try {
-      await create(Object.fromEntries(new FormData(form)));
+      await create(form.elements.name.value);
     } catch (error) {
-      form.querySelector('[role=status]').textContent = error.message;
+      status.textContent = error.message;
     } finally {
       submit.disabled = false;
     }
   });
+}
+
+export function renderStarterReveal(app, profile, continueTo, reducedMotion) {
+  app.innerHTML = `<main class="entry entry-onboarding starter-summon"><section class="meta-onboarding panel" aria-labelledby="starter-title">
+    <h1 id="starter-title" tabindex="-1">Giao Ước Khởi Đầu</h1><p>Hai Vị Linh sẽ cùng bạn khám phá Làng Ẩm Thực.</p>
+    <div data-starter-reveal></div>
+    <div class="action-row starter-actions">
+      <button class="button" type="button" data-starter-next="adventure" disabled>Vào Làng Ẩm Thực</button>
+      <button class="button light" type="button" data-starter-next="gacha" disabled>Đến Gacha</button>
+    </div>
+    <p class="notice" role="status"></p>
+  </section></main>`;
+  const items = starterSpirits(profile).map(id => ({ id, isNew: true, essence: 0 }));
+  const buttons = app.querySelectorAll('[data-starter-next]');
+  revealGacha(app.querySelector('[data-starter-reveal]'), { items }, {
+    reducedMotion,
+    onComplete: () => {
+      for (const button of buttons) button.disabled = false;
+      if (app.ownerDocument.activeElement === app.querySelector('[data-reveal-all]')) buttons[0].focus();
+    },
+  });
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      try {
+        continueTo(button.dataset.starterNext);
+      } catch (error) {
+        app.querySelector('.starter-summon [role=status]').textContent = error.message;
+      }
+    });
+  }
 }
 
 export function gachaPanel(save, bannerId, payment) {
@@ -82,57 +111,65 @@ export function gachaOdds(save, banner) {
     <p class="muted-copy">Tỷ lệ và chi phí đang dùng cho bản chơi thử.</p>`;
 }
 
-export function revealGacha(dialog, receipt, onProfile, reducedMotion) {
+export function revealGacha(host, receipt, { onProfile, onComplete, reducedMotion }) {
   let shown = 0;
   let timer;
   const spotlight = receipt.items.find(item => SPIRITS[item.id].rarity === 'SSR');
   const star = spotlight && SPIRITS[spotlight.id];
-  if (star && !reducedMotion) dialog.classList.add('meta-ssr-dialog');
-  dialog.insertAdjacentHTML('beforeend', `${star && !reducedMotion ? `<figure class="meta-ssr-cut" data-rarity="SSR" hidden>
+  if (star && !reducedMotion) host.classList.add('meta-ssr-dialog');
+  host.insertAdjacentHTML('beforeend', `${star && !reducedMotion ? `<figure class="meta-ssr-cut" data-rarity="SSR" hidden>
       ${spiritImage(star.id, true)}<figcaption><small>SSR · ${ELEMENTS[star.element]}</small><strong>${star.name}</strong></figcaption></figure>` : ''}
     <div class="meta-reveal-grid">${receipt.items.map(({ id, isNew, essence }) => {
     const spirit = SPIRITS[id];
+    const front = onProfile ? `<button class="meta-card-front" data-result-profile="${id}" disabled>` : '<div class="meta-card-front">';
     return `<div class="meta-reveal-card" data-rarity="${spirit.rarity}" data-revealed="false">
       <span class="meta-card-back" aria-hidden="true">✦</span>
-      <button class="meta-card-front" data-result-profile="${id}" disabled>${spiritImage(id)}
-      <small>${spirit.rarity}</small><b>${spirit.name}</b><span>${isNew ? 'Mới' : '+' + essence + ' Tinh Hoa'}</span></button></div>`;
+      ${front}${spiritImage(id)}<small>${spirit.rarity} · ${ELEMENTS[spirit.element]}</small>
+      <b>${spirit.name}</b><span>${isNew ? 'Mới' : '+' + essence + ' Tinh Hoa'}</span>
+      ${onProfile ? '</button>' : '</div>'}</div>`;
   }).join('')}</div>
-  <div class="action-row"><button class="button" data-reveal-all>Hiện tất cả</button></div>`);
-  const cards = [...dialog.querySelectorAll('.meta-reveal-card')];
-  const skip = dialog.querySelector('[data-reveal-all]');
-  const cut = dialog.querySelector('.meta-ssr-cut');
-  const closeCut = () => {
+  <div class="action-row"><button class="button" type="button" data-reveal-all>Hiện tất cả</button></div>`);
+  const cards = [...host.querySelectorAll('.meta-reveal-card')];
+  const skip = host.querySelector('[data-reveal-all]');
+  const cut = host.querySelector('.meta-ssr-cut');
+  function finish() {
+    onComplete?.();
+    skip.hidden = true;
+  }
+  function closeCut() {
     if (cut) cut.hidden = true;
-    dialog.classList.remove('meta-ssr-dialog');
-  };
+    host.classList.remove('meta-ssr-dialog');
+  }
   function showNext() {
     const card = cards[shown++];
     card.dataset.revealed = 'true';
-    card.querySelector('button').disabled = false;
-    if (shown === cards.length) skip.hidden = true;
+    const button = card.querySelector('button');
+    if (button) button.disabled = false;
   }
   function showAll() {
     clearTimeout(timer);
     closeCut();
     while (shown < cards.length) showNext();
+    finish();
   }
   function animate() {
+    if (!host.isConnected) return;
     showNext();
     if (cut && receipt.items[shown - 1] === spotlight) {
       cut.hidden = false;
-      skip.hidden = false;
       timer = setTimeout(() => {
         closeCut();
         if (shown < cards.length) animate();
-        else skip.hidden = true;
+        else finish();
       }, 2400);
-    } else if (shown < cards.length) timer = setTimeout(animate, 190);
+    } else if (shown < cards.length) timer = setTimeout(animate, onProfile ? 190 : 460);
+    else finish();
   }
   skip.addEventListener('click', showAll);
-  for (const button of dialog.querySelectorAll('[data-result-profile]')) {
-    button.addEventListener('click', () => { dialog.close(); onProfile(button.dataset.resultProfile); });
+  for (const button of host.querySelectorAll('[data-result-profile]')) {
+    button.addEventListener('click', () => { host.close(); onProfile(button.dataset.resultProfile); });
   }
-  dialog.addEventListener('close', () => clearTimeout(timer), { once: true });
+  host.addEventListener('close', () => clearTimeout(timer), { once: true });
   if (reducedMotion) showAll();
   else timer = setTimeout(animate, 380);
 }

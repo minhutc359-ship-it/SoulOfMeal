@@ -9,16 +9,20 @@ export const MAX_PARTY = 5;
 const integer = (value, fallback = 0) => Number.isSafeInteger(value) && value >= 0 ? value : fallback;
 
 export function newMeta() {
-  return { profile: null, wallet: { ...META.welcomeWallet }, pity: {}, history: [] };
+  return { profile: null, starterRevealPending: false, wallet: { ...META.welcomeWallet }, pity: {}, history: [] };
 }
 
 export function restoreMeta(value, legacy, legacyName) {
   const fresh = newMeta();
-  const profile = value?.profile;
+  const stored = value?.profile;
+  const ids = starterSpirits(stored);
+  const profile = stored && validPlayerName(stored.name) && (META.onboardingAvatars.includes(stored.avatar) || ids.includes(stored.avatar))
+    ? { name: stored.name, avatar: stored.avatar, starter: META.starters.includes(stored.starter) ? stored.starter : null }
+    : legacy ? { name: validPlayerName(legacyName) ? legacyName : 'Người Kết Vị', avatar: META.mascot, starter: null } : null;
+  if (profile && Array.isArray(stored?.starterIds) && ids.length) profile.starterIds = [...ids];
   return {
-    profile: profile && validPlayerName(profile.name) && META.onboardingAvatars.includes(profile.avatar)
-      ? { name: profile.name, avatar: profile.avatar, starter: META.starters.includes(profile.starter) ? profile.starter : null }
-      : legacy ? { name: validPlayerName(legacyName) ? legacyName : 'Người Kết Vị', avatar: META.mascot, starter: null } : null,
+    profile,
+    starterRevealPending: Boolean(profile?.starterIds && value?.starterRevealPending),
     wallet: Object.fromEntries(Object.entries(fresh.wallet).map(([id, balance]) => [id, integer(value?.wallet?.[id], balance)])),
     pity: Object.fromEntries(META.banners.map(({ family }) => {
       const state = value?.pity?.[family];
@@ -84,18 +88,40 @@ export function recruitSpirit(save, id, joinParty = false) {
   return true;
 }
 
-export function finishOnboarding(save, { name, avatar, starter }) {
-  if (save.meta.profile) throw new Error('Hồ sơ đã được tạo.');
-  name = name.trim().normalize('NFC');
+export function starterSpirits(profile) {
+  if (profile?.starterIds != null) {
+    const ids = profile.starterIds;
+    return Array.isArray(ids) && ids.length === 2 && META.starterGuardians.includes(ids[0]) && META.starters.includes(ids[1]) ? ids : [];
+  }
+  return META.starters.includes(profile?.starter) ? [META.mascot, profile.starter] : [];
+}
+
+export function onboardingName(input) {
+  const name = typeof input === 'string' ? input.trim().normalize('NFC') : '';
   if (!validPlayerName(name)) throw new Error('Tên cần 3–19 ký tự, gồm chữ, số, dấu cách, gạch nối hoặc gạch dưới.');
-  if (!META.onboardingAvatars.includes(avatar) || !META.starters.includes(starter)) throw new Error('Chọn ảnh đại diện và một Vị Linh SR.');
+  return name;
+}
+
+export function rollStarters(save, name, random = randomPercent) {
+  const avatar = META.starterGuardians[Math.floor(random() / 100 * META.starterGuardians.length)];
+  const starter = META.starters[Math.floor(random() / 100 * META.starters.length)];
+  return finishOnboarding(save, { name, avatar, starter, starterIds: [avatar, starter] });
+}
+
+export function finishOnboarding(save, profile) {
+  if (save.meta.profile) throw new Error('Hồ sơ đã được tạo.');
+  const name = onboardingName(profile.name);
+  const ids = starterSpirits(profile);
+  if (!ids.length || !(META.onboardingAvatars.includes(profile.avatar) || ids.includes(profile.avatar))) {
+    throw new Error('Đội hình khởi đầu chưa hợp lệ.');
+  }
   const next = structuredClone(save);
-  next.meta.profile = { name, avatar, starter };
+  next.meta.profile = { ...profile, name };
+  next.meta.starterRevealPending = Boolean(profile.starterIds);
   next.player.name = name;
   next.roster = [];
   next.adventure.party = [];
-  recruitSpirit(next, META.mascot, true);
-  recruitSpirit(next, starter, true);
+  for (const id of ids) recruitSpirit(next, id, true);
   return next;
 }
 

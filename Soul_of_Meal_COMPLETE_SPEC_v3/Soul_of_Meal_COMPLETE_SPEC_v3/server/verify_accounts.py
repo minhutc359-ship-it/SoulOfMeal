@@ -115,14 +115,28 @@ def verify_meta():
     authenticate(first, "register", credentials, 201)
     authenticate(second, "login", credentials, 204)
     first_token, second_token = (csrf(browser) for browser in (first, second))
-    profile = {"name": "Minh Kết Vị", "avatar": "chr_banhbao_bachngoc", "starter": "chr_som_016"}
+    profile = {"name": "Minh Kết Vị"}
     bootstrap = expect(200, request(first, "/me/bootstrap"))
     assert bootstrap["meta"]["profile"] is None
     assert expect(401, request(first, "/player/create", "POST", profile, first_token,
                                {"X-Soul-Account": str(uuid4())}))["code"] == "session_expired"
-    assert expect(200, request(first, "/player/create", "POST", profile, first_token))["profile"] == profile
-    expect(200, request(second, "/player/create", "POST", profile, second_token))
-    expect(409, request(second, "/player/create", "POST", {**profile, "starter": "chr_pho_lamvu"}, second_token))
+    expect(400, request(first, "/player/create", "POST", {"name": "*"}, first_token))
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        creates = [pool.submit(request, browser, "/player/create", "POST", profile, token)
+                   for browser, token in ((first, first_token), (second, second_token))]
+        created, repeated = (expect(200, job.result()) for job in creates)
+    assert created == repeated
+    identity = created["profile"]
+    guardian, companion = identity["starterIds"]
+    assert guardian in {"chr_banhbao_bachngoc", "chr_som_002", "chr_som_009"}
+    assert companion in {"chr_pho_lamvu", "chr_goicuon_diepnhi", "chr_som_016"}
+    assert identity == {"name": profile["name"], "avatar": guardian, "starter": companion,
+                        "starterIds": [guardian, companion]}
+    assert set(created["owned"]) == {guardian, companion}
+    assert created["wallet"] == bootstrap["meta"]["wallet"]
+    assert not created["pity"] and not created["history"]
+    assert expect(200, request(second, "/me/bootstrap"))["meta"] == created
+    expect(409, request(second, "/player/create", "POST", {"name": "Một Tên Khác"}, second_token))
 
     payload = {"bannerId": "newbie_001", "count": 10, "payment": "ticket", "key": str(uuid4())}
     with ThreadPoolExecutor(max_workers=2) as pool:

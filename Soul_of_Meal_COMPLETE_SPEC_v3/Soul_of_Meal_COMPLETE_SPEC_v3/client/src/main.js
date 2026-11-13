@@ -36,9 +36,9 @@ import { createAccountApi, accountErrorMessage } from './core/accountApi.js';
 import { createCloudSave } from './core/cloudSave.js';
 import { activeContentRelease, pinnedContentRelease } from './core/contentRelease.js';
 import { openAccountDialog } from './shell/accountDialog.js';
-import { adventureParty, BANNERS, changeParty, drawSpirits, finishOnboarding, META, recruitSpirit, SPIRITS } from './modes/metaProgress.js';
+import { adventureParty, BANNERS, changeParty, drawSpirits, finishOnboarding, META, onboardingName, recruitSpirit, rollStarters, SPIRITS, starterSpirits } from './modes/metaProgress.js';
 import { ADVENTURE_OFFERS, adventureGearFor, changeAdventureInventory } from './modes/adventureStore.js';
-import { gachaHistory, gachaOdds, gachaPanel, inventoryRows, renderOnboarding, revealGacha, spiritImage, storeDetail } from './shell/metaPanels.js';
+import { gachaHistory, gachaOdds, gachaPanel, inventoryRows, renderOnboarding, renderStarterReveal, revealGacha, spiritImage, storeDetail } from './shell/metaPanels.js';
 import { openStoryDialog } from './shell/storyDialog.js';
 import { bindSceneNavigation } from './shell/sceneNavigation.js';
 
@@ -187,7 +187,7 @@ function handleAdventureRigEvent({ type, payload, source_id }, battle, clock) {
   return point;
 }
 
-const iconMap = { home: '⌂', adventure: '⌖', tcg: '▤', chess: '▦', roster: '✿', settings: '⚙' };
+const iconMap = { gacha: '✦', adventure: '⌖', tcg: '▤', chess: '▦', roster: '✿', settings: '⚙' };
 const elementColors = { fire: '#dd684a', water: '#428eac', wood: '#548d56', light: '#b8923c', shadow: '#75627e' };
 
 const contentFiles = [
@@ -261,9 +261,8 @@ function syncMotion() {
 async function enterGame(report) {
   runtime.audio.unlock();
   if (!runtime.animations) await loadContent(report);
-  if (!runtime.save.meta.profile) return navigate('onboarding');
-  saveNow();
-  navigate('home');
+  if (runtime.save.meta.profile) saveNow();
+  navigate(profileScene());
 }
 
 function replaceProfile(save) {
@@ -316,35 +315,76 @@ function applyCloudProfile({ account, practiceSave, meta }) {
   runtime.account = account;
   runtime.cloud = createCloudSave(accountApi, account.id, practiceSave, updateCloudStatus);
   let save = migrateSave(practiceSave.snapshot);
-  if (meta?.profile?.starter && !save.meta.profile) save = finishOnboarding(save, meta.profile);
+  if (!save.meta.profile && starterSpirits(meta?.profile).length) save = finishOnboarding(save, meta.profile);
   mergeServerMeta(save, meta);
   replaceProfile(save);
   updateCloudStatus('saved');
   if (save.meta.profile) saveNow();
 }
 
+function profileScene() {
+  if (!runtime.save.meta.profile) return 'onboarding';
+  return runtime.save.meta.starterRevealPending ? 'starter-summon' : 'home';
+}
+
 async function enterAccount(bootstrap, report) {
   runtime.audio.unlock();
   if (!runtime.animations) await loadContent(report);
   applyCloudProfile(bootstrap);
-  navigate(runtime.save.meta.profile ? 'home' : 'onboarding');
+  navigate(profileScene());
 }
 
 function showOnboarding() {
   const username = runtime.account?.username;
   renderOnboarding(app, /^(guest|google)_/.test(username ?? '') ? '' : username, async input => {
-    const next = finishOnboarding(runtime.save, input);
-    if (runtime.cloud) {
+    const name = onboardingName(input);
+    const { cloud, account, save } = runtime;
+    let next;
+    if (cloud) {
+      let meta;
       try {
-        mergeServerMeta(next, await accountApi.createPlayer(runtime.account.id, next.meta.profile));
+        meta = await accountApi.createPlayer(account.id, name);
       } catch (error) {
         throw new Error(accountErrorMessage(error));
       }
+      if (runtime.cloud !== cloud) return;
+      next = finishOnboarding(save, meta.profile);
+      mergeServerMeta(next, meta);
+    } else {
+      const create = () => {
+        const existing = loadSave();
+        if (existing.meta.profile) return existing;
+        const created = rollStarters(save, name);
+        persistSave(created);
+        return created;
+      };
+      next = navigator.locks ? await navigator.locks.request(SAVE_KEY, create) : create();
+      if (runtime.cloud) return;
     }
     replaceProfile(next);
-    saveNow();
-    navigate('adventure', { replace: true });
+    if (cloud) saveNow();
+    if (runtime.page === 'onboarding') {
+      runtime.audio.play('sfx_ui_confirm');
+      navigate(profileScene(), { replace: true });
+    }
   });
+}
+
+function finishStarterReveal(page) {
+  const save = runtime.save;
+  save.meta.starterRevealPending = false;
+  try {
+    saveNow();
+  } catch (error) {
+    save.meta.starterRevealPending = true;
+    throw error;
+  }
+  if (page === 'gacha') {
+    navigate('home', { replace: true });
+    navigate('gacha');
+  } else {
+    navigate('adventure', { replace: true });
+  }
 }
 
 function updateCloudStatus(state, error) {
@@ -393,11 +433,11 @@ async function runCloudAction(action) {
       }
       if (bootstrap?.account.id === account.id) {
         applyCloudProfile(bootstrap);
-        navigate(runtime.save.meta.profile ? 'home' : 'onboarding');
+        navigate(profileScene());
       } else {
         openAccountDialog(app, accountApi, async (confirmed) => {
           applyCloudProfile(confirmed);
-          navigate('home');
+          navigate(profileScene());
         }, account);
       }
     } else if (action === 'logout') {
@@ -544,7 +584,7 @@ function shell(content) {
       </header>`}
       <main class="main">${content}</main>
       ${lobby ? `<nav class="game-dock" aria-label="Chế độ chơi">
-        ${navButton('home', 'Sảnh')}${navButton('adventure', 'Phiêu lưu')}${navButton('tcg', 'Đấu thẻ')}${navButton('chess', 'Đấu cờ')}${navButton('roster', 'Vị Linh')}${navButton('settings', 'Cài đặt')}
+        ${navButton('gacha', 'Gacha')}${navButton('adventure', 'Phiêu lưu')}${navButton('tcg', 'Đấu thẻ')}${navButton('chess', 'Đấu cờ')}${navButton('roster', 'Vị Linh')}${navButton('settings', 'Cài đặt')}
       </nav>` : ''}
       <p class="shell-status" data-shell-status role="status"></p>
     </div>`;
@@ -589,7 +629,10 @@ function pageHeader(kicker, title, description) {
 }
 
 function renderHome() {
-  const { quest } = runtime.save.adventure;
+  const { save } = runtime;
+  const { quest } = save.adventure;
+  const companion = save.roster.find(member => member.id === META.mascot) ?? save.roster[0];
+  const companionName = SPIRITS[companion.id].name;
   const journal = adventureJournal(runtime.save);
   const headline = journal.completedCampaign ? 'Đã hoàn thành Hành Trình Vị Linh'
     : journal.labels[journal.step]?.title ?? journal.nextChapterLabel ?? 'Trở lại Làng Ẩm Thực';
@@ -604,19 +647,19 @@ function renderHome() {
           <button type="button" class="button light" data-apply-release>Cập nhật</button>
         </div>` : ''}
       </div>
-      <button type="button" class="lobby-companion" data-lobby-companion aria-label="Xem hồ sơ Bánh Bao Bạch Ngọc">
-        ${boardChibi(META.mascot, 'lobby:' + META.mascot, 'E', spiritImage(META.mascot))}
-        <span>Bánh Bao Bạch Ngọc</span>
+      <button type="button" class="lobby-companion" data-lobby-companion aria-label="Xem hồ sơ ${escapeAttr(companionName)}">
+        ${boardChibi(companion.id, 'lobby:' + companion.id, 'E', spiritImage(companion.id))}
+        <span>${escapeHtml(companionName)}</span>
       </button>
       <div class="lobby-modes" role="group" aria-label="Chọn lối chơi">
         <button class="lobby-mode" data-page="tcg"><img src="${originalCardArt('card_demo_10')}" alt=""><span><strong>Thẻ chiến thuật</strong><small>${runtime.tcg && !runtime.tcg.result ? 'Tiếp tục ván đấu' : 'Đấu thẻ với bot'}</small></span><b aria-hidden="true">›</b></button>
         <button class="lobby-mode" data-page="chess"><img src="${sceneArt('chess_court')}" alt=""><span><strong>Auto Chess</strong><small>${runtime.chess && runtime.chess.phase !== 'finished' ? 'Tiếp tục vòng ' + chessRoundInfo(runtime.chess).label : 'Đấu cờ với bot'}</small></span><b aria-hidden="true">›</b></button>
-        <button class="lobby-mode lobby-service" data-page="gacha"><span><strong>Giao Ước Vị Linh</strong><small>Triệu hồi N–SSR</small></span><b aria-hidden="true">›</b></button>
+        <button class="lobby-mode lobby-service lobby-gacha" data-page="gacha"><span class="lobby-gacha-icon" aria-hidden="true">✦</span><span><strong>Gacha · Triệu hồi</strong><small>Giao Ước Vị Linh</small></span><b aria-hidden="true">›</b></button>
         <button class="lobby-mode lobby-service" data-page="store"><span><strong>Cửa hàng Adventure</strong><small>Vật phẩm và trang bị</small></span><b aria-hidden="true">›</b></button>
       </div>
     </section>`);
   app.querySelector('[data-lobby-companion]').addEventListener('click', () => {
-    runtime.rosterId = META.mascot;
+    runtime.rosterId = companion.id;
     runtime.rosterFilter = 'owned';
     runtime.rosterTab = 'info';
     navigate('roster');
@@ -2751,17 +2794,20 @@ function renderSynergies(counts, traits) {
 function showGachaReceipt(receipt) {
   const dialog = openInfoDialog('Kết quả giao ước', '');
   dialog.classList.add('meta-reveal-dialog');
-  revealGacha(dialog, receipt, id => {
-    runtime.rosterId = id;
-    runtime.rosterFilter = 'owned';
-    runtime.rosterTab = 'info';
-    navigate('roster');
-  }, app.dataset.motion === 'reduced');
+  revealGacha(dialog, receipt, {
+    reducedMotion: app.dataset.motion === 'reduced',
+    onProfile: id => {
+      runtime.rosterId = id;
+      runtime.rosterFilter = 'owned';
+      runtime.rosterTab = 'info';
+      navigate('roster');
+    },
+  });
 }
 
 function renderGacha() {
   const { save, bannerId, gachaPayment, pendingDraw } = runtime;
-  shell(`${pageHeader('Triệu hồi', 'Giao Ước Vị Linh', '')}
+  shell(`${pageHeader('Gacha', 'Giao Ước Vị Linh', '')}
     ${gachaPanel(save, bannerId, gachaPayment)}
     ${pendingDraw ? '<div class="action-row"><button class="button" data-gacha-retry>Thử lại giao dịch</button></div>' : ''}
     ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}`);
@@ -3108,9 +3154,12 @@ function render() {
     }
     return;
   }
-  if (runtime.page === 'onboarding') {
+  if (runtime.page === 'onboarding' || runtime.page === 'starter-summon') {
+    const page = profileScene();
+    if (page !== runtime.page) return navigate(page, { replace: true });
     runtime.audio.setScene('login');
-    return showOnboarding();
+    if (page === 'onboarding') return showOnboarding();
+    return renderStarterReveal(app, runtime.save.meta.profile, finishStarterReveal, app.dataset.motion === 'reduced');
   }
   if (runtime.page === 'gacha') return renderGacha();
   if (runtime.page === 'store') return renderStore();

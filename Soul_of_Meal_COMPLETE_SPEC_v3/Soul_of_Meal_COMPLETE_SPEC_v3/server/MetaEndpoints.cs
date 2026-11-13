@@ -15,11 +15,11 @@ internal static partial class MetaEndpoints
         });
         api.MapGet("/gacha/banners", async (ClaimsPrincipal user, MetaStore store, CancellationToken ct) =>
             await Run(() => store.ReadAsync(AccountId(user), user.Identity!.Name!, ct))).RequireAuthorization();
-        guarded.MapPost("/player/create", async (PlayerIdentity profile, ClaimsPrincipal user, MetaStore store, CancellationToken ct) =>
+        guarded.MapPost("/player/create", async (CreatePlayerRequest profile, ClaimsPrincipal user, MetaStore store, CancellationToken ct) =>
         {
             var name = profile.Name?.Trim().Normalize(NormalizationForm.FormC);
             if (name is null || !PlayerName().IsMatch(name)) return Results.Json(new { code = "invalid_profile" }, statusCode: 400);
-            return await Run(() => store.CreateProfileAsync(AccountId(user), user.Identity!.Name!, profile with { Name = name }, ct));
+            return await Run(() => store.CreateProfileAsync(AccountId(user), user.Identity!.Name!, name, ct));
         }).RequireAuthorization();
         guarded.MapPost("/gacha/draw", async (DrawRequest request, ClaimsPrincipal user, MetaStore store, CancellationToken ct) =>
             await Run(() => store.DrawAsync(AccountId(user), user.Identity!.Name!, request, ct))).RequireAuthorization().RequireRateLimiting("meta");

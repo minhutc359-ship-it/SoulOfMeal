@@ -17,7 +17,7 @@ const messages = {
   save_too_large: 'Bản lưu đã vượt dung lượng cho phép.',
   invalid_practice_save: 'Dữ liệu bản chơi thử không hợp lệ.',
   csrf: 'Không xác minh được yêu cầu. Hãy thử lại.',
-  invalid_profile: 'Tên, ảnh đại diện hoặc Vị Linh khởi đầu chưa hợp lệ.',
+  invalid_profile: 'Tên Người Kết Vị chưa hợp lệ.',
   profile_exists: 'Hồ sơ đã được tạo trên thiết bị khác. Hãy mở lại tài khoản.',
   profile_required: 'Hãy tạo hồ sơ trước khi triệu hồi.',
   invalid_draw: 'Yêu cầu triệu hồi không hợp lệ.',
@@ -81,8 +81,8 @@ export function createAccountApi(fetchRequest = globalThis.fetch) {
       token = undefined;
       return bootstrap();
     },
-    async createPlayer(accountId, profile) {
-      return (await mutate('/player/create', 'POST', JSON.stringify(profile), false, { 'X-Soul-Account': accountId })).json();
+    async createPlayer(accountId, name) {
+      return (await mutate('/player/create', 'POST', JSON.stringify({ name }), false, { 'X-Soul-Account': accountId })).json();
     },
     async draw(accountId, request) {
       return (await mutate('/gacha/draw', 'POST', JSON.stringify(request), false, { 'X-Soul-Account': accountId })).json();

@@ -6,6 +6,7 @@ const { chromium } = require('playwright');
 const base = process.env.SOM_UI_BASE ?? 'http://127.0.0.1:4173';
 const output = process.env.SOM_UI_OUTPUT;
 const baseline = process.env.SOM_UI_BASELINE === '1';
+const saveKey = 'soul-of-meal.save.v2';
 const viewports = [[1920, 1080], [1366, 768], [844, 390], [390, 844], [360, 740], [1024, 768]];
 const screen = name => `.shell[data-screen="${name}"]`;
 const click = (page, selector) => page.locator(selector).first().click();
@@ -85,8 +86,38 @@ async function check(page, width, height) {
   await capture(page, 'login', size);
   await click(page, '[data-enter]');
   await page.locator('.meta-onboarding input[name="name"]').fill('Kiểm Thử');
-  await page.locator('[name="starter"][value="chr_som_016"]').check();
+  if (baseline) await page.locator('[name="starter"][value="chr_som_016"]').check();
+  else assert.deepEqual(await page.locator('.meta-onboarding input').evaluateAll(inputs => inputs.map(input => input.name)), ['name']);
   await click(page, '.meta-onboarding [type="submit"]');
+  if (!baseline) {
+    await page.waitForSelector('.starter-summon');
+    const first = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), saveKey);
+    const ids = first.meta.profile.starterIds;
+    assert.equal(new Set(ids).size, 2);
+    assert.deepEqual(first.adventure.party, ids);
+    assert.deepEqual(first.roster.map(member => member.id), ids);
+    assert.equal(first.meta.wallet.ticket, 10);
+    assert.equal(first.meta.starterRevealPending, true);
+    if (width === 844) {
+      await page.reload();
+      await click(page, '[data-enter]');
+      await page.waitForSelector('.starter-summon');
+      const restored = await page.evaluate(key => JSON.parse(localStorage.getItem(key)).meta.profile.starterIds, saveKey);
+      assert.deepEqual(restored, ids);
+    }
+    const skip = page.locator('.starter-summon [data-reveal-all]');
+    if (await skip.isVisible()) await skip.click();
+    await page.waitForSelector('[data-starter-next="adventure"]:enabled');
+    assert.equal(await page.locator('.starter-summon [data-revealed="true"]').count(), 2);
+    await capture(page, 'starter-summon', size);
+    if (width === 844) {
+      await click(page, '[data-starter-next="gacha"]');
+      await page.waitForSelector(screen('gacha'));
+      await click(page, '[data-scene-back]');
+      await page.waitForSelector(screen('home'));
+      await visit(page, 'adventure');
+    } else await click(page, '[data-starter-next="adventure"]');
+  }
   await page.waitForSelector(screen('adventure'));
   const results = [await measure(page, 'adventure', width, height)];
   if (!baseline) {
@@ -173,11 +204,17 @@ async function check(page, width, height) {
     await click(page, '[data-roster-cycle="1"]');
     await click(page, '[data-scene-back]');
     await page.waitForSelector(screen('home'));
-    await visit(page, 'gacha');
+    await click(page, '.game-dock [data-page="gacha"]');
+    await page.waitForSelector(screen('gacha'));
     await click(page, '[data-gacha-odds]');
     await page.waitForSelector('dialog[open] .meta-odds');
     await close(page);
     await capture(page, 'gacha', size);
+    await click(page, '[data-gacha-draw="1"]');
+    await click(page, '[data-confirm-draw]');
+    await page.waitForSelector('dialog[open] .meta-reveal-card[data-revealed="true"]');
+    assert.match(await page.locator('.meta-wallet').textContent(), /9 vé/);
+    await close(page);
     await click(page, '[data-scene-back]');
     await page.waitForSelector(screen('home'));
     await visit(page, 'store');
@@ -198,7 +235,7 @@ async function check(page, width, height) {
     if (process.env.SOM_UI_SIZE && process.env.SOM_UI_SIZE !== `${width}x${height}`) continue;
     const browser = await chromium.launch(bundled ? { executablePath: await bundled.executablePath(), args: bundled.args } : {});
     try {
-      const page = await browser.newPage({ viewport: { width, height }, isMobile: width < 900, hasTouch: width < 1100, reducedMotion: 'reduce' });
+      const page = await browser.newPage({ viewport: { width, height }, isMobile: width < 900, hasTouch: width < 1100, reducedMotion: width === 1366 ? 'no-preference' : 'reduce' });
       await check(page, width, height);
     } finally { await browser.close(); }
   }

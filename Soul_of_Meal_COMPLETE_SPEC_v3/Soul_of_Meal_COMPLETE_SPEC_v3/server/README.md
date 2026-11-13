@@ -41,6 +41,6 @@ Máy chủ dùng thư viện [Npgsql](https://github.com/npgsql/npgsql) theo Pos
 
 ## Giao ước và hồ sơ v4
 
-Tạo hồ sơ, chọn Vị Linh đầu tiên, số dư gacha, pity và kết quả triệu hồi của tài khoản được ghi vào PostgreSQL. Mỗi lượt dùng mã UUID để gửi lại cùng yêu cầu sau lỗi mạng. Cửa hàng, trang bị, cấp và sao Adventure dùng bản lưu luyện tập. Cân bằng của gacha và Adventure thuộc bản chơi thử.
+Khi tạo hồ sơ, máy chủ quay hai Vị Linh và ghi kết quả cùng hồ sơ vào PostgreSQL. Gửi lại cùng tên nhận lại đội khởi đầu đã lưu. Số dư Gacha, pity và kết quả triệu hồi được lưu trên máy chủ. Mỗi lượt Gacha dùng mã UUID để gửi lại cùng yêu cầu sau lỗi mạng. Cửa hàng, trang bị, cấp và sao Adventure dùng bản lưu luyện tập. Cân bằng của gacha và Adventure thuộc bản chơi thử.
 
 Cấu hình thêm `Authentication__Google__ClientId` và `Authentication__Google__ClientSecret` để hiện nút Google. Đăng ký URI chuyển hướng `https://<game-origin>/signin-google` cho cùng origin phục vụ client và API. Tài khoản Google dùng định danh do Google cấp và phiên cookie của game. Chế độ khách có tùy chọn lưu trên máy chủ, với phiên gắn với trình duyệt. Bản Vercel tĩnh chạy chế độ lưu trên thiết bị khi chưa có API cùng origin.

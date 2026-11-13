@@ -141,9 +141,9 @@ Battle Adventure và Auto Chess dùng Canvas 2D. Cả ba chế độ dùng bot. 
 
 ## Hồ sơ và Giao Ước Vị Linh v4
 
-Người chơi mới chọn tên, ảnh đại diện và một trong ba Vị Linh SR. Bánh Bao đi cùng từ đầu. Nhiệm vụ của Lilia và trận boss đầu trao thêm Cơm Nắm và Bánh Mì. Hồ sơ cũ giữ đội hình đã lưu.
+Người chơi mới nhập tên rồi nhận miễn phí hai Vị Linh qua hoạt ảnh lật thẻ. Giao Ước Khởi Đầu quay một Hộ vệ và một Vị Linh SR từ hai nhóm trong catalog. Hai nhân vật tự vào đội Adventure và Hộ vệ làm ảnh đại diện. Hồ sơ cũ giữ đội hình đã lưu.
 
-Từ sảnh, mở **Giao Ước Vị Linh** để xem tỷ lệ theo lượt kế tiếp, triệu hồi 1 hoặc 10 và xem lại kết quả. Bộ sưu tập hiển thị 24 Vị Linh theo độ hiếm, cho thêm tối đa năm Vị Linh vào đội Adventure và thức tỉnh đến năm sao. **Cửa hàng Adventure** mở từ sảnh hoặc quầy trong làng. Vật phẩm mua được đưa vào túi và có thể dùng, trang bị, khóa, bán hoặc tinh luyện tùy loại.
+Sau khi nhận đội khởi đầu hoặc từ thanh điều hướng ở sảnh, mở **Gacha · Giao Ước Vị Linh** để xem tỷ lệ theo lượt kế tiếp, triệu hồi 1 hoặc 10 và xem lại kết quả. Bộ sưu tập hiển thị 24 Vị Linh theo độ hiếm, cho thêm tối đa năm Vị Linh vào đội Adventure và thức tỉnh đến năm sao. **Cửa hàng Adventure** mở từ sảnh hoặc quầy trong làng. Vật phẩm mua được đưa vào túi và có thể dùng, trang bị, khóa, bán hoặc tinh luyện tùy loại.
 
 Giá cửa hàng dùng thang vàng của chiến dịch đang có. Chỉ số nâng cấp và trang bị áp dụng cho Adventure. Kỹ năng của các Vị Linh mới hiện dùng cơ chế thử nghiệm theo vai trò.
 
