@@ -22,7 +22,8 @@ export function moveWithCollision(mapId, x, y, deltaX, deltaY, radius = PLAYER_C
     point.x += restX * firstObstacleHit(solids, point, restX, 0, radius);
     point.y += restY * firstObstacleHit(solids, point, 0, restY, radius);
   }
-  return { ...point, blockedX: Math.abs(point.x - x - deltaX) > .01, blockedY: Math.abs(point.y - y - deltaY) > .01 };
+  const safe = walkablePoint(map, point.x, point.y, radius) ? point : { x, y };
+  return { ...safe, blockedX: Math.abs(safe.x - x - deltaX) > .01, blockedY: Math.abs(safe.y - y - deltaY) > .01 };
 }
 
 export function safeAdventurePosition(mapId, position, maps) {
@@ -38,13 +39,16 @@ export function findAdventurePath(mapId, start, destination, radius = PLAYER_COL
   const rows = Math.ceil(world.height / PATH_GRID_SIZE);
   if (hasClearLine(mapId, start, destination, radius, maps)) return [{ x: destination.x, y: destination.y }];
   const startNode = nearestWalkableNode(mapId, start, columns, rows, radius, maps, world, true);
-  const endNode = nearestWalkableNode(mapId, destination, columns, rows, radius, maps, world);
+  const exact = !collidesWithWorld(mapId, destination.x, destination.y, radius, maps);
+  const endNode = nearestWalkableNode(mapId, destination, columns, rows, radius, maps, world, exact)
+    ?? nearestWalkableNode(mapId, destination, columns, rows, radius, maps, world);
   if (!startNode || !endNode) return [];
 
   const startId = nodeId(startNode.column, startNode.row, columns);
   const endId = nodeId(endNode.column, endNode.row, columns);
   if (startId === endId) {
-    return [nodePoint(endNode.column, endNode.row, world, radius)];
+    const point = nodePoint(endNode.column, endNode.row, world, radius);
+    return hasClearLine(mapId, point, destination, radius, maps) ? [point, destination] : [point];
   }
 
   const open = new MinHeap();
@@ -52,6 +56,8 @@ export function findAdventurePath(mapId, start, destination, radius = PLAYER_COL
   const costs = new Map([[startId, 0]]);
   const closed = new Set();
   open.push({ ...startNode, id: startId, score: heuristic(startNode, endNode) });
+  let closest = { ...startNode, id: startId };
+  let closestDistance = Infinity;
   const directions = [
     [-1, 0, 1], [1, 0, 1], [0, -1, 1], [0, 1, 1],
     [-1, -1, Math.SQRT2], [1, -1, Math.SQRT2], [-1, 1, Math.SQRT2], [1, 1, Math.SQRT2],
@@ -64,6 +70,11 @@ export function findAdventurePath(mapId, start, destination, radius = PLAYER_COL
     closed.add(current.id);
 
     const origin = nodePoint(current.column, current.row, world, radius);
+    const distance = Math.hypot(destination.x - origin.x, destination.y - origin.y);
+    if (distance < closestDistance) {
+      closest = current;
+      closestDistance = distance;
+    }
     for (const [offsetX, offsetY, cost] of directions) {
       const column = current.column + offsetX;
       const row = current.row + offsetY;
@@ -79,7 +90,7 @@ export function findAdventurePath(mapId, start, destination, radius = PLAYER_COL
       open.push({ column, row, id: neighborId, score: newCost + heuristic({ column, row }, endNode) });
     }
   }
-  return [];
+  return reconstructPath(mapId, cameFrom, closest, columns, destination, start, radius, maps, world);
 }
 
 function nearestWalkableNode(mapId, position, columns, rows, radius, maps, world, connected = false) {

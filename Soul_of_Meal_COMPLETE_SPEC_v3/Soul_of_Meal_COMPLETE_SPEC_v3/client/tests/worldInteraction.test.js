@@ -76,3 +76,22 @@ test('forest portal only works in reach of the actual painted gateway', () => {
   assert.equal(result.state.map, 'forest');
   assert.equal(collidesWithWorld('forest', result.state.x, result.state.y), false);
 });
+
+
+test('a tap toward an isolated tile stays in the connected area', () => {
+  const map = {
+    world: { width: 240, height: 160, player_radius: 14 },
+    collision: { obstacles: [{ type: 'rect', x: 108, y: 0, width: 24, height: 160 }] },
+  };
+  const maps = { village: map };
+  const start = { x: 50, y: 80 };
+  const goal = { x: 190, y: 80 };
+  const route = findAdventurePath('village', start, goal, 14, maps);
+  assert.ok(route.length);
+  assert.ok(route.at(-1).x <= 94);
+  let from = start;
+  for (const to of route) {
+    assert.ok(hasClearLine('village', from, to, 14, maps));
+    from = to;
+  }
+});

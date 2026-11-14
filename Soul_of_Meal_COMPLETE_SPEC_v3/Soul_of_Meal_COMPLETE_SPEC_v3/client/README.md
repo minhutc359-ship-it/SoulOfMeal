@@ -38,7 +38,7 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 ## Lối chơi
 
 - **Adventure** · Chơi sáu chương bắt đầu với **Hương Vị Đầu Tiên**. Dùng **Dẫn đường** trên bản đồ hoặc trong **Nhật ký hành trình**. Nhật ký lưu manh mối đã tìm và cho đọc lại đối thoại đã mở. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
-- **Nhánh vườn** · Từ Rừng Nguyên Liệu, chạm cổng đến **Vườn Nấm Sương**, rồi đi tiếp sang **Vườn Gia Vị**. Hai vườn có NPC chỉ đường và trận quái nhận thưởng một lần. Trận boss cốt truyện có hai đợt quái trước boss. Chế độ tái đấu đặt đội vào đợt boss.
+- **Nhánh vườn** · Từ Rừng Nguyên Liệu, chạm cổng đến **Vườn Nấm Sương**, rồi đi tiếp sang **Vườn Gia Vị**. Hai vườn có NPC chỉ đường và trận quái có thể đánh lại để farm vàng và tinh hoa với thưởng theo lượt. Trận boss cốt truyện có hai đợt quái trước boss. Chế độ tái đấu đặt đội vào đợt boss.
 - **Truyện hướng dẫn** · Mở **Hướng dẫn** bằng nút **?** ở sảnh hoặc qua menu trong trận. Có năm trang hướng dẫn từ tranh gốc của dự án.
 - **TCG** · Đấu bot với bộ 24 lá từ danh mục 60 lá. Chọn độ khó và bộ bài bot riêng. Trình sửa có bốn ô lưu bộ bài, biểu đồ mana, bộ lọc và bảy bộ mẫu gồm **Khởi đầu**, **Hộ Trận**, **Tiên Phong**, **Triều Sương**, **Mầm Sống**, **Dạ Yến** và **Triều Hỏa**.
 - **Auto Chess** · Xếp đội hình trên bàn lục giác, mua quân từ kho chung, hợp thể ba bản sao và mua XP. Ván mới có bảy bot đánh cùng lúc, các vòng quái thưởng linh kiện và kết thúc khi bị loại, về nhất hoặc đến giới hạn 37 vòng. Phát lại giao tranh dùng vị trí, đòn đánh, kỹ năng và HP do mô phỏng ghi lại. Ván lưu từ bản trước tiếp tục theo thể thức cũ.
@@ -166,4 +166,14 @@ Ma trận gồm 1920×1080, 1366×768, 844×390, 390×844, 360×740 và 1024×76
 
 - Bàn TCG v4 dùng 5 vị trí Vị Linh và 2 ô bẫy. Hai ô bẫy có địa chỉ riêng, kể cả sau khi một bẫy bị gỡ. Ván v3 tiếp tục dùng cấu hình cũ. Chọn **Ván mới** để chơi v4.
 - Hồ sơ có **Đặt ở sảnh** cho Vị Linh đã sở hữu và đối chiếu chỉ số trang bị cùng vị trí. Cài đặt có thanh âm lượng giọng đọc và tùy chọn giảm mật độ VFX mà vẫn giữ cảnh báo đòn đánh.
-- Giọng đọc tiếng Việt cho các đoạn truyện, NPC đường đi, sảnh, tuyệt kỹ và chủ tướng TCG được xuất sẵn. Mục [ghi công âm thanh](assets/audio/voice/CREDITS.md) nêu nguồn mô hình và cách xử lý tệp.
+- Hội thoại hiển thị bằng chữ. Nhạc và hiệu ứng chiến đấu vẫn phát.
+- Bếp Trưởng và các boss Adventure, chế độ thử thách TCG và vòng tinh anh Auto Chess dùng chung `epic_boss_battle`.
+- Ở tốc độ thường, giao tranh Adventure và bản phát lại Auto Chess chạy ở 70% nhịp cũ. TCG làm chậm hiệu ứng ra đòn ở cùng tỷ lệ và diễn từng hành động của bot trước khi chuyển sang hành động tiếp theo.
+- Nếu đường bị kẹt, menu Adventure có **Về điểm vào bản đồ**. Lệnh này giữ bản đồ và tiến trình hiện tại.
+
+### Nâng cấp trải nghiệm mobile
+
+- Adventure mở **Khu thu thập** trong menu sau khi giải khóa rương. Vườn Nấm Sương và Vườn Gia Vị có phần thưởng lần đầu và phần thưởng tái đấu. Vườn Nấm rơi Canh Bổ Dưỡng Nhỏ, Vườn Gia Vị rơi Đá Hương Tinh. Đội vào ải thu thập với đầy HP, và kết quả ải không đổi HP của đội trong cốt truyện.
+- TCG có kiểu chơi **Chủ chiến và dự bị** trong màn tạo ván. Quân chủ chiến đỡ đòn thường và có quyền tấn công. Đổi quân tốn 1 mana, tối đa một lần mỗi lượt. Luật của các ván đấu tự do và dữ liệu ván cũ vẫn dùng phiên bản đã lưu.
+- Auto Chess có vòng tinh anh sau giai đoạn mở đầu. Chiến thắng cho chọn một trong ba linh kiện. Nếu chuyển vòng ngay, trò chơi nhận linh kiện đầu tiên.
+- Các thẻ Vị Linh dùng tranh môi trường gốc theo hệ. Hồ sơ dùng khung riêng cho minh họa và mô hình, với bố cục theo hướng màn hình.

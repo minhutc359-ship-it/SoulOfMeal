@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { gameEvents } from '../src/core/events.js';
 import { advanceTcgResponses, createTcgChallenge, createTcgMatch, decideTcgTrap, endTcgTurn, mulliganTcg, passTcgPriority, playTcgCard,
-  strikeTcg, tcgCardIssue, tcgStrikePreview, tcgStrikeTargets, tcgSpellTargets, tcgTableDeck, validateDeck } from '../src/modes/tcg.js';
+  strikeTcg, stepTcgResponse, tcgResponsePending, rotateTcgActive, tcgActiveUnit, tcgCardIssue, tcgStrikePreview, tcgStrikeTargets, tcgSpellTargets, tcgTableDeck, validateDeck } from '../src/modes/tcg.js';
 import { TCG_TABLE_VERSION, TCG_COMPACT_TABLE_VERSION, tcgBoardLimit, tcgTrapLimit, tcgRecipeFor } from '../src/modes/tcgCards.js';
 import { tcgTrapArmed } from '../src/modes/tcgTraps.js';
 
@@ -277,4 +277,36 @@ test('new tables fill five unit lanes and preserve both trap positions across re
   match = resolve(playTcgCard(match, 1, 'disarm', targets.find(target => target.slot === 0).id));
   assert.deepEqual(match.players[0].traps.map(trap => trap.slot), [1]);
   assert.equal(match.players[0].graveyard.find(item => item.card_id === 'card_trap_mirror').hidden, true);
+});
+
+test('the bot issues one command per step while preserving the matching final state', () => {
+  const match = fresh();
+  Object.assign(match, { activePlayer: 1, priority: 1 });
+  match.players[1].hand = [card('card_demo_01', 'first'), card('card_demo_02', 'second')];
+  assert.equal(tcgResponsePending(match), true);
+  const first = stepTcgResponse(match);
+  assert.equal(first.players[1].units.length, 1);
+  assert.equal(first.players[1].hand.length, 1);
+  assert.equal(first.priority, 0);
+  const waiting = stepTcgResponse(first);
+  assert.equal(waiting.players[1].units.length, 1);
+  const second = stepTcgResponse(waiting);
+  assert.equal(second.players[1].units.length, 2);
+  assert.deepEqual(advanceTcgResponses(second), advanceTcgResponses(match));
+});
+
+test('frontline mode limits ordinary attacks to the active unit and charges once for rotation', () => {
+  const match = fresh();
+  match.frontline = true;
+  match.players[0].units = [unit('card_demo_01', 'front', 0), unit('card_demo_02', 'reserve', 1)];
+  match.players[1].units = [unit('card_demo_02', 'opponent-front', 0, { current_def: 100 }), unit('card_demo_01', 'opponent-reserve', 1)];
+  assert.deepEqual(tcgStrikeTargets(match, 0).map(entry => entry.id), ['opponent-front']);
+  assert.throws(() => strikeTcg(match, 0, 'reserve', 'opponent-front'), /chưa sẵn sàng/i);
+  const rotated = rotateTcgActive(match, 0, 'reserve');
+  assert.equal(rotated.players[0].mana, 6);
+  assert.equal(tcgActiveUnit(rotated, 0).instance_id, 'reserve');
+  assert.throws(() => rotateTcgActive(rotated, 0, 'front'), /chưa thể/i);
+  const attacked = strikeTcg(rotated, 0, 'reserve', 'opponent-front');
+  assert.equal(attacked.players[1].units.some(unit => unit.instance_id === 'opponent-front'), false);
+  assert.equal(tcgActiveUnit(attacked, 1).instance_id, 'opponent-reserve');
 });

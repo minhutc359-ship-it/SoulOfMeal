@@ -132,8 +132,7 @@ export function availableAdventureInteractions(mapId, save, maps) {
   const investigating = quest === 'completed' && chapterTwo.stage === 'accepted';
   const chapter = FINALE_CHAPTERS.find(item => item.map === mapId);
   return items.filter(({ action, kind, encounter }) => {
-    if (kind === 'field_encounter') return Boolean(adventureEncounters[encounter]?.field)
-      && !save.adventure.rewardClaims.includes(adventureEncounters[encounter].claimId);
+    if (kind === 'field_encounter') return Boolean(adventureEncounters[encounter]?.field);
     if (kind === 'room_door') {
       const destination = map.transitions?.find(door => door.id === action)?.to;
       return Boolean(getAdventureMap(maps, destination));
@@ -394,7 +393,7 @@ export function beginAdventureChallenge(state, save, encounter, tier) {
 }
 
 export function beginBattle(state, save, encounter = 'forest', challenge = null) {
-  const waves = adventureEncounters[encounter].waves;
+  const { waves } = adventureEncounters[encounter];
   const wave = challenge ? waves.length - 1 : 0;
   state.battle = {
     id: challenge ? `challenge_${challenge.key}_${(save.adventure.challengeRecords?.[challenge.key]?.clears ?? 0) + 1}`
@@ -407,7 +406,7 @@ export function beginBattle(state, save, encounter = 'forest', challenge = null)
     actors: [
       ...adventureParty(save).map((actor, index) => {
         const stats = adventureSpiritStats(actor, spiritProfile(save, actor.id), undefined, save);
-        return spawnActor(challenge ? { ...stats, hp: stats.maxHp } : stats, 'player', index);
+        return spawnActor(challenge || adventureEncounters[encounter].field ? { ...stats, hp: stats.maxHp } : stats, 'player', index);
       }),
       ...waves[wave].map((enemy, index) => {
         const hp = Math.round(enemy.maxHp * (challenge?.hp ?? 1));
@@ -836,6 +835,12 @@ function finishBattle(state, won) {
   gameEvents.emit('battle_finished', { result: battle.result, winner_team: won ? 'player' : 'enemy' }, battleContext(battle));
 }
 
+export function adventureBattleReward(save, encounter) {
+  const config = adventureEncounters[encounter];
+  const currency = config.repeatReward && save.adventure.rewardClaims.includes(config.claimId) ? config.repeatReward : config.reward;
+  return { ...currency, material: config.material };
+}
+
 export function claimBattleResult(state, save) {
   const battle = state.battle;
   if (battle?.phase !== 'battle_end' || battle.result !== 'victory') return save;
@@ -865,14 +870,20 @@ export function claimBattleResult(state, save) {
   const field = adventureEncounters[encounter]?.field;
   const claimId = adventureEncounters[encounter]?.claimId ?? (encounter === 'seal' ? 'forest_empty_bowl_reward'
     : encounter === 'tide' ? 'harbor_tidal_conch_reward' : `${battle.id}:forest_reward`);
-  if (!updated.adventure.rewardClaims.includes(claimId)) {
-    const { gold, essence } = adventureEncounters[battle.encounter ?? 'forest'].reward;
-    updated.adventure.rewardClaims.push(claimId);
+  const firstClear = !updated.adventure.rewardClaims.includes(claimId);
+  if (firstClear || field) {
+    const { gold, essence, material } = adventureBattleReward(updated, encounter ?? 'forest');
+    if (firstClear) updated.adventure.rewardClaims.push(claimId);
     updated.player.gold += gold;
     updated.player.essence += essence;
+    if (material) {
+      const inventory = updated.adventure.inventory;
+      inventory.stacks[material] = (inventory.stacks[material] ?? 0) + 1;
+      inventory.revision++;
+    }
     if (!field && updated.meta?.profile && !updated.meta.serverOwned) updated.meta.wallet.ticket += 1;
     updated.completedBattles += 1;
-    updated.roster = updated.roster.map(member => {
+    if (!field) updated.roster = updated.roster.map(member => {
       const actor = battle.actors.find(item => item.actor_id === member.id);
       return actor ? { ...member, hp: Math.max(1, Math.round(actor.hp * member.maxHp / actor.maxHp)), energy: 0 } : member;
     });
@@ -887,7 +898,7 @@ export function claimBattleResult(state, save) {
   }
   state.battle = null;
   state.result = null;
-  state.lastMessage = field ? 'Đã dẹp bầy quái. Bạn có thể tiếp tục khám phá.'
+  state.lastMessage = field ? 'Đã nhận tài nguyên. Bạn có thể tái đấu đội tuần tra.'
     : encounter === 'seal' ? 'Ấn Bát Rỗng đã vỡ. Hãy mang mảnh men về cho Lilia.'
     : encounter === 'tide' ? 'Thủy triều đã dịu. Hãy trở lại đầu bến báo tin cho Phở Lam Vũ.'
       : finale ? finale.steps[3] + '.' : 'Rừng đã yên tĩnh. Hãy trở về làng để báo tin cho Lilia.';

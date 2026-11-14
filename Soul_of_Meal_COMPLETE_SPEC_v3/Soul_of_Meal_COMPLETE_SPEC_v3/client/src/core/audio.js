@@ -27,7 +27,6 @@ export class GameAudio {
     this.soundtracks = {};
     this.lastPlayed = new Map();
     this.unlocked = false;
-    this.voicePlaying = false;
     this.compatibilityBank = createCompatibilityBank(AUDIO_PATH);
   }
 
@@ -118,12 +117,6 @@ export class GameAudio {
     this.updateLoops();
   }
 
-  setVoicePlaying(playing) {
-    if (playing === this.voicePlaying) return;
-    this.voicePlaying = playing;
-    this.setSettings(this.settings);
-  }
-
   setSettings(settings) {
     this.settings = settings;
     for (const [audio, gain] of this.active) audio.volume = Math.min(1, this.volume('sfx') * gain);
@@ -189,7 +182,6 @@ export class GameAudio {
 
   volume(channel) {
     const level = Math.min(1, Math.max(0, (this.settings[channel] ?? 0) / 100));
-    if (channel === 'sfx') return level * (this.voicePlaying ? .31 : .44);
-    return level * (this.voicePlaying ? .36 : .65);
+    return level * (channel === 'sfx' ? .44 : .65);
   }
 }
