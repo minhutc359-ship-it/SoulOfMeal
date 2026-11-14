@@ -3,36 +3,195 @@
   "catalog_version": "client-p0-v1",
   "map_id": "env_village_square",
   "runtime_key": "village",
-  "display_name": "Làng Ẩm Thực",
+  "display_name": "Làng Mây Bếp Việt",
   "world": {
     "width": 960,
     "height": 540,
     "player_radius": 14,
-    "spawn": { "x": 120, "y": 310 }
+    "spawn": {
+      "x": 120,
+      "y": 310
+    }
   },
   "collision": {
     "obstacles": [
-      { "id": "building_kitchen", "type": "rect", "x": 60, "y": 105, "width": 176, "height": 118 },
-      { "id": "building_guild", "type": "rect", "x": 400, "y": 90, "width": 176, "height": 118 },
-      { "id": "building_merchant", "type": "rect", "x": 640, "y": 100, "width": 176, "height": 118 },
-      { "id": "plaza_table", "type": "rect", "x": 270, "y": 395, "width": 85, "height": 52 }
+      {
+        "id": "building_kitchen",
+        "type": "rect",
+        "x": 60,
+        "y": 105,
+        "width": 176,
+        "height": 118
+      },
+      {
+        "id": "building_guild",
+        "type": "rect",
+        "x": 400,
+        "y": 90,
+        "width": 176,
+        "height": 118
+      },
+      {
+        "id": "building_merchant",
+        "type": "rect",
+        "x": 640,
+        "y": 100,
+        "width": 176,
+        "height": 118
+      },
+      {
+        "id": "plaza_table",
+        "type": "rect",
+        "x": 270,
+        "y": 395,
+        "width": 85,
+        "height": 52
+      }
     ]
   },
   "transitions": [
-    { "id": "portal_ingredient_forest", "type": "door", "from": "village", "to": "forest", "targetMap": "forest", "spawn": { "x": 82, "y": 420 }, "label": "Cổng Rừng Nguyên Liệu" }
+    {
+      "id": "portal_ingredient_forest",
+      "type": "door",
+      "from": "village",
+      "to": "forest",
+      "targetMap": "forest",
+      "spawn": {
+        "x": 82,
+        "y": 420
+      },
+      "label": "Cổng Rừng Nguyên Liệu"
+    }
   ],
   "interactables": [
-    { "id": "npc_lilia", "kind": "npc", "action": "lilia", "label": "Lilia", "x": 235, "y": 260, "radius": 62 },
-    { "id": "village_supply_chest_p0", "kind": "chest", "action": "chest", "label": "Rương nguyên liệu", "x": 680, "y": 355, "radius": 62 },
-    { "id": "portal_ingredient_forest", "kind": "portal", "action": "portal", "label": "Cổng Rừng Nguyên Liệu", "x": 878, "y": 260, "radius": 62 }
+    {
+      "id": "npc_lilia",
+      "kind": "npc",
+      "action": "lilia",
+      "label": "Lilia",
+      "x": 235,
+      "y": 260,
+      "radius": 62
+    },
+    {
+      "id": "village_supply_chest_p0",
+      "kind": "chest",
+      "action": "chest",
+      "label": "Rương nguyên liệu",
+      "x": 680,
+      "y": 355,
+      "radius": 62
+    },
+    {
+      "id": "portal_ingredient_forest",
+      "kind": "portal",
+      "action": "portal",
+      "label": "Cổng Rừng Nguyên Liệu",
+      "x": 878,
+      "y": 260,
+      "radius": 62
+    },
+    {
+      "id": "village_rest",
+      "kind": "npc",
+      "action": "rest",
+      "label": "Quán Lilia · Nghỉ ngơi",
+      "x": 130,
+      "y": 254,
+      "radius": 54
+    },
+    {
+      "id": "village_recipe",
+      "kind": "puzzle",
+      "action": "puzzle",
+      "label": "Công thức Hương Vị",
+      "x": 455,
+      "y": 250,
+      "radius": 54
+    },
+    {
+      "id": "village_forge",
+      "kind": "npc",
+      "action": "craft",
+      "label": "Bàn chế biến",
+      "x": 720,
+      "y": 250,
+      "radius": 48
+    }
   ],
   "visuals": [
-    { "id": "building_kitchen", "kind": "house", "x": 60, "y": 105, "width": 176, "height": 118, "palette": "coral" },
-    { "id": "building_guild", "kind": "house", "x": 400, "y": 90, "width": 176, "height": 118, "palette": "sage" },
-    { "id": "building_merchant", "kind": "house", "x": 640, "y": 100, "width": 176, "height": 118, "palette": "gold" },
-    { "id": "plaza_table", "kind": "table", "x": 270, "y": 395, "width": 85, "height": 52 },
-    { "id": "npc_lilia", "kind": "marker", "x": 235, "y": 260, "label": "LILIA", "palette": "wood" },
-    { "id": "village_supply_chest_p0", "kind": "chest", "x": 680, "y": 355, "label": "RƯƠNG" },
-    { "id": "portal_ingredient_forest", "kind": "portal", "x": 878, "y": 260, "label": "RỪNG" }
+    {
+      "id": "building_kitchen",
+      "kind": "house",
+      "x": 60,
+      "y": 105,
+      "width": 176,
+      "height": 118,
+      "palette": "coral"
+    },
+    {
+      "id": "building_guild",
+      "kind": "house",
+      "x": 400,
+      "y": 90,
+      "width": 176,
+      "height": 118,
+      "palette": "sage"
+    },
+    {
+      "id": "building_merchant",
+      "kind": "house",
+      "x": 640,
+      "y": 100,
+      "width": 176,
+      "height": 118,
+      "palette": "gold"
+    },
+    {
+      "id": "plaza_table",
+      "kind": "table",
+      "x": 270,
+      "y": 395,
+      "width": 85,
+      "height": 52
+    },
+    {
+      "id": "npc_lilia",
+      "kind": "marker",
+      "x": 235,
+      "y": 260,
+      "label": "LILIA",
+      "palette": "wood"
+    },
+    {
+      "id": "village_supply_chest_p0",
+      "kind": "chest",
+      "x": 680,
+      "y": 355,
+      "label": "RƯƠNG"
+    },
+    {
+      "id": "portal_ingredient_forest",
+      "kind": "portal",
+      "x": 878,
+      "y": 260,
+      "label": "RỪNG"
+    },
+    {
+      "id": "village_recipe",
+      "kind": "marker",
+      "x": 455,
+      "y": 250,
+      "label": "CÔNG THỨC",
+      "palette": "gold"
+    },
+    {
+      "id": "village_forge",
+      "kind": "marker",
+      "x": 720,
+      "y": 250,
+      "label": "CHẾ BIẾN",
+      "palette": "wood"
+    }
   ]
 }

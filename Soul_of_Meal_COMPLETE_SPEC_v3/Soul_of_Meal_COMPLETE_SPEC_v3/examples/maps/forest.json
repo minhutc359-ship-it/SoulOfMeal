@@ -3,52 +3,300 @@
   "catalog_version": "client-p0-v1",
   "map_id": "env_ingredient_forest",
   "runtime_key": "forest",
-  "display_name": "Rừng Nguyên Liệu",
+  "display_name": "Rừng Trầm Gia Vị",
   "world": {
     "width": 960,
     "height": 540,
     "player_radius": 14,
-    "spawn": { "x": 82, "y": 420 }
+    "spawn": {
+      "x": 82,
+      "y": 420
+    }
   },
   "collision": {
     "obstacles": [
-      { "id": "forest_tree_01", "type": "rect", "x": 16, "y": 60, "width": 50, "height": 58 },
-      { "id": "forest_tree_02", "type": "rect", "x": 153, "y": 139, "width": 50, "height": 58 },
-      { "id": "forest_tree_03", "type": "rect", "x": 290, "y": 218, "width": 50, "height": 58 },
-      { "id": "forest_tree_04", "type": "rect", "x": 427, "y": 297, "width": 50, "height": 58 },
-      { "id": "forest_tree_05", "type": "rect", "x": 564, "y": 376, "width": 50, "height": 58 },
-      { "id": "forest_tree_06", "type": "rect", "x": 701, "y": 115, "width": 50, "height": 58 },
-      { "id": "forest_tree_07", "type": "rect", "x": 838, "y": 194, "width": 50, "height": 58 },
-      { "id": "forest_tree_08", "type": "rect", "x": 15, "y": 273, "width": 50, "height": 58 },
-      { "id": "forest_tree_09", "type": "rect", "x": 152, "y": 352, "width": 50, "height": 58 },
-      { "id": "forest_tree_10", "type": "rect", "x": 289, "y": 91, "width": 50, "height": 58 },
-      { "id": "forest_tree_11", "type": "rect", "x": 426, "y": 170, "width": 50, "height": 58 },
-      { "id": "forest_tree_12", "type": "rect", "x": 563, "y": 249, "width": 50, "height": 58 },
-      { "id": "forest_tree_13", "type": "rect", "x": 700, "y": 328, "width": 50, "height": 58 }
+      {
+        "id": "forest_tree_01",
+        "type": "rect",
+        "x": 16,
+        "y": 60,
+        "width": 50,
+        "height": 58
+      },
+      {
+        "id": "forest_tree_02",
+        "type": "rect",
+        "x": 153,
+        "y": 139,
+        "width": 50,
+        "height": 58
+      },
+      {
+        "id": "forest_tree_03",
+        "type": "rect",
+        "x": 290,
+        "y": 218,
+        "width": 50,
+        "height": 58
+      },
+      {
+        "id": "forest_tree_04",
+        "type": "rect",
+        "x": 427,
+        "y": 297,
+        "width": 50,
+        "height": 58
+      },
+      {
+        "id": "forest_tree_05",
+        "type": "rect",
+        "x": 564,
+        "y": 376,
+        "width": 50,
+        "height": 58
+      },
+      {
+        "id": "forest_tree_06",
+        "type": "rect",
+        "x": 701,
+        "y": 115,
+        "width": 50,
+        "height": 58
+      },
+      {
+        "id": "forest_tree_07",
+        "type": "rect",
+        "x": 838,
+        "y": 194,
+        "width": 50,
+        "height": 58
+      },
+      {
+        "id": "forest_tree_08",
+        "type": "rect",
+        "x": 15,
+        "y": 273,
+        "width": 50,
+        "height": 58
+      },
+      {
+        "id": "forest_tree_09",
+        "type": "rect",
+        "x": 152,
+        "y": 352,
+        "width": 50,
+        "height": 58
+      },
+      {
+        "id": "forest_tree_10",
+        "type": "rect",
+        "x": 289,
+        "y": 91,
+        "width": 50,
+        "height": 58
+      },
+      {
+        "id": "forest_tree_11",
+        "type": "rect",
+        "x": 426,
+        "y": 170,
+        "width": 50,
+        "height": 58
+      },
+      {
+        "id": "forest_tree_12",
+        "type": "rect",
+        "x": 563,
+        "y": 249,
+        "width": 50,
+        "height": 58
+      },
+      {
+        "id": "forest_tree_13",
+        "type": "rect",
+        "x": 700,
+        "y": 328,
+        "width": 50,
+        "height": 58
+      }
     ]
   },
   "transitions": [
-    { "id": "forest_return_portal", "type": "door", "from": "forest", "to": "village", "targetMap": "village", "spawn": { "x": 878, "y": 260 }, "label": "Về làng" }
+    {
+      "id": "forest_return_portal",
+      "type": "door",
+      "from": "forest",
+      "to": "village",
+      "targetMap": "village",
+      "spawn": {
+        "x": 878,
+        "y": 260
+      },
+      "label": "Về làng"
+    }
   ],
   "interactables": [
-    { "id": "forest_encounter_p0", "kind": "encounter", "action": "encounter", "label": "Dấu chân lạ", "x": 500, "y": 300, "radius": 62 },
-    { "id": "forest_return_portal", "kind": "portal", "action": "village_return", "label": "Về làng", "x": 900, "y": 470, "radius": 62 }
+    {
+      "id": "forest_encounter_p0",
+      "kind": "encounter",
+      "action": "encounter",
+      "label": "Dấu chân lạ",
+      "x": 500,
+      "y": 300,
+      "radius": 62
+    },
+    {
+      "id": "forest_return_portal",
+      "kind": "portal",
+      "action": "village_return",
+      "label": "Về làng",
+      "x": 900,
+      "y": 470,
+      "radius": 62
+    },
+    {
+      "id": "forest_herbs",
+      "kind": "resource",
+      "action": "harvest",
+      "label": "Thu hái rau thơm",
+      "material": "herbs",
+      "x": 390,
+      "y": 440,
+      "radius": 58
+    },
+    {
+      "id": "forest_farm",
+      "kind": "encounter",
+      "action": "farm",
+      "label": "Bãi farm nguyên liệu",
+      "x": 635,
+      "y": 430,
+      "radius": 58
+    }
   ],
   "visuals": [
-    { "id": "forest_tree_01", "kind": "tree", "x": 41, "y": 70, "palette": "forest_dark" },
-    { "id": "forest_tree_02", "kind": "tree", "x": 178, "y": 149, "palette": "forest_light" },
-    { "id": "forest_tree_03", "kind": "tree", "x": 315, "y": 228, "palette": "forest_dark" },
-    { "id": "forest_tree_04", "kind": "tree", "x": 452, "y": 307, "palette": "forest_light" },
-    { "id": "forest_tree_05", "kind": "tree", "x": 589, "y": 386, "palette": "forest_dark" },
-    { "id": "forest_tree_06", "kind": "tree", "x": 726, "y": 125, "palette": "forest_light" },
-    { "id": "forest_tree_07", "kind": "tree", "x": 863, "y": 204, "palette": "forest_dark" },
-    { "id": "forest_tree_08", "kind": "tree", "x": 40, "y": 283, "palette": "forest_light" },
-    { "id": "forest_tree_09", "kind": "tree", "x": 177, "y": 362, "palette": "forest_dark" },
-    { "id": "forest_tree_10", "kind": "tree", "x": 314, "y": 101, "palette": "forest_light" },
-    { "id": "forest_tree_11", "kind": "tree", "x": 451, "y": 180, "palette": "forest_dark" },
-    { "id": "forest_tree_12", "kind": "tree", "x": 588, "y": 259, "palette": "forest_light" },
-    { "id": "forest_tree_13", "kind": "tree", "x": 725, "y": 338, "palette": "forest_dark" },
-    { "id": "forest_encounter_p0", "kind": "marker", "x": 500, "y": 300, "label": "DẤU VẾT", "palette": "coral" },
-    { "id": "forest_return_portal", "kind": "marker", "x": 900, "y": 470, "label": "VỀ LÀNG", "palette": "gold" }
+    {
+      "id": "forest_tree_01",
+      "kind": "tree",
+      "x": 41,
+      "y": 70,
+      "palette": "forest_dark"
+    },
+    {
+      "id": "forest_tree_02",
+      "kind": "tree",
+      "x": 178,
+      "y": 149,
+      "palette": "forest_light"
+    },
+    {
+      "id": "forest_tree_03",
+      "kind": "tree",
+      "x": 315,
+      "y": 228,
+      "palette": "forest_dark"
+    },
+    {
+      "id": "forest_tree_04",
+      "kind": "tree",
+      "x": 452,
+      "y": 307,
+      "palette": "forest_light"
+    },
+    {
+      "id": "forest_tree_05",
+      "kind": "tree",
+      "x": 589,
+      "y": 386,
+      "palette": "forest_dark"
+    },
+    {
+      "id": "forest_tree_06",
+      "kind": "tree",
+      "x": 726,
+      "y": 125,
+      "palette": "forest_light"
+    },
+    {
+      "id": "forest_tree_07",
+      "kind": "tree",
+      "x": 863,
+      "y": 204,
+      "palette": "forest_dark"
+    },
+    {
+      "id": "forest_tree_08",
+      "kind": "tree",
+      "x": 40,
+      "y": 283,
+      "palette": "forest_light"
+    },
+    {
+      "id": "forest_tree_09",
+      "kind": "tree",
+      "x": 177,
+      "y": 362,
+      "palette": "forest_dark"
+    },
+    {
+      "id": "forest_tree_10",
+      "kind": "tree",
+      "x": 314,
+      "y": 101,
+      "palette": "forest_light"
+    },
+    {
+      "id": "forest_tree_11",
+      "kind": "tree",
+      "x": 451,
+      "y": 180,
+      "palette": "forest_dark"
+    },
+    {
+      "id": "forest_tree_12",
+      "kind": "tree",
+      "x": 588,
+      "y": 259,
+      "palette": "forest_light"
+    },
+    {
+      "id": "forest_tree_13",
+      "kind": "tree",
+      "x": 725,
+      "y": 338,
+      "palette": "forest_dark"
+    },
+    {
+      "id": "forest_encounter_p0",
+      "kind": "marker",
+      "x": 500,
+      "y": 300,
+      "label": "DẤU VẾT",
+      "palette": "coral"
+    },
+    {
+      "id": "forest_return_portal",
+      "kind": "marker",
+      "x": 900,
+      "y": 470,
+      "label": "VỀ LÀNG",
+      "palette": "gold"
+    },
+    {
+      "id": "forest_herbs",
+      "kind": "marker",
+      "x": 390,
+      "y": 440,
+      "label": "RAU THƠM",
+      "palette": "wood"
+    },
+    {
+      "id": "forest_farm",
+      "kind": "marker",
+      "x": 635,
+      "y": 430,
+      "label": "FARM",
+      "palette": "coral"
+    }
   ]
 }

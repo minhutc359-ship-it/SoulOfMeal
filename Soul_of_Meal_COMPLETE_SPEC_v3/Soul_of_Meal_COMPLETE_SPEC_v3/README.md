@@ -49,9 +49,15 @@ python .agents/skills/soul-of-meal-sprite/scripts/build_atlas.py --help
 python .agents/skills/soul-of-meal-sprite/scripts/make_preview.py --help
 ```
 
-## Chạy browser runtime
-Client kỹ thuật placeholder hiện nằm trong [`client/README.md`](client/README.md). Chạy server từ package root bằng `python3 -m http.server 4173 --directory .`, rồi mở `http://localhost:4173/client/`. Test runtime client: `node --test client/tests/runtime.test.js`.
+## Chạy browser runtime 0.4
 
-**Không có sprite/animation/runtime phát hành hoàn thiện trong gói này.** Có browser technical vertical slice ở `client/` dùng Canvas 2D placeholder; xem giới hạn triển khai trong `client/README.md`. Ảnh concept là đầu vào mỹ thuật; AI skill là quy trình và công cụ để sinh/kiểm chứng sprite. Tệp `examples` là fixture và thiết lập đề xuất, không phải asset đã được cấp phép phát hành.
+Client đã cập nhật theo brief ba chế độ. Xem [`client/README.md`](client/README.md) để chạy, kiểm tra, hiểu migration/offline và giới hạn production; xem [`docs/03_engineering/THREE_MODE_UPGRADE.md`](docs/03_engineering/THREE_MODE_UPGRADE.md) để đối chiếu từng yêu cầu.
 
-Hiện có **browser technical vertical slice** gồm Adventure quest/combat/reward, TCG bot-match slice và Auto Chess preparation/combat slice, cùng Python rules prototypes riêng. Đây chưa phải game hoàn chỉnh hoặc production runtime; các giới hạn cụ thể, gồm art/rendering, pathfinding, full card effects, eight-player tournament, offline PWA và device benchmark, xem `client/README.md` và engineering references.
+```sh
+npm run dev
+npm test
+npm run build
+npm run check
+```
+
+Mở `http://127.0.0.1:4173/client/`. Client gồm Adventure sáu vùng, TCG theo lượt có deck builder/phản ứng/combo, và giải đấu Auto Chess với bảy bot có kinh tế riêng. Luật và số cân bằng vẫn **PROPOSED**. Asset cũ được nối vào runtime; **không coi đây là bộ art/animation HD đã được duyệt hay bản online multiplayer production**.

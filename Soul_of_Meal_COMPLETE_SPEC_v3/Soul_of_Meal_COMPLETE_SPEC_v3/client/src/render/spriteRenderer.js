@@ -17,7 +17,7 @@ export const CLIP_ROWS = Object.freeze({
 });
 
 export class SpriteRenderer {
-  constructor({ basePath = './assets/sprites' } = {}) {
+  constructor({ basePath = "./assets/sprites" } = {}) {
     this.basePath = basePath;
     this.sheets = new Map(); // characterId -> { image, manifest, loaded }
     this.images = new Map(); // key -> Image
@@ -31,7 +31,7 @@ export class SpriteRenderer {
     if (this.images.has(src)) return Promise.resolve(this.images.get(src));
     if (this.loading.has(src)) return this.loading.get(src);
 
-    if (typeof Image === 'undefined') {
+    if (typeof Image === "undefined") {
       return Promise.resolve(null);
     }
 
@@ -58,11 +58,12 @@ export class SpriteRenderer {
    */
   async loadCharacter(characterId, imagePath, manifestPath) {
     const fullImgPath = imagePath || `${this.basePath}/${characterId}.png`;
-    const fullManPath = manifestPath || `${this.basePath}/${characterId}.manifest.json`;
+    const fullManPath =
+      manifestPath || `${this.basePath}/${characterId}.manifest.json`;
 
     let manifest = null;
     try {
-      if (typeof fetch !== 'undefined') {
+      if (typeof fetch !== "undefined") {
         const res = await fetch(fullManPath);
         if (res.ok) manifest = await res.json();
       }
@@ -71,8 +72,15 @@ export class SpriteRenderer {
     }
 
     let frames = normalizeAtlasFrames(manifest?.frames);
-    const metadataPath = manifest?.atlas_metadata ?? fullImgPath.replace(/\.png([?#].*)?$/i, '.json$1');
-    if (!frames && metadataPath !== fullImgPath && typeof fetch !== 'undefined') {
+    const metadataPath =
+      manifest?.atlas_metadata ??
+      fullImgPath.replace(/\.png([?#].*)?$/i, ".json$1");
+    if (
+      !frames &&
+      manifest?.atlas_metadata &&
+      metadataPath !== fullImgPath &&
+      typeof fetch !== "undefined"
+    ) {
       try {
         const res = await fetch(metadataPath);
         if (res.ok) frames = normalizeAtlasFrames((await res.json())?.frames);
@@ -88,8 +96,10 @@ export class SpriteRenderer {
       manifest,
       frames,
       loaded: Boolean(image && image.complete && image.naturalWidth > 0),
-      frameWidth: manifest?.frame_width ?? (characterId.includes('boss') ? 96 : 64),
-      frameHeight: manifest?.frame_height ?? (characterId.includes('boss') ? 96 : 64),
+      frameWidth:
+        manifest?.frame_width ?? (characterId.includes("boss") ? 96 : 64),
+      frameHeight:
+        manifest?.frame_height ?? (characterId.includes("boss") ? 96 : 64),
     };
 
     this.sheets.set(characterId, entry);
@@ -98,29 +108,45 @@ export class SpriteRenderer {
 
   isLoaded(characterId) {
     const entry = this.sheets.get(characterId);
-    return Boolean(entry?.image && entry.image.complete && entry.image.naturalWidth > 0);
+    return Boolean(
+      entry?.image && entry.image.complete && entry.image.naturalWidth > 0,
+    );
   }
 
   /**
    * Vẽ sprite nhân vật theo animation snapshot
    */
-  drawSprite(ctx, characterId, animation, x, y, {
-    scale = 1.0,
-    flipX = false,
-    opacity = 1.0,
-    tint = null,
-  } = {}) {
+  drawSprite(
+    ctx,
+    characterId,
+    animation,
+    x,
+    y,
+    { scale = 1.0, flipX = false, opacity = 1.0, tint = null } = {},
+  ) {
     const entry = this.sheets.get(characterId);
-    if (!entry || !entry.image || !entry.image.complete || entry.image.naturalWidth === 0) {
+    if (
+      !entry ||
+      !entry.image ||
+      !entry.image.complete ||
+      entry.image.naturalWidth === 0
+    ) {
       return false; // Trả về false để caller vẽ fallback
     }
 
     const frameId = animation?.frameId;
     const frame = entry.frames?.[frameId];
     if (entry.frames) {
-      if (!frame || frame.x < 0 || frame.y < 0 || frame.width <= 0 || frame.height <= 0
-        || frame.x + frame.width > entry.image.naturalWidth
-        || frame.y + frame.height > entry.image.naturalHeight) return false;
+      if (
+        !frame ||
+        frame.x < 0 ||
+        frame.y < 0 ||
+        frame.width <= 0 ||
+        frame.height <= 0 ||
+        frame.x + frame.width > entry.image.naturalWidth ||
+        frame.y + frame.height > entry.image.naturalHeight
+      )
+        return false;
 
       const anchorX = animation?.anchor?.[0] ?? 0.5;
       const anchorY = animation?.anchor?.[1] ?? 0.9;
@@ -152,7 +178,7 @@ export class SpriteRenderer {
 
     const fw = entry.frameWidth;
     const fh = entry.frameHeight;
-    const clipId = animation?.requestedClipId ?? animation?.clipId ?? 'idle';
+    const clipId = animation?.requestedClipId ?? animation?.clipId ?? "idle";
     const row = CLIP_ROWS[clipId] ?? 0;
     const frameIndex = animation?.frameIndex ?? 0;
 
@@ -165,7 +191,19 @@ export class SpriteRenderer {
 
     // Anchor: mặc định chân giữa [0.5, 0.9]
     const anchorX = animation?.anchor?.[0] ?? 0.5;
-    const anchorY = animation?.anchor?.[1] ?? 0.85;
+    const anchorY = animation?.anchor?.[1] ?? 0.9;
+
+    if (
+      ![fw, fh, scale, x, y, anchorX, anchorY].every(Number.isFinite) ||
+      fw <= 0 ||
+      fh <= 0 ||
+      scale <= 0 ||
+      sx < 0 ||
+      sy < 0 ||
+      sx + fw > entry.image.naturalWidth ||
+      sy + fh > entry.image.naturalHeight
+    )
+      return false;
 
     const dw = fw * scale;
     const dh = fh * scale;
@@ -201,14 +239,16 @@ export class SpriteRenderer {
 export const spriteRenderer = new SpriteRenderer();
 
 function normalizeAtlasFrames(frames) {
-  if (!frames || typeof frames !== 'object' || Array.isArray(frames)) return null;
+  if (!frames || typeof frames !== "object" || Array.isArray(frames))
+    return null;
   const normalized = {};
   for (const [frameId, metadata] of Object.entries(frames)) {
     const rect = metadata?.frame ?? metadata;
-    if (!rect || ![rect.x, rect.y, rect.w, rect.h].every(Number.isFinite)) continue;
+    if (!rect || ![rect.x, rect.y, rect.w, rect.h].every(Number.isFinite))
+      continue;
     const sourceSize = metadata.sourceSize ?? {};
     const spriteSourceSize = metadata.spriteSourceSize ?? {};
-    normalized[frameId.replace(/\.png$/i, '')] = {
+    normalized[frameId.replace(/\.png$/i, "")] = {
       x: rect.x,
       y: rect.y,
       width: rect.w,

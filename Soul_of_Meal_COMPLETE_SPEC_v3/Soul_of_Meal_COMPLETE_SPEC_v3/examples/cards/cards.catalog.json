@@ -1,165 +1,213 @@
 {
-  "catalog_version": "0.3-proposed",
+  "catalog_version": "0.4-proposed",
   "cards": [
     {
       "card_id": "card_demo_01",
-      "display_name": "Soul of Meal Sample 01",
+      "display_name": "Bún Bò Hỏa Linh",
       "type": "unit",
       "element": "fire",
       "cost": 1,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "atk": 300,
-      "max_def": 500
+      "max_def": 500,
+      "character_id": "chr_bunbo_holinh",
+      "role": "fighter",
+      "keywords": [],
+      "description": "Triệu hồi Vị Linh. Có thể tấn công từ lượt tiếp theo."
     },
     {
       "card_id": "card_demo_02",
-      "display_name": "Soul of Meal Sample 02",
+      "display_name": "Phở Lam Vũ",
       "type": "unit",
       "element": "water",
       "cost": 2,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "atk": 500,
-      "max_def": 750
+      "max_def": 750,
+      "character_id": "chr_pho_lamvu",
+      "role": "mage",
+      "keywords": [],
+      "description": "Triệu hồi Vị Linh. Có thể tấn công từ lượt tiếp theo."
     },
     {
       "card_id": "card_demo_03",
-      "display_name": "Soul of Meal Sample 03",
+      "display_name": "Gỏi Cuốn Diệp Nhi",
       "type": "unit",
       "element": "wood",
       "cost": 3,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "atk": 700,
-      "max_def": 1000
+      "max_def": 1000,
+      "character_id": "chr_goicuon_diepnhi",
+      "role": "support",
+      "keywords": [],
+      "description": "Triệu hồi Vị Linh. Có thể tấn công từ lượt tiếp theo."
     },
     {
       "card_id": "card_demo_04",
-      "display_name": "Soul of Meal Sample 04",
+      "display_name": "Bánh Bao Bạch Ngọc",
       "type": "unit",
       "element": "light",
       "cost": 4,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "atk": 900,
-      "max_def": 1250
+      "max_def": 1250,
+      "character_id": "chr_banhbao_bachngoc",
+      "role": "guardian",
+      "keywords": [
+        "guardian"
+      ],
+      "description": "Hộ Vệ: chặn tấn công vào thủ lĩnh."
     },
     {
       "card_id": "card_demo_05",
-      "display_name": "Soul of Meal Sample 05",
+      "display_name": "Cà Phê Dạ Vũ",
       "type": "unit",
       "element": "shadow",
       "cost": 5,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "atk": 1100,
-      "max_def": 500
+      "max_def": 500,
+      "character_id": "chr_caphe_davu",
+      "role": "assassin",
+      "keywords": [],
+      "description": "Triệu hồi Vị Linh. Có thể tấn công từ lượt tiếp theo."
     },
     {
       "card_id": "card_demo_06",
-      "display_name": "Soul of Meal Sample 06",
+      "display_name": "Bún Bò Hỏa Linh · Thức Tỉnh",
       "type": "unit",
       "element": "fire",
       "cost": 1,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "atk": 300,
-      "max_def": 750
+      "max_def": 750,
+      "character_id": "chr_bunbo_holinh",
+      "role": "fighter",
+      "keywords": [],
+      "description": "Triệu hồi Vị Linh. Có thể tấn công từ lượt tiếp theo."
     },
     {
       "card_id": "card_demo_07",
-      "display_name": "Soul of Meal Sample 07",
+      "display_name": "Phở Lam Vũ · Thức Tỉnh",
       "type": "unit",
       "element": "water",
       "cost": 2,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "atk": 500,
-      "max_def": 1000
+      "max_def": 1000,
+      "character_id": "chr_pho_lamvu",
+      "role": "mage",
+      "keywords": [],
+      "description": "Triệu hồi Vị Linh. Có thể tấn công từ lượt tiếp theo."
     },
     {
       "card_id": "card_demo_08",
-      "display_name": "Soul of Meal Sample 08",
+      "display_name": "Gỏi Cuốn Diệp Nhi · Thức Tỉnh",
       "type": "unit",
       "element": "wood",
       "cost": 3,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "atk": 700,
-      "max_def": 1250
+      "max_def": 1250,
+      "character_id": "chr_goicuon_diepnhi",
+      "role": "support",
+      "keywords": [],
+      "description": "Triệu hồi Vị Linh. Có thể tấn công từ lượt tiếp theo."
     },
     {
       "card_id": "card_demo_09",
-      "display_name": "Soul of Meal Sample 09",
+      "display_name": "Bánh Bao Bạch Ngọc · Thức Tỉnh",
       "type": "unit",
       "element": "light",
       "cost": 4,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "atk": 900,
-      "max_def": 500
+      "max_def": 500,
+      "character_id": "chr_banhbao_bachngoc",
+      "role": "guardian",
+      "keywords": [
+        "guardian"
+      ],
+      "description": "Hộ Vệ: chặn tấn công vào thủ lĩnh."
     },
     {
       "card_id": "card_demo_10",
-      "display_name": "Soul of Meal Sample 10",
+      "display_name": "Bóng Cà Phê",
       "type": "fast_spell",
       "element": "shadow",
       "cost": 5,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "effect": {
         "kind": "deal_damage",
         "value": 470
-      }
+      },
+      "character_id": "chr_caphe_davu",
+      "description": "Gây 470 sát thương lên mục tiêu địch."
     },
     {
       "card_id": "card_demo_11",
-      "display_name": "Soul of Meal Sample 11",
+      "display_name": "Hỏa Đao Gia Vị",
       "type": "fast_spell",
       "element": "fire",
       "cost": 1,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "effect": {
         "kind": "deal_damage",
         "value": 500
-      }
+      },
+      "character_id": "chr_bunbo_holinh",
+      "description": "Gây 500 sát thương lên mục tiêu địch."
     },
     {
       "card_id": "card_demo_12",
-      "display_name": "Soul of Meal Sample 12",
+      "display_name": "Làn Sóng Nước Dùng",
       "type": "fast_spell",
       "element": "water",
       "cost": 2,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "effect": {
         "kind": "deal_damage",
         "value": 530
-      }
+      },
+      "character_id": "chr_pho_lamvu",
+      "description": "Gây 530 sát thương lên mục tiêu địch."
     },
     {
       "card_id": "card_demo_13",
-      "display_name": "Soul of Meal Sample 13",
+      "display_name": "Dây Leo Gia Vị",
       "type": "fast_spell",
       "element": "wood",
       "cost": 3,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "effect": {
         "kind": "deal_damage",
         "value": 560
-      }
+      },
+      "character_id": "chr_goicuon_diepnhi",
+      "description": "Gây 560 sát thương lên mục tiêu địch."
     },
     {
       "card_id": "card_demo_14",
-      "display_name": "Soul of Meal Sample 14",
+      "display_name": "Bẫy Ngon Tuyệt Hảo",
       "type": "trap",
       "element": "light",
       "cost": 4,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "trigger": {
         "when": "attack_declared",
         "condition": {
@@ -169,16 +217,18 @@
       "effect": {
         "kind": "conditional_counter",
         "value": 590
-      }
+      },
+      "character_id": "chr_banhbao_bachngoc",
+      "description": "Úp bẫy. Từ vòng sau, hóa giải đợt tấn công."
     },
     {
       "card_id": "card_demo_15",
-      "display_name": "Soul of Meal Sample 15",
+      "display_name": "Phản Vị Bóng Đêm",
       "type": "trap",
       "element": "shadow",
       "cost": 5,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "trigger": {
         "when": "spell_cast",
         "condition": {
@@ -188,16 +238,18 @@
       "effect": {
         "kind": "conditional_counter",
         "value": 620
-      }
+      },
+      "character_id": "chr_caphe_davu",
+      "description": "Úp bẫy. Từ vòng sau, hóa giải một tốc chú."
     },
     {
       "card_id": "card_demo_16",
-      "display_name": "Soul of Meal Sample 16",
+      "display_name": "Tro Gia Vị",
       "type": "trap",
       "element": "fire",
       "cost": 1,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "trigger": {
         "when": "spell_cast",
         "condition": {
@@ -207,33 +259,140 @@
       "effect": {
         "kind": "conditional_counter",
         "value": 650
-      }
+      },
+      "character_id": "chr_bunbo_holinh",
+      "description": "Úp bẫy. Từ vòng sau, hóa giải một tốc chú."
     },
     {
       "card_id": "card_demo_17",
-      "display_name": "Soul of Meal Sample 17",
+      "display_name": "Sóng Trào Hải Vị",
       "type": "slow_spell",
       "element": "water",
       "cost": 2,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "effect": {
         "kind": "deal_damage",
         "value": 680
-      }
+      },
+      "character_id": "chr_pho_lamvu",
+      "description": "Gây 680 sát thương lên mục tiêu địch."
     },
     {
       "card_id": "card_demo_18",
-      "display_name": "Soul of Meal Sample 18",
+      "display_name": "Mộc Hương Bùng Nổ",
       "type": "slow_spell",
       "element": "wood",
       "cost": 3,
       "rarity": "R",
-      "version": "0.3-proposed",
+      "version": "0.4-proposed",
       "effect": {
         "kind": "deal_damage",
         "value": 710
-      }
+      },
+      "character_id": "chr_goicuon_diepnhi",
+      "description": "Gây 710 sát thương lên mục tiêu địch."
+    },
+    {
+      "card_id": "card_demo_19",
+      "display_name": "Tiệc Thịnh Soạn",
+      "type": "slow_spell",
+      "element": "light",
+      "cost": 3,
+      "effect": {
+        "kind": "modify_stat",
+        "value": 500,
+        "stat": "atk",
+        "duration": 2,
+        "target": "all_allies",
+        "description": "+500 ATK toàn đội trong 2 vòng"
+      },
+      "description": "+500 ATK toàn đội trong 2 vòng",
+      "character_id": "chr_banhbao_bachngoc",
+      "version": "0.4-proposed",
+      "rarity": "SR"
+    },
+    {
+      "card_id": "card_demo_20",
+      "display_name": "Vườn Hương Hồi Sinh",
+      "type": "burst_spell",
+      "element": "wood",
+      "cost": 2,
+      "effect": {
+        "kind": "heal",
+        "value": 800,
+        "description": "Hồi 800 DEF cho đồng minh hoặc 800 HP cho thủ lĩnh"
+      },
+      "description": "Hồi 800 DEF cho đồng minh hoặc 800 HP cho thủ lĩnh",
+      "character_id": "chr_goicuon_diepnhi",
+      "version": "0.4-proposed",
+      "rarity": "SR"
+    },
+    {
+      "card_id": "card_demo_21",
+      "display_name": "Bí Quyết Bếp Trưởng",
+      "type": "slow_spell",
+      "element": "fire",
+      "cost": 2,
+      "effect": {
+        "kind": "draw",
+        "value": 2,
+        "description": "Rút 2 lá bài"
+      },
+      "description": "Rút 2 lá bài",
+      "character_id": "chr_bunbo_holinh",
+      "version": "0.4-proposed",
+      "rarity": "SR"
+    },
+    {
+      "card_id": "card_demo_22",
+      "display_name": "Khiên Ngọc Bạch Vị",
+      "type": "fast_spell",
+      "element": "light",
+      "cost": 2,
+      "effect": {
+        "kind": "shield",
+        "value": 500,
+        "target": "all_allies",
+        "description": "Tạo 500 khiên cho mỗi Vị Linh đồng minh"
+      },
+      "description": "Tạo 500 khiên cho mỗi Vị Linh đồng minh",
+      "character_id": "chr_banhbao_bachngoc",
+      "version": "0.4-proposed",
+      "rarity": "SR"
+    },
+    {
+      "card_id": "card_demo_23",
+      "display_name": "Sương Trà Tĩnh Lặng",
+      "type": "fast_spell",
+      "element": "water",
+      "cost": 2,
+      "effect": {
+        "kind": "apply_status",
+        "value": 1,
+        "status": "stun",
+        "description": "Làm choáng một Vị Linh địch"
+      },
+      "description": "Làm choáng một Vị Linh địch",
+      "character_id": "chr_pho_lamvu",
+      "version": "0.4-proposed",
+      "rarity": "SR"
+    },
+    {
+      "card_id": "card_demo_24",
+      "display_name": "Phản Chú Dạ Vũ",
+      "type": "fast_spell",
+      "element": "shadow",
+      "cost": 3,
+      "effect": {
+        "kind": "counter",
+        "value": 1,
+        "description": "Hóa giải một hành động trên stack"
+      },
+      "description": "Hóa giải một hành động trên stack",
+      "character_id": "chr_caphe_davu",
+      "version": "0.4-proposed",
+      "rarity": "SR"
     }
   ]
 }

@@ -65,11 +65,11 @@ test('Adventure ultimate emits cast cue before its resolved impact', () => {
 test('Adventure movement advances in world units on simulation time', () => {
   const save = createDefaultSave();
   const state = createAdventureState(save);
-  state.x = 100; state.y = 100;
+  state.x = 100; state.y = 300;
   setAdventureInput(state, 1, 0);
   stepAdventure(state, save, 1);
   assert.equal(state.x, 290);
-  assert.equal(state.y, 100);
+  assert.equal(state.y, 300);
 });
 
 test('Adventure transitions use authored map spawn points and persist them to save state', () => {
@@ -276,7 +276,7 @@ test('Auto Chess merges across board and bench while keeping the placed survivor
   assert.equal(run.bench.length, 0);
 });
 
-test('Auto Chess run reaches a terminal result at the round cap', async () => {
+test('Auto Chess empty-board run terminates through commander elimination', async () => {
   const unitsData = await readJson('examples/auto_chess/units.json');
   const shop = await readJson('examples/auto_chess/shop_odds.json');
   let run = createChessRun(unitsData.units, shop, 44);
