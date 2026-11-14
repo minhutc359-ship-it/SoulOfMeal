@@ -272,6 +272,7 @@ export function attackTcg(match, playerIndex, attackers = null) {
   const defender = 1 - playerIndex;
   updated.pendingAttack = { playerIndex, attackerIds: active.map(unit => unit.instance_id), blocks: [], canceled: false };
   logEvent(updated, 'attack_declared', `${active.length} Vị Linh tuyên bố tấn công.`);
+  emitTcgCommand(updated, playerIndex, active[0]);
 
   const traps = updated.players[defender].traps;
   const armedTrapIndex = modern(updated) ? -1 : traps.findIndex(trap => trap.faceDown && tcgTrapArmed(updated, trap)
@@ -328,6 +329,7 @@ export function strikeTcg(match, playerIndex, attackerId, targetId) {
     blocks: target.unit ? [{ lane: attacker.lane, blockerId: targetId }] : [],
   };
   logEvent(updated, 'attack_declared', `${attacker.display_name} nhắm ${target.label}.`);
+  emitTcgCommand(updated, playerIndex, fighter);
   startAttackReaction(updated);
   return updated;
 }
@@ -489,6 +491,15 @@ export function runBotPriority(match) {
   return updated;
 }
 
+export function advanceTcgResponses(match) {
+  let next = runTcgBot(runBotPriority(match), { yieldToPlayer: true });
+  while (usesTcgTable(next) && next.phase === 'reaction' && next.priority === 0
+      && !next.players[0].hand.some(card => canPlayTcgCard(next, 0, card))) {
+    next = runTcgBot(runBotPriority(passTcgPriority(next, 0)), { yieldToPlayer: true });
+  }
+  return next;
+}
+
 function chooseBotCard(player, match) {
   const playable = player.hand.filter(card => canPlayTcgCard(match, 1, card)
     && (card.type !== 'slow_spell' || match.activePlayer === 1));
@@ -625,6 +636,11 @@ function emitCardPlayed(match, card, owner, caster) {
     tcgContext(match, caster, `commander:p${owner}`));
 }
 
+function emitTcgCommand(match, owner, unit) {
+  gameEvents.emit('tcg_attack_ordered', { player_index: owner, card_id: unit.card_id, element: unit.element },
+    tcgContext(match, unit.instance_id));
+}
+
 function emitTrapReveal(match, card, owner, slot, trigger) {
   gameEvents.emit('trap_revealed', { card_id: card.card_id, trigger, player_index: owner, slot, element: card.element },
     tcgContext(match, tcgTrapAnchor(owner, slot), `commander:p${owner}`));
@@ -698,7 +714,7 @@ function resolveSpell(match, card, ownerIndex, targetId, caster, recipe) {
   const { unit, units, player, slot, item, fallen } = target;
   const source = { card, owner: ownerIndex, caster, kind: 'spell' };
   logEvent(match, 'spell_resolved', `${card.display_name} được thi triển.`);
-  if (card.requires_character) gameEvents.emit('tcg_ultimate_resolved', {
+  gameEvents.emit(card.requires_character ? 'tcg_ultimate_resolved' : 'tcg_spell_resolved', {
     card_id: card.card_id, character_id: card.requires_character, element: card.element, player_index: ownerIndex,
   }, tcgContext(match, caster));
   switch (kind) {
@@ -839,7 +855,7 @@ function applyTcgSupport(match, card, playerIndex, unit, kind, value, caster) {
     label = 'ATK';
   }
   if (!amount) return;
-  gameEvents.emit('tcg_support_resolved', { element: card.element, amount, label, target_player: playerIndex, kind,
+  gameEvents.emit('tcg_support_resolved', { element: card.element, amount, label, target_player: playerIndex, target_lane: unit?.lane, kind,
     ultimate: Boolean(card.requires_character) },
   tcgContext(match, caster ?? card.instance_id, unit?.instance_id ?? `commander:p${playerIndex}`));
   logEvent(match, 'support_resolved', `${card.display_name} · ${unit?.display_name ?? 'Chủ soái'} +${amount} ${label}.`);

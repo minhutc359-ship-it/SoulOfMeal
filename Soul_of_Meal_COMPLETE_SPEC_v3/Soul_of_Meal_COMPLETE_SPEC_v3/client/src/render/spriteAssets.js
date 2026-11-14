@@ -3,6 +3,7 @@ import { META } from '../modes/metaProgress.js';
 import { VILLAGE_ROOMS } from '../modes/villageRooms.js';
 
 const ORIGINAL = './assets/original';
+export const TCG_COMMANDER_ART = `${ORIGINAL}/cutins/tcg_commander.webp`;
 export const HERO_ID = 'chr_bunbo_holinh';
 export const TRAVEL_HERO = HERO_ID + '_travel';
 export const MONSTER_IDS = ['mob_mushroom_01', 'mob_pepper_01'];
@@ -50,6 +51,7 @@ export async function preloadGameAssets(renderer) {
     ...['tcg_table', 'chess_court'].map(sceneArt),
     ...PROPS.map(propArt),
     ...Object.keys(HERO_NAMES).map(cutinArt),
+    TCG_COMMANDER_ART,
     ...COMBAT_EFFECTS.map(combatArt),
     ...Object.keys(ELEMENT_ART).flatMap((id) => [effectArt(id, 'trail'), effectArt(id, 'impact')]),
   ];

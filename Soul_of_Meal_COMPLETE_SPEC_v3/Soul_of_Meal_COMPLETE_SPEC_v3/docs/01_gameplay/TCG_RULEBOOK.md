@@ -7,7 +7,8 @@ New matches adapt the [MealGacha f9d3925 battle table](https://github.com/minhut
 
 - Exactly 24 cards, up to two copies per card. Four starting cards, up to three replacements, eight-card hand, four unit positions and one trap slot. Commanders start with 3,400 and 3,000 HP in bot play. Max mana increases to seven. Mandatory draws on an empty deck deal 100, 200, then 300 fatigue damage per draw.
 - An active player may send each ready unit into a separate attack. When an enemy Hộ vệ is alive, basic attacks must target a Hộ vệ. Otherwise choose a unit or the commander. Unit attacks exchange damage simultaneously. Haste grants immediate readiness, and summoning an ally of an existing element grants the new unit 100 temporary shield.
-- Drag a card to a valid target to play it. Tap controls provide a selection and confirmation path. Dropping an attacker on an enemy opens the preview before committing. Card placement, dealing, face-down sets and reveals have separate cues. An enemy trap exposes only its card back until revealed or scouted.
+- Tap a unit card or drag it onto your row to summon it in the first vacant lane. Select a spell or trap and tap its highlighted target to submit the play. Row, deck, stack and graveyard targets have dedicated controls. Tap an attacker, then a legal enemy target to declare the strike. Hover or keyboard focus previews the damage. The client passes reaction priority automatically when your hand has no legal response.
+- Board units use static splash art with contact animation. Commander cut-ins cue a summon or an attack order. Summon, spell resolution, shields, healing, dealing, face-down sets and reveals have separate cues. An enemy trap exposes only its card back until revealed or scouted.
 - A Vị Linh immediately followed by an eligible spell can trigger a themed recipe once per turn. A countered or fizzled spell cannot grant the recipe reward. Setting a trap still interrupts elemental resonance. Reactions, traps and ultimates retain the stack and trigger checks listed below.
 - Ongoing v1 and v2 matches continue with their recorded rules. The editor shows up to 24 known cards from a previously saved list. Saving a draft applies it to future games.
 
@@ -30,6 +31,8 @@ The 0.5-proposed catalog contains 46 cards, including nine traps and five charac
 - Manual trap choice, reaction stack and deck selection are saved. The on-screen stack and emitted trap events expose the trap's identity at reveal only. The bot's attack and block forecasts use the board and public stats.
 
 Interaction and mechanic references from MealGacha's prior TCG are [Trap Decision](https://github.com/minhutc359-ship-it/MealGacha/blob/f73b44a3901ee7fa58ad42cbe212004d234c9b18/src/components/game/TrapZone.tsx), [card and trap rules](https://github.com/minhutc359-ship-it/MealGacha/blob/f73b44a3901ee7fa58ad42cbe212004d234c9b18/dev/docs/TCG_RULES.md), and [Deck Builder](https://github.com/minhutc359-ship-it/MealGacha/blob/f73b44a3901ee7fa58ad42cbe212004d234c9b18/src/components/game/DeckBuilder.tsx). Visual and audio assets for this browser playtest use the local Soul of Meal v3 source inventory.
+
+The player commander cut-in reuses original MealGacha project art [hero-command.webp](https://github.com/minhutc359-ship-it/MealGacha/blob/f9d39257d17b4dd378a2fbd2a9f936724754fc16/public/assets/tcg/characters/anime/hero-command.webp) and follows the timing pattern from its [BattleInvocation](https://github.com/minhutc359-ship-it/MealGacha/blob/f9d39257d17b4dd378a2fbd2a9f936724754fc16/src/components/game/BattleInvocation.tsx).
 
 ## Legacy 36-card rules baseline
 

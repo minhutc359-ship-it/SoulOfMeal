@@ -294,8 +294,8 @@
     },
     {
       "path": "docs/01_gameplay/TCG_RULEBOOK.md",
-      "bytes": 11813,
-      "sha256": "548df617ab3bd4091dc87ccb38493dfd5f8d5856b2bec1dd5141d70069be21c5"
+      "bytes": 12632,
+      "sha256": "4cfdb9e4f1f577d4513dc1c8dd497ca52e4d9188b425463298d8743b438df4c0"
     },
     {
       "path": "docs/02_art/LICENSE_AND_PROVENANCE.md",
@@ -794,8 +794,8 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 208968,
-      "sha256": "bf71cd29313bac977617f1efdeead6ea6eec328edd5869906bfde13073831954"
+      "bytes": 209297,
+      "sha256": "13eb86e9565264556db54567b78d7039d9f22d4b06d46fbce77cb486238061bf"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -809,13 +809,13 @@
     },
     {
       "path": "client/src/modes/tcg.js",
-      "bytes": 56731,
-      "sha256": "2c13d32839b6a4de95b2b1ddd33a2d09d5f2f3a76729b0cf5e0d2804cca61a1c"
+      "bytes": 57464,
+      "sha256": "642cd2507deb43600ee6bd33a82469f4e02b8e22c4cf2c43724be534e28d68d2"
     },
     {
       "path": "client/styles.css",
-      "bytes": 19460,
-      "sha256": "4de8fa61a9a1928104645f65558d97a0aac21188d033516c3eb49f1ef5a4119b"
+      "bytes": 19061,
+      "sha256": "c08175185cf8ae99fe5a3a3387661073a5edbb1e71d603c9f7f8a1d9558b3996"
     },
     {
       "path": "client/tests/runtime.test.js",
@@ -1259,8 +1259,8 @@
     },
     {
       "path": "client/src/render/spriteAssets.js",
-      "bytes": 4047,
-      "sha256": "4c3b1529719f1607257f5ce9468bce1684982b38a63591791257fb7a7920a1d9"
+      "bytes": 4144,
+      "sha256": "57d44b259516136c8ba428e46186ab3092e10e63de0370388c42d74d2de458e6"
     },
     {
       "path": "client/src/render/spriteRenderer.js",
@@ -2534,8 +2534,8 @@
     },
     {
       "path": "client/play.css",
-      "bytes": 22519,
-      "sha256": "d70ef3b2efa7978581ceb11c17c70fe5a79f74a84c1d6353842771d0973d25a0"
+      "bytes": 22135,
+      "sha256": "41765753ff530644e145a743656bd6644bba108a6e622dd815a0a7d2134d4bd6"
     },
     {
       "path": "client/src/render/worldHud.js",
@@ -2744,8 +2744,8 @@
     },
     {
       "path": "client/src/render/duelEffects.js",
-      "bytes": 4248,
-      "sha256": "b8c8abf07bbf8138d0d29dc8649e98c600da8f41165a01ea749db25b7dca1e4b"
+      "bytes": 3923,
+      "sha256": "e56f82bdaaaaf367b654d0dec172520296a3057f626dce51745c6efd006c49dd"
     },
     {
       "path": "scripts/build_combat_audio.py",
@@ -2944,8 +2944,8 @@
     },
     {
       "path": "client/arena.css",
-      "bytes": 36088,
-      "sha256": "48ad38e9ff43dfc1eb796cd39bc9e2f89448a77faeeac318a2f444c3622041bf"
+      "bytes": 39694,
+      "sha256": "54af8dace85b533b1315a0bdc10f57ac01ccdb58759dd48e9b35873141ce1377"
     },
     {
       "path": "client/src/modes/adventureChallenges.js",
@@ -3004,8 +3004,8 @@
     },
     {
       "path": "client/tests/tcgTable.test.js",
-      "bytes": 11735,
-      "sha256": "a3eea8f7d91af04f5a49d0721b0018e4d56b6e7c6af0e1df01c34b70945e0a41"
+      "bytes": 13120,
+      "sha256": "0388f34a80d4b075027c787a8f49cea7e7d8fd40323ef1c2f1010028f337da7e"
     },
     {
       "path": "client/assets/audio/sound_track/ORIGINAL_FILENAMES.md",
@@ -3204,13 +3204,13 @@
     },
     {
       "path": "client/scene.css",
-      "bytes": 28519,
-      "sha256": "99a30441b1867d0d458e80c38558f7b8033b8f0f6c0b074b1ba770466aa8927e"
+      "bytes": 28334,
+      "sha256": "c728557f3e4bdccf8a322a930882640bd85cc77813831840a5f52974e5be3ed0"
     },
     {
       "path": "client/scripts/smoke-web-client.cjs",
-      "bytes": 16758,
-      "sha256": "5b0a7f0adb8d7eec79cf7fe8ac7afade3ff08167aceea6bab1692cbbbf01fea6"
+      "bytes": 20952,
+      "sha256": "67f661afe99133a23a1f18cf8a214a7e4c2df61b1fb5c471b4078ab6eec3c453"
     },
     {
       "path": "client/src/shell/sceneNavigation.js",
@@ -3256,6 +3256,11 @@
       "path": "docs/05_production/WORLD_INTERACTION_V2_QA.md",
       "bytes": 3726,
       "sha256": "43c17d19e2399904b651fa8cc73604372ae43bf0b879316fbdbac008670ee88d"
+    },
+    {
+      "path": "client/assets/original/cutins/tcg_commander.webp",
+      "bytes": 75358,
+      "sha256": "203a7e3bbf1814fd5e025c7bc6d461021870e7325da7ed316c6d3d40dd225504"
     }
   ]
 }

@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const { mkdir, writeFile } = require('node:fs/promises');
 const { join } = require('node:path');
 const { chromium } = require('playwright');
+const catalog = require('../../examples/cards/cards.catalog.json');
 
 const base = process.env.SOM_UI_BASE ?? 'http://127.0.0.1:4173';
 const output = process.env.SOM_UI_OUTPUT;
@@ -129,6 +130,76 @@ async function checkVillageDoors(page) {
   assert.ok(Number(await canvas.getAttribute('data-world-y')) >= 100, 'North wall stops the avatar');
 }
 
+async function checkTcgTargets(page) {
+  const { createTcgMatch, tcgTableDeck } = await import('../src/modes/tcg.js');
+  const { TCG_TABLE_VERSION } = await import('../src/modes/tcgCards.js');
+  const deck = tcgTableDeck(catalog);
+  const card = (id, owner = 0) => ({ ...catalog.cards.find(item => item.card_id === id), instance_id: `test:${owner}:${id}` });
+  const unit = (id, lane, owner = 0) => {
+    const value = card(id, owner);
+    return { ...value, lane, current_def: value.max_def - 300, ready: true };
+  };
+  const ally = unit('card_demo_01', 1);
+  const enemy = unit('card_demo_02', 0, 1);
+  const ward = card('card_spirit_ward');
+  const renewal = card('card_spirit_renewal');
+  const damage = card('card_demo_11');
+  const trap = card('card_demo_16');
+  const enemySpell = card('card_demo_11', 1);
+  const match = createTcgMatch(catalog, deck, 77, deck, 'normal', TCG_TABLE_VERSION);
+  Object.assign(match, { round: 2, mulliganDone: true });
+  Object.assign(match.players[0], { hand: [ward, renewal, damage, trap], units: [ally], mana: 7, maxMana: 7 });
+  Object.assign(match.players[1], { hand: [], units: [enemy], mana: 0 });
+  match.players[1].deck.push(enemySpell);
+  await page.evaluate(({ key, match }) => {
+    const save = JSON.parse(localStorage.getItem(key));
+    save.modes.tcg = match;
+    localStorage.setItem(key, JSON.stringify(save));
+  }, { key: saveKey, match });
+  await page.reload();
+  await click(page, '[data-enter]');
+  await page.waitForSelector(screen('home'));
+  await visit(page, 'tcg');
+  const read = () => page.evaluate(key => JSON.parse(localStorage.getItem(key)).modes.tcg, saveKey);
+  const selectCard = item => tap(page, `[data-card="${item.instance_id}"]`);
+  const target = id => tap(page, `[data-spell-target="${id}"]`);
+  await selectCard(ward);
+  assert.equal(await page.locator('.duel-field .spell-target').count(), 1);
+  assert.equal((await read()).players[0].mana, 7);
+  await target(ally.instance_id);
+  let state = await read();
+  assert.equal(state.players[0].units[0].shield, ward.effect.value);
+  assert.equal(state.players[0].hand.some(item => item.instance_id === ward.instance_id), false);
+  await selectCard(renewal);
+  await target(ally.instance_id);
+  state = await read();
+  assert.equal(state.stack.at(-1)?.card.instance_id, renewal.instance_id);
+  await tap(page, '[data-tcg-pass]');
+  assert.ok((await read()).players[0].units[0].current_def > ally.current_def);
+  await selectCard(trap);
+  await target('set');
+  assert.equal((await read()).players[0].traps[0].faceDown, true);
+  await selectCard(damage);
+  assert.equal(await page.locator('[data-spell-target="commander"]').count(), 1);
+  await target(enemy.instance_id);
+  state = await read();
+  assert.equal(state.stack.length, 0);
+  assert.ok(!state.players[1].units.length || state.players[1].units[0].current_def < enemy.current_def);
+  await tap(page, `[data-tcg-attacker="${ally.instance_id}"]`);
+  await tap(page, '[data-tcg-strike-target="commander"]');
+  state = await read();
+  assert.equal(state.players[0].units[0].ready, false);
+  assert.ok(state.players[1].hp < match.players[1].hp);
+  await page.waitForSelector('.tcg-cutin[data-invocation="attack"][data-owner="0"]', { state: 'attached' });
+  await tap(page, '[data-tcg-end]');
+  await tap(page, '[data-tcg-trap-option]');
+  state = await read();
+  assert.ok(state.players[1].graveyard.some(item => item.instance_id === enemySpell.instance_id));
+  assert.ok(state.log.some(item => item.type === 'stack_item_countered'));
+  await page.waitForSelector('.tcg-trap-flash', { state: 'attached' });
+  assert.equal(await page.locator('.tcg-match select, [data-tcg-cast], .tcg-unit canvas').count(), 0);
+}
+
 async function check(page, width, height) {
   const size = `${width}x${height}`;
   const errors = [];
@@ -211,10 +282,11 @@ async function check(page, width, height) {
     await close(page);
     if (width === 844 && !reference) {
       const unit = page.locator('[data-card]:enabled').filter({ has: page.locator('.card-copy small', { hasText: 'Vị Linh' }) }).first();
-      await unit.click();
-      await tap(page, '[data-spell-target^="lane:"]');
-      await tap(page, '[data-tcg-cast]');
-      await page.waitForSelector('.friendly-row .tcg-unit');
+      await unit.tap();
+      await page.waitForSelector('.friendly-row .tcg-unit .tcg-unit-avatar img');
+      assert.equal(await page.locator('.friendly-row > :first-child').evaluate(slot => slot.classList.contains('tcg-unit')), true);
+      assert.equal(await page.locator('.duel-field canvas.board-chibi, #tcg-target, [data-tcg-cast]').count(), 0);
+      await page.waitForSelector('.tcg-cutin[data-invocation="summon"][data-owner="0"]', { state: 'attached' });
       await capture(page, 'tcg-deploy', size);
     }
     if (width === 1366) {
@@ -311,16 +383,18 @@ async function check(page, width, height) {
     await page.waitForSelector('dialog[open] [data-store-purchase]');
     await close(page);
   }
+  if (width === 844 && !baseline && !reference) await checkTcgTargets(page);
   assert.deepEqual(errors, []);
   console.log(size, JSON.stringify(results));
 }
 
 (async () => {
   const bundled = process.env.SOM_UI_CHROMIUM ? (await import(process.env.SOM_UI_CHROMIUM)).default : null;
+  const executablePath = process.env.SOM_UI_CHROMIUM_PATH;
   if (output) await mkdir(output, { recursive: true });
   for (const [width, height] of viewports) {
     if (process.env.SOM_UI_SIZE && process.env.SOM_UI_SIZE !== `${width}x${height}`) continue;
-    const browser = await chromium.launch(bundled ? { executablePath: await bundled.executablePath(), args: bundled.args } : {});
+    const browser = await chromium.launch(bundled ? { executablePath: await bundled.executablePath(), args: bundled.args } : { executablePath });
     try {
       const page = await browser.newPage({ viewport: { width, height }, isMobile: width < 900, hasTouch: width < 1100, reducedMotion: width === 1366 ? 'no-preference' : 'reduce' });
       await check(page, width, height);
