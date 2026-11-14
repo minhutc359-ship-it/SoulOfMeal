@@ -1,5 +1,4 @@
-import { drawElementEffect } from './elementEffects.js';
-import { ELEMENT_ART } from './spriteAssets.js';
+import { drawCombatAccent, drawCombatTrail } from './combatVfx.js';
 import { canvasContext, canvasResolution } from './canvasSurface.js';
 
 function position(field, id, bounds) {
@@ -16,6 +15,7 @@ export class DuelEffects {
   constructor(renderer) {
     this.renderer = renderer;
     this.attacks = [];
+    this.impacts = [];
   }
 
   queue(field, event, now, reducedMotion) {
@@ -38,13 +38,18 @@ export class DuelEffects {
     const active = [];
     for (const attack of this.attacks) {
       if (attack.event.battle_id !== matchId) continue;
-      if (reducedMotion || !attack.from || !attack.to || now >= attack.contact) onContact(attack.event);
+      if (reducedMotion || !attack.from || !attack.to || now >= attack.contact) {
+        onContact(attack.event);
+        if (attack.to) this.impacts.push({ ...attack, start: now });
+      }
       else active.push(attack);
     }
     this.attacks = active;
-    if (!canvas || (!active.length && canvas.hidden)) return;
-    canvas.hidden = !active.length;
-    if (!active.length) return;
+    this.impacts = this.impacts.filter(impact => impact.event.battle_id === matchId && now - impact.start < 330);
+    const visible = active.length || this.impacts.length;
+    if (!canvas || (!visible && canvas.hidden)) return;
+    canvas.hidden = !visible;
+    if (!visible) return;
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
     if (!width || !height) return;
@@ -52,36 +57,31 @@ export class DuelEffects {
     if (!context) return;
     context.clearRect(0, 0, width, height);
     for (const attack of active) {
-      const { element, ultimate } = attack.event.payload;
-      const t = Math.max(0, (now - attack.launch) / Math.max(1, attack.contact - attack.launch));
-      const dx = (attack.to.x - attack.from.x) * width;
-      const dy = (attack.to.y - attack.from.y) * height;
+      const { element, ultimate, source_kind } = attack.event.payload;
+      const from = { x: attack.from.x * width, y: attack.from.y * height };
+      const to = { x: attack.to.x * width, y: attack.to.y * height };
+      const dx = to.x - from.x, dy = to.y - from.y;
       const size = (ultimate ? 65 : 37) + Math.min(22, width * .035);
-      const x = attack.from.x * width, y = attack.from.y * height;
-      const color = (ELEMENT_ART[element] ?? ELEMENT_ART.light).color;
-      if (now < attack.launch || Math.hypot(dx, dy) < 8) {
-        const charge = Math.min(1, (now - attack.now) / Math.max(1, attack.launch - attack.now));
-        drawElementEffect(context, this.renderer, element, 'impact', {
-          x, y, size: size * (.55 + charge * .45), opacity: .27 + charge * .43,
-        });
-        continue;
+      const charge = now < attack.launch || Math.hypot(dx, dy) < 8;
+      if (charge) {
+        drawCombatAccent(context, this.renderer, { element, kind: 'charge', ...from, size,
+          progress: (now - attack.now) / Math.max(1, attack.launch - attack.now) });
+      } else {
+        const progress = (now - attack.launch) / (attack.contact - attack.launch);
+        if (source_kind === 'tcg_combat') {
+          drawCombatAccent(context, this.renderer, { element, kind: 'slash',
+            x: from.x + dx * progress, y: from.y + dy * progress, size, progress: .15 + progress * .48, angle: Math.atan2(dy, dx) });
+        } else drawCombatTrail(context, this.renderer, { element, from, to, size, progress, arc: ultimate ? 23 : 8 });
       }
-      context.save();
-      context.strokeStyle = color;
-      context.lineCap = 'round';
-      context.lineWidth = ultimate ? 4 : 2;
-      context.globalAlpha = .45 * Math.sin(Math.PI * t);
-      context.beginPath();
-      context.moveTo(x + dx * Math.max(0, t - .3), y + dy * Math.max(0, t - .3));
-      context.lineTo(x + dx * t, y + dy * t);
-      context.stroke();
-      context.restore();
-      drawElementEffect(context, this.renderer, element, 'trail', {
-        x: x + dx * t, y: y + dy * t, angle: Math.atan2(dy, dx), size,
-        opacity: Math.min(1, .35 + t * 2),
-      });
+    }
+    for (const { event, to, start } of this.impacts) {
+      const { element, absorbed, hp_damage, ultimate, kind: support, effect_kind } = event.payload;
+      const kind = event.type === 'tcg_support_resolved' ? support : absorbed > 0 && !hp_damage ? 'guard'
+        : effect_kind === 'trap' ? 'trap' : ultimate ? 'cast' : 'hit';
+      drawCombatAccent(context, this.renderer, { element, kind, x: to.x * width, y: to.y * height,
+        size: ultimate ? 92 : 57, progress: (now - start) / 330, reducedMotion });
     }
   }
 
-  clear() { this.attacks = []; }
+  clear() { this.attacks = []; this.impacts = []; }
 }

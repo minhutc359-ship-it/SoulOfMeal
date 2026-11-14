@@ -50,6 +50,21 @@ export const adventureBalance = {
   },
 };
 
+// Encounter skill windups and damage coefficients are proposed playtest tuning.
+export const enemySkills = {
+  mob_mushroom_01: { name: 'Bào Tử Lan', kind: 'area', radius: 75, windup: 23, coefficient: 12700 },
+  mob_pepper_01: { name: 'Hạt Tiêu Bùng Cháy', kind: 'direct', windup: 16, travel: 12, coefficient: 14600 },
+  mob_honeybee: { name: 'Kim Mật', kind: 'slow', windup: 12, travel: 9, coefficient: 12400, duration: 35 },
+  mob_lotus_crab: { name: 'Càng Sen Quét Nước', kind: 'area', radius: 82, windup: 22, coefficient: 14300 },
+  mob_sesame_boar: { name: 'Húc Xoáy', kind: 'area', radius: 90, windup: 25, coefficient: 15100 },
+  mob_smoke_wisp: { name: 'Khói Ẩm Bám Rễ', kind: 'slow', windup: 17, travel: 12, coefficient: 13700, duration: 50 },
+  boss_bep_truong: { name: 'Hỏa Đao Chấn Địa', kind: 'area', radius: 105, windup: 26, coefficient: 15200 },
+  empty_bowl_seal: { name: 'Mực Ấn Tỏa Sương', kind: 'area', radius: 88, windup: 27, coefficient: 15100 },
+  tidal_conch: { name: 'Xoáy Ốc', kind: 'slow', windup: 20, travel: 15, coefficient: 16900, duration: 55 },
+  spice_forge: { name: 'Tro Nóng Tràn Sân', kind: 'area', radius: 104, windup: 30, coefficient: 16300 },
+  hollow_cauldron: { name: 'Mạch Âm Đứt Gãy', kind: 'area', radius: 105, windup: 30, coefficient: 17000 },
+};
+
 const roleUltimates = {
   guardian: { description: 'Tạo lá chắn cho cả đội trong 5 giây.', kind: 'shield', windup: 17, ratio: .24, duration: 150 },
   healer: { description: 'Hồi 25% HP tối đa cho đồng đội còn sống.', kind: 'heal', windup: 19, ratio: .25 },

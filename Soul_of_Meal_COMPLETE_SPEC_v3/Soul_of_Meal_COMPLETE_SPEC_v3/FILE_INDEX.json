@@ -789,18 +789,18 @@
     },
     {
       "path": "client/src/core/save.js",
-      "bytes": 5005,
-      "sha256": "7d064bedd25e4a136c6033bf6b7344fa1414c162872077cd6fc74d476a28f52c"
+      "bytes": 5035,
+      "sha256": "4226fbcaf8a128927e9a921a35482dd92d05842c288ab6dbde48ffa75848a943"
     },
     {
       "path": "client/src/main.js",
-      "bytes": 208977,
-      "sha256": "7669970e496f9f218e63dbf5960a3d52c87c50859fce766c6f8c85d6a3fed072"
+      "bytes": 219026,
+      "sha256": "53bf6bd8013e556a06cf0e6a0ddae6932af06e7948d23be5ebd40f215962bde8"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 45772,
-      "sha256": "5fcfeabdcace25a7e53a9031bf878bc396a212b0aac10e5f4a48342f774b5c69"
+      "bytes": 47981,
+      "sha256": "0404d0c13ee9b47772eca0c6ccefc40012d3840e6e93c2073985b260d615bc09"
     },
     {
       "path": "client/src/modes/autoChess.js",
@@ -819,8 +819,8 @@
     },
     {
       "path": "client/tests/runtime.test.js",
-      "bytes": 53739,
-      "sha256": "99f23639ee2d1ed20bcccdac5e372ff23f2f59d699bb1996cacf6614039c2335"
+      "bytes": 57519,
+      "sha256": "59735ee4c2d2bb009ad46a3493451300830b7755092e6c96725bae4ce429f8f6"
     },
     {
       "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
@@ -1474,23 +1474,23 @@
     },
     {
       "path": "client/src/core/audio.js",
-      "bytes": 7009,
-      "sha256": "6f7534440e8fa7fdaeda10c173a986937c702efc74c4d73bb930e52073f37386"
+      "bytes": 7092,
+      "sha256": "4eae30deb8d38e1cb21f81cd278393cb5c24ffa8c38f8037a170d7cc3465073d"
     },
     {
       "path": "client/src/modes/adventureBalance.js",
-      "bytes": 8871,
-      "sha256": "aa8aa9be2902e31e8235fef89ead762787c80cd025ec8e60f46e346498b4e036"
+      "bytes": 10215,
+      "sha256": "cc51de60f9629ae240cdbdf91e32cbf665a0921940c54a4352239a53cb5c8811"
     },
     {
       "path": "client/src/render/battleEffects.js",
-      "bytes": 8444,
-      "sha256": "b9fdb8a7dafce4b0e405202073c3bc8e666cb8b77726afaf3569fb952a36b2f6"
+      "bytes": 9780,
+      "sha256": "8166c4620546aab813460167c01956f06221556a9100891d74dfc3b9eee41ba5"
     },
     {
       "path": "client/src/render/chessReplay.js",
-      "bytes": 10649,
-      "sha256": "20eb6215f26a4b95f4873720930a79e7b214a8eaca9f6a8ee5e3f6dcd93b8205"
+      "bytes": 11424,
+      "sha256": "18881858e40a444b96f7001fe033487096a58def9c13216569df0dcad1e831f1"
     },
     {
       "path": "scripts/build_battle_poses.py",
@@ -2174,13 +2174,13 @@
     },
     {
       "path": "client/tests/originalArt.test.js",
-      "bytes": 7060,
-      "sha256": "a038ef8d1a87519182bf94eb1d79036c187c1ee64db4b23b13b0880db73cb3cb"
+      "bytes": 8156,
+      "sha256": "80fb52275dc2395b4179beb399d02dcb7efedfb0ed9381a9dee5cf18574e337f"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_PLAYTEST.md",
-      "bytes": 14873,
-      "sha256": "4897ae27fb0e04a21c4250e232f8ae41ceeff4b00437056110e62ec12827085b"
+      "bytes": 16397,
+      "sha256": "284d54c0f096341b5a67b064fd36a40bba26068e8bd60fa5972af3d54561630e"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_SOURCES.json",
@@ -2194,8 +2194,8 @@
     },
     {
       "path": "scripts/build_original_art.py",
-      "bytes": 13946,
-      "sha256": "49a6a9ccaa89932d71b6b005b4def470795bee77b536e66c4570e8dc87e8d984"
+      "bytes": 13985,
+      "sha256": "2c8bee01cb5097e64c97928fc441a3c8f204e148e76dc6c75ebec68e54f7c9aa"
     },
     {
       "path": "docs/00_foundation/decisions/D-018.md",
@@ -2399,8 +2399,8 @@
     },
     {
       "path": "client/src/core/soundScenes.js",
-      "bytes": 1386,
-      "sha256": "39daab93f296470b63ff5718346a942c6cb7b28dc67409e54b1d0d7f86f0dfb6"
+      "bytes": 1407,
+      "sha256": "cd1f74838ad83fc79dc9a17c1316d27eb53739ffc8a583a1601aa6956ce79c88"
     },
     {
       "path": "client/src/modes/adventureJournal.js",
@@ -2479,8 +2479,8 @@
     },
     {
       "path": "client/src/modes/adventureFinale.js",
-      "bytes": 7733,
-      "sha256": "2b01b0e284e33093fac8aa2f18a5119546993d236861616699b7bdc6a038228a"
+      "bytes": 7738,
+      "sha256": "5731e9409349f33e908c4a61538ae519e4795ce4512ad5abf1e22e543785c059"
     },
     {
       "path": "examples/maps/caldera.json",
@@ -2594,8 +2594,8 @@
     },
     {
       "path": "client/assets/characters/mob_mushroom_01/original_battle/source.sprite.json",
-      "bytes": 3313,
-      "sha256": "c51f3f1706f522b0d1a988902977341e10a564d734686ce9b22031ab6aace334"
+      "bytes": 3665,
+      "sha256": "33855428a4162717d0e53147b631cf490be00c32fb5755cb797ff4a3a4d5b0ec"
     },
     {
       "path": "client/assets/characters/mob_pepper_01/original_battle/poses/mob_pepper_01_pose_00.png",
@@ -2644,13 +2644,13 @@
     },
     {
       "path": "client/assets/characters/mob_pepper_01/original_battle/source.sprite.json",
-      "bytes": 3261,
-      "sha256": "feebaf4d0e907d59116da44b9b047f5925673962d52a6c02b593b432667336c2"
+      "bytes": 3607,
+      "sha256": "da718806ce5071578d2018d9f4d89904dce437be870dd81a1e1e40bca8f6fee9"
     },
     {
       "path": "client/assets/original/atlases/mob_mushroom_01.json",
-      "bytes": 3290,
-      "sha256": "f991eb297b728f998319e3829ac607d3e0742ae112ee398b9805066b2a904c05"
+      "bytes": 3642,
+      "sha256": "745c490b40af788c9681741371f856697a7105b866f886f5b200064a642dc19d"
     },
     {
       "path": "client/assets/original/atlases/mob_mushroom_01.webp",
@@ -2659,8 +2659,8 @@
     },
     {
       "path": "client/assets/original/atlases/mob_pepper_01.json",
-      "bytes": 3238,
-      "sha256": "d947c7cb78e7db876165a01a32748105215d7eed758a95534401c82a5fa3b90f"
+      "bytes": 3584,
+      "sha256": "2f7fd78da1be6e7aa78c9922db5be3cba98a0666c4be9c562c60bd464287d561"
     },
     {
       "path": "client/assets/original/atlases/mob_pepper_01.webp",
@@ -2744,8 +2744,8 @@
     },
     {
       "path": "client/src/render/duelEffects.js",
-      "bytes": 3923,
-      "sha256": "e56f82bdaaaaf367b654d0dec172520296a3057f626dce51745c6efd006c49dd"
+      "bytes": 4361,
+      "sha256": "d03f5536b75fb165d8f0939ad3df4d2ed449517a7019593da5b49356a20a00ff"
     },
     {
       "path": "scripts/build_combat_audio.py",
@@ -2929,8 +2929,8 @@
     },
     {
       "path": "client/src/render/spiritRig.js",
-      "bytes": 15576,
-      "sha256": "841c07c3514447126f05b277e0706ed47b2687322e1d4029331a7a8b8722c5a9"
+      "bytes": 17745,
+      "sha256": "642acf2d4b3de17b58c86d68b8e706b6b7eccbd338a269e1d5a138d89409d9f4"
     },
     {
       "path": "client/tests/spiritRig.test.js",
@@ -3204,8 +3204,8 @@
     },
     {
       "path": "client/scene.css",
-      "bytes": 29380,
-      "sha256": "fa43c4e991fb5c5598479b8df10d59654d8e5c8e006c85210724b4446faa3aa3"
+      "bytes": 34879,
+      "sha256": "69558e544a570c51fe8e2ca03d5e8424cdf262a8daa2c5529e71bb78d21145f8"
     },
     {
       "path": "client/scripts/smoke-web-client.cjs",
@@ -3391,6 +3391,16 @@
       "path": "examples/maps/spice_garden.json",
       "bytes": 2183,
       "sha256": "05240e2dc3062c02a711e21720965d7f194d12c5b4ac4eb03fa87628dedf50e0"
+    },
+    {
+      "path": "client/src/modes/adventurePuzzle.js",
+      "bytes": 4112,
+      "sha256": "29bf40b059c1dbf2cd287e236bac930f7393278b38044b0ab4b0369c286e3922"
+    },
+    {
+      "path": "client/src/render/combatVfx.js",
+      "bytes": 5165,
+      "sha256": "b1ed4d443dc5930a77ffead8e1598106616faec7908651b2f99986016cf46903"
     }
   ]
 }

@@ -59,6 +59,7 @@ MONSTER_CLIPS = {
     "run": ((1, 2), 11, True),
     "attack_a": ((3, 4, 0), 9, False),
     "attack_b": ((3, 4, 7), 9, False),
+    "skill_01": ((3, 4, 7), 9, False),
     "hit": ((5, 0), 8, False),
     "defeat": ((6,), 2, True),
 }

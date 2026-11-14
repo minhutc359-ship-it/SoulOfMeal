@@ -141,10 +141,12 @@ export class GameAudio {
     } else if (type === 'projectile_spawned' || type === 'spell_launched') {
       this.play(elementalCue(payload.element, 'cast', 'sfx_cast_fire'), { gain: .61 });
     } else if (type === 'cast_started') {
-      this.play(elementalCue(payload.element, 'ultimate', 'sfx_ultimate_fire'), { gain: 1.14, priority: true });
+      const enemy = payload.source_kind === 'enemy_skill';
+      this.play(elementalCue(payload.element, enemy ? 'cast' : 'ultimate', 'sfx_ultimate_fire'),
+        { gain: enemy ? .77 : 1.14, priority: !enemy });
     } else if (type === 'boss_phase_changed' || type === 'boss_cast_interrupted') {
       this.play(CUES[type], { gain: 1.12, priority: true });
-    } else if (type === 'boss_cast_released' && ['shadow', 'water'].includes(payload.element)) this.play(elementalCue(payload.element, 'impact'));
+    } else if (['boss_cast_released', 'enemy_skill_released'].includes(type)) this.play(elementalCue(payload.element, 'impact'));
     else if (type === 'battle_finished' && (payload.winner_team === 'player' || payload.winner === 'player' || payload.winner === 0)) this.play('sfx_victory', { priority: true });
     else if (CUES[type]) this.play(CUES[type]);
   }

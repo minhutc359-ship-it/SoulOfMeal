@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { adventureCheckpoint, activateBossCounter, createAdventureState, interactAdventure, nearestInteraction, beginBattle, beginAdventureChallenge, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, leaveAdventureDefeat, activateUltimate, activateLanternWard, retreatFromTide, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
+import { adventureCheckpoint, activateBossCounter, createAdventureState, interactAdventure, claimAdventurePuzzle, nearestInteraction, beginBattle, beginAdventureChallenge, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, leaveAdventureDefeat, activateUltimate, activateLanternWard, retreatFromTide, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
 import { advanceChessRound, benchChessUnit, buyChessOffer, createChessRun, nextChessOpponent, placeChessUnit, startChessCombat, chessTraits } from '../src/modes/autoChess.js';
 import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard, mulliganTcg, surrenderTcg } from '../src/modes/tcg.js';
 import { createDefaultSave, migrateSave, SAVE_VERSION } from '../src/core/save.js';
+import { createAdventurePuzzle, playAdventurePuzzle, puzzleMatchesAfterSwap } from '../src/modes/adventurePuzzle.js';
 import { adventureJournal } from '../src/modes/adventureJournal.js';
 import { adventureEncounters } from '../src/modes/adventureBalance.js';
 import { FOREST_CLUE_IDS } from '../src/modes/adventureStory.js';
@@ -895,14 +896,39 @@ test('the main campaign opens chapters four through six in order and persists th
   save = migrateSave(JSON.parse(JSON.stringify(save)));
   state = createAdventureState(save);
   assert.equal(adventureJournal(save).action, 'forge_valve');
-  assert.equal(interact('forge_valve').changed, true);
+  assert.equal(interact('forge_valve').puzzle, 'forge_valve');
+  let forgePuzzle = createAdventurePuzzle('forge_valve');
+  const invalid = playAdventurePuzzle(forgePuzzle, 0, 35);
+  assert.equal(invalid, forgePuzzle);
+  assert.equal(claimAdventurePuzzle(state, save, maps, forgePuzzle).changed, false);
+  while (forgePuzzle.status === 'playing') {
+    let best = [0, 0, 0];
+    for (let a = 0; a < 36; a++) {
+      for (const b of [a + 1, a + 6]) {
+        const score = puzzleMatchesAfterSwap(forgePuzzle.board, a, b);
+        if (score > best[2]) best = [a, b, score];
+      }
+    }
+    assert.ok(best[2] > 0);
+    forgePuzzle = playAdventurePuzzle(forgePuzzle, best[0], best[1]);
+  }
+  assert.equal(forgePuzzle.status, 'won');
+  const result = claimAdventurePuzzle(state, save, maps, forgePuzzle);
+  assert.equal(result.changed, true);
+  save = result.save;
+  assert.equal(claimAdventurePuzzle(state, save, maps, forgePuzzle).changed, false);
   interact('forge_encounter');
   defeatEncounter('forge');
   assert.equal(interact('forge_guide').dialogue, 'forgeEnding');
   assert.equal(interact('sanctum_route').save.adventure.map, 'sanctum');
   assert.equal(interact('feast_return').changed, false);
   assert.equal(interact('sanctum_guide').dialogue, 'feastOpening');
-  interact('sanctum_seal');
+  assert.equal(interact('sanctum_seal').puzzle, 'sanctum_seal');
+  let sliding = createAdventurePuzzle('sanctum_seal');
+  assert.equal(playAdventurePuzzle(sliding, 0, sliding.board.indexOf(0)), sliding);
+  for (const step of [7, 6, 3, 4, 1, 2, 5, 8]) sliding = playAdventurePuzzle(sliding, step, sliding.board.indexOf(0));
+  assert.equal(sliding.status, 'won');
+  save = claimAdventurePuzzle(state, save, maps, sliding).save;
   interact('sanctum_urn');
   interact('feast_encounter');
   defeatEncounter('feast');
@@ -1061,4 +1087,56 @@ test('the forest detour keeps locations, awards field battles once and leaves st
   assert.equal(interactAdventure(state, updated).state.battle, null);
   Object.assign(state, { x: 897, y: 410 });
   assert.equal(interactAdventure(state, updated).state.map, 'spice_garden');
+});
+
+test('enemy area skill warns before launch and only damages actors within the locked impact area', () => {
+  const save = createDefaultSave();
+  const state = createAdventureState(save);
+  beginBattle(state, save, 'orchard_patrol');
+  const battle = state.battle;
+  const [near, far] = battle.actors.filter(actor => actor.team === 'player');
+  for (const ally of battle.actors.filter(actor => actor.team === 'player')) {
+    Object.assign(ally, { cooldown: 999, speed: 0, x: 90, y: 270 });
+  }
+  near.role = 'guardian';
+  const mushroom = battle.actors.find(actor => actor.id === 'mob_mushroom_01');
+  const bee = battle.actors.find(actor => actor.id === 'mob_honeybee');
+  bee.cooldown = 999;
+  Object.assign(mushroom, { x: 270, y: 270, cooldown: 0, attackCount: 2 });
+  Object.assign(near, { x: 225, y: 270 });
+  Object.assign(far, { x: 90, y: 270 });
+  const before = [near.hp, far.hp];
+  const seen = [];
+  const listener = ({ detail }) => { if (detail.source_id === mushroom.actor_id) seen.push(detail); };
+  gameEvents.addEventListener('game-event', listener);
+  try {
+    stepAdventure(state, save, 1 / 30);
+    assert.equal(mushroom.action.sourceKind, 'enemy_skill');
+    assert.equal(seen[0].type, 'cast_started');
+    const due = mushroom.action.launchTick;
+    while (battle.tick < due - 1) stepAdventure(state, save, 1 / 30);
+    assert.deepEqual([near.hp, far.hp], before);
+    stepAdventure(state, save, 1 / 30);
+    assert.deepEqual(seen.slice(1).map(event => event.type), ['enemy_skill_released', 'hit_resolved']);
+    assert.ok(near.hp < before[0]);
+    assert.equal(far.hp, before[1]);
+  } finally {
+    gameEvents.removeEventListener('game-event', listener);
+  }
+});
+
+test('Adventure Auto Ultimate spends energy only when enabled and saves the setting', () => {
+  const save = createDefaultSave();
+  const state = createAdventureState(save);
+  beginBattle(state, save, 'orchard_patrol');
+  const hero = state.battle.actors.find(actor => actor.id === 'chr_bunbo_holinh');
+  hero.energy = 100;
+  hero.cooldown = 300;
+  stepAdventure(state, save, 1 / 30);
+  assert.equal(hero.energy, 100);
+  save.settings.autoAdventureUltimate = true;
+  assert.equal(migrateSave(save).settings.autoAdventureUltimate, true);
+  stepAdventure(state, save, 1 / 30);
+  assert.equal(hero.energy, 0);
+  assert.equal(hero.action.sourceKind, 'ultimate');
 });

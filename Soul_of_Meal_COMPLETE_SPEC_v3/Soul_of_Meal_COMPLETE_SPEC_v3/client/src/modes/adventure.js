@@ -1,9 +1,10 @@
 import { gameEvents } from '../core/events.js';
 import { hasClearLine, moveWithCollision, safeAdventurePosition } from './adventureNavigation.js';
 import { getAdventureMap } from './mapCatalog.js';
-import { adventureBalance as balance, adventureEncounters, ADVENTURE_TICK_RATE } from './adventureBalance.js';
+import { adventureBalance as balance, adventureEncounters, enemySkills, ADVENTURE_TICK_RATE } from './adventureBalance.js';
 import { FOREST_CLUES, FOREST_CLUE_IDS, FOREST_LANTERNS, HARBOR_CLUES, HARBOR_CLUE_IDS } from './adventureStory.js';
 import { FINALE_CHAPTERS, FINALE_ROUTES, finaleChapterComplete } from './adventureFinale.js';
+import { ADVENTURE_PUZZLES } from './adventurePuzzle.js';
 import { adventureChallenge } from './adventureChallenges.js';
 import { adventureSpiritStats, spiritProfile } from './spiritProgress.js';
 import { adventureParty, recruitSpirit, STARTER_REWARDS } from './metaProgress.js';
@@ -308,6 +309,9 @@ export function interactAdventure(state, save, maps) {
     gameEvents.emit('route_changed', { map }, { map_id: map });
     return result;
   } else if (['finale_guide', 'finale_objective', 'finale_encounter'].includes(target.kind)) {
+    if (target.kind === 'finale_objective' && Object.hasOwn(ADVENTURE_PUZZLES, target.id)) {
+      return { state, save, changed: false, puzzle: target.id };
+    }
     return interactFinale(state, save, updated, target);
   } else if (target.id === 'village_return') {
     const routed = transitionMap(state, updated, 'village', maps);
@@ -319,6 +323,14 @@ export function interactAdventure(state, save, maps) {
     gameEvents.emit('route_changed', { map: 'village' }, { map_id: 'village' });
   }
   return { state, save: updated, changed: true, dialogue };
+}
+
+export function claimAdventurePuzzle(state, save, maps, puzzle) {
+  const result = { state, save, changed: false };
+  if (puzzle?.status !== 'won' || !Object.hasOwn(ADVENTURE_PUZZLES, puzzle.id)) return result;
+  const target = nearestInteraction(state, save, maps);
+  if (target?.kind !== 'finale_objective' || target.id !== puzzle.id) return result;
+  return interactFinale(state, save, structuredClone(save), target);
 }
 
 function interactFinale(state, save, updated, target) {
@@ -498,7 +510,7 @@ export function stepAdventure(state, save, deltaSeconds, maps) {
     const tickDuration = 1 / ADVENTURE_TICK_RATE;
     while (state.battle.accumulator >= tickDuration && state.battle.phase === 'battle_running') {
       state.battle.accumulator -= tickDuration;
-      stepBattle(state);
+      stepBattle(state, save);
     }
   } else {
     const length = Math.hypot(state.input.x, state.input.y);
@@ -523,10 +535,21 @@ export function stepAdventure(state, save, deltaSeconds, maps) {
   state.tick += 1;
 }
 
-function stepBattle(state) {
+function stepBattle(state, save) {
   const battle = state.battle;
   battle.tick += 1;
   gameEvents.setTick(battle.tick);
+  if (save.settings?.autoAdventureUltimate && !battle.bossTelegraph?.retreating) {
+    const allies = battle.actors.filter(actor => actor.team === 'player' && actor.alive);
+    for (const actor of allies) {
+      if (actor.energy < 100 || actor.ultimateReadyTick > battle.tick || actor.action) continue;
+      const ability = balance.ultimates[actor.id];
+      if (ability.kind === 'heal' && !allies.some(ally => ally.hp < ally.maxHp * .76)) continue;
+      if (ability.kind === 'shield' && !battle.bossTelegraph && !battle.actors.some(enemy =>
+        enemy.action?.sourceKind === 'enemy_skill')) continue;
+      if (activateUltimate(state, save, actor.actor_id).ok) break;
+    }
+  }
   for (const actor of battle.actors) {
     if (!actor.alive) continue;
     actor.previousX = actor.x;
@@ -580,6 +603,11 @@ function stepActor(battle, actor) {
   }
   if (actor.action) {
     const action = actor.action;
+    if (action.sourceKind === 'enemy_skill' && !action.travel && battle.tick === action.launchTick) {
+      gameEvents.emit('enemy_skill_released', {
+        element: actor.element, clip_id: action.clip, aim: action.aim, radius: action.radius,
+      }, battleContext(battle, actor.actor_id, action.targetId));
+    }
     if (action.travel && battle.tick === action.launchTick) {
       const target = findBattleTarget(battle, action.targetId);
       if (target?.alive) {
@@ -611,10 +639,14 @@ function stepActor(battle, actor) {
     actor.y += dy * step / distance;
     actor.moving = true;
   } else if (actor.cooldown === 0) {
-    const sourceKind = actor.team === 'player' ? 'basic' : 'enemy_attack';
-    const clip = actor.attackCount++ % 2 === 0 ? 'attack_a' : 'attack_b';
+    const count = (actor.attackCount ?? 0) + 1;
+    actor.attackCount = count;
+    const enemy = actor.team === 'enemy';
+    const skill = enemy && count % 3 === 0 ? enemySkills[actor.id] : null;
+    const sourceKind = skill ? 'enemy_skill' : enemy ? 'enemy_attack' : 'basic';
+    const clip = skill ? 'skill_01' : count % 2 === 1 ? 'attack_a' : 'attack_b';
     const windup = actor.id === 'chr_bunbo_holinh' && clip === 'attack_b' ? 8 : profile.windup;
-    startAction(battle, actor, target, { ...profile, windup, clip }, sourceKind);
+    startAction(battle, actor, target, { ...profile, windup, travel: skill ? undefined : profile.travel, ...skill, clip }, sourceKind);
     actor.cooldown = (profile.interval ?? actor.interval) + (actor.slowUntil > battle.tick ? 14 : 0);
   }
 }
@@ -637,11 +669,12 @@ function startAction(battle, actor, target, profile, sourceKind) {
   actor.moving = false;
   actor.action = {
     ...profile, targetId: target.actor_id, sourceKind,
+    ...(profile.radius ? { aim: { x: target.x, y: target.y } } : {}),
     launchTick: battle.tick + profile.windup,
     hitTick: battle.tick + profile.windup + (profile.travel ?? 0),
   };
-  gameEvents.emit(sourceKind === 'ultimate' ? 'cast_started' : 'attack_started', {
-    ability_id: `${actor.id}_${sourceKind}`, name: profile.name, element: actor.element,
+  gameEvents.emit(sourceKind === 'ultimate' || sourceKind === 'enemy_skill' ? 'cast_started' : 'attack_started', {
+    ability_id: `${actor.id}_${sourceKind}`, name: profile.name, element: actor.element, source_kind: sourceKind,
     clip_id: profile.clip ?? 'ultimate_01', kind: profile.kind, windup_ticks: profile.windup, travel_ticks: profile.travel ?? 0,
   }, battleContext(battle, actor.actor_id, target.actor_id));
 }
@@ -669,7 +702,8 @@ function resolveAction(battle, actor, action) {
   const target = originalTarget?.alive ? originalTarget
     : action.sourceKind === 'ultimate' && !action.travel ? selectTarget(battle, actor, action.kind === 'execute') : null;
   const targets = action.kind === 'area'
-    ? [...battle.actors, ...battle.stoves].filter((item) => item.alive && item.team !== actor.team)
+    ? [...battle.actors, ...battle.stoves].filter(item => item.alive && item.team !== actor.team
+      && (!action.aim || Math.hypot(item.x - action.aim.x, item.y - action.aim.y) <= action.radius))
     : target ? [target] : [];
   const clipId = action.clip ?? (action.sourceKind === 'ultimate' ? 'ultimate_01' : 'attack_a');
   for (const victim of targets) {
@@ -719,9 +753,10 @@ function updateBoss(state) {
     || (counter === 'sequence' && counterStep === attackSpec.sequence.order.length);
   if (!interrupted && --battle.bossTelegraph.ticks > 0) return;
   const victims = bossTelegraphTargets(battle, boss);
+  const { safeX } = battle.bossTelegraph;
   clearBossTelegraph(battle);
   const cue = interrupted ? 'boss_cast_interrupted' : 'boss_cast_released';
-  gameEvents.emit(cue, { element: boss.element, attack, warded: Boolean(warded) }, battleContext(battle, boss.actor_id));
+  gameEvents.emit(cue, { element: boss.element, attack, safeX, warded: Boolean(warded) }, battleContext(battle, boss.actor_id));
   if (interrupted) {
     boss.cooldown = Math.max(boss.cooldown, 24);
     state.lastMessage = counter === 'sequence' ? 'Đã ngắt ' + attack + '!' : 'Đã phá cả hai bếp và ngắt Bếp Bùng Cháy!';

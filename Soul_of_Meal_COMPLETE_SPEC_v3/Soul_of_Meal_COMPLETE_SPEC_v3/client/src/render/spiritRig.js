@@ -131,8 +131,15 @@ export class SpiritRig {
       ctx.translate(joint.x, joint.y);
       ctx.rotate(joint.angle);
       ctx.scale(1, -1);
-      ctx.drawImage(this.image, ...region, attachment.x - attachment.width / 2,
-        -attachment.y - attachment.height / 2, attachment.width, attachment.height);
+      const left = attachment.x - attachment.width / 2;
+      const top = -attachment.y - attachment.height / 2;
+      if (attachment.mask) {
+        ctx.beginPath();
+        for (const [u, v] of attachment.mask) ctx.lineTo(left + u * attachment.width, top + v * attachment.height);
+        ctx.closePath();
+        ctx.clip();
+      }
+      ctx.drawImage(this.image, ...region, left, top, attachment.width, attachment.height);
       ctx.restore();
     }
     ctx.restore();
@@ -263,14 +270,19 @@ export async function loadSpiritRigs(renderer, signal) {
   return new Map(entries.filter(([, rig]) => rig));
 }
 
-// Segment the original portrait at its neck and hip. The vertical strips overlap
-// at the joints and share the source image so the rest pose keeps its proportions.
+// Body seams and the forward hand side are measured on each original portrait.
 const neckAndHip = {
   '002': [.54, .79], '003': [.57, .80], '004': [.48, .75], '005': [.51, .74],
   '006': [.44, .78], '007': [.46, .75], '008': [.50, .75], '009': [.48, .76],
   '010': [.49, .78], '011': [.49, .75], '012': [.50, .77], '013': [.53, .79],
   '016': [.50, .77], '017': [.51, .76], '019': [.49, .76], '020': [.51, .77],
   '022': [.48, .79], '023': [.44, .74], '024': [.46, .75],
+};
+
+const handSeams = {
+  '002': .65, '003': .73, '004': .66, '005': .69, '006': .62, '007': .64,
+  '008': .67, '009': .62, '010': .64, '011': .65, '012': .62, '013': .63,
+  '016': .65, '017': .64, '019': .70, '020': .64, '022': .71, '023': .62, '024': .56,
 };
 
 async function loadPortraitRig(renderer, spirit) {
@@ -284,27 +296,49 @@ export function portraitRigDefinition(spirit, width, height) {
   const size = Math.min(89 / height, 106 / width);
   const neckY = Math.round(neck * height), hipY = Math.round(hip * height);
   const overlap = Math.max(2, Math.round(height * .022));
+  const hand = handSeams[spirit.id.slice(-3)];
+  const shift = hand == null ? 0 : (hand - .5) * width * size;
+  const shoulder = hand == null ? 0 : (hipY - neckY) * .76 * size;
+  const shin = (height - hipY) * .53 * size;
+  const spread = width * size * .12;
   const strips = [
     ['feet', hipY - overlap, height, height],
     ['head', 0, neckY + overlap, neckY],
     ['body', neckY - overlap, hipY + overlap, hipY],
   ];
+  if (hand != null) {
+    const bodyMask = [[0, 0], [hand + .04, 0], [hand - .1, .42], [hand + .02, 1], [0, 1]];
+    const armMask = [[hand + .04, 0], [1, 0], [1, 1], [hand + .02, 1], [hand - .1, .42]];
+    strips.splice(0, 1,
+      ['leg_far', hipY - overlap, height, height - shin / size, -spread, [[0, 0], [.51, 0], [.51, 1], [0, 1]]],
+      ['leg_near', hipY - overlap, height, height - shin / size, spread, [[.51, 0], [1, 0], [1, 1], [.51, 1]]]);
+    strips.splice(3, 1, ['body', neckY - overlap, hipY + overlap, hipY, 0, bodyMask],
+      ['hand', neckY - overlap, hipY + overlap, hipY - shoulder / size, shift, armMask]);
+  }
   const regions = {}, attachments = {};
-  const slots = strips.map(([name, top, bottom, pivot]) => {
+  const slots = strips.map(([name, top, bottom, pivot, x = 0, mask]) => {
     regions[name] = [0, top, width, bottom - top];
-    attachments[name] = { [name]: { x: 0, y: (pivot - (top + bottom) / 2) * size, width: width * size, height: (bottom - top) * size } };
+    attachments[name] = { [name]: { x: -x, y: (pivot - (top + bottom) / 2) * size,
+      width: width * size, height: (bottom - top) * size, mask } };
     return { name, bone: name, attachment: name };
   });
   const bones = [{ name: 'feet' }, { name: 'body', parent: 'feet', y: (height - hipY) * size },
-    { name: 'head', parent: 'body', y: (hipY - neckY) * size },
-    { name: 'effect_tip', parent: 'body', x: Math.min(36, width * size * .4), y: height * size * .28 }];
+    { name: 'head', parent: 'body', y: (hipY - neckY) * size }];
+  if (hand != null) bones.push({ name: 'hand', parent: 'body', x: shift, y: shoulder },
+    { name: 'leg_far', parent: 'feet', x: -spread, y: shin }, { name: 'leg_near', parent: 'feet', x: spread, y: shin });
+  bones.push({ name: 'effect_tip', parent: hand == null ? 'body' : 'hand',
+    x: Math.min(36, width * size * .4) - shift, y: height * size * .28 - shoulder });
   const melee = ['guardian', 'fighter', 'assassin'].includes(spirit.role);
   const track = (duration, pivot, middle) => [{ time: 0, ...pivot }, { time: duration / 2, ...middle }, { time: duration, ...pivot }];
   const motion = (duration, x, y, turn, contact, end = {}) => ({
     bones: {
       feet: { translate: [{ time: 0, x: 0, y: 0 }, { time: contact ?? duration / 2, x, y }, { time: duration, x: end.x ?? 0, y: 0 }] },
       body: { rotate: [{ time: 0, value: 0 }, { time: contact ?? duration / 2, value: turn }, { time: duration, value: end.turn ?? 0 }] },
-      head: { rotate: track(duration, { value: 0 }, { value: -turn * .65 }) },
+      head: { rotate: track(duration, { value: 0 }, { value: -turn * .55 }) },
+      ...(hand == null ? {} : { hand: { rotate: [
+        { time: 0, value: 0 }, { time: (contact ?? duration / 2) * .48, value: contact ? 5 : 0 },
+        { time: contact ?? duration / 2, value: contact ? -9 + turn * .3 : -turn }, { time: duration, value: 0 },
+      ] } }),
     },
     ...(contact ? { events: [{ time: contact, name: 'effect_contact' }] } : {}),
   });
@@ -314,6 +348,13 @@ export function portraitRigDefinition(spirit, width, height) {
       time: duration * beat, x: [0, 1.5, 0, -1.5, 0][i], y: i % 2 ? lift : 0,
     }));
     clip.bones.body.rotate = track(duration, { value: -lean }, { value: -lean * .4 });
+    if (hand != null) {
+      for (const [leg, sign] of [['leg_far', 1], ['leg_near', -1]]) {
+        clip.bones[leg] = { rotate: [0, .25, .5, .75, 1].map((beat, i) => ({
+          time: duration * beat, value: [0, 4 * sign, 0, -4 * sign, 0][i],
+        })) };
+      }
+    }
     return clip;
   };
   const animations = {

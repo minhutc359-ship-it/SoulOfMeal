@@ -168,6 +168,23 @@
           ]
         }
       }
+    },
+    "skill_01": {
+      "fps": 9,
+      "loop": false,
+      "directions": {
+        "W": {
+          "frames": [
+            "mob_mushroom_01_pose_03",
+            "mob_mushroom_01_pose_04",
+            "mob_mushroom_01_pose_07"
+          ],
+          "anchor_normalized": [
+            0.5,
+            0.8984375
+          ]
+        }
+      }
     }
   },
   "mirror_east_west": true

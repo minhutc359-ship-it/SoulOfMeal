@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { drawCombatAccent } from '../src/render/combatVfx.js';
 import { BattleEffects } from '../src/render/battleEffects.js';
 import { validateAnimationManifest } from '../src/render/clipPlayer.js';
 import { actorArt, BOSS_ID, combatArt, cutinArt, ELEMENT_ART, effectArt, HERO_ID, HERO_NAMES, MONSTER_IDS, originalCardArt, preloadGameAssets, TRAVEL_HERO } from '../src/render/spriteAssets.js';
@@ -16,6 +17,10 @@ test('every additional Vị Linh uses a valid articulated rig and the seven offe
     await readFile(assetFile(actorArt(spirit.id)));
     const rig = new SpiritRig(...portraitRigDefinition(spirit, 240, 330), { naturalWidth: 240, naturalHeight: 330 });
     assert.equal(Object.keys(rig.clips).length, 10);
+    assert.ok(rig.bones.some(bone => bone.name === 'hand'));
+    assert.equal(rig.feet.length, 2);
+    const clip = rig.clips.walk;
+    assert.notEqual(clip.tracks.leg_far.rotate[1].value, clip.tracks.leg_near.rotate[1].value);
     assert.notDeepEqual(rig.pose(rig.clips.attack_a, 0), rig.pose(rig.clips.attack_a, .5));
     assert.ok(rig.effectPoint('ultimate_01', 0, 0, 'E', 1));
   }
@@ -54,7 +59,7 @@ test('the playtest preloads original art for the entire roster and all direction
     const manifest = manifests[id];
     assert.equal(Object.keys(manifest.frames).length, 8);
     assert.equal(manifest.mirror_east_west, true);
-    for (const action of ['idle', 'walk', 'attack_a', 'hit', 'defeat']) {
+    for (const action of ['idle', 'walk', 'attack_a', 'skill_01', 'hit', 'defeat']) {
       assert.ok(manifest.clips[action].directions.W.frames.length > 0);
     }
   }
@@ -150,4 +155,22 @@ test('a missing or invalid monster atlas keeps its portrait available in all mod
     assert.equal(sheets.has(id), false);
     assert.ok(await readFile(assetFile(actorArt(id))));
   }
+});
+
+
+test('elemental cast particles are bounded and removed in reduced motion', () => {
+  const positions = [];
+  const context = new Proxy({}, { get(_target, key) {
+    return key === 'translate' ? (...point) => positions.push(point) : () => {};
+  } });
+  const renderer = { images: new Map() };
+  const effect = { kind: 'cast', x: 100, y: 120, size: 90, progress: .40 };
+  drawCombatAccent(context, renderer, { ...effect, element: 'fire' });
+  const fire = positions.splice(0);
+  drawCombatAccent(context, renderer, { ...effect, element: 'water' });
+  const water = positions.splice(0);
+  drawCombatAccent(context, renderer, { ...effect, element: 'fire', reducedMotion: true });
+  assert.equal(fire.length, 11);
+  assert.equal(water.length, 9);
+  assert.deepEqual(positions, [[100, 120]]);
 });

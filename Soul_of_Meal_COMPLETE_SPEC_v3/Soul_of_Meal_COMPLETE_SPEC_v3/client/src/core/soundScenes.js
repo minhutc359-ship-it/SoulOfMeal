@@ -16,7 +16,7 @@ export function resolveSoundScene(page, adventure) {
   if (page === 'tcg' || page === 'deck') return 'tcg';
   if (page === 'chess') return 'chess';
   if (page === 'journey') return 'adventure';
-  if (page === 'adventure') {
+  if (page === 'adventure' || page === 'puzzle') {
     if (adventure.battle) {
       return adventure.battle.actors.some(actor => actor.boss) ? 'epic_boss_battle' : 'adventure_battle';
     }

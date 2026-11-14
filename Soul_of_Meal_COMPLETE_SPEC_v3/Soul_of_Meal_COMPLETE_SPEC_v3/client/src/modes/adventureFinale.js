@@ -7,7 +7,7 @@ export const FINALE_CHAPTERS = [
       forge_ledger: { title: 'Sổ chuyến than', note: 'Chuyến than cuối không giao cho làng. Hội Vô Vị dùng tro núi lửa để niêm phong những hũ ký ức.' },
       forge_valve: { title: 'Bảng dẫn hơi', note: 'Van Hơi xả áp, Van Than khóa nhiên liệu. Mỗi lần lò đổi nhịp, thứ tự cần gạt cũng đổi.' },
     },
-    steps: ['Gặp Bún Bò Hỏa Linh ở núi lửa', 'Đọc sổ chuyến than và bảng dẫn hơi', 'Dập Lò Than Mất Vị', 'Báo tin cho Bún Bò Hỏa Linh'],
+    steps: ['Gặp Bún Bò Hỏa Linh ở núi lửa', 'Đọc sổ chuyến than và cân bằng lò hơi', 'Dập Lò Than Mất Vị', 'Báo tin cho Bún Bò Hỏa Linh'],
   },
   {
     number: 5, title: 'Đại Tiệc Không Hương Vị', map: 'sanctum', quest: 'quest_hollow_feast',
@@ -17,7 +17,7 @@ export const FINALE_CHAPTERS = [
       sanctum_urn: { title: 'Hũ giữ ký ức', note: 'Những người mất vị vẫn còn ở trong ký ức của nhau. Ba ấn đầu mở hũ. Hai ấn cuối đưa hương vị trở về.' },
       sanctum_seal: { title: 'Bản khắc ngũ vị', note: 'Ấn đầu theo thứ tự Hỏa, Thủy, Mộc. Đợt cuối khép mạch bằng Quang, rồi Âm.' },
     },
-    steps: ['Gặp Cà Phê Dạ Vũ trong điện', 'Đọc dấu vết trên hũ và bản khắc', 'Phá Vạc Vô Vị', 'Giải phong ấn cùng Cà Phê Dạ Vũ'],
+    steps: ['Gặp Cà Phê Dạ Vũ trong điện', 'Điều tra hũ và ghép lại bản khắc', 'Phá Vạc Vô Vị', 'Giải phong ấn cùng Cà Phê Dạ Vũ'],
   },
   {
     number: 6, title: 'Bữa Tiệc Tái Sinh', map: 'village', quest: 'quest_shared_feast',
@@ -78,7 +78,7 @@ export const FINALE_DIALOGUES = {
     chapter: forge.title, title: 'Dấu than qua núi',
     lines: [
       { speaker: 'Bún Bò Hỏa Linh', art: 'chr_bunbo_holinh', text: 'Tro trong tù và đến từ lò này. Bếp Trưởng từng giữ ngọn lửa ở đây để sưởi nhà trong mùa lạnh.' },
-      { speaker: 'Phở Lam Vũ', art: 'chr_pho_lamvu', text: 'Ai đó đã đổi hướng đường hơi. Đọc sổ chuyến than và bảng dẫn hơi, rồi ta sẽ biết cách hạ áp cho lò.' },
+      { speaker: 'Phở Lam Vũ', art: 'chr_pho_lamvu', text: 'Ai đó đã đổi hướng đường hơi. Đọc sổ chuyến than và cân bằng lò hơi, rồi ta sẽ biết cách hạ áp cho lò.' },
     ],
   },
   forgeEnding: {

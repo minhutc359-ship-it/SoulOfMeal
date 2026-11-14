@@ -78,7 +78,7 @@ Cả năm rig dùng atlas WebP RGBA 704×528, mỗi rig có 12 lớp gắn xươ
 | Bánh Bao Bạch Ngọc | `chr_banhbao_bachngoc` | 15 | Tiếng đòn thường theo va chạm, hiệu ứng mở khiên lấy đầu thìa làm neo |
 | Cà Phê Dạ Vũ | `chr_caphe_davu` | 16 | Hai đòn luân phiên lấy hai đầu dao làm neo |
 
-Adventure, TCG và Auto Chess dùng chung rig cho năm ID Vị Linh. TCG và Chess phát hoạt ảnh ở mốc trình bày của trận hoặc replay. Bản đồ khám phá tiếp tục dùng bộ bốn hướng của Bún Bò. Rig chiến đấu dùng hướng đông và phản chiếu hướng tây. Khi tải rig lỗi, nhân vật dùng atlas pose sẵn có. Logic giao tranh quyết định sát thương, hồi máu và hộ thuẫn theo tick của trận.
+Adventure và Auto Chess dùng chung rig cho năm ID Vị Linh. TCG dùng splash art và phát hiệu ứng theo mốc trình bày của trận. Bản đồ khám phá tiếp tục dùng bộ bốn hướng của Bún Bò. Rig chiến đấu dùng hướng đông và phản chiếu hướng tây. Khi tải rig lỗi, nhân vật dùng atlas pose sẵn có. Logic giao tranh quyết định sát thương, hồi máu và hộ thuẫn theo tick của trận.
 
 ```bash
 python3 scripts/bunbo_rig.py --character chr_pho_lamvu --export /path/to/pho-editor
@@ -93,4 +93,15 @@ Ba nền anime mới phục vụ đi bộ trong Nhà Bếp, Hội Quán và Ti�
 
 ## Chân dung chibi Vị Linh v4
 
-19 ảnh `client/assets/original/actors/chr_som_*.webp` được tạo riêng cho Soul of Meal bằng ImageGen từ mô tả Vị Linh trong spec v4. Ảnh nguồn là lưới RGBA 5×4, được cắt theo ID và đặt chân về cùng đường chuẩn. Gacha, hồ sơ và Adventure sử dụng cùng ảnh. Trong Adventure, nhân vật mới dùng chuyển động sprite tĩnh theo trạng thái và hiệu ứng nguyên tố. Bộ rig nhiều lớp, key pose và voice riêng cần duyệt mỹ thuật trước phát hành.
+19 ảnh `client/assets/original/actors/chr_som_*.webp` được tạo riêng cho Soul of Meal bằng ImageGen từ mô tả Vị Linh trong spec v4. Ảnh nguồn là lưới RGBA 5×4, được cắt theo ID và đặt chân về cùng đường chuẩn. Gacha, hồ sơ và Adventure sử dụng cùng ảnh. Trong Adventure và Auto Chess, 19 chân dung này được phân vùng trên ảnh nguồn để hoạt ảnh điều khiển riêng đầu, thân, hai chân và tay cầm đạo cụ. Mỗi ID có đường cắt và khớp tương ứng. Điểm phát phép nằm trên xương tay. Bản hiện tại tái sử dụng ảnh phẳng gốc đã đăng ký trong manifest nguồn. Các lớp vẽ lại, PNG pose từng hướng, bộ xuất Spine và duyệt mỹ thuật trực tiếp vẫn là phần sản xuất kế tiếp.
+
+
+## Hiệu ứng chiến đấu dùng chung
+
+Trong game, mở **Hướng dẫn → Hiệu ứng** để phát thử 7 kiểu hoạt ảnh với 5 nguyên tố. Bộ Canvas phối ảnh gốc của từng hệ với vệt đạn, hạt, pháp trận, vòng va chạm, khiên và dư ảnh. Dữ liệu chiến đấu giữ nguyên vai trò quyết định kết quả. Chế độ giảm chuyển động dùng ảnh hiệu ứng gọn, bỏ chuyển động hạt và cut-in toàn màn hình.
+
+| Chế độ | Nguồn thời điểm | Trình bày |
+|---|---|---|
+| Adventure | Tick lấy đà, phát đòn, trúng và gục | Sáu quái thường và năm boss có kỹ năng. Đòn vùng khóa tọa độ lúc tụ chiêu. Các pha boss hiện vùng nguy hiểm trước khi tung đòn. |
+| TCG | Sự kiện phép, bẫy, hỗ trợ và sát thương đã xử lý | Sân dùng splash art. Hàng phản ứng hiển thị lá xử lý trước. Ánh sáng, chém và vệt phép đi theo mục tiêu hợp lệ. |
+| Auto Chess | Tick từng sự kiện trong bản ghi vòng đấu | Replay giữ nhịp lấy đà, hồi phục, hộ thuẫn, vệt đánh và gục ngã. Bàn cờ ẩn lưới trong giao tranh. |
