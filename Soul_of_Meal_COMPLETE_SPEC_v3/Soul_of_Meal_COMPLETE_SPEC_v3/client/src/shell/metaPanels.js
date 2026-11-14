@@ -1,6 +1,6 @@
 import { ADVENTURE_OFFERS, GEAR_MAX_LEVEL, GEAR_SLOTS, STORE_UPGRADE_GOLD, STORE_UPGRADE_STONES, itemBonus } from '../modes/adventureStore.js';
 import { BANNERS, META, SPIRITS, bannerOdds, starterSpirits } from '../modes/metaProgress.js';
-import { actorArt, cutinArt, HERO_NAMES, itemArt, showcaseArt } from '../render/spriteAssets.js';
+import { actorArt, cardBackdrop, cutinArt, HERO_NAMES, itemArt, showcaseArt } from '../render/spriteAssets.js';
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>"']/g, character =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
@@ -122,7 +122,8 @@ export function revealGacha(host, receipt, { onProfile, onComplete, reducedMotio
   let timer;
   host.insertAdjacentHTML('beforeend', `<div class="meta-reveal-grid" data-result-count="${receipt.items.length}">${receipt.items.map(({ id, isNew, essence }) => {
     const spirit = SPIRITS[id];
-    const front = onProfile ? `<button class="meta-card-front" data-result-profile="${id}" disabled>` : '<div class="meta-card-front">';
+    const artwork = `class="meta-card-front" style="--card-backdrop:url('${cardBackdrop(spirit.element)}')"`;
+    const front = onProfile ? `<button ${artwork} data-result-profile="${id}" disabled>` : `<div ${artwork}>`;
     return `<div class="meta-reveal-card" data-rarity="${spirit.rarity}" data-revealed="false">
       <span class="meta-card-back" aria-hidden="true">✦</span>
       ${front}${spiritImage(id)}<small>${spirit.rarity} · ${ELEMENTS[spirit.element]}</small>

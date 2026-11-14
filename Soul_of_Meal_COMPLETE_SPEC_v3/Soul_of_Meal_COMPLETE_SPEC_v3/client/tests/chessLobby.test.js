@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import {
   advanceChessRound, arrangeChessUnit, chessBenchSlots, chessDropState, buyChessExperience, buyChessOffer, chessPoolCounts, chessRoundInfo, chessStandings,
-  createChessRun, equipChessItem, nextChessOpponent, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat,
+  createChessRun, chooseChessLoot, equipChessItem, nextChessOpponent, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat,
 } from '../src/modes/autoChess.js';
 import { chessHexDistance, chessPathStep } from '../src/modes/chessCombat.js';
 import { CHESS_COMPONENTS } from '../src/modes/chessItems.js';
@@ -118,4 +118,19 @@ test('bench slots persist and permit swaps with a full bench and a capped board'
   profile.modes.chess = run;
   const restored = migrateSave(JSON.parse(JSON.stringify(profile))).modes.chess;
   assert.equal(restored.bench[chessBenchSlots(restored)[3]].uid, 'bench-8');
+});
+
+test('elite loot is a persisted choice and may only be taken once', () => {
+  const run = createChessRun(units, config);
+  run.phase = 'result';
+  run.result = { boss: true, lootChoices: [...CHESS_COMPONENTS.slice(0, 3)] };
+  const save = createDefaultSave();
+  save.modes.chess = run;
+  const restored = migrateSave(JSON.parse(JSON.stringify(save))).modes.chess;
+  const pick = restored.result.lootChoices[2];
+  const chosen = chooseChessLoot(restored, pick);
+  assert.equal(chosen.result.rewardItem, pick);
+  assert.deepEqual(chosen.items, [pick]);
+  assert.throws(() => chooseChessLoot(chosen, pick), /không còn khả dụng/);
+  assert.deepEqual(advanceChessRound(restored, units, config).items, [restored.result.lootChoices[0]]);
 });

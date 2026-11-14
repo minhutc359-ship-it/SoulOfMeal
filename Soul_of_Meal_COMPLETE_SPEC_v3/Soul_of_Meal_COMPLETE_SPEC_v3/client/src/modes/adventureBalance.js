@@ -2,6 +2,7 @@ import { SPIRITS } from './metaProgress.js';
 
 // Browser playtest values. Combat advances at 30 ticks/s.
 export const ADVENTURE_TICK_RATE = 30;
+export const COMBAT_PLAYBACK_RATE = .7;
 export const adventureBalance = {
   openingEnergy: 72,
   basicEnergy: 12,
@@ -92,9 +93,9 @@ const seals = { fire: 'Hỏa', water: 'Thủy', wood: 'Mộc', light: 'Quang', s
 
 export const adventureEncounters = {
   orchard_patrol: { scene: 'orchard', battleScene: 'arena', waves: [[bee, mushroom], [crab, bee]], phases: {},
-    claimId: 'orchard_patrol_reward', field: true, reward: { gold: 35, essence: 5 } },
+    claimId: 'orchard_patrol_reward', field: true, reward: { gold: 35, essence: 5 }, repeatReward: { gold: 12, essence: 2 }, material: 'potion_small' },
   garden_patrol: { scene: 'spice_garden', battleScene: 'arena', waves: [[boar, bee], [wisp, pepper]], phases: {},
-    claimId: 'garden_patrol_reward', field: true, reward: { gold: 45, essence: 6 } },
+    claimId: 'garden_patrol_reward', field: true, reward: { gold: 45, essence: 6 }, repeatReward: { gold: 16, essence: 3 }, material: 'upgrade_stone' },
   forest: {
     waves: [[mushroom, pepper], [bee, crab], [
       { id: 'boss_bep_truong', name: 'Bếp Trưởng Hỏa Diệm', hp: 5200, maxHp: 5200, atk: 190, def: 85, interval: 75, element: 'fire', boss: true },

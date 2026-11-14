@@ -16,6 +16,9 @@ test('the eight configurable tracks map to reachable scenes and their built-in f
   assert.equal(resolveSoundScene('tcg'), 'tcg');
   assert.equal(resolveSoundScene('deck'), 'tcg');
   assert.equal(resolveSoundScene('chess'), 'chess');
+  assert.equal(resolveSoundScene('tcg', null, { challengeId: 'jade', mulliganDone: true }), 'epic_boss_battle');
+  assert.equal(resolveSoundScene('chess', null, null, { phase: 'result', stage: 2, result: { opponentId: 0 } }), 'epic_boss_battle');
+  assert.equal(resolveSoundScene('chess', null, null, { phase: 'result', stage: 1, result: { opponentId: 0 } }), 'chess');
   assert.equal(resolveSoundScene('journey'), 'adventure');
   assert.equal(resolveSoundScene('adventure', { battle: { actors: [] } }), 'adventure_battle');
   assert.equal(resolveSoundScene('adventure', { battle: { actors: [{ boss: true, alive: false }] } }), 'epic_boss_battle');

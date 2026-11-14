@@ -201,17 +201,21 @@ async function checkTcgTargets(page) {
   await selectCard(damage);
   assert.equal(await page.locator('[data-spell-target="commander"]').count(), 1);
   await target(enemy.instance_id);
+  await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).modes.tcg.stack.length === 0, saveKey);
   state = await read();
   assert.equal(state.stack.length, 0);
   assert.ok(!state.players[1].units.length || state.players[1].units[0].current_def < enemy.current_def);
   await tap(page, `[data-tcg-attacker="${ally.instance_id}"]`);
   await tap(page, '[data-tcg-strike-target="commander"]');
+  await page.waitForFunction(({ key, hp }) => JSON.parse(localStorage.getItem(key)).modes.tcg.players[1].hp < hp,
+    { key: saveKey, hp: match.players[1].hp });
   state = await read();
   assert.equal(state.players[0].units[0].ready, false);
   assert.ok(state.players[1].hp < match.players[1].hp);
   await page.waitForSelector('.tcg-cutin[data-invocation="attack"][data-owner="0"]', { state: 'attached' });
   await tap(page, '[data-tcg-end]');
   await tap(page, '[data-tcg-trap-option]');
+  await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).modes.tcg.log.some(item => item.type === 'stack_item_countered'), saveKey);
   state = await read();
   assert.ok(state.players[1].graveyard.some(item => item.instance_id === enemySpell.instance_id));
   assert.ok(state.log.some(item => item.type === 'stack_item_countered'));
