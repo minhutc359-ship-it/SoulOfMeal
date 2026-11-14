@@ -15,6 +15,11 @@
       {"id": "village_merchant_wall_right", "type": "rect", "x": 928, "y": 251, "width": 32, "height": 289}
     ]
   },
+  "layers": {
+    "occlusion": [
+      {"id": "merchant_counter_front", "depth": 230, "points": [[290, 163], [654, 163], [654, 229], [290, 229]]}
+    ]
+  },
   "transitions": [
     {"id": "room_exit", "type": "door", "from": "village_merchant", "to": "village", "spawn": {"x": 728, "y": 252}, "label": "Ra quảng trường"}
   ],

@@ -1,5 +1,5 @@
 import { validateAnimationManifest } from './clipPlayer.js';
-import { META } from '../modes/metaProgress.js';
+import { META, SPIRITS } from '../modes/metaProgress.js';
 import { VILLAGE_ROOMS } from '../modes/villageRooms.js';
 
 const ORIGINAL = './assets/original';
@@ -24,6 +24,11 @@ export const HERO_NAMES = Object.freeze({
 const ACTORS = [...META.characters.map(spirit => spirit.id), 'npc_lilia', ...MONSTER_IDS, BOSS_ID,
   ...FIELD_MONSTER_IDS];
 const CARD_IDS = new Set([7, 10, 11, 12, 13, 14, 15, 16, 17, 18].map((id) => 'card_demo_' + String(id).padStart(2, '0')));
+const ILLUSTRATED_TCG_CARDS = [
+  'card_ember_break', 'card_mist_recall', 'card_leaf_reclaim', 'card_jade_encore', 'card_mist_dampen', 'card_night_feast',
+  'card_tcg_scout', 'card_tcg_disarm', 'card_tcg_refute', 'card_ultimate_light', 'card_trap_embers', 'card_trap_roots',
+];
+for (const id of ILLUSTRATED_TCG_CARDS) CARD_IDS.add(id);
 const PROPS = ['house_kitchen', 'house_guild', 'house_merchant', 'tree', 'chest_closed', 'chest_open', 'portal', 'table', ...ENCOUNTER_PROPS];
 
 export const ELEMENT_ART = Object.freeze({
@@ -40,6 +45,9 @@ export function chapterArt(number) { return `${ORIGINAL}/chronicle/chapter-${num
 export function actorArt(id) { return ACTORS.includes(id) ? `${ORIGINAL}/actors/${id}.webp` : null; }
 export function propArt(id) { return `${ORIGINAL}/props/${id}.webp`; }
 export function originalCardArt(id) { return CARD_IDS.has(id) ? `${ORIGINAL}/cards/${id}.webp` : null; }
+export function showcaseArt(id) {
+  return Object.hasOwn(SPIRITS, id) ? `${ORIGINAL}/showcase/${id}.webp` : null;
+}
 export function cutinArt(id) { return `${ORIGINAL}/cutins/${id}.webp`; }
 export function combatArt(id) { return `${ORIGINAL}/effects/${id}.webp`; }
 export function effectArt(element, phase) {

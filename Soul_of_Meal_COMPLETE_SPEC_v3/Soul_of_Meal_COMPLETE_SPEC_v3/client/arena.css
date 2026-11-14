@@ -460,7 +460,7 @@
 }
 @keyframes chess-star-up { 0% { transform: scale(.65); opacity: .2; } 28% { opacity: 1; } 100% { transform: scale(1.45); opacity: 0; } }
 
-.tcg-match[data-direct] .duel-field .unit-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tcg-match[data-direct] .duel-field .unit-row { grid-template-columns: repeat(var(--tcg-columns, 5), minmax(0, 1fr)); }
 .tcg-match .lane-guard {
   position: absolute; top: 3px; right: 4px; z-index: 1; border-radius: 5px; padding: 2px 4px; background: #3f3420;
   color: #ffe4a6; font: 800 10px/1 system-ui, sans-serif;

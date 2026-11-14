@@ -1,7 +1,7 @@
 import { CHAPTER_DIALOGUES, FIRST_CHAPTER, chapterForScene } from '../modes/adventureStory.js';
 import { actorArt } from '../render/spriteAssets.js';
 
-export function openStoryDialog(host, scene) {
+export function openStoryDialog(host, scene, voice) {
   const { chapter = FIRST_CHAPTER, title, lines } = CHAPTER_DIALOGUES[scene];
   const chapterNumber = chapterForScene(scene)?.number;
   const previousFocus = document.activeElement;
@@ -34,6 +34,7 @@ export function openStoryDialog(host, scene) {
     dialog.querySelector('[data-story-portrait]').src = actorArt(art);
     dialog.querySelector('[data-story-speaker]').textContent = speaker;
     dialog.querySelector('[data-story-text]').textContent = text;
+    voice?.speak(text, art, { priority: true, clip: 'story-' + scene + '-' + index });
     dialog.querySelector('[data-story-progress]').textContent = `${index + 1} / ${lines.length}`;
     if (index && host.dataset.motion !== 'reduced') {
       dialog.querySelector('[data-story-text]').animate?.([{ opacity: .55 }, { opacity: 1 }], { duration: 180 });
@@ -58,6 +59,7 @@ export function openStoryDialog(host, scene) {
     }
   });
   dialog.addEventListener('close', () => {
+    voice?.stop();
     dialog.remove();
     const returnFocus = host.contains(previousFocus) ? previousFocus : host.querySelector('main h1');
     returnFocus?.focus({ preventScroll: true });

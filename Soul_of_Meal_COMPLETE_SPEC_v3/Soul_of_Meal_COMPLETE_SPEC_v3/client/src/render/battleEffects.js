@@ -83,7 +83,7 @@ export class BattleEffects {
     this.effects = this.effects.filter((effect) => effect.elapsed < effect.duration);
   }
 
-  draw(context, battle, reducedMotion, view = adventureViewport(false), fraction = 0, blend = 1) {
+  draw(context, battle, reducedMotion, view = adventureViewport(false), fraction = 0, blend = 1, effectsLimited = false) {
     let cutin;
     for (const effect of this.effects) {
       const progress = effect.elapsed / effect.duration;
@@ -120,7 +120,7 @@ export class BattleEffects {
         }
       } else if (effect.type === 'shockwave' || effect.type === 'defeat') {
         drawCombatAccent(context, this.renderer, { ...effect, kind: effect.type === 'defeat' ? 'defeat' : 'cast',
-          size: effect.radius ? effect.radius * 1.46 : 69, progress, reducedMotion });
+          size: effect.radius ? effect.radius * 1.46 : 69, progress, reducedMotion, effectsLimited });
       } else if (effect.type === 'boss_cleave' || effect.type === 'shield_break') {
         const size = (effect.type === 'boss_cleave' ? 220 : 90) * (reducedMotion ? 1 : .78 + .35 * progress);
         const options = { x: effect.x, y: effect.y, size, flipX: effect.flipX, opacity: fade };
@@ -130,7 +130,7 @@ export class BattleEffects {
       } else {
         const strike = effect.type === 'strike';
         const size = strike ? 84 : effect.strong ? 120 : effect.type === 'cast' ? 86 : 64;
-        drawCombatAccent(context, this.renderer, { ...effect, size, progress, reducedMotion,
+        drawCombatAccent(context, this.renderer, { ...effect, size, progress, reducedMotion, effectsLimited,
           kind: effect.accent ?? (strike ? 'slash' : effect.type === 'cast' ? 'charge' : 'hit'),
         });
         if (!effect.text) continue;

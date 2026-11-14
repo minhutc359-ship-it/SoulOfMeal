@@ -13,6 +13,12 @@
       {"id": "caldera_lava_south", "type": "polygon", "points": [[98, 498], [830, 498], [889, 540], [105, 540]]}
     ]
   },
+  "layers": {
+    "occlusion": [
+      {"id": "caldera_left_roof", "depth": 214, "points": [[0, 38], [127, 25], [128, 77], [69, 125], [0, 154]]},
+      {"id": "caldera_near_crates", "depth": 480, "points": [[0, 355], [38, 373], [71, 426], [84, 479], [0, 453]]}
+    ]
+  },
   "transitions": [
     {"id": "caldera_return", "type": "door", "from": "caldera", "to": "harbor", "spawn": {"x": 831, "y": 468}, "label": "Về bến cảng"},
     {"id": "sanctum_route", "type": "door", "from": "caldera", "to": "sanctum", "spawn": {"x": 100, "y": 327}, "label": "Điện Hội Vô Vị"}

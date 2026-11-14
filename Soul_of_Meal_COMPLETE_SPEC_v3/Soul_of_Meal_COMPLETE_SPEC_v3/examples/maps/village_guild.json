@@ -15,6 +15,11 @@
       {"id": "village_guild_wall_right", "type": "rect", "x": 928, "y": 251, "width": 32, "height": 289}
     ]
   },
+  "layers": {
+    "occlusion": [
+      {"id": "guild_counter_front", "depth": 236, "points": [[311, 169], [647, 169], [649, 225], [607, 235], [343, 235], [311, 224]]}
+    ]
+  },
   "transitions": [
     {"id": "room_exit", "type": "door", "from": "village_guild", "to": "village", "spawn": {"x": 399, "y": 242}, "label": "Ra quảng trường"}
   ],

@@ -15,6 +15,11 @@
       {"id": "village_kitchen_wall_right", "type": "rect", "x": 928, "y": 251, "width": 32, "height": 289}
     ]
   },
+  "layers": {
+    "occlusion": [
+      {"id": "kitchen_counter_front", "depth": 246, "points": [[291, 172], [662, 172], [662, 246], [291, 246]]}
+    ]
+  },
   "transitions": [
     {"id": "room_exit", "type": "door", "from": "village_kitchen", "to": "village", "spawn": {"x": 148, "y": 256}, "label": "Ra quảng trường"}
   ],

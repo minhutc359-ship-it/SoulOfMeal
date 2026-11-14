@@ -512,3 +512,18 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
   min-height: 40px; font: inherit; padding: 4px 8px; border: 1px solid #ae8759; border-radius: 5px;
   color: #34271d; background: #fff1ce;
 }
+
+/* Keep the stat and action areas readable in the short landscape viewport. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .shell[data-screen="roster"] .spirit-profile { grid-template-rows: minmax(0, 1fr) auto; gap: 3px 12px; }
+  .shell[data-screen="roster"] .spirit-browse .button { min-height: 32px; }
+  .shell[data-screen="roster"] .spirit-tabs .button { min-height: 36px; padding: 2px 4px; }
+  .shell[data-screen="roster"] .spirit-stats { margin-block: 3px; }
+  .shell[data-screen="roster"] .spirit-stats > div { padding-block: 2px; }
+  .shell[data-screen="roster"] .spirit-tab-body { padding: 5px 8px; }
+  .main .chess-match :is(.bench-slot, .bench-unit) { height: 37px; }
+  .main .chess-match .chess-shop-actions .button { min-height: 38px; }
+  .tcg-match .tcg-cutin { width: min(62%, 500px); min-height: 54px; }
+  .tcg-match .tcg-cutin img { height: clamp(54px, 16dvh, 92px); }
+  .tcg-match .tcg-cutin .tcg-cutin-card { height: clamp(41px, 13dvh, 74px); }
+}

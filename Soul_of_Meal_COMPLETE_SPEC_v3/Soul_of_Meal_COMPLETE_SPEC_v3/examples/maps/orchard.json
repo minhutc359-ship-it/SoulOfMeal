@@ -14,6 +14,12 @@
       {"id": "orchard_south_east", "type": "polygon", "points": [[754, 540], [839, 448], [960, 413], [960, 540]]}
     ]
   },
+  "layers": {
+    "occlusion": [
+      {"id": "orchard_boulder_front", "depth": 391, "points": [[552, 381], [608, 290], [700, 253], [743, 260], [817, 381], [728, 401], [605, 401]]},
+      {"id": "orchard_near_fungi", "depth": 534, "points": [[0, 413], [66, 443], [142, 515], [160, 540], [0, 540]]}
+    ]
+  },
   "transitions": [
     {"id": "orchard_to_forest", "type": "door", "to": "forest", "spawn": {"x": 221, "y": 318}},
     {"id": "orchard_to_garden", "type": "door", "to": "spice_garden", "spawn": {"x": 123, "y": 385}}

@@ -36,7 +36,7 @@ function particle(context, shape, radius) {
 }
 
 export function drawCombatAccent(context, renderer, {
-  element = 'light', kind, x, y, size, progress, angle = 0, reducedMotion = false,
+  element = 'light', kind, x, y, size, progress, angle = 0, reducedMotion = false, effectsLimited = false,
 }) {
   const t = unit(progress);
   const { color, dark } = ELEMENT_ART[element] ?? ELEMENT_ART.light;
@@ -48,7 +48,8 @@ export function drawCombatAccent(context, renderer, {
   const trap = kind === 'trap';
   const cast = kind === 'cast';
   const slash = kind === 'slash';
-  const particleCount = reducedMotion ? 0 : defeat ? 6 : cast ? motion.sparks : Math.ceil(motion.sparks * .65);
+  const fullCount = defeat ? 6 : cast ? motion.sparks : Math.ceil(motion.sparks * .65);
+  const particleCount = reducedMotion ? 0 : effectsLimited ? Math.floor(fullCount / 2) : fullCount;
   const phase = reducedMotion ? .35 : t;
   const opacity = charge ? .25 + .60 * t : Math.pow(1 - t, .8);
   const radius = size * (charge ? .39 - phase * .14 : .28 + phase * (cast ? .57 : .32));

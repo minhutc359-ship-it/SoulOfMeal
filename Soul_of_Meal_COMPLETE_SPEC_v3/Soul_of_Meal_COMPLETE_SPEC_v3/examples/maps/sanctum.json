@@ -15,6 +15,12 @@
       {"id": "sanctum_foreground", "type": "rect", "x": 0, "y": 518, "width": 960, "height": 22}
     ]
   },
+  "layers": {
+    "occlusion": [
+      {"id": "sanctum_west_lantern", "depth": 532, "points": [[0, 429], [33, 438], [82, 503], [93, 540], [0, 540]]},
+      {"id": "sanctum_east_lantern", "depth": 532, "points": [[831, 540], [879, 477], [960, 451], [960, 540]]}
+    ]
+  },
   "transitions": [
     {"id": "sanctum_return", "type": "door", "from": "sanctum", "to": "caldera", "spawn": {"x": 832, "y": 221}, "label": "Về núi lửa"},
     {"id": "feast_return", "type": "door", "from": "sanctum", "to": "village", "spawn": {"x": 462, "y": 400}, "label": "Về quảng trường"}

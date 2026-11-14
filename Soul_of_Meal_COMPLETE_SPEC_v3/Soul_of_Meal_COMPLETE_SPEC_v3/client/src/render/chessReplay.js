@@ -86,7 +86,7 @@ export class ChessReplay {
     return this.elapsed >= this.duration + .42;
   }
 
-  draw(canvas) {
+  draw(canvas, effectsLimited = false) {
     const resolution = canvasResolution(canvas, REPLAY_WIDTH, REPLAY_HEIGHT, true);
     const context = canvasContext(canvas, resolution, REPLAY_WIDTH, REPLAY_HEIGHT);
     if (!context) return;
@@ -144,14 +144,14 @@ export class ChessReplay {
         }
       }
     }
-    if (!this.reducedMotion) this.drawApproachingAttacks(context);
+    if (!this.reducedMotion) this.drawApproachingAttacks(context, effectsLimited);
     for (const effect of this.impacts) {
       const target = this.actors.get(effect.targetId);
       const { x, y } = boardPoint(target.viewX, target.viewY, this.hex);
       const progress = (this.elapsed - effect.start) / (effect.end - effect.start);
       context.save();
       drawCombatAccent(context, this.renderer, { ...effect, x, y: y - 23,
-        size: ['cast', 'shield'].includes(effect.kind) ? 74 : 51, progress, reducedMotion: this.reducedMotion });
+        size: ['cast', 'shield'].includes(effect.kind) ? 74 : 51, progress, reducedMotion: this.reducedMotion, effectsLimited });
       context.globalAlpha = Math.min(1, (1 - progress) * 2);
       context.textAlign = 'center';
       context.font = '800 18px system-ui';
@@ -198,7 +198,7 @@ export class ChessReplay {
     }
   }
 
-  drawApproachingAttacks(context) {
+  drawApproachingAttacks(context, effectsLimited) {
     for (const { source, target, contact } of this.approaching) {
       const from = boardPoint(source.viewX, source.viewY, this.hex);
       const to = boardPoint(target.viewX, target.viewY, this.hex);
@@ -209,14 +209,14 @@ export class ChessReplay {
       const skill = source.timing?.id === 'skill_01';
       const point = { x: from.x, y: from.y - 21 };
       if (progress < .42 && skill) drawCombatAccent(context, this.renderer, {
-        element: source.element, kind: 'charge', ...point, size: 57, progress: progress / .42,
+        element: source.element, kind: 'charge', ...point, effectsLimited, size: 57, progress: progress / .42,
       });
       if (ranged) {
         drawCombatTrail(context, this.renderer, { element: source.element, from: point, to: { x: to.x, y: to.y - 21 },
           size: skill ? 67 : 48, progress, arc: skill ? 22 : 9 });
       } else if (progress >= .56) drawCombatAccent(context, this.renderer, {
         element: source.element, kind: 'slash', x: from.x + dx * progress, y: from.y + dy * progress - 21,
-        size: skill ? 78 : 59, progress: (progress - .56) * 1.6, angle: Math.atan2(dy, dx),
+        effectsLimited, size: skill ? 78 : 59, progress: (progress - .56) * 1.6, angle: Math.atan2(dy, dx),
       });
     }
   }

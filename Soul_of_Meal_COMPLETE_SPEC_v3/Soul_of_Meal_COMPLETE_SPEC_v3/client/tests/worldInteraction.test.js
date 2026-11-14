@@ -13,6 +13,7 @@ test('all exploration maps have solid geometry and walkable routes to every inte
     const map = getAdventureMap(null, key);
     const radius = map.world.player_radius;
     assert.ok(map.collision.obstacles.length > 0, key);
+    assert.ok(map.layers.occlusion.length > 0, key);
     for (const destination of map.interactables) {
       assert.equal(collidesWithWorld(key, destination.x, destination.y, radius), false, destination.id);
       const path = findAdventurePath(key, map.world.spawn, destination, radius);

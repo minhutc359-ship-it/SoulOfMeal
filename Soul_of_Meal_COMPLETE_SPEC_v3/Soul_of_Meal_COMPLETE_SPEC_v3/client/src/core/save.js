@@ -26,7 +26,7 @@ export function createDefaultSave() {
     roster: ['chr_bunbo_holinh', 'chr_pho_lamvu', 'chr_goicuon_diepnhi', 'chr_banhbao_bachngoc', 'chr_caphe_davu'].map(spiritMember),
     completedBattles: 0,
     modes: { tcg: null, chess: null },
-    settings: { music: 70, sfx: 80, voice: 80, ambience: 65, reducedMotion: false, reducedSummonMotion: false, autoAdventureUltimate: false },
+    settings: { music: 70, sfx: 80, voice: 80, homeCompanion: null, effectsLimited: false, ambience: 65, reducedMotion: false, reducedSummonMotion: false, autoAdventureUltimate: false },
   };
 }
 

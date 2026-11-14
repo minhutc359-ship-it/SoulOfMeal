@@ -177,8 +177,10 @@ async function checkTcgTargets(page) {
   await tap(page, '[data-tcg-pass]');
   assert.ok((await read()).players[0].units[0].current_def > ally.current_def);
   await selectCard(trap);
-  await target('set');
+  await target('set:1');
   assert.equal((await read()).players[0].traps[0].faceDown, true);
+  assert.equal((await read()).players[0].traps[0].slot, 1);
+  assert.equal(await page.locator('[data-tcg-row="0"] > .tcg-unit, [data-tcg-row="0"] > .empty-slot').count(), 5);
   await selectCard(damage);
   assert.equal(await page.locator('[data-spell-target="commander"]').count(), 1);
   await target(enemy.instance_id);
@@ -356,9 +358,16 @@ async function check(page, width, height) {
       await click(page, '[data-preview-spirit]');
       await click(page, '[data-open-roster]');
       await page.selectOption('[data-roster-filter]', 'all');
-      for (let index = 0; index < (width === 844 ? 10 : 1); index++) {
-        await page.locator('dialog[open] [data-spirit-choice]').nth(index).click();
-        assert.ok(await page.locator('.spirit-stage-art').isVisible());
+      const choices = page.locator('dialog[open] [data-spirit-choice]');
+      const count = width === 844 ? await choices.count() : 1;
+      for (let index = 0; index < count; index++) {
+        const choice = choices.nth(index);
+        const id = await choice.getAttribute('data-spirit-choice');
+        await choice.click();
+        const portrait = page.locator('.spirit-stage-art img');
+        await portrait.evaluate(image => image.decode());
+        assert.ok(await portrait.isVisible());
+        assert.ok((await portrait.getAttribute('src')).endsWith('/showcase/' + id + '.webp'));
         await click(page, '[data-open-roster]');
       }
       await close(page);
@@ -371,7 +380,9 @@ async function check(page, width, height) {
     await page.waitForSelector('dialog[open] .meta-odds');
     await close(page);
     await capture(page, 'gacha', size);
-    await click(page, '[data-gacha-draw="1"]');
+    const summon = page.locator('[data-gacha-draw="1"]');
+    await summon.scrollIntoViewIfNeeded();
+    await summon.click();
     await click(page, '[data-confirm-draw]');
     if (width === 1366) {
       await page.waitForSelector('dialog[open][data-cinematic] canvas');
@@ -401,10 +412,12 @@ async function check(page, width, height) {
 }
 
 (async () => {
+  const only = process.env.SOM_UI_SIZES?.split(',') ?? [];
   const bundled = process.env.SOM_UI_CHROMIUM ? (await import(process.env.SOM_UI_CHROMIUM)).default : null;
   const executablePath = process.env.SOM_UI_CHROMIUM_PATH;
   if (output) await mkdir(output, { recursive: true });
   for (const [width, height] of viewports) {
+    if (only.length && !only.includes(`${width}x${height}`)) continue;
     if (process.env.SOM_UI_SIZE && process.env.SOM_UI_SIZE !== `${width}x${height}`) continue;
     const browser = await chromium.launch(bundled ? { executablePath: await bundled.executablePath(), args: bundled.args } : { executablePath });
     try {

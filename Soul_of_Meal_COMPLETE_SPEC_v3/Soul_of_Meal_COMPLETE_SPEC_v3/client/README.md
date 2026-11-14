@@ -105,7 +105,7 @@ Cấp 1–5, công thức và giá là cân bằng thử nghiệm. Nâng cấp v
 
 - Dùng **Do thám** để xem đúng đối thủ kế tiếp, nửa bàn và vị trí quân của họ. Số lãi dự kiến cập nhật theo vàng hiện có.
 - Kéo thả bằng chuột hoặc cảm ứng. Thả vào vị trí đã có quân để đổi chỗ, kể cả khi bàn đã đủ quân hoặc cả chín ghế đã đầy. Giữ quân để xem chỉ số và số bản sao. Thả vào **Kéo để bán** hoặc chọn quân rồi bấm **Bán quân**.
-- **Túi vật phẩm** cho gắn linh kiện lên quân. Gắn linh kiện thứ hai lên quân đang giữ một linh kiện để ghép thành món hoàn chỉnh. Bán quân trả vật phẩm về túi và trả bản sao về kho chung. Tỉ lệ cửa hàng, ngưỡng XP và các món là cân bằng thử nghiệm.
+- Kéo linh kiện từ băng ghế tới quân hoặc chạm linh kiện rồi chọn quân đang sáng. Gắn linh kiện thứ hai lên quân đang giữ một linh kiện để ghép thành món hoàn chỉnh. Bán quân trả vật phẩm về túi và trả bản sao về kho chung. Tỉ lệ cửa hàng, ngưỡng XP và các món là cân bằng thử nghiệm.
 
 ## Cài nhạc theo cảnh
 
@@ -118,7 +118,7 @@ Cấp 1–5, công thức và giá là cân bằng thử nghiệm. Nâng cấp v
 | `forest` | Khám phá Rừng Nguyên Liệu ngoài giao tranh |
 | `tcg` | Đấu thẻ và chỉnh bộ bài |
 | `chess` | Auto Chess, gồm chuẩn bị và xem giao tranh |
-| `adventure` | Nhật ký hành trình trong Phiêu lưu |
+| `adventure` | Nhật ký và các khu khám phá ngoài làng/rừng |
 | `adventure_battle` | Giao tranh đợt quái thường |
 | `epic_boss_battle` | Từ lúc boss xuất hiện tới khi đóng kết quả trận |
 
@@ -141,7 +141,7 @@ python3 -m unittest discover -s tests -v
 python3 scripts/validate_package.py .
 ```
 
-Battle Adventure và Auto Chess dùng Canvas 2D. Cả ba chế độ dùng bot. Tài khoản đồng bộ bản luyện tập lên PostgreSQL. Client xử lý luật chiến đấu. Các phần còn cần hoàn thiện trước phát hành gồm rig và hoạt ảnh đầy đủ, duyệt mỹ thuật và quyền sử dụng, voice, benchmark WebGL trên thiết bị thật và cân bằng dài hạn. Bản chơi thử lưu manh mối, mốc nhiệm vụ, phần thưởng, checkpoint Adventure, ván TCG và vòng Auto Chess. Khi tải lại Adventure giữa trận, game khôi phục mốc đã lưu và chờ người chơi bấm **Tiếp tục**.
+Battle Adventure và Auto Chess dùng Canvas 2D. Cả ba chế độ dùng bot. Tài khoản đồng bộ bản luyện tập lên PostgreSQL. Client xử lý luật chiến đấu. Các phần còn cần hoàn thiện trước phát hành gồm rig và hoạt ảnh đầy đủ, duyệt mỹ thuật và quyền sử dụng, lồng tiếng bằng diễn viên, benchmark WebGL trên thiết bị thật và cân bằng dài hạn. Bản chơi thử lưu manh mối, mốc nhiệm vụ, phần thưởng, checkpoint Adventure, ván TCG và vòng Auto Chess. Khi tải lại Adventure giữa trận, game khôi phục mốc đã lưu và chờ người chơi bấm **Tiếp tục**.
 
 ## Hồ sơ và Giao Ước Vị Linh v4
 
@@ -160,3 +160,9 @@ Chạy `npm --prefix client run dev` rồi mở `/client/`. Từ sảnh có th�
 Để chạy smoke test giao diện, cài Playwright tạm vào thư mục client bằng `npm --prefix client install --no-save --package-lock=false playwright`, chạy `client/node_modules/.bin/playwright install chromium`, rồi chạy `node client/scripts/smoke-web-client.cjs` khi dev server đang chạy. Dùng `SOM_UI_BASE` nếu đổi port. Đặt `SOM_UI_OUTPUT` để xuất ảnh, hoặc `SOM_UI_SIZE=844x390` để thử một viewport. Bản baseline có thể chụp với `SOM_UI_BASELINE=1` và cùng script trỏ tới bản cũ.
 
 Ma trận gồm 1920×1080, 1366×768, 844×390, 390×844, 360×740 và 1024×768. Script kiểm tra đường đi tới NPC và nhật ký, các thao tác TCG từ đổi bài tới kết quả, mua/xếp quân bằng kéo thả hoặc chạm, đủ chín ghế và giới hạn ảnh trong ghế, không có lưới khi giao tranh và lớp phủ kết quả, cùng đường dẫn Vị Linh, Gacha và Cửa hàng. Script thu lỗi JavaScript của trang và đo tràn ở GameShell, vùng chơi và nhóm nút. Safari iOS thật, kích thước vùng chạm đầy đủ trong bố cục ngang thấp và ngân sách hiệu năng trên thiết bị vẫn cần nghiệm thu.
+
+### Bản cập nhật giao tranh và hồ sơ
+
+- Bàn TCG v4 dùng 5 vị trí Vị Linh và 2 ô bẫy. Hai ô bẫy có địa chỉ riêng, kể cả sau khi một bẫy bị gỡ. Ván v3 tiếp tục dùng cấu hình cũ. Chọn **Ván mới** để chơi v4.
+- Hồ sơ có **Đặt ở sảnh** cho Vị Linh đã sở hữu và đối chiếu chỉ số trang bị cùng vị trí. Cài đặt có thanh âm lượng giọng đọc và tùy chọn giảm mật độ VFX mà vẫn giữ cảnh báo đòn đánh.
+- Giọng đọc tiếng Việt cho các đoạn truyện, NPC đường đi, sảnh, tuyệt kỹ và chủ tướng TCG được xuất sẵn. Mục [ghi công âm thanh](assets/audio/voice/CREDITS.md) nêu nguồn mô hình và cách xử lý tệp.

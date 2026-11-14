@@ -34,7 +34,7 @@ export class DuelEffects {
     return contact;
   }
 
-  paint(canvas, matchId, now, reducedMotion, onContact) {
+  paint(canvas, matchId, now, reducedMotion, onContact, effectsLimited = false) {
     const active = [];
     for (const attack of this.attacks) {
       if (attack.event.battle_id !== matchId) continue;
@@ -64,13 +64,13 @@ export class DuelEffects {
       const size = (ultimate ? 65 : 37) + Math.min(22, width * .035);
       const charge = now < attack.launch || Math.hypot(dx, dy) < 8;
       if (charge) {
-        drawCombatAccent(context, this.renderer, { element, kind: 'charge', ...from, size,
+        drawCombatAccent(context, this.renderer, { element, kind: 'charge', ...from, size, effectsLimited,
           progress: (now - attack.now) / Math.max(1, attack.launch - attack.now) });
       } else {
         const progress = (now - attack.launch) / (attack.contact - attack.launch);
         if (source_kind === 'tcg_combat') {
           drawCombatAccent(context, this.renderer, { element, kind: 'slash',
-            x: from.x + dx * progress, y: from.y + dy * progress, size, progress: .15 + progress * .48, angle: Math.atan2(dy, dx) });
+            x: from.x + dx * progress, y: from.y + dy * progress, size, effectsLimited, progress: .15 + progress * .48, angle: Math.atan2(dy, dx) });
         } else drawCombatTrail(context, this.renderer, { element, from, to, size, progress, arc: ultimate ? 23 : 8 });
       }
     }
@@ -79,7 +79,7 @@ export class DuelEffects {
       const kind = event.type === 'tcg_support_resolved' ? support : absorbed > 0 && !hp_damage ? 'guard'
         : effect_kind === 'trap' ? 'trap' : ultimate ? 'cast' : 'hit';
       drawCombatAccent(context, this.renderer, { element, kind, x: to.x * width, y: to.y * height,
-        size: ultimate ? 92 : 57, progress: (now - start) / 330, reducedMotion });
+        size: ultimate ? 92 : 57, progress: (now - start) / 330, reducedMotion, effectsLimited });
     }
   }
 

@@ -294,8 +294,8 @@
     },
     {
       "path": "docs/01_gameplay/TCG_RULEBOOK.md",
-      "bytes": 12632,
-      "sha256": "4cfdb9e4f1f577d4513dc1c8dd497ca52e4d9188b425463298d8743b438df4c0"
+      "bytes": 12701,
+      "sha256": "642a227a370548c740559027582147adc596031582d93f87e71febabee30c410"
     },
     {
       "path": "docs/02_art/LICENSE_AND_PROVENANCE.md",
@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 23307,
-      "sha256": "f58cd217b530de8bf91f126004e9635356004b00dcf8ead407c6a92b5dcfa888"
+      "bytes": 24174,
+      "sha256": "1a3f64235b3346d3788302e924291a9b70e5e364d2f58cc39e99bef929e6762d"
     },
     {
       "path": "client/index.html",
@@ -789,18 +789,18 @@
     },
     {
       "path": "client/src/core/save.js",
-      "bytes": 5035,
-      "sha256": "4226fbcaf8a128927e9a921a35482dd92d05842c288ab6dbde48ffa75848a943"
+      "bytes": 5079,
+      "sha256": "7380db2456a88b7aa060c1766d7cd09f2368eba3d45c7cf580c1c0f05081cb39"
     },
     {
       "path": "client/src/main.js",
-      "bytes": 219026,
-      "sha256": "53bf6bd8013e556a06cf0e6a0ddae6932af06e7948d23be5ebd40f215962bde8"
+      "bytes": 222689,
+      "sha256": "7467abafba37aeff88ded6311ec3b83ae71b52901974164d403342db4e1ae114"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 47981,
-      "sha256": "0404d0c13ee9b47772eca0c6ccefc40012d3840e6e93c2073985b260d615bc09"
+      "bytes": 48155,
+      "sha256": "4f3a6c14f64c94ecd73bee9b8d55e9460b022175d215e5f7886141083a099e75"
     },
     {
       "path": "client/src/modes/autoChess.js",
@@ -809,8 +809,8 @@
     },
     {
       "path": "client/src/modes/tcg.js",
-      "bytes": 57464,
-      "sha256": "642cd2507deb43600ee6bd33a82469f4e02b8e22c4cf2c43724be534e28d68d2"
+      "bytes": 57983,
+      "sha256": "0121a413408377b9072d1c7e9b176546bfb8b28e7d3f8618996e21e2537c1b0e"
     },
     {
       "path": "client/styles.css",
@@ -1259,8 +1259,8 @@
     },
     {
       "path": "client/src/render/spriteAssets.js",
-      "bytes": 4372,
-      "sha256": "2d148c5b86a895ada9432ce2c08c62deb7be14bdcbd3c391de8bdaaa82dea8b3"
+      "bytes": 4833,
+      "sha256": "f4f7f0142efcbf9c640a3e87e3bc36ec1e0c94f5de8e3ab4a5d9a757de889f50"
     },
     {
       "path": "client/src/render/spriteRenderer.js",
@@ -1474,8 +1474,8 @@
     },
     {
       "path": "client/src/core/audio.js",
-      "bytes": 7092,
-      "sha256": "4eae30deb8d38e1cb21f81cd278393cb5c24ffa8c38f8037a170d7cc3465073d"
+      "bytes": 7703,
+      "sha256": "5303e7d46d939bcc76151b2b1ce544d2b4f07ed83dbd4518370165d32b138d1d"
     },
     {
       "path": "client/src/modes/adventureBalance.js",
@@ -1484,13 +1484,13 @@
     },
     {
       "path": "client/src/render/battleEffects.js",
-      "bytes": 9780,
-      "sha256": "8166c4620546aab813460167c01956f06221556a9100891d74dfc3b9eee41ba5"
+      "bytes": 9836,
+      "sha256": "0111afb6ad2f2a534f2cea714963036cf6ec45741b80d2cdccf6339d7282ad8d"
     },
     {
       "path": "client/src/render/chessReplay.js",
-      "bytes": 11424,
-      "sha256": "18881858e40a444b96f7001fe033487096a58def9c13216569df0dcad1e831f1"
+      "bytes": 11528,
+      "sha256": "5b1685058698f63ae8c4927f845c4aa2ec05468bd46af970cb29de1afb914eb9"
     },
     {
       "path": "scripts/build_battle_poses.py",
@@ -2174,13 +2174,13 @@
     },
     {
       "path": "client/tests/originalArt.test.js",
-      "bytes": 8156,
-      "sha256": "80fb52275dc2395b4179beb399d02dcb7efedfb0ed9381a9dee5cf18574e337f"
+      "bytes": 9694,
+      "sha256": "38af85e4a103ed12fda9fd38044b68be1edcfa969295d10c05ecd7dfbb0adff5"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_PLAYTEST.md",
-      "bytes": 16397,
-      "sha256": "284d54c0f096341b5a67b064fd36a40bba26068e8bd60fa5972af3d54561630e"
+      "bytes": 18965,
+      "sha256": "6ffb2b01ecec174fc399cdd617b17ed0a27f2d48c26f501ae0282a999423a2cc"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_SOURCES.json",
@@ -2309,8 +2309,8 @@
     },
     {
       "path": "client/assets/audio/soundtracks.json",
-      "bytes": 386,
-      "sha256": "91c06934eb221b1f2b7b8f3001541eb6a3aa48e1e499e32d4c1f84fcd45e6632"
+      "bytes": 387,
+      "sha256": "608a84ad86d27a04a447028b4dbfd1f277527b71ed1e9ff19beefbc7f110176a"
     },
     {
       "path": "client/assets/characters/boss_bep_truong/original_battle/poses/boss_bep_truong_pose_00.png",
@@ -2409,8 +2409,8 @@
     },
     {
       "path": "client/tests/soundScenes.test.js",
-      "bytes": 5437,
-      "sha256": "bc4921cf8a2b086574e89165105a3a23f03bbdaba74f9f81bd50b88d38c051d6"
+      "bytes": 6603,
+      "sha256": "446543c0e4b663faf16c4ae071a83e1ce2230c04342f981985a36e18fc5afb4f"
     },
     {
       "path": "examples/characters/boss_bep_truong/identity.json",
@@ -2434,8 +2434,8 @@
     },
     {
       "path": "client/src/shell/storyDialog.js",
-      "bytes": 2940,
-      "sha256": "0472055f85c0e793da4057c8a3f112ffe5c195f391f455be9a79451db9674425"
+      "bytes": 3053,
+      "sha256": "08cd823a753b574d5066b599d78b0cf5b7f0a38b2864cdeee236e59a3ac72946"
     },
     {
       "path": "client/assets/original/props/empty_bowl_seal.webp",
@@ -2459,8 +2459,8 @@
     },
     {
       "path": "examples/maps/harbor.json",
-      "bytes": 3155,
-      "sha256": "f9069de4499de5793da68c5de6f10f96f86bbb27947b038958d533819db8aea8"
+      "bytes": 3536,
+      "sha256": "d4556163d3fce3220f04e006c76d68d673b741e3dd6617c73106b7aab0621e86"
     },
     {
       "path": "client/assets/original/props/hollow_cauldron.webp",
@@ -2484,13 +2484,13 @@
     },
     {
       "path": "examples/maps/caldera.json",
-      "bytes": 2999,
-      "sha256": "1aa4f9cc0df2d7af1621067e1cdf72643e1e1c4b3d9fc5c56943b70fe2f1398a"
+      "bytes": 3271,
+      "sha256": "c31df467bb35acf1a3052284267eaf69a3289debd4b5c10124aaf6153b9890e7"
     },
     {
       "path": "examples/maps/sanctum.json",
-      "bytes": 3264,
-      "sha256": "205355ae68b4d499c9a1f6afa340224b0b6c6251a7f0853e82eb5d2bcd1880f4"
+      "bytes": 3536,
+      "sha256": "3faff11419dfb76ea099671b3d960a7e403c4a2d66cd4af741c7663b29bd0dda"
     },
     {
       "path": "client/assets/original/chronicle/chapter-1.webp",
@@ -2744,8 +2744,8 @@
     },
     {
       "path": "client/src/render/duelEffects.js",
-      "bytes": 4361,
-      "sha256": "d03f5536b75fb165d8f0939ad3df4d2ed449517a7019593da5b49356a20a00ff"
+      "bytes": 4433,
+      "sha256": "c121cd0c79c18ad26268a8c31776b0f3f471f8d073e7ad0d5e22b0f4aca0c321"
     },
     {
       "path": "scripts/build_combat_audio.py",
@@ -2844,18 +2844,18 @@
     },
     {
       "path": "examples/maps/village_guild.json",
-      "bytes": 1686,
-      "sha256": "0f07f6861a97d0e2b40a3b97a27c6a65ba06d3b6f4704f858387c5120ee0e2f1"
+      "bytes": 1864,
+      "sha256": "cde8fe8715b8cc16c316bcdb82faa8c3437bb8c2164022e25a797f6e2d4a3b1b"
     },
     {
       "path": "examples/maps/village_kitchen.json",
-      "bytes": 1700,
-      "sha256": "581cf7d382a4ac4126e7ac2a382cbbebfdc14fb09c541c8183029c40ef22fdc5"
+      "bytes": 1856,
+      "sha256": "fe20d697fef8330a6cc5a8a7bbd90de383de8def2c0d6769b862c91027f0d7c9"
     },
     {
       "path": "examples/maps/village_merchant.json",
-      "bytes": 1776,
-      "sha256": "b62761534802e3edf3c57f356f1e8d979a605a58e223c2d3675da028c5bd05f8"
+      "bytes": 1933,
+      "sha256": "03e85392d153d76f226e25d83b28a41f2399013d2a05f5d3724d919be2cdf442"
     },
     {
       "path": "scripts/publish_web_release.py",
@@ -2929,8 +2929,8 @@
     },
     {
       "path": "client/src/render/spiritRig.js",
-      "bytes": 17745,
-      "sha256": "642acf2d4b3de17b58c86d68b8e706b6b7eccbd338a269e1d5a138d89409d9f4"
+      "bytes": 19367,
+      "sha256": "2f7731e973f516759078f6949161d5254d1ea4c2419b98184a8c6babde574b8c"
     },
     {
       "path": "client/tests/spiritRig.test.js",
@@ -2944,8 +2944,8 @@
     },
     {
       "path": "client/arena.css",
-      "bytes": 39694,
-      "sha256": "54af8dace85b533b1315a0bdc10f57ac01ccdb58759dd48e9b35873141ce1377"
+      "bytes": 39714,
+      "sha256": "0bad57fc9312a2d35c8d48d046852a4c921e564794cd315615d96bf5d87921d7"
     },
     {
       "path": "client/src/modes/adventureChallenges.js",
@@ -2974,8 +2974,8 @@
     },
     {
       "path": "client/src/modes/tcgCards.js",
-      "bytes": 10273,
-      "sha256": "b2695f9ca009fad81c16d18084aef692591baa625eb69971ebab64d54dd5cee4"
+      "bytes": 10753,
+      "sha256": "3a82ed6d3131a3ec7f8589173b8275c6d84fdbfbe35ffb85f6b00032172ea665"
     },
     {
       "path": "client/src/modes/tcgTraps.js",
@@ -3004,8 +3004,8 @@
     },
     {
       "path": "client/tests/tcgTable.test.js",
-      "bytes": 13120,
-      "sha256": "0388f34a80d4b075027c787a8f49cea7e7d8fd40323ef1c2f1010028f337da7e"
+      "bytes": 14860,
+      "sha256": "f1d297d6b2e6c2eedb6d34afec73b01b0534cffa0180d88180fd85340a07325b"
     },
     {
       "path": "client/assets/audio/sound_track/ORIGINAL_FILENAMES.md",
@@ -3179,8 +3179,8 @@
     },
     {
       "path": "client/src/shell/metaPanels.js",
-      "bytes": 12498,
-      "sha256": "5dbd33ce6e265dd1d531badc421fe2bf18b45e801f7bd13087c760ba568e2bd5"
+      "bytes": 13397,
+      "sha256": "1680d8fb8ed02cfe50ec39e0d5b226f13a81c17982d5c064036e39d8e9ddd125"
     },
     {
       "path": "client/tests/metaProgress.test.js",
@@ -3204,13 +3204,13 @@
     },
     {
       "path": "client/scene.css",
-      "bytes": 34879,
-      "sha256": "69558e544a570c51fe8e2ca03d5e8424cdf262a8daa2c5529e71bb78d21145f8"
+      "bytes": 35861,
+      "sha256": "9d8ff6f05dfbe16859691e328643a138763e081b44690b26db003c5ccce1233b"
     },
     {
       "path": "client/scripts/smoke-web-client.cjs",
-      "bytes": 21428,
-      "sha256": "1eb634956f88d95498bb3416d10cc9de6a313e4e9f81ede22371e623b9800a7f"
+      "bytes": 22180,
+      "sha256": "991104a7977cba85fe575abe911f823204cd95ee359eb194f646c8fa716476b4"
     },
     {
       "path": "client/src/shell/sceneNavigation.js",
@@ -3249,8 +3249,8 @@
     },
     {
       "path": "client/tests/worldInteraction.test.js",
-      "bytes": 3658,
-      "sha256": "5354478cfd73cfcd8b13dcd85f4ecb64dd3b136a2d3d34d831ec39ed9cf9a4d4"
+      "bytes": 3711,
+      "sha256": "4f9e519f00cee5f65906ca005f204c4792ecd5e4f2e0ff6efdf891b7754729f9"
     },
     {
       "path": "docs/05_production/WORLD_INTERACTION_V2_QA.md",
@@ -3384,13 +3384,13 @@
     },
     {
       "path": "examples/maps/orchard.json",
-      "bytes": 2421,
-      "sha256": "4d3a62d3de049227f13866e63e7eabfe68e7146eb220b2a3df4b81ed39a59ec6"
+      "bytes": 2730,
+      "sha256": "6e0517656e1bc7e45e27cc9b2308cded069694bb1b9bd2d502b3a87d978bc440"
     },
     {
       "path": "examples/maps/spice_garden.json",
-      "bytes": 2183,
-      "sha256": "05240e2dc3062c02a711e21720965d7f194d12c5b4ac4eb03fa87628dedf50e0"
+      "bytes": 2516,
+      "sha256": "7a9a1112bffcf4f93eecb0dbfdcfa05f388e8ed1d11d28adc1da670560af1e1c"
     },
     {
       "path": "client/src/modes/adventurePuzzle.js",
@@ -3399,8 +3399,668 @@
     },
     {
       "path": "client/src/render/combatVfx.js",
-      "bytes": 5165,
-      "sha256": "b1ed4d443dc5930a77ffead8e1598106616faec7908651b2f99986016cf46903"
+      "bytes": 5265,
+      "sha256": "4e4aedb0c6e9a211c191bb248cd70db44b9658616ca8533e095e260ff1cc119e"
+    },
+    {
+      "path": "client/assets/audio/voice/CREDITS.md",
+      "bytes": 1107,
+      "sha256": "efa684e9eb0eede7065b07bd08759b0ec4e597388951972e29a5e6eb74b0a183"
+    },
+    {
+      "path": "client/assets/audio/voice/commander-attack.mp3",
+      "bytes": 4615,
+      "sha256": "319c41696ca9773441f8f1536dd2bd0981906d447fab3b2b1457f1b8c2d8bf25"
+    },
+    {
+      "path": "client/assets/audio/voice/commander-summon.mp3",
+      "bytes": 7331,
+      "sha256": "3068efe3e15b33b134d653017ad921f02ab3c4911ed66f9b492379df056391fc"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_banhbao_bachngoc.mp3",
+      "bytes": 19452,
+      "sha256": "e27141ace5923c28e6f0798091eb72da188212992911dbca859593bd7dbdb440"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_bunbo_holinh.mp3",
+      "bytes": 21960,
+      "sha256": "cb167326cf9c0be8190c63d6e0cf6db2dd8fed81366430646b2165ece10166d5"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_caphe_davu.mp3",
+      "bytes": 22691,
+      "sha256": "dbbc5d192fa1f06869c41f0cd2367df71c20cfd434f1b1fc74562fea7389565c"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_goicuon_diepnhi.mp3",
+      "bytes": 18721,
+      "sha256": "7b38475b13a744f40468a38316f44f35c4b6b30fc5e582f909fe45a32dfcbbc4"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_pho_lamvu.mp3",
+      "bytes": 20497,
+      "sha256": "568805e53787815e6e9a020780ae213793c41014cd5294308b21eb4f06780c74"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_002.mp3",
+      "bytes": 18721,
+      "sha256": "abf1e48d365905e0a398167717fff4d3fcb1dcd1862891f8ac361db3012176cb"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_003.mp3",
+      "bytes": 21437,
+      "sha256": "5204173e4f9fd9ef7ccf6fa27fc039f9396e5dff4af89f7620e4df26e7631b78"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_004.mp3",
+      "bytes": 23214,
+      "sha256": "931fb71c1dd60f8775d3ecc6d3588a462327386d018d6c286de249cf48ac7b7f"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_005.mp3",
+      "bytes": 19243,
+      "sha256": "37b62b9a4e8ef515d430157653722da1b70aa62771337eeb2c6a3b8ead5864fd"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_006.mp3",
+      "bytes": 19452,
+      "sha256": "e18546c61421ff1968bded3d16b7dac91fc1b351c4c425a9804bfb4d7120e21e"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_007.mp3",
+      "bytes": 20915,
+      "sha256": "c853b1799c61a6d0deb5f3ae757eb238518998f8df0127abf39ea43402b2c8f1"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_008.mp3",
+      "bytes": 21646,
+      "sha256": "70d2cfc3490ca2290eac417e0f1d88c83ed9553d6ebc2bb465c72caf95ce07f7"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_009.mp3",
+      "bytes": 18825,
+      "sha256": "7272a49445da3d5774056459d648586cf7c6f3acbef2fb96c28436a94d340982"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_010.mp3",
+      "bytes": 18930,
+      "sha256": "4d805d2ebc3c619ea5b589f9cb57d66553e05502ad1d5a9c65b4d6efdf6eb917"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_011.mp3",
+      "bytes": 18930,
+      "sha256": "cc4a86f4729feed1ca384fb2a7b362ac87afd4c553764e07d26c402a447be041"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_012.mp3",
+      "bytes": 18825,
+      "sha256": "947c164933a7826b2784ab47e87b0335fcaa44f487c3a9fc6c0a0e66353f86b2"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_013.mp3",
+      "bytes": 21646,
+      "sha256": "95149a58a46174538e9eca0193b140439a5b3fece30769bf02b57e1fe5ad31dc"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_016.mp3",
+      "bytes": 17989,
+      "sha256": "9e5df546226aa9ea57b46a8ca4eb7aeb2e93a52ff805137bc7f6e5dddab5b9f6"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_017.mp3",
+      "bytes": 22273,
+      "sha256": "67a0dfb4a7fdad0ec7a6b39ce03ed9d9c4f5421952e1615a24c5f0c55e40a53f"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_019.mp3",
+      "bytes": 19557,
+      "sha256": "f6d9dabf9da68715a1a1d9b449cd29c92d42860a4b22615c1d63dce04fe399c4"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_020.mp3",
+      "bytes": 20602,
+      "sha256": "87ea7236d0b132192131349682c2192daa0d307059cbc7b649989a0593782e38"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_022.mp3",
+      "bytes": 21437,
+      "sha256": "d402c4f2e0911594ced245b74fd604a6182c51d1dc74d9670de641ed06896ccc"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_023.mp3",
+      "bytes": 22273,
+      "sha256": "7b66e7c2d29a461e8d8d4627fafdd5c41ca141c298da13d8a8b4b6d6678b73d4"
+    },
+    {
+      "path": "client/assets/audio/voice/home-chr_som_024.mp3",
+      "bytes": 24990,
+      "sha256": "aa466272da7a2328bcee4f6b7ec2b505bb4b5a6e174208712af041bec89f66d1"
+    },
+    {
+      "path": "client/assets/audio/voice/npc-caldera_artisan.mp3",
+      "bytes": 15899,
+      "sha256": "71620125ca1a0defd7e2a4b14d2fb4111cf71bd23cd37076c4c0d6be2416e983"
+    },
+    {
+      "path": "client/assets/audio/voice/npc-forest_scout.mp3",
+      "bytes": 19243,
+      "sha256": "4913cbf6c4df193ec917964bdf5248abeea616a04cb1bec251dc3d0b2692f55d"
+    },
+    {
+      "path": "client/assets/audio/voice/npc-garden_keeper.mp3",
+      "bytes": 15482,
+      "sha256": "d1006b0ad775e779b3c8e8544af6c0934d8db2720845356a7bd79b98a3c6a810"
+    },
+    {
+      "path": "client/assets/audio/voice/npc-harbor_boater.mp3",
+      "bytes": 13601,
+      "sha256": "0c6560d2bc4a10230e56735177dc09b83e620261b82300734a90f3256f88d123"
+    },
+    {
+      "path": "client/assets/audio/voice/npc-orchard_keeper.mp3",
+      "bytes": 18094,
+      "sha256": "487c82699ee3a9b5297f111b202cbdfbb422f8af329a6e14b1cc9348bf49ecc9"
+    },
+    {
+      "path": "client/assets/audio/voice/npc-sanctum_keeper.mp3",
+      "bytes": 15064,
+      "sha256": "0492b7d1e77e3435785bdd27c14ea18d52a0d66e4941b6c212ad1e0fbd1cfa2d"
+    },
+    {
+      "path": "client/assets/audio/voice/npc-village_cook.mp3",
+      "bytes": 14750,
+      "sha256": "665547d4100ae050fbe976d78829c1af33b289268c0f5a5deb664ae3f18f4b4c"
+    },
+    {
+      "path": "client/assets/audio/voice/npc-village_guard.mp3",
+      "bytes": 13601,
+      "sha256": "d75e2b3fe8ff1ab5175ad7d69e9042dac5eb82e1dbc43ec62e00ef9603f2580d"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_banhbao_bachngoc.mp3",
+      "bytes": 3674,
+      "sha256": "53e41140af51fa851d5fe3fb99f99565944d558ae2251dc7bbafc48cd29048ff"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_bunbo_holinh.mp3",
+      "bytes": 3152,
+      "sha256": "d293cd98034270abb642062c8bede3d019d8d30d1a7b11d3bbf70c23e9131166"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_caphe_davu.mp3",
+      "bytes": 3779,
+      "sha256": "b912d7ed69a5f92b7cc208a4b311beebb9a4815171647076299beec30aab3a1a"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_goicuon_diepnhi.mp3",
+      "bytes": 3988,
+      "sha256": "6349a511d7d62da7f94cf54b2c90d3676ef1c2ba34101fd677e9d489f9a63b4d"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_pho_lamvu.mp3",
+      "bytes": 4092,
+      "sha256": "a423dc36a91c26de803bcf57ff6d6ba28c12abe260006df354c200db7b9fc1bd"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_002.mp3",
+      "bytes": 4197,
+      "sha256": "928ceaf9095eedcdf8424b0be12d68fdd2b4bfa35a5cc685db3d1d1ad5a319bc"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_003.mp3",
+      "bytes": 4092,
+      "sha256": "68ee740eef321b03a91248e7e9173dccb36bb2987e13da9714b1199742ce5b7d"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_004.mp3",
+      "bytes": 4092,
+      "sha256": "8c529545d59731d2e8b702c2a60151188c0a821b306f2b4ec7fd3d92e52a7218"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_005.mp3",
+      "bytes": 3883,
+      "sha256": "6b3b210e687b78a13f441977993fe940e83c9101709f86b8361b05bde718a721"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_006.mp3",
+      "bytes": 3779,
+      "sha256": "721ad0f6fca1316763b803db464d9bc92654c7d2ffa7425108af3c64d7daf176"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_007.mp3",
+      "bytes": 3779,
+      "sha256": "57880370221a766ef234d1498ac7a6ca2a0b3f29d4b43d38aac3b764d5166889"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_008.mp3",
+      "bytes": 3883,
+      "sha256": "2bea4202823bac8df65e693f60abeb82a58df5d5669c7a06648311fe07688535"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_009.mp3",
+      "bytes": 4197,
+      "sha256": "27e72dbc03c5e0fc57c5d69a0b011466ec14c10e213815d3fa8a8010d38f04dd"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_010.mp3",
+      "bytes": 3988,
+      "sha256": "a6f881e422f93ecfa641f85f78146026b33cef7463a4da49e87544b81d94c82b"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_011.mp3",
+      "bytes": 4092,
+      "sha256": "215bdffd41004f17ca15fdff4c642477a79d0903fa1bc6cfaeb41fd41c1baaad"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_012.mp3",
+      "bytes": 3674,
+      "sha256": "2a0788da6630821665bca1eacbb2bd663da1dbaacc56818f598202b7a8c70933"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_013.mp3",
+      "bytes": 4615,
+      "sha256": "4626b1eaa4c010847255b84a1d75e7262f1285e386f6b93086effdc8d776c09a"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_016.mp3",
+      "bytes": 3779,
+      "sha256": "9f7be3330eae56a02925b2dd3aba75c99c81bba8bd11df8c380133b590ba0558"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_017.mp3",
+      "bytes": 3674,
+      "sha256": "02c9b524385f291f3ef6ad27f390e9fa47ee2d52654842bad16c123ec94a1630"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_019.mp3",
+      "bytes": 3883,
+      "sha256": "cf9baad38108a30320d85e2010365ef9c48ad622a3fd718068c7fb27f59580ea"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_020.mp3",
+      "bytes": 3988,
+      "sha256": "064e8863a4876d91f9e254597433c8cd0573791b6a78fd1971231c47260ac51f"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_022.mp3",
+      "bytes": 4197,
+      "sha256": "26850c037657f2fb446a3869f89c4462a8be85a2fcfb21f8a9c6c368d8873701"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_023.mp3",
+      "bytes": 4406,
+      "sha256": "b7fdb7816925fd01d30bf30c89217cd8f4771379e0b104f3cbd425e71bb642ab"
+    },
+    {
+      "path": "client/assets/audio/voice/skill-chr_som_024.mp3",
+      "bytes": 3779,
+      "sha256": "18b9b93cfcb928f61ba58cb150b3099ce2f858de395f1d7a4c09860c9cedc9e2"
+    },
+    {
+      "path": "client/assets/audio/voice/story-ending-0.mp3",
+      "bytes": 28438,
+      "sha256": "c5a12c200247cb24a5d85208da4e44c61516122d02a7411c14c134a30b94f203"
+    },
+    {
+      "path": "client/assets/audio/voice/story-ending-1.mp3",
+      "bytes": 23841,
+      "sha256": "d8a131ac68f8d445ea7f260a3acce7736b08eb7d276c6bb87d2573cdf73dd285"
+    },
+    {
+      "path": "client/assets/audio/voice/story-ending-2.mp3",
+      "bytes": 25095,
+      "sha256": "1b3b6c8c992ebc2eaf7e8ab1a08a3a6964d59f46c7489882dd70a9d1b7b5ff43"
+    },
+    {
+      "path": "client/assets/audio/voice/story-ending-3.mp3",
+      "bytes": 20810,
+      "sha256": "a121d8abd357e432777e7a18aa3bdb1b1612ec0c06a6095c805b3ded3b82f44c"
+    },
+    {
+      "path": "client/assets/audio/voice/story-feastEnding-0.mp3",
+      "bytes": 23736,
+      "sha256": "99c4aabc7e67bba37807886a0320a764f0590dd21ba55badc64a978ac8019988"
+    },
+    {
+      "path": "client/assets/audio/voice/story-feastEnding-1.mp3",
+      "bytes": 16944,
+      "sha256": "777be8a42cfb25407dfcda4bbf2ebba08c65ac9693e77d4e03aade879b37099a"
+    },
+    {
+      "path": "client/assets/audio/voice/story-feastOpening-0.mp3",
+      "bytes": 24572,
+      "sha256": "986284844b383d85faf2752e7da0955212b05aa326913ef0353d8435153010ba"
+    },
+    {
+      "path": "client/assets/audio/voice/story-feastOpening-1.mp3",
+      "bytes": 17467,
+      "sha256": "120660dcc00c1b4ecef77f1081aef974f15f7c1ceef703a63f74189b0c98729b"
+    },
+    {
+      "path": "client/assets/audio/voice/story-finaleEnding-0.mp3",
+      "bytes": 18825,
+      "sha256": "faf42b31e600b27b79f2913386bcb8db5947146e2a13d596f5fa46bee7599dfa"
+    },
+    {
+      "path": "client/assets/audio/voice/story-finaleEnding-1.mp3",
+      "bytes": 23632,
+      "sha256": "7e587d92d8b0849b018b082808137eec971a4d95d2ef9ec022492a2a0e773f9a"
+    },
+    {
+      "path": "client/assets/audio/voice/story-finaleEnding-2.mp3",
+      "bytes": 18721,
+      "sha256": "e082a87a9f3847a9c56d681d5f01c3e6f2f033692d315891831d7746cdd62f13"
+    },
+    {
+      "path": "client/assets/audio/voice/story-finaleEnding-3.mp3",
+      "bytes": 12556,
+      "sha256": "cb8e7fa3fcf7ec83772ed41b11e6c53a75f614751bb8d706657a18e5ab8b6964"
+    },
+    {
+      "path": "client/assets/audio/voice/story-finaleOpening-0.mp3",
+      "bytes": 18930,
+      "sha256": "6e85b99816b516b69687de0ee78ed2c64d7bd7acc6b96e9a11967d09347f262e"
+    },
+    {
+      "path": "client/assets/audio/voice/story-finaleOpening-1.mp3",
+      "bytes": 14541,
+      "sha256": "93999344ee00c5bf0feadd983083963996dace8c178656aeda2a74c0d4241056"
+    },
+    {
+      "path": "client/assets/audio/voice/story-forestEnding-0.mp3",
+      "bytes": 18825,
+      "sha256": "427a1bf71f7adadbcf827080d338e944a3a45db01681e2255ea0007004b010ee"
+    },
+    {
+      "path": "client/assets/audio/voice/story-forestEnding-1.mp3",
+      "bytes": 22064,
+      "sha256": "f15ea534b602316fc0e4d2b068fbd9933fac084cfa1baaa4e8df7d9450ee508d"
+    },
+    {
+      "path": "client/assets/audio/voice/story-forestEnding-2.mp3",
+      "bytes": 21646,
+      "sha256": "0a07cc5396ea576e32a885c9995f6ed6f1980ca8e1cd414a9e40141fccd741a1"
+    },
+    {
+      "path": "client/assets/audio/voice/story-forestOpening-0.mp3",
+      "bytes": 21019,
+      "sha256": "fd691172cd33da7f1c9cc1a9a2b0dc2edc8bd98ed275a654398cdfb4249c10ab"
+    },
+    {
+      "path": "client/assets/audio/voice/story-forestOpening-1.mp3",
+      "bytes": 22064,
+      "sha256": "58f41543e75f3857e19c2a59a3d4f44d99587da1e4d6107c04bf246dc2a02494"
+    },
+    {
+      "path": "client/assets/audio/voice/story-forestOpening-2.mp3",
+      "bytes": 19348,
+      "sha256": "d8b4767b490030434e150ef6c45517857887ce7a2d55253fb2a2816a82fe015b"
+    },
+    {
+      "path": "client/assets/audio/voice/story-forgeEnding-0.mp3",
+      "bytes": 22273,
+      "sha256": "01d35f4702bbabe3515fc28b68fd594f5aa31473d2f2caf4c926af9a0a1a1e6b"
+    },
+    {
+      "path": "client/assets/audio/voice/story-forgeEnding-1.mp3",
+      "bytes": 26244,
+      "sha256": "5a7152a5f3b225b0895d794b67672e35daa89fc4d2580487ee05255f2c2dd44d"
+    },
+    {
+      "path": "client/assets/audio/voice/story-forgeOpening-0.mp3",
+      "bytes": 18303,
+      "sha256": "cba8ae21af59d6154fb639b130fc64acd328312be8c24ea55e0e47962844e7c6"
+    },
+    {
+      "path": "client/assets/audio/voice/story-forgeOpening-1.mp3",
+      "bytes": 21228,
+      "sha256": "6f50b36c7b04b83d321fe74bcbe89416fdd983ff3b87f3c03f3b3414281f29ec"
+    },
+    {
+      "path": "client/assets/audio/voice/story-harborEnding-0.mp3",
+      "bytes": 13496,
+      "sha256": "0221bcda4c8a953908b6d16fa81c2babf9151b2873f7c134b9875c684fd189f2"
+    },
+    {
+      "path": "client/assets/audio/voice/story-harborEnding-1.mp3",
+      "bytes": 21542,
+      "sha256": "59e7bfd46562dbf3f2b2fc95ed1dbc72210bf71d5b27059d00147e5a8b12927b"
+    },
+    {
+      "path": "client/assets/audio/voice/story-harborEnding-2.mp3",
+      "bytes": 26348,
+      "sha256": "fadaf1cb7f7a97770a660ebb60c7da23fd33a084ca53dbd48dc02a0bc613e47f"
+    },
+    {
+      "path": "client/assets/audio/voice/story-harborOpening-0.mp3",
+      "bytes": 20497,
+      "sha256": "ecd147cd34a8ac032d8d0a054cd213415c18137e8ef746da73a3963fceebc2d5"
+    },
+    {
+      "path": "client/assets/audio/voice/story-harborOpening-1.mp3",
+      "bytes": 15168,
+      "sha256": "fe8137a28758f3b35ac5d367826a33e5f49736d206ee43833db43a38d83ce8fb"
+    },
+    {
+      "path": "client/assets/audio/voice/story-harborOpening-2.mp3",
+      "bytes": 18198,
+      "sha256": "3cb576df640ed0517c028f731647cb1990ee238c5530daacb9919cf72a7bdb4c"
+    },
+    {
+      "path": "client/assets/audio/voice/story-opening-0.mp3",
+      "bytes": 20393,
+      "sha256": "08ffe640f495c01f5531fd9eb38db98ae22a3b7453d6ead0d5f8208cbd25c8bd"
+    },
+    {
+      "path": "client/assets/audio/voice/story-opening-1.mp3",
+      "bytes": 19766,
+      "sha256": "8a224da834d7c58bf423d739fc2ee9233f6dbf4903aee8984e3841ca9ccbe32f"
+    },
+    {
+      "path": "client/assets/audio/voice/story-opening-2.mp3",
+      "bytes": 24990,
+      "sha256": "934c9904e649fe38aa80a5758c682e4cbd0b25d2c5c1f5dec11108baca054d40"
+    },
+    {
+      "path": "client/assets/audio/voice/system-welcome.mp3",
+      "bytes": 8063,
+      "sha256": "82e6839209c8e739485814d03d55a3da7dc4953abc6971ea50db96b2b35c740f"
+    },
+    {
+      "path": "client/assets/original/cards/card_ember_break.webp",
+      "bytes": 53682,
+      "sha256": "0706ba2025faed1eb01f02c21a06ad849eb99adaa19085546409f34c719937dd"
+    },
+    {
+      "path": "client/assets/original/cards/card_jade_encore.webp",
+      "bytes": 39906,
+      "sha256": "6076641bf9ea6699892e4076298d78b984bea27891763c68893ed73e395c7a50"
+    },
+    {
+      "path": "client/assets/original/cards/card_leaf_reclaim.webp",
+      "bytes": 37520,
+      "sha256": "572c9ef2d1ffb5f227ff1efbf072142e225ff68b469f8c9e48e29c7d955a086f"
+    },
+    {
+      "path": "client/assets/original/cards/card_mist_dampen.webp",
+      "bytes": 50774,
+      "sha256": "400c395d4551810e905c10f35af705c45743f7673ad4bc9aee3e843d6267cdb9"
+    },
+    {
+      "path": "client/assets/original/cards/card_mist_recall.webp",
+      "bytes": 49310,
+      "sha256": "065d75243c98e03ebeed629624c7ab1bc0355b17eac948e710517736d63eede3"
+    },
+    {
+      "path": "client/assets/original/cards/card_night_feast.webp",
+      "bytes": 38374,
+      "sha256": "eba515c288bd91d0a646d926e8313e057502cab31e076c01439a69f46f082dc6"
+    },
+    {
+      "path": "client/assets/original/cards/card_tcg_disarm.webp",
+      "bytes": 45262,
+      "sha256": "b2767185148619a35a7f0246c4ffed08b950486fb289a621b704c740f83eaf72"
+    },
+    {
+      "path": "client/assets/original/cards/card_tcg_refute.webp",
+      "bytes": 46350,
+      "sha256": "bebb4b238cf5585f2e426d9cf2e70d0d2ea054bcbee33c10234cab1cb44f7e46"
+    },
+    {
+      "path": "client/assets/original/cards/card_tcg_scout.webp",
+      "bytes": 41762,
+      "sha256": "83339eff63da56d546ff6126423c382afc0750948b30dc00df6b31b3571050d4"
+    },
+    {
+      "path": "client/assets/original/cards/card_trap_embers.webp",
+      "bytes": 37644,
+      "sha256": "c217110b8f3c9578e86326a4e2f5bba234b7f83cce6ca669a9129660a6a3a632"
+    },
+    {
+      "path": "client/assets/original/cards/card_trap_roots.webp",
+      "bytes": 46202,
+      "sha256": "be8ec0c729469665916bbfea815ae0866149aa4b6c886a88d97e134ac14a3955"
+    },
+    {
+      "path": "client/assets/original/cards/card_ultimate_light.webp",
+      "bytes": 49216,
+      "sha256": "3207b464a6021eb8b1c970e02f5541908937da90f55df72d990068ea085c8c72"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_banhbao_bachngoc.webp",
+      "bytes": 185304,
+      "sha256": "2c2c2a60aa26267c46c07b1db5ce4912d99dda2e9e8305863ffa4a612287f1d2"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_bunbo_holinh.webp",
+      "bytes": 345354,
+      "sha256": "61bd2710122a74c2f0348bc3abcf8ecb5a75d61948b8fe90b7c234ef6fdcc6ea"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_caphe_davu.webp",
+      "bytes": 282488,
+      "sha256": "03d6e4d5dda7b764bcad87ac88a2a780ace3922563791a88c2199aa8e14ce156"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_goicuon_diepnhi.webp",
+      "bytes": 313754,
+      "sha256": "d2b632e233d5fe616ff294cedb705b33ca8157f416c695949d6987a68c78bce5"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_pho_lamvu.webp",
+      "bytes": 502314,
+      "sha256": "52dd33f2a00d5e0dcaadd255393e46f26113d9360708e447123752130c40d6aa"
+    },
+    {
+      "path": "client/src/core/voice.js",
+      "bytes": 2799,
+      "sha256": "ca70dc2e770a148c1350d7cde8abe55ebd0ca97cdc77629a33b36d1a9e0df284"
+    },
+    {
+      "path": "client/src/core/voiceLibrary.json",
+      "bytes": 11874,
+      "sha256": "fe34d11841e6bf1ea71be6ce47b773a8bc7a1ee50d4891a2b0dff0584ecfac93"
+    },
+    {
+      "path": "client/tests/voice.test.js",
+      "bytes": 1606,
+      "sha256": "ee2028bbd82450a61a554c8a2b5b0695ee63fa257044f57e6aa8b70b865a1bfc"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_002.webp",
+      "bytes": 105008,
+      "sha256": "7850efd971bef8a7ae2f0ea63105f92bbba72e3b2da90c066bb03c0d83e9aea4"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_003.webp",
+      "bytes": 87260,
+      "sha256": "eb14d527f35bf225c21b2592c6f29cae60a609cc24eefec102ab8c39d95e7770"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_004.webp",
+      "bytes": 103974,
+      "sha256": "a99cee1cd766c6c58cd78bc953ff0b4a9b526f39bdfaee7e2fe6790e1cde20e0"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_005.webp",
+      "bytes": 109886,
+      "sha256": "31977d420480fb919e13c68c1e83ffc8f2309c7bf6cd60fd879f0b926fcb4b79"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_006.webp",
+      "bytes": 130862,
+      "sha256": "2923a8771cac00c3852a2e0833052046383b5e0a5f8b0f88c7cf572c90ba6b49"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_007.webp",
+      "bytes": 139400,
+      "sha256": "957953291cecedb1689f2bbc9113c8cc873f179fe7df21bf1b58024c6f0300f2"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_008.webp",
+      "bytes": 136734,
+      "sha256": "dc77b602cfc754f3390affb376f4398f87d2c9b8d34e4fc04da472b8e7d565e2"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_009.webp",
+      "bytes": 125130,
+      "sha256": "9b1cb4b71a8d751573819f0a3c57c3a37fb35dd1e50a0b81969b09bf4d8239fd"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_010.webp",
+      "bytes": 96574,
+      "sha256": "699bc24bf4ae7862db5bfc18859b3a4060ab786a428132bd211653b6e5acc033"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_011.webp",
+      "bytes": 98824,
+      "sha256": "e265e77c419bba193174fdc7d60e7e60812cf15d7d909fba831a157f13540a7e"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_012.webp",
+      "bytes": 107718,
+      "sha256": "c8d25115edc9e5697d5bc56e70f89b7efb47a80c9e84dae085d7ef8cda074413"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_013.webp",
+      "bytes": 104514,
+      "sha256": "4e2ee10482e91983628ddd4bb34fa582a268bb0fdf50b5f7d41e1afccdc1bdc8"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_016.webp",
+      "bytes": 144736,
+      "sha256": "1d9758985d12ef2a04574d5d062da7fa9552c4debd86cc78b1c1c3703baa7124"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_017.webp",
+      "bytes": 159508,
+      "sha256": "7bf4e6e77f493c7823b0776a9d701bd74a38783881fd58374e76a84093c9e4ff"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_019.webp",
+      "bytes": 143896,
+      "sha256": "1ae321d390c0244f8b2a6db609843a8797ea324528e958369595b598a02f72f4"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_020.webp",
+      "bytes": 158628,
+      "sha256": "22aa68942ec85c0a8991fc0ae15674b6b06c4037ac7813d93f3d4ccf0ed07d1a"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_022.webp",
+      "bytes": 102810,
+      "sha256": "d1ddae1fafaafaefa9f1d7fb8229668aaa001b686da6ef8d01fe24a6d5797b7b"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_023.webp",
+      "bytes": 125586,
+      "sha256": "96c0f1b3352296d3eb6f701eb2ca2afc1ff9ccfa626605006e7d715ed0a21c2f"
+    },
+    {
+      "path": "client/assets/original/showcase/chr_som_024.webp",
+      "bytes": 86320,
+      "sha256": "6d49b2a2e114d1e7444544ff30fa8339cc43212e0f8709f81f9558e68d9e1e27"
     }
   ]
 }

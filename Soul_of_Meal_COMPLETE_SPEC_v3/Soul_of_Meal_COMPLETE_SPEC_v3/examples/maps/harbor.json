@@ -14,6 +14,13 @@
       {"id": "harbor_east_rail", "type": "polygon", "points": [[848, 540], [907, 495], [960, 466], [960, 540]]}
     ]
   },
+  "layers": {
+    "occlusion": [
+      {"id": "harbor_west_eaves", "depth": 237, "points": [[0, 36], [151, 52], [142, 116], [103, 144], [0, 161]]},
+      {"id": "harbor_east_eaves", "depth": 236, "points": [[827, 70], [960, 35], [960, 167], [901, 151], [873, 121]]},
+      {"id": "harbor_near_posts", "depth": 534, "points": [[0, 462], [60, 488], [116, 540], [0, 540]]}
+    ]
+  },
   "transitions": [
     {"id": "harbor_return_route", "type": "door", "from": "harbor", "to": "village", "spawn": {"x": 785, "y": 391}, "label": "Về Làng Ẩm Thực"},
     {"id": "caldera_route", "type": "door", "from": "harbor", "to": "caldera", "spawn": {"x": 100, "y": 327}, "label": "Núi Lửa Gia Vị"}

@@ -4,7 +4,7 @@ import test from 'node:test';
 import { gameEvents } from '../src/core/events.js';
 import { advanceTcgResponses, createTcgChallenge, createTcgMatch, decideTcgTrap, endTcgTurn, mulliganTcg, passTcgPriority, playTcgCard,
   strikeTcg, tcgCardIssue, tcgStrikePreview, tcgStrikeTargets, tcgSpellTargets, tcgTableDeck, validateDeck } from '../src/modes/tcg.js';
-import { TCG_TABLE_VERSION, tcgRecipeFor } from '../src/modes/tcgCards.js';
+import { TCG_TABLE_VERSION, TCG_COMPACT_TABLE_VERSION, tcgBoardLimit, tcgTrapLimit, tcgRecipeFor } from '../src/modes/tcgCards.js';
 import { tcgTrapArmed } from '../src/modes/tcgTraps.js';
 
 const catalog = JSON.parse(await readFile(new URL('../../examples/cards/cards.catalog.json', import.meta.url)));
@@ -43,7 +43,7 @@ test('summoning validates the exact slot, preserves the previous state and shiel
   player.hand = [card('card_demo_01')];
   const before = JSON.stringify(match);
   assert.throws(() => playTcgCard(match, 0, 'card_demo_01', null, 1), /trống/);
-  assert.throws(() => playTcgCard(match, 0, 'card_demo_01', null, 4), /trống/);
+  assert.throws(() => playTcgCard(match, 0, 'card_demo_01', null, 5), /trống/);
   const next = playTcgCard(match, 0, 'card_demo_01', null, 3);
   assert.equal(JSON.stringify(match), before);
   const summoned = next.players[0].units.at(-1);
@@ -99,8 +99,9 @@ test('Hộ vệ protects targets until removed, counter damage is simultaneous a
   assert.equal(strikeTcg(after, 0, 'spare', 'commander').players[1].hp, 2700);
 });
 
-test('face-down traps protect identity, enforce the single slot and save recipe progress', () => {
+test('face-down traps protect identity and keep recipe progress in old compact matches', () => {
   let match = fresh();
+  match.rulesVersion = TCG_COMPACT_TABLE_VERSION;
   match.players[0].hand = [card('card_trap_mirror'), card('card_demo_01'), card('card_demo_17')];
   const events = [];
   const capture = ({ detail }) => events.push(detail);
@@ -248,4 +249,32 @@ test('the ward trap protects survivors and the dusk trap draws even from a full 
   match = resolve(decideTcgTrap(match, 1, 'card_trap_night'));
   assert.equal(match.players[1].hand.length, 2);
   assert.equal(match.players[1].graveyard.filter(item => item.type === 'unit').length, 1);
+});
+
+
+test('new tables fill five unit lanes and preserve both trap positions across removal and reload', () => {
+  let match = fresh();
+  assert.equal(tcgBoardLimit(match), 5);
+  assert.equal(tcgTrapLimit(match), 2);
+  match.players[0].hand = [
+    ...Array.from({ length: 6 }, (_, index) => ({ ...card('card_demo_01'), instance_id: 'unit-' + index, cost: 0 })),
+    { ...card('card_trap_mirror'), cost: 0 }, { ...card('card_trap_roots'), cost: 0 },
+  ];
+  for (let index = 0; index < 5; index++) {
+    match = passTcgPriority(playTcgCard(match, 0, 'unit-' + index), 1);
+    assert.equal(match.players[0].units.at(-1).lane, index);
+  }
+  assert.throws(() => playTcgCard(match, 0, 'unit-5'), /đủ Vị Linh/);
+  match = passTcgPriority(playTcgCard(match, 0, 'card_trap_roots', 'set:1'), 1);
+  assert.throws(() => playTcgCard(match, 0, 'card_trap_mirror', 'set:1'), /ô bẫy còn trống/);
+  match = passTcgPriority(playTcgCard(match, 0, 'card_trap_mirror', 'set:0'), 1);
+  assert.match(tcgCardIssue(match, 0, card('card_trap_roots')), /đã đầy/);
+  match = JSON.parse(JSON.stringify(endTcgTurn(match, 0)));
+  const disarm = { ...catalog.cards.find(item => item.effect?.kind === 'disarm_trap'), instance_id: 'disarm', cost: 0 };
+  match.players[1].hand = [disarm];
+  const targets = tcgSpellTargets(match, 1, disarm);
+  assert.equal(targets.length, 2);
+  match = resolve(playTcgCard(match, 1, 'disarm', targets.find(target => target.slot === 0).id));
+  assert.deepEqual(match.players[0].traps.map(trap => trap.slot), [1]);
+  assert.equal(match.players[0].graveyard.find(item => item.card_id === 'card_trap_mirror').hidden, true);
 });

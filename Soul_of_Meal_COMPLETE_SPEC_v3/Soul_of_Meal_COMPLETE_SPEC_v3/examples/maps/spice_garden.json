@@ -15,6 +15,12 @@
       {"id": "garden_south_right", "type": "polygon", "points": [[786, 540], [869, 464], [960, 430], [960, 540]]}
     ]
   },
+  "layers": {
+    "occlusion": [
+      {"id": "garden_tree_crown", "depth": 411, "points": [[574, 324], [603, 255], [682, 203], [711, 199], [757, 211], [826, 273], [813, 330], [771, 366], [676, 383], [616, 373]]},
+      {"id": "garden_near_herbs", "depth": 534, "points": [[825, 540], [898, 469], [960, 430], [960, 540]]}
+    ]
+  },
   "transitions": [
     {"id": "garden_to_orchard", "type": "door", "to": "orchard", "spawn": {"x": 839, "y": 410}}
   ],

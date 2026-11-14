@@ -1,7 +1,7 @@
 import { gameEvents } from '../core/events.js';
 import { planTcgAttacks, planTcgBlocks, tcgCanAttack, tcgCanBlock, tcgPierce, tcgUnitAttack, tcgUnitDurability } from './tcgStrategy.js';
 import { tcgHandLimit, TCG_MAX_HP, TCG_REACTIONS, TCG_RULES_VERSION, TCG_SPELL_TYPES, TCG_TABLE_VERSION, TCG_TABLE_DECK_SIZE,
-  hasModernTcgRules, tcgBoardLimit, tcgCommanderMax, tcgTrapLimit, tcgCardCost, tcgCaster, tcgEffectText, tcgRecipeFor, TCG_RECIPES, tcgSpellTargets, tcgTurnSerial, usesTcgTable } from './tcgCards.js';
+  hasModernTcgRules, tcgBoardLimit, tcgCommanderMax, tcgTrapLimit, tcgTrapSlot, tcgOpenTrapSlots, tcgCardCost, tcgCaster, tcgEffectText, tcgRecipeFor, TCG_RECIPES, tcgSpellTargets, tcgTurnSerial, usesTcgTable } from './tcgCards.js';
 import { chooseTcgTrap, tcgAttackLanes, tcgTrapArmed, tcgTrapKind, tcgTrapOptions, tcgTrapRule } from './tcgTraps.js';
 
 const MAX_ROUNDS = 40;
@@ -42,7 +42,7 @@ export function tcgTableDraft(deck, catalog) {
 }
 
 export function createTcgMatch(catalog, deck, seed = 41, botDeck = deck, difficulty = 'normal', rulesVersion = TCG_RULES_VERSION) {
-  const table = rulesVersion === TCG_TABLE_VERSION;
+  const table = usesTcgTable({ rulesVersion });
   const size = table ? TCG_TABLE_DECK_SIZE : 36;
   validateDeck(deck, catalog, size);
   validateDeck(botDeck, catalog, size);
@@ -80,7 +80,7 @@ export function createTcgChallenge(catalog, deck, seed, challengeId) {
   const [opening] = zone.splice(index, 1);
   if (zone === bot.hand) bot.hand.push(bot.deck.pop());
   if (challenge.opening_unit) bot.units.push({ ...opening, lane: 1, current_def: opening.max_def, ready: false });
-  else bot.traps.push({ card: opening, token: match.nextTrapId++, setRound: 0, setTurn: 0, faceDown: true });
+  else bot.traps.push({ card: opening, token: match.nextTrapId++, slot: 0, setRound: 0, setTurn: 0, faceDown: true });
   Object.assign(bot, { hp: challenge.commander_hp, maxHp: challenge.commander_hp });
   if (challenge.opening_shield) bot.units[0].shield = challenge.opening_shield;
   match.challengeId = challenge.id;
@@ -160,6 +160,9 @@ export function playTcgCard(match, playerIndex, instanceId, targetId = null, lan
   if (lane !== null && (card.type !== 'unit' || !Number.isInteger(lane) || lane < 0 || lane >= tcgBoardLimit(match)
       || player.units.some(unit => unit.lane === lane))) throw new Error('Chọn một ô triệu hồi còn trống.');
   const target = targetId ?? (card.effect?.kind === 'deal_damage' ? 'commander' : null);
+  const trapSlot = card.type === 'trap' && (targetId == null ? tcgOpenTrapSlots(match, playerIndex)[0]
+    : tcgOpenTrapSlots(match, playerIndex).find(slot => targetId === 'set:' + slot));
+  if (card.type === 'trap' && trapSlot === undefined) throw new Error('Chọn ô bẫy còn trống.');
   if (TCG_SPELL_TYPES.includes(card.type) && !tcgSpellTargets(match, playerIndex, card).some(item => item.id === target)) {
     throw new Error('Hãy chọn mục tiêu hợp lệ.');
   }
@@ -195,8 +198,9 @@ export function playTcgCard(match, playerIndex, instanceId, targetId = null, lan
       when: 'unit_summoned', unitId: unit.instance_id, cardId: unit.card_id, cost: played.cost,
     });
   } else if (played.type === 'trap') {
-    const slot = owner.traps.length;
+    const slot = trapSlot;
     const trap = { card: played, setRound: updated.round, faceDown: true };
+    if (updated.rulesVersion === TCG_TABLE_VERSION) trap.slot = slot;
     if (modern(updated)) Object.assign(trap, { setTurn: tcgTurnSerial(updated), token: updated.nextTrapId++ });
     owner.traps.push(trap);
     logEvent(updated, 'trap_set', 'Đã đặt một bẫy úp.');
@@ -577,8 +581,9 @@ export function decideTcgTrap(match, playerIndex, instanceId = null) {
     return updated;
   }
   const traps = updated.players[playerIndex].traps;
-  const slot = traps.findIndex(trap => trap.card.instance_id === instanceId);
-  const [trap] = traps.splice(slot, 1);
+  const index = traps.findIndex(trap => trap.card.instance_id === instanceId);
+  const [trap] = traps.splice(index, 1);
+  const slot = tcgTrapSlot(trap, index);
   updated.stack.push({ id: updated.nextStackId++, kind: 'trap', card: trap.card, owner: playerIndex, intent });
   updated.priority = 1 - playerIndex;
   logEvent(updated, 'trap_revealed', `${trap.card.display_name} lật mở và chờ xử lý.`);
@@ -868,7 +873,8 @@ function bindTcgUnit(match, owner, unit) {
 
 function changeTcgTrap(match, { card, owner }, enemy, slot) {
   const traps = match.players[enemy].traps;
-  const trap = traps[slot];
+  const index = traps.findIndex((trap, index) => tcgTrapSlot(trap, index) === slot);
+  const trap = traps[index];
   if (card.effect.kind === 'scout_trap') {
     trap.faceDown = false;
     logEvent(match, 'trap_scouted', `${trap.card.display_name} bị lộ và vẫn giữ hiệu lực.`);
@@ -876,7 +882,7 @@ function changeTcgTrap(match, { card, owner }, enemy, slot) {
     drawTcgEffect(match, owner, 1, card);
     return;
   }
-  traps.splice(slot, 1);
+  traps.splice(index, 1);
   match.players[enemy].graveyard.push(trap.faceDown ? { ...trap.card, hidden: true } : trap.card);
   logEvent(match, 'trap_disarmed', trap.faceDown ? 'Đã gỡ một bẫy úp.' : `Đã gỡ ${trap.card.display_name}.`);
   gameEvents.emit('tcg_trap_disarmed', { player_index: enemy, slot, element: card.element }, tcgContext(match, null, tcgTrapAnchor(enemy, slot)));
