@@ -205,8 +205,8 @@ export function interactAdventure(state, save, maps) {
     if (updated.adventure.quest === 'not_started') {
       updated.adventure.quest = 'accepted';
       const reward = updated.meta?.profile && recruitSpirit(updated, STARTER_REWARDS.quest, true);
-      state.lastMessage = reward ? 'Cơm Nắm Tròn Trịa đã gia nhập. Mở rương tiếp tế ở phía đông quảng trường.'
-        : 'Đã nhận nhiệm vụ. Mở rương tiếp tế ở phía đông quảng trường.';
+      state.lastMessage = reward ? 'Cơm Nắm Tròn Trịa đã gia nhập. Đến rương tiếp tế ở phía đông để giải khóa.'
+        : 'Đã nhận nhiệm vụ. Đến rương tiếp tế ở phía đông để giải khóa.';
       dialogue = 'opening';
       gameEvents.emit('quest_accepted', { quest_id: 'quest_missing_flavor' }, { map_id: 'village' });
     } else if (updated.adventure.quest === 'ready_to_claim') {
@@ -232,24 +232,16 @@ export function interactAdventure(state, save, maps) {
         return { state, save, changed: false, dialogue: 'forestOpening' };
       }
     } else {
-      state.lastMessage = 'Lilia: Rương ở phía đông quảng trường có thể giúp bạn chuẩn bị.';
+      state.lastMessage = updated.adventure.chestOpened
+        ? 'Lilia: Qua cổng phía bắc và lần theo dấu Bếp Trưởng trong rừng.'
+        : 'Lilia: Ghép các nguyên liệu trên khóa rương ở phía đông để lấy đồ tiếp tế.';
     }
   } else if (target.id === 'chest') {
-    if (updated.adventure.quest === 'not_started') {
+    if (updated.adventure.quest !== 'accepted') {
       state.lastMessage = 'Chiếc rương cần một nhiệm vụ đang hoạt động.';
       return { state, save, changed: false };
     }
-    if (!updated.adventure.chestOpened) {
-      const claimId = 'village_supply_chest_p0';
-      if (!updated.adventure.rewardClaims.includes(claimId)) {
-        updated.adventure.rewardClaims.push(claimId);
-        updated.player.gold += 30;
-        updated.player.essence += 5;
-      }
-      updated.adventure.chestOpened = true;
-      state.lastMessage = 'Rương đã mở: nhận 30 vàng và 5 tinh hoa. Cổng rừng đã sáng.';
-      gameEvents.emit('chest_opened', { chest_id: claimId, gold: 30, essence: 5 }, { map_id: 'village' });
-    }
+    return { state, save, changed: false, puzzle: target.id };
   } else if (target.id === 'portal') {
     const routed = transitionMap(state, updated, 'forest', maps);
     Object.assign(updated, routed.save);
@@ -330,8 +322,22 @@ export function claimAdventurePuzzle(state, save, maps, puzzle) {
   const result = { state, save, changed: false };
   if (puzzle?.status !== 'won' || !Object.hasOwn(ADVENTURE_PUZZLES, puzzle.id)) return result;
   const target = nearestInteraction(state, save, maps);
-  if (target?.kind !== 'finale_objective' || target.id !== puzzle.id) return result;
-  return interactFinale(state, save, structuredClone(save), target);
+  if (target?.id !== puzzle.id) return result;
+  if (target.kind === 'finale_objective') return interactFinale(state, save, structuredClone(save), target);
+  if (target.kind !== 'chest' || save.adventure.quest !== 'accepted') return result;
+
+  const updated = structuredClone(save);
+  const claimId = 'village_supply_chest_p0';
+  if (!updated.adventure.rewardClaims.includes(claimId)) {
+    const reward = ADVENTURE_PUZZLES.chest.reward;
+    updated.adventure.rewardClaims.push(claimId);
+    updated.player.gold += reward.gold;
+    updated.player.essence += reward.essence;
+    gameEvents.emit('chest_opened', { chest_id: claimId, ...reward }, { map_id: 'village' });
+  }
+  updated.adventure.chestOpened = true;
+  state.lastMessage = 'Rương đã mở. Đi qua Cổng Rừng Nguyên Liệu ở phía bắc.';
+  return { state, save: updated, changed: true };
 }
 
 function interactFinale(state, save, updated, target) {

@@ -109,22 +109,61 @@ test('Adventure restores clue IDs without resetting completed chapters or changi
   }
 });
 
-test('Adventure requires nearby interaction and persists quest/chest/route progression', () => {
+test('Adventure opens the supply chest only after a nearby completed puzzle and persists the reward once', () => {
   const save = createDefaultSave();
   const state = createAdventureState(save);
   assert.equal(nearestInteraction(state, save), null);
+  state.x = 680; state.y = 355;
+  assert.equal(interactAdventure(state, save).puzzle, undefined);
+  assert.equal(claimAdventurePuzzle(state, save, undefined, solveSupplyPuzzle()).changed, false);
   state.x = 235; state.y = 260;
   let result = interactAdventure(state, save);
   assert.equal(result.save.adventure.quest, 'accepted');
   result.state.x = 680; result.state.y = 355;
   result = interactAdventure(result.state, result.save);
+  assert.equal(result.puzzle, 'chest');
+  assert.equal(result.save.adventure.chestOpened, false);
+  assert.equal(result.save.player.gold, 120);
+  let lost = createAdventurePuzzle('chest');
+  for (const [from, to] of [[7, 13], [4, 10], [15, 16], [1, 7], [1, 7], [8, 9]]) {
+    lost = playAdventurePuzzle(lost, from, to);
+  }
+  assert.equal(lost.status, 'lost');
+  assert.equal(claimAdventurePuzzle(state, result.save, undefined, lost).changed, false);
+  const won = solveSupplyPuzzle();
+  const beforeReward = result.save;
+  result.state.x = 485; result.state.y = 110;
+  assert.equal(interactAdventure(state, beforeReward).changed, false);
+  assert.equal(claimAdventurePuzzle(state, beforeReward, undefined, won).changed, false);
+  result.state.x = 680; result.state.y = 355;
+  result = claimAdventurePuzzle(state, beforeReward, undefined, won);
   assert.equal(result.save.adventure.chestOpened, true);
   assert.equal(result.save.player.gold, 150);
+  assert.equal(result.save.player.essence, 29);
+  const reloaded = migrateSave(JSON.parse(JSON.stringify(result.save)));
+  assert.equal(claimAdventurePuzzle(state, reloaded, undefined, won).changed, false);
+  const oldSave = migrateSave({ version: 2, adventure: { quest: 'accepted', chestOpened: true } });
+  assert.equal(adventureJournal(oldSave).action, 'portal');
+  const oldState = createAdventureState(oldSave);
+  Object.assign(oldState, { x: 680, y: 355 });
+  assert.equal(interactAdventure(oldState, oldSave).puzzle, undefined);
+  Object.assign(oldState, { x: 485, y: 110 });
+  assert.equal(interactAdventure(oldState, oldSave).save.adventure.map, 'forest');
   result.state.x = 485; result.state.y = 110;
-  result = interactAdventure(result.state, result.save);
+  result = interactAdventure(result.state, reloaded);
   assert.equal(result.save.adventure.map, 'forest');
   assert.equal(result.state.map, 'forest');
 });
+
+function solveSupplyPuzzle() {
+  let puzzle = createAdventurePuzzle('chest');
+  assert.equal(playAdventurePuzzle(puzzle, 0, 35), puzzle);
+  for (const [from, to] of [[7, 8], [9, 10], [3, 9], [1, 2], [7, 13], [4, 10]]) {
+    puzzle = playAdventurePuzzle(puzzle, from, to);
+  }
+  assert.equal(puzzle.status, 'won');
+  return puzzle;
+}
 
 test('Adventure fixed-step battle advances simulation and emits an authoritative result', () => {
   const save = createDefaultSave();
@@ -471,7 +510,8 @@ test('Adventure completes chapter one across a reload, with a gated boss and a s
   }
 
   assert.equal(interact('lilia').dialogue, 'opening');
-  interact('chest');
+  assert.equal(interact('chest').puzzle, 'chest');
+  save = claimAdventurePuzzle(state, save, maps, solveSupplyPuzzle()).save;
   interact('portal');
   assert.equal(interact('encounter').changed, false);
   assert.equal(state.battle, null);

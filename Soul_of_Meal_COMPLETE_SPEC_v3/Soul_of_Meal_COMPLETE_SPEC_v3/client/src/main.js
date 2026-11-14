@@ -1199,11 +1199,12 @@ function renderAdventurePuzzle() {
     <div class="puzzle-copy"><h1 id="puzzle-title">${spec.title}</h1>
       <p>${spec.instructions}</p>
       <p class="puzzle-score">${slide ? `${puzzle.moves} lượt trượt` : `Đã ghép ${puzzle.score}/${spec.goal} · Còn ${spec.moves - puzzle.moves} lượt`}</p>
+      ${spec.reward ? `<p>Thưởng: ${spec.reward.gold} vàng, ${spec.reward.essence} tinh hoa và mở Cổng Rừng Nguyên Liệu.</p>` : ''}
       <p class="puzzle-note" role="status">${puzzle.status === 'won' ? 'Đã giải được thử thách.' :
         puzzle.status === 'lost' ? 'Đã hết lượt. Thử lại để tiếp tục.' : runtime.puzzleNote}</p>
       <div class="action-row">
         <button class="button light" data-puzzle-back>Quay lại</button>
-        ${puzzle.status === 'won' ? '<button class="button" data-puzzle-claim>Tiếp tục nhiệm vụ</button>'
+        ${puzzle.status === 'won' ? `<button class="button" data-puzzle-claim>${spec.reward ? 'Nhận thưởng' : 'Tiếp tục nhiệm vụ'}</button>`
           : puzzle.moves || puzzle.status === 'lost' ? '<button class="button light" data-puzzle-reset>Chơi lại</button>' : ''}
       </div>
     </div>

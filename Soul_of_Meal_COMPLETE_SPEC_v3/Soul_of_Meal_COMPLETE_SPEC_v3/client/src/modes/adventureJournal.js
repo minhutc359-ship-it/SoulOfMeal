@@ -5,7 +5,7 @@ import { ROOM_EXIT, VILLAGE_ROOMS } from './villageRooms.js';
 
 const STEPS = Object.freeze([
   'Gặp Lilia ở quảng trường',
-  'Mở rương tiếp tế',
+  'Giải khóa rương tiếp tế',
   'Lần theo manh mối trong rừng',
   'Đối mặt Bếp Trưởng Hỏa Diệm',
   'Trở về báo tin cho Lilia',

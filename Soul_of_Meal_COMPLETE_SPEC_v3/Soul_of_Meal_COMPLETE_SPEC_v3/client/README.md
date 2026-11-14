@@ -45,6 +45,7 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 
 ## Bếp Trưởng Hỏa Diệm
 
+- Sau khi nói chuyện với Lilia, đến **Rương nguyên liệu** ở phía đông quảng trường. Đổi chỗ hai nguyên liệu kề nhau để ghép ít nhất 21 viên trong tối đa 6 lượt. Chọn **Nhận thưởng** để lấy 30 vàng, 5 tinh hoa và mở cổng phía bắc. Bản lưu đã mở rương có thể vào rừng ngay.
 - Ở 70% HP, boss tạo hộ thuẫn và nạp **Bếp Bùng Cháy** trong 6 giây mô phỏng. Bấm bếp trên sân, dùng nút bên cạnh thanh HP hoặc phím **6–7** để đội hình tập trung tấn công. Phá cả hai bếp trước hoặc đúng tick cuối để ngắt chiêu.
 - Ở 30% HP, **Vòng Lửa** đánh vào ba Vị Linh được đánh dấu khi hết 1,2 giây báo trước. Dùng tuyệt kỹ của Bánh Bao để tạo lá chắn cho đội.
 - Nút **Tạm dừng** hoặc phím **P** đóng băng trận. Bật **2×** để mô phỏng và hoạt ảnh cùng chạy nhanh gấp đôi.
@@ -90,7 +91,7 @@ Cấp 1–5, công thức và giá là cân bằng thử nghiệm. Nâng cấp v
 
 ## Giao tranh TCG
 
-- Đặt tối đa bốn Vị Linh và một bẫy. Mỗi Vị Linh sẵn sàng đánh một lần trong lượt. Kéo hoặc chạm quân rồi chọn mục tiêu để xem sát thương, phản đòn và Xuyên kích trước khi xác nhận.
+- Ván mới có năm ô Vị Linh và hai ô bẫy mỗi bên. Ván lưu theo luật v3 dùng bốn ô Vị Linh và một ô bẫy. Mỗi Vị Linh sẵn sàng đánh một lần trong lượt. Kéo hoặc chạm quân rồi chọn mục tiêu để xem sát thương, phản đòn và Xuyên kích trước khi xác nhận.
 - Khi đối thủ còn Hộ vệ, chọn một Hộ vệ làm mục tiêu đòn thường. Khi hết Hộ vệ, chọn Vị Linh địch hoặc chủ soái. Đổi tối đa ba lá mở màn và tăng tối đa đến bảy mana.
 - Năm combo theo hệ kích hoạt khi bạn nối triệu hồi với phép tương ứng trong cùng lượt. Mỗi combo dùng một lần mỗi lượt khi phép xử lý thành công.
 - **Diệp Mộc Hồi Phục** hồi DEF qua hàng chờ tốc chú. **Ấn Bạch Ngọc** là tức chú dùng ngay và giữ ưu tiên. **Khai Hỏa Tiên Phong** là chậm chú tăng ATK. Hộ thuẫn và ATK cộng thêm hết hiệu lực cuối lượt hiện tại.

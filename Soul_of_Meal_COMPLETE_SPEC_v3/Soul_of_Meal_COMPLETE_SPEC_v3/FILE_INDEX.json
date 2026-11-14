@@ -284,8 +284,8 @@
     },
     {
       "path": "docs/01_gameplay/ADVENTURE_RULEBOOK.md",
-      "bytes": 10981,
-      "sha256": "344f3ab4031f801f0b66695d74d43e8a09f1c0e78813588c730f34bdf3cdaf6d"
+      "bytes": 11358,
+      "sha256": "7d45d277d86881c1e8e595175f9e64391126e1ccf6f07ac5a1549a606494d6ce"
     },
     {
       "path": "docs/01_gameplay/AUTO_CHESS_RULEBOOK.md",
@@ -329,8 +329,8 @@
     },
     {
       "path": "docs/05_production/PRODUCTION_PLAN.md",
-      "bytes": 4614,
-      "sha256": "a327d6d534abdcf8f106562e4305db25b7e139fcc28e49cfa28cb2d3b24252c4"
+      "bytes": 7674,
+      "sha256": "16b979425e48bcec1ef87e446a6cddba5d524399a965c90a4a3f42df1aeea3c1"
     },
     {
       "path": "examples/adventure/bunbo_ability.json",
@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 24174,
-      "sha256": "1a3f64235b3346d3788302e924291a9b70e5e364d2f58cc39e99bef929e6762d"
+      "bytes": 24611,
+      "sha256": "cbfe8b53a09447bb732cbd4f29b13be7e5535ad655c1ffeb78acb77fec93b788"
     },
     {
       "path": "client/index.html",
@@ -794,13 +794,13 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 222689,
-      "sha256": "7467abafba37aeff88ded6311ec3b83ae71b52901974164d403342db4e1ae114"
+      "bytes": 222875,
+      "sha256": "c82e377ddfbf84a5b20a75e26bf40f5e81e86c0573fad3bfde20d4a59003fbea"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 48155,
-      "sha256": "4f3a6c14f64c94ecd73bee9b8d55e9460b022175d215e5f7886141083a099e75"
+      "bytes": 48524,
+      "sha256": "652ce0e3a84620232cdf449a78db25e4c94b46fd1962c815f05613fcfc0df932"
     },
     {
       "path": "client/src/modes/autoChess.js",
@@ -819,8 +819,8 @@
     },
     {
       "path": "client/tests/runtime.test.js",
-      "bytes": 57519,
-      "sha256": "59735ee4c2d2bb009ad46a3493451300830b7755092e6c96725bae4ce429f8f6"
+      "bytes": 59681,
+      "sha256": "aa50278c37ef5bc44d49a6a122afcb15449117e75a74cc2de0404c394e74e253"
     },
     {
       "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
@@ -2404,8 +2404,8 @@
     },
     {
       "path": "client/src/modes/adventureJournal.js",
-      "bytes": 5355,
-      "sha256": "af57959cf6ca6a4fc21671415316124dd9777aa24b0b8422df077a923c929fb6"
+      "bytes": 5363,
+      "sha256": "11d8f4f7db6ffd4b9cec85243c62c3b33312727ebcbfc9e48db2bfed8b02d832"
     },
     {
       "path": "client/tests/soundScenes.test.js",
@@ -3394,8 +3394,8 @@
     },
     {
       "path": "client/src/modes/adventurePuzzle.js",
-      "bytes": 4112,
-      "sha256": "29bf40b059c1dbf2cd287e236bac930f7393278b38044b0ab4b0369c286e3922"
+      "bytes": 4378,
+      "sha256": "bf8672b4ccddfe8445a27d5d2d00e15426878ad7e80309554353de1f9134ed8f"
     },
     {
       "path": "client/src/render/combatVfx.js",

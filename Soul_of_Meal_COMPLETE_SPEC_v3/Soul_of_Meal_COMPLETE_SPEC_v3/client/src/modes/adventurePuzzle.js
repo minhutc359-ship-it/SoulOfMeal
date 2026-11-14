@@ -2,6 +2,11 @@ const SIZE = 6;
 const INGREDIENT_TYPES = 5;
 
 export const ADVENTURE_PUZZLES = {
+  chest: {
+    kind: 'match', title: 'Mở khóa rương tiếp tế',
+    instructions: 'Chạm hai ô kề nhau để đổi chỗ. Ghép từ ba nguyên liệu giống nhau theo hàng hoặc cột.',
+    goal: 21, moves: 6, reward: { gold: 30, essence: 5 },
+  },
   forge_valve: {
     kind: 'match', title: 'Cân bằng lò hơi',
     instructions: 'Đổi chỗ hai nguyên liệu cạnh nhau để ghép từ ba viên cùng loại theo hàng hoặc cột.',
