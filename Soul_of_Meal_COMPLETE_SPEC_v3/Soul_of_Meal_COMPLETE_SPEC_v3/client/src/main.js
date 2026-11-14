@@ -1,5 +1,5 @@
 import { adventureCheckpoint, createAdventureState, interactAdventure, nearestInteraction, availableAdventureInteractions, purchaseAdventureSupplies, setAdventureInput, stepAdventure, activateUltimate, activateLanternWard, retreatFromTide, activateBossCounter, beginAdventureChallenge, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, leaveAdventureDefeat, WORLD } from './modes/adventure.js';
-import { createTcgChallenge, createTcgMatch, playTcgCard, passTcgPriority, runBotPriority, runTcgBot, attackTcg, assignTcgBlockers, declaredTcgAttackers, endTcgTurn, mulliganTcg, surrenderTcg, validateDeck, tcgCardIssue, tcgEffectText, tcgTableDeck, tcgTableDraft, tcgSpellTargets, strikeTcg, tcgStrikePreview, tcgStrikeTargets, decideTcgTrap, tcgExposedDamage, tcgTrapAnchor, TCG_DIFFICULTIES } from './modes/tcg.js';
+import { createTcgChallenge, createTcgMatch, playTcgCard, passTcgPriority, advanceTcgResponses, attackTcg, assignTcgBlockers, declaredTcgAttackers, endTcgTurn, mulliganTcg, surrenderTcg, validateDeck, tcgCardIssue, tcgEffectText, tcgTableDeck, tcgTableDraft, tcgSpellTargets, strikeTcg, tcgStrikePreview, tcgStrikeTargets, decideTcgTrap, tcgExposedDamage, tcgTrapAnchor, TCG_DIFFICULTIES } from './modes/tcg.js';
 import { tcgCanAttack, tcgCanBlock, tcgUnitAttack } from './modes/tcgStrategy.js';
 import { tcgCardCost, tcgEffectBadge, tcgRecipeFor, TCG_RECIPES, tcgBoardLimit, tcgTrapLimit, tcgHandLimit, tcgCommanderMax, usesTcgTable, TCG_TABLE_VERSION, TCG_TABLE_DECK_SIZE, TCG_KEYWORDS } from './modes/tcgCards.js';
 import { TCG_TRAP_LABELS, tcgAttackLanes, tcgTrapArmed, tcgTrapOptions, tcgTrapRule } from './modes/tcgTraps.js';
@@ -8,10 +8,10 @@ import { CHESS_ITEMS, chessItemPlacement } from './modes/chessItems.js';
 import { gameEvents } from './core/events.js';
 import { loadSave, migrateSave, persistSave, SAVE_KEY } from './core/save.js';
 import { AnimationAdapter } from './render/animationAdapter.js';
-import { findAdventurePath } from './modes/adventureNavigation.js';
+import { findAdventurePath, safeAdventurePosition } from './modes/adventureNavigation.js';
 import { createAdventureMapRegistry, getAdventureMap } from './modes/mapCatalog.js';
 import { spriteRenderer } from './render/spriteRenderer.js';
-import { actorArt, chapterArt, combatArt, cutinArt, effectArt, HERO_ID, HERO_NAMES as characterNames, originalCardArt, preloadGameAssets, propArt, sceneArt, TRAVEL_HERO } from './render/spriteAssets.js';
+import { actorArt, chapterArt, combatArt, cutinArt, effectArt, ELEMENT_ART, HERO_ID, HERO_NAMES as characterNames, originalCardArt, preloadGameAssets, propArt, sceneArt, TCG_COMMANDER_ART, TRAVEL_HERO } from './render/spriteAssets.js';
 import { drawEffectTexture, drawElementEffect } from './render/elementEffects.js';
 import { ADVENTURE_TICK_RATE, adventureBalance, adventureEncounters } from './modes/adventureBalance.js';
 import { adventureSpiritStats, canAffordSpiritCost, changeSpiritProgress, MAX_SPIRIT_RANK, SPIRIT_AWAKENING, SPIRIT_BONDS, SPIRIT_GEAR, SPIRIT_GIFTS, SPIRIT_MEMORIES, SPIRIT_RANKS, spiritProfile } from './modes/spiritProgress.js';
@@ -37,7 +37,7 @@ import { createCloudSave } from './core/cloudSave.js';
 import { activeContentRelease, pinnedContentRelease } from './core/contentRelease.js';
 import { openAccountDialog } from './shell/accountDialog.js';
 import { adventureParty, BANNERS, changeParty, drawSpirits, finishOnboarding, META, onboardingName, recruitSpirit, rollStarters, SPIRITS, starterSpirits } from './modes/metaProgress.js';
-import { ADVENTURE_OFFERS, adventureGearFor, changeAdventureInventory } from './modes/adventureStore.js';
+import { ADVENTURE_OFFERS, CRAFTED_GEAR_SLOTS, GEAR_SLOTS, adventureGearFor, changeAdventureInventory } from './modes/adventureStore.js';
 import { gachaHistory, gachaOdds, gachaPanel, inventoryRows, renderOnboarding, renderStarterReveal, revealGacha, spiritImage, storeDetail } from './shell/metaPanels.js';
 import { playGachaCinematic } from './shell/gachaCinematicDialog.js';
 import { openStoryDialog } from './shell/storyDialog.js';
@@ -53,7 +53,7 @@ const pinnedRelease = pinnedContentRelease(new URL(location.href));
 const accountApi = import.meta.env?.SOM_ACCOUNTS ? createAccountApi() : null;
 const runtime = {
   page: 'title', save: loadSave(), adventure: null, cards: null, deck: null, units: null, maps: null,
-  shopConfig: null, tcg: null, chess: null, selectedTarget: null, selectedSpell: null, tcgAttackers: null, tcgStrike: null, selectedBench: null, mulligan: new Set(),
+  shopConfig: null, tcg: null, chess: null, selectedSpell: null, tcgAttackers: null, tcgStrike: null, selectedBench: null, mulligan: new Set(),
   deckDrafts: new Map(), deckSlot: null, chessUpgrade: null,
   account: null, cloud: null, cloudStatus: 'saved', cloudError: null, deckFilters: { search: '', type: '', element: '', view: 'all' },
   selectedBoard: null, chessLock: null, chessReplayPaused: false, chessReplaySpeed: 1, notice: '', lastSavedLocation: 0, heldKeys: new Set(), tcgImpacts: new Map(),
@@ -67,6 +67,7 @@ runtime.effects = new BattleEffects(spriteRenderer);
 const boardSprites = new BoardSprites(spriteRenderer);
 const duelEffects = new DuelEffects(spriteRenderer);
 const tcgCardMotion = new TcgCardMotion();
+let tcgPresentationTurn = 0;
 runtime.audio = new GameAudio(runtime.save.settings);
 void runtime.audio.loadSoundtracks();
 window.addEventListener('click', () => runtime.audio.unlock(), { capture: true });
@@ -88,7 +89,7 @@ gameEvents.addEventListener('game-event', ({ detail }) => {
 
 function handleTcgPresentation(detail) {
   if (runtime.page !== 'tcg' || detail.battle_id !== runtime.tcg?.battleId) return false;
-  const { type, payload, battle_id: matchId, action_seq: actionSeq, source_id: sourceId, target_id: targetId } = detail;
+  const { type, payload, battle_id: matchId, action_seq: actionSeq, target_id: targetId } = detail;
   const { element, target_player, target_lane, defeated, ultimate } = payload;
   const now = performance.now();
   const reduced = app.dataset.motion === 'reduced';
@@ -125,15 +126,25 @@ function handleTcgPresentation(detail) {
   }
   if (type === 'trap_revealed') {
     runtime.tcgReveal = { ...payload, matchId, expires: now + 1400 };
+    runtime.tcgImpacts.set(tcgTrapAnchor(payload.player_index, payload.slot), {
+      element, matchId, text: 'Lật bẫy', style: 'trap', contact: now, expires: now + 850,
+    });
     runtime.audio.handle({ type: 'spell_launched', payload: { element } });
     return true;
   }
-  if (type === 'tcg_ultimate_resolved') {
-    runtime.tcgCutIn = { ...payload, matchId, expires: now + (reduced ? 480 : 790) };
-    boardSprites.cue(tcgSpriteKey(matchId, sourceId), 'ultimate_01', now, actionSeq, now + (reduced ? 0 : 330));
+  const command = TCG_CUT_IN[type];
+  if (command && !payload.revived) {
+    const current = runtime.tcgCutIn;
+    const isSameExchange = current?.matchId === matchId && current.turn === tcgPresentationTurn;
+    if (!isSameExchange || (payload.player_index === 0 && current.player_index !== 0) || type === 'tcg_ultimate_resolved') {
+      runtime.tcgCutIn = { ...payload, ...command, matchId, turn: tcgPresentationTurn, expires: now + (reduced ? 760 : 1160) };
+    }
+  }
+  if (type === 'tcg_ultimate_resolved' || type === 'tcg_spell_resolved') {
     runtime.audio.handle({ type: 'cast_started', payload: { element } });
     return true;
   }
+  if (type === 'tcg_attack_ordered') return true;
   if (type === 'card_played') {
     runtime.audio.handle({ type: 'spell_launched', payload: { element } });
     return true;
@@ -141,7 +152,8 @@ function handleTcgPresentation(detail) {
   if (type === 'unit_summoned' || type === 'tcg_cards_drawn' || type === 'tcg_trap_disarmed') {
     const label = type === 'tcg_cards_drawn' ? `Rút ${payload.amount} lá`
       : type === 'tcg_trap_disarmed' ? 'Gỡ bẫy' : payload.revived ? 'Hồi sinh' : 'Vào sân';
-    runtime.tcgImpacts.set(targetId, { element, matchId, actionSeq, text: label, style: 'support', contact: now, expires: now + 720 });
+    const impact = { element, matchId, actionSeq, text: label, style: type === 'unit_summoned' ? 'summon' : 'support', contact: now, expires: now + 720 };
+    runtime.tcgImpacts.set(targetId, impact);
     runtime.audio.handle(type === 'unit_summoned' ? detail : { type: 'spell_launched', payload: { element } });
     return true;
   }
@@ -149,21 +161,19 @@ function handleTcgPresentation(detail) {
   if (type !== 'hit_resolved' && !support) return false;
   const melee = payload.source_kind === 'tcg_combat';
   const clip = ultimate ? 'ultimate_01' : melee ? (actionSeq % 2 === 0 ? 'attack_a' : 'attack_b') : undefined;
-  const contact = duelEffects.queue(app.querySelector('.duel-field'), detail, now, reduced, clip);
+  const contact = duelEffects.queue(app.querySelector('.duel-field'), detail, now, reduced);
   if (melee) {
     runtime.audio.handle({ type: 'attack_started', payload: { element, clip_id: clip } });
-    if (contact > now) boardSprites.cue(tcgSpriteKey(matchId, sourceId), clip, now, actionSeq, contact);
   }
-  if (!support && targetId) boardSprites.cue(tcgSpriteKey(matchId, targetId), defeated ? 'defeat' : 'hit', contact, actionSeq);
   const prior = runtime.tcgImpacts.get(targetId);
   const sameAction = prior?.matchId === matchId && prior?.actionSeq === actionSeq && prior.style === 'damage';
   const damage = (sameAction ? prior.damage ?? 0 : 0) + (payload.hp_damage ?? payload.damage ?? 0);
-  const style = support ? payload.kind === 'shield' ? 'shield' : 'support' : damage === 0 && payload.absorbed ? 'guard' : 'damage';
-  const oldUnit = defeated && app.querySelector(`[data-duel-id="${CSS.escape(targetId)}"] [data-chibi-id]`);
+  const style = support ? payload.kind : damage === 0 && payload.absorbed ? 'guard' : 'damage';
+  const fallen = defeated && targetId && app.querySelector(`[data-duel-id="${CSS.escape(targetId)}"] .tcg-unit-avatar img`)?.getAttribute('src');
   const impact = {
     element, matchId, actionSeq, damage, style, contact, expires: contact + 670,
     text: support ? `+${payload.amount} ${payload.label}` : style === 'guard' ? 'Chặn' : null,
-    fallen: oldUnit ? { id: oldUnit.dataset.chibiId, direction: oldUnit.dataset.chibiFacing, targetId } : null,
+    fallen,
   };
   runtime.tcgImpacts.set(targetId, impact);
   if (Number.isInteger(target_lane)) runtime.tcgImpacts.set(tcgLaneId(target_player, target_lane), impact);
@@ -188,7 +198,7 @@ function handleAdventureRigEvent({ type, payload, source_id }, battle, clock) {
   return point;
 }
 
-const iconMap = { gacha: '✦', adventure: '⌖', tcg: '▤', chess: '▦', roster: '✿', settings: '⚙' };
+const iconMap = { store: '◈', gacha: '✦', adventure: '⌖', tcg: '▤', chess: '▦', roster: '✿', settings: '⚙' };
 const elementColors = { fire: '#dd684a', water: '#428eac', wood: '#548d56', light: '#b8923c', shadow: '#75627e' };
 
 const contentFiles = [
@@ -218,6 +228,9 @@ async function loadContent(report) {
   runtime.units = unitsData.units;
   runtime.shopConfig = shopConfig;
   runtime.maps = createAdventureMapRegistry(maps);
+  const position = safeAdventurePosition(runtime.adventure.map, runtime.adventure, runtime.maps);
+  runtime.adventure.x = position.x;
+  runtime.adventure.y = position.y;
   const [manifests, rigs] = await Promise.all([
     preloadGameAssets(spriteRenderer), loadSpiritRigs(spriteRenderer, signal),
   ]);
@@ -272,12 +285,11 @@ function replaceProfile(save) {
   runtime.settlingDraw = null;
   runtime.rosterFilter = 'owned';
   runtime.storeMember = null;
-  runtime.adventure = createAdventureState(save);
+  runtime.adventure = createAdventureState(save, runtime.maps);
   runtime.tcg = save.modes.tcg;
   runtime.chess = save.modes.chess;
   runtime.chessReplay = null;
   runtime.chessLock = null;
-  runtime.selectedTarget = null;
   runtime.selectedSpell = null;
   runtime.tcgAttackers = null;
   runtime.tcgStrike = null;
@@ -510,6 +522,8 @@ function navigate(page, options) {
 }
 
 function showScene(page) {
+  tcgTargetResize?.disconnect();
+  tcgTargetResize = null;
   if (['adventure', 'chess'].includes(runtime.page) && runtime.page !== page) saveNow();
   runtime.heldKeys.clear();
   runtime.worldStick = null;
@@ -521,6 +535,7 @@ function showScene(page) {
     runtime.tcgReveal = null;
     runtime.tcgCutIn = null;
     runtime.tcgRecipeFlash = null;
+    runtime.selectedSpell = null;
     runtime.tcgStrike = null;
     tcgCardMotion.clear();
   }
@@ -556,7 +571,11 @@ function syncFullscreenButton() {
 
 document.addEventListener('fullscreenchange', syncFullscreenButton);
 
+let tcgTargetResize;
+
 function shell(content) {
+  tcgTargetResize?.disconnect();
+  tcgTargetResize = null;
   if (runtime.page !== 'settings') runtime.audio.setScene(resolveSoundScene(runtime.page, runtime.adventure));
   const player = runtime.save.player;
   const lobby = runtime.page === 'home';
@@ -586,7 +605,7 @@ function shell(content) {
       </header>`}
       <main class="main">${content}</main>
       ${lobby ? `<nav class="game-dock" aria-label="Chế độ chơi">
-        ${navButton('gacha', 'Gacha')}${navButton('adventure', 'Phiêu lưu')}${navButton('tcg', 'Đấu thẻ')}${navButton('chess', 'Đấu cờ')}${navButton('roster', 'Vị Linh')}${navButton('settings', 'Cài đặt')}
+        ${navButton('adventure', 'Phiêu lưu')}${navButton('tcg', runtime.tcg && !runtime.tcg.result ? 'TCG · Tiếp' : 'TCG')}${navButton('chess', runtime.chess?.phase === 'prepare' && runtime.chess.round > 1 ? 'Cờ · ' + chessRoundInfo(runtime.chess).label : 'Auto Chess')}${navButton('gacha', 'Gacha')}${navButton('roster', 'Vị Linh')}${navButton('store', 'Cửa hàng')}${navButton('settings', 'Cài đặt')}
       </nav>` : ''}
       <p class="shell-status" data-shell-status role="status"></p>
     </div>`;
@@ -632,35 +651,27 @@ function pageHeader(kicker, title, description) {
 
 function renderHome() {
   const { save } = runtime;
-  const { quest } = save.adventure;
   const companion = save.roster.find(member => member.id === META.mascot) ?? save.roster[0];
   const companionName = SPIRITS[companion.id].name;
-  const journal = adventureJournal(runtime.save);
+  const journal = adventureJournal(save);
   const headline = journal.completedCampaign ? 'Đã hoàn thành Hành Trình Vị Linh'
     : journal.labels[journal.step]?.title ?? journal.nextChapterLabel ?? 'Trở lại Làng Ẩm Thực';
   shell(`
-    <section class="lobby">
-      <div class="lobby-copy">
-        <h1>Hành Trình<br>Vị Linh</h1>
-        <p>${headline}</p>
-        <button class="entry-action" data-page="adventure">${quest === 'not_started' ? 'Vào làng' : 'Tiếp tục phiêu lưu'} <b aria-hidden="true">›</b></button>
-        ${pinnedRelease ? `<div class="release-update" data-content-update hidden>
-          <p role="status">Có bản phát hành khác sẵn sàng.</p>
-          <button type="button" class="button light" data-apply-release>Cập nhật</button>
-        </div>` : ''}
-      </div>
+    <section class="lobby lobby-world">
+      <h1 class="sr-only">Hành Trình Vị Linh</h1>
       <button type="button" class="lobby-companion" data-lobby-companion aria-label="Xem hồ sơ ${escapeAttr(companionName)}">
-        ${boardChibi(companion.id, 'lobby:' + companion.id, 'E', spiritImage(companion.id))}
+        ${boardChibi(companion.id, 'lobby:' + companion.id, 'E', spiritImage(companion.id, true))}
         <span>${escapeHtml(companionName)}</span>
       </button>
-      <div class="lobby-modes" role="group" aria-label="Chọn lối chơi">
-        <button class="lobby-mode" data-page="tcg"><img src="${originalCardArt('card_demo_10')}" alt=""><span><strong>Thẻ chiến thuật</strong><small>${runtime.tcg && !runtime.tcg.result ? 'Tiếp tục ván đấu' : 'Đấu thẻ với bot'}</small></span><b aria-hidden="true">›</b></button>
-        <button class="lobby-mode" data-page="chess"><img src="${sceneArt('chess_court')}" alt=""><span><strong>Auto Chess</strong><small>${runtime.chess && runtime.chess.phase !== 'finished' ? 'Tiếp tục vòng ' + chessRoundInfo(runtime.chess).label : 'Đấu cờ với bot'}</small></span><b aria-hidden="true">›</b></button>
-        <button class="lobby-mode lobby-service lobby-gacha" data-page="gacha"><span class="lobby-gacha-icon" aria-hidden="true">✦</span><span><strong>Gacha · Triệu hồi</strong><small>Giao Ước Vị Linh</small></span><b aria-hidden="true">›</b></button>
-        <button class="lobby-mode lobby-service" data-page="store"><span><strong>Cửa hàng Adventure</strong><small>Vật phẩm và trang bị</small></span><b aria-hidden="true">›</b></button>
-      </div>
+      <button type="button" class="lobby-quest" data-lobby-journal aria-haspopup="dialog"><small>Nhiệm vụ</small><strong>${escapeHtml(headline)}</strong></button>
+      ${pinnedRelease ? `<div class="release-update" data-content-update hidden>
+        <p role="status">Có bản phát hành khác sẵn sàng.</p>
+        <button type="button" class="button light" data-apply-release>Cập nhật</button>
+      </div>` : ''}
     </section>`);
+  app.querySelector('[data-lobby-journal]').addEventListener('click', () => renderAdventureJournal(true));
   app.querySelector('[data-lobby-companion]').addEventListener('click', () => {
+    runtime.audio.play('sfx_ui_confirm', { gain: .6 });
     runtime.rosterId = companion.id;
     runtime.rosterFilter = 'owned';
     runtime.rosterTab = 'info';
@@ -787,7 +798,8 @@ function renderAdventure() {
         <button class="map-toggle" type="button" data-map-toggle aria-haspopup="dialog">Bản đồ</button>
         <canvas id="world-minimap" width="180" height="102" aria-hidden="true" ${runtime.showMinimap ? '' : 'hidden'}></canvas>
       </div><div class="world-stick" data-world-stick aria-hidden="true"><i></i></div>
-      <button class="button adventure-interact" data-interact ${target ? '' : 'hidden'}>${escapeHtml(actionLabel)}</button>
+      <button class="button adventure-interact" type="button" data-interact ${target ? '' : 'hidden'}>${escapeHtml(actionLabel)}</button>
+      <button class="button light adventure-party-toggle" type="button" data-explore-party>Đội hình · ${adventureParty(save).length}/5</button>
       <p class="adventure-message controls-hint" data-adventure-message role="status">${escapeHtml(adventure.lastMessage)}</p>`}
       <aside class="adventure-context">
       ${battle ? `<section class="panel battle-target"><h2 data-enemy-name>Đối thủ</h2><div class="meter enemy"><i data-enemy-hp></i></div>
@@ -810,11 +822,12 @@ function renderAdventure() {
           ${inRoom ? '<button class="button light" data-leave-room>Ra quảng trường</button>'
             : guideAction ? '<button class="button light" data-guide-objective>Dẫn đường</button>' : ''}
         </section>`}
-      </aside>${party}
+      </aside>${battle ? party : ''}
     </div>
   `);
   app.querySelector('[data-interact]')?.addEventListener('click', doAdventureInteract);
   app.querySelector('[data-open-journal]')?.addEventListener('click', () => renderAdventureJournal(true));
+  app.querySelector('[data-explore-party]')?.addEventListener('click', () => navigate('roster'));
   app.querySelectorAll('[data-profile-id]').forEach(button => button.addEventListener('click', () => {
     runtime.rosterId = button.dataset.profileId;
     runtime.rosterFilter = 'owned';
@@ -1150,21 +1163,33 @@ function onWorldPointer(event) {
     if (stove) selectBossStove(stove.actor_id);
     return;
   }
-  const target = availableAdventureInteractions(runtime.adventure.map, runtime.save, runtime.maps)
-    .find(item => Math.hypot(item.x - x, item.y - y) < 35);
+  const { adventure, save, maps } = runtime;
+  const withinTap = item => Math.hypot(item.x - x, item.y - y) < 35;
+  const target = availableAdventureInteractions(adventure.map, save, maps).find(withinTap);
   canvas.dataset.pathLength = String(queueWorldPath(target ?? { x, y }, target?.action));
+  if (!target && adventure.map === 'village') {
+    const locked = getAdventureMap(maps, adventure.map).interactables.find(item => item.kind === 'portal' && withinTap(item));
+    if (locked?.action === 'portal') adventure.lastMessage = 'Mở rương trong làng để mở lối vào Rừng Nguyên Liệu.';
+    if (locked?.action === 'harbor_route') adventure.lastMessage = 'Hoàn thành chương 2 để mở đường đến Hải Vực.';
+  }
 }
 
 function queueWorldPath(destination, action = null) {
   const adventure = runtime.adventure;
   const path = findAdventurePath(adventure.map, adventure, destination, undefined, runtime.maps);
   if (!path.length) {
+    adventure.walkPath = [];
+    adventure.walkTarget = null;
+    adventure.tapInteraction = null;
     adventure.lastMessage = 'Không tìm được đường đi tới điểm đó.';
     return 0;
   }
   adventure.walkPath = path;
-  adventure.walkTarget = destination;
+  adventure.walkTarget = path.at(-1);
   adventure.tapInteraction = action;
+  if (!action && Math.hypot(adventure.walkTarget.x - destination.x, adventure.walkTarget.y - destination.y) > 3) {
+    adventure.lastMessage = 'Vật cản phía trước. Đang đi đến điểm gần nhất.';
+  }
   return path.length;
 }
 
@@ -1239,14 +1264,7 @@ function drawAdventureFrame(deltaSeconds, modalOpen) {
   const interactButton = app.querySelector('[data-interact]');
   if (interactButton && !adventure.battle) {
     interactButton.hidden = !target;
-    if (target) {
-      const label = 'Tương tác · ' + target.label;
-      if (interactButton.textContent !== label) interactButton.textContent = label;
-      const x = (target.x - view.left) / view.width;
-      const y = (target.y - view.top) / view.height;
-      interactButton.style.left = Math.min(77, Math.max(23, x * 100)) + '%';
-      interactButton.style.top = Math.min(72, Math.max(29, y * 100 - 7)) + '%';
-    }
+    if (target && interactButton.textContent !== target.label) interactButton.textContent = target.label;
   }
   const now = Date.now();
   if (now - runtime.lastSavedLocation > 900 && !adventure.battle
@@ -1305,7 +1323,6 @@ function drawWorldScene(context, adventure, save, moving) {
   context.fillStyle = ({ village: '#b79864', forest: '#466a52', harbor: '#52677c', caldera: '#55423c', sanctum: '#382944' })[adventure.map] ?? '#466a52';
   context.fillRect(0, 0, 960, 540);
   spriteRenderer.drawImage(context, sceneArt(map?.runtime_key ?? 'village'), 0, 0, 960, 540);
-  drawMapVisuals(context, map, save);
   if (adventure.walkTarget) {
     drawElementEffect(context, spriteRenderer, 'light', 'impact', {
       x: adventure.walkTarget.x, y: adventure.walkTarget.y + 1, size: 30, opacity: .66,
@@ -1316,14 +1333,34 @@ function drawWorldScene(context, adventure, save, moving) {
       x: adventure.x, y: adventure.y + 1, size: 32, opacity: .20,
     });
   }
-  drawPlayer(context, adventure.x, adventure.y, runtime.animations.getActorState(HERO_ID)?.animation);
+  const drawHero = () => {
+    context.fillStyle = '#251b185c';
+    context.beginPath();
+    context.ellipse(adventure.x, adventure.y, 15, 4, 0, 0, Math.PI * 2);
+    context.fill();
+    drawPlayer(context, adventure.x, adventure.y, runtime.animations.getActorState(HERO_ID)?.animation);
+  };
+  drawMapVisuals(context, map, save, adventure.y, drawHero);
 }
 
-function drawMapVisuals(context, map, save) {
+function drawMapVisuals(context, map, save, feetY, drawHero) {
+  const depth = visual => visual.depth ?? visual.y + (visual.height ?? (visual.kind === 'tree' ? 26 : 10));
+  const visuals = [...(map?.visuals ?? []), ...(map?.layers?.occlusion ?? []), { kind: 'hero', depth: feetY }];
   const activeIds = new Set(availableAdventureInteractions(map?.runtime_key, save, runtime.maps).map(item => item.id));
-  for (const visual of map?.visuals ?? []) {
+  for (const visual of visuals.sort((a, b) => depth(a) - depth(b))) {
     const { x, y } = visual;
-    if (visual.kind === 'house') {
+    if (visual.kind === 'hero') drawHero();
+    else if (visual.points) {
+      if (feetY >= visual.depth) continue;
+      context.save();
+      context.beginPath();
+      context.moveTo(...visual.points[0]);
+      for (const point of visual.points.slice(1)) context.lineTo(...point);
+      context.closePath();
+      context.clip();
+      spriteRenderer.drawImage(context, sceneArt(map.runtime_key), 0, 0, map.world.width, map.world.height);
+      context.restore();
+    } else if (visual.kind === 'house') {
       const art = propArt(visual.id.replace('building_', 'house_'));
       drawFitted(context, art, x + visual.width / 2, y + visual.height, visual.width, visual.height);
       const label = ({ building_kitchen: 'NHÀ BẾP', building_guild: 'HỘI QUÁN', building_merchant: 'TIỆM' })[visual.id];
@@ -1335,7 +1372,9 @@ function drawMapVisuals(context, map, save) {
     } else if (visual.kind === 'marker' && (visual.id === 'feast_lilia' && activeIds.has(visual.id)
       || visual.id === 'npc_lilia' && save.adventure.finale[5].stage !== 'completed')) {
       drawFitted(context, actorArt('npc_lilia'), x, y + 11, 65, 70);
-      drawMapLabel(context, visual.label, x, y + 24);
+      const { quest, chapterTwo } = save.adventure;
+      const questStage = quest === 'completed' ? chapterTwo.stage : quest;
+      if (['not_started', 'ready_to_claim'].includes(questStage)) drawMapLabel(context, '!', x, y - 60);
     } else if (visual.kind === 'guide') {
       drawFitted(context, actorArt(visual.actorId), x, y + 11, 65, 70);
       drawMapLabel(context, visual.label, x, y + 24);
@@ -1365,7 +1404,8 @@ function drawMapVisuals(context, map, save) {
       const open = activeIds.has(visual.id);
       context.save();
       context.globalAlpha = open ? 1 : .48;
-      drawFitted(context, propArt('portal'), x, y + 16, 78, 89);
+      if (!visual.painted) drawFitted(context, propArt('portal'), x, y + 16, 78, 89);
+      else if (open) drawElementEffect(context, spriteRenderer, 'wood', 'impact', { x, y, size: 38, opacity: .55 });
       context.restore();
       drawMapLabel(context, open ? visual.label : 'KHÓA', x, y + 29);
     }
@@ -1542,6 +1582,12 @@ function placeholderPose(animation) {
 const CARD_TYPES = { unit: 'Vị Linh', trap: 'Bẫy', fast_spell: 'Tốc chú', slow_spell: 'Chậm chú', burst_spell: 'Tức chú' };
 const ELEMENT_NAMES = { fire: 'Hỏa', water: 'Thủy', wood: 'Mộc', light: 'Quang', shadow: 'Ảnh' };
 const TCG_PHASES = { action: 'Triển khai', reaction: 'Phản ứng', trap_choice: 'Cơ hội bẫy', combat: 'Tấn công', block_assign: 'Chọn quân chặn', round_end: 'Kết thúc lượt' };
+const TCG_CUT_IN = {
+  unit_summoned: { kind: 'summon', title: 'Triệu hồi Vị Linh', quote: 'Ký ức của hương vị, hãy thức tỉnh!' },
+  tcg_attack_ordered: { kind: 'attack', title: 'Lệnh tấn công', quote: 'Vị Linh, tiến lên!' },
+  tcg_spell_resolved: { kind: 'cast', title: 'Thi triển bí thuật' },
+  tcg_ultimate_resolved: { kind: 'ultimate', title: 'Tuyệt kỹ Vị Linh' },
+};
 
 function playerDeck() {
   const source = runtime.save.tcgDeck;
@@ -1559,7 +1605,6 @@ const tcgDefaultPreset = difficulty => ({ hard: 'guard', extreme: 'assault' })[d
 
 function startTcg(seed, difficulty = 'normal', opponentPreset = '', challengeId = '') {
   runtime.mulligan.clear();
-  runtime.selectedTarget = null;
   runtime.selectedSpell = null;
   runtime.tcgAttackers = null;
   runtime.tcgStrike = null;
@@ -1615,6 +1660,7 @@ function tcgCommander(match, index, targets, strikes) {
   const player = match.players[index];
   const friendly = index === 0;
   const targeting = targets.some(target => target.player === index && target.id === 'commander');
+  const deckTarget = friendly && targets.some(target => target.id === 'deck');
   const canStrike = !friendly && strikes.some(target => target.id === 'commander');
   const id = friendly ? 'commander:p0' : 'commander:p1';
   const challenge = tcgChallenge(match);
@@ -1622,12 +1668,13 @@ function tcgCommander(match, index, targets, strikes) {
   const name = friendly ? 'Người Kết Vị' : challenge?.name ?? (preset?.id !== 'starter' ? preset?.name : null) ?? 'Chủ soái đối thủ';
   const hp = `<b>${player.hp}</b><small>HP</small>${tcgImpact(id)}`;
   return `<div class="${friendly ? 'duel-bottom' : 'duel-top'}">
-    <span class="duel-crest" aria-hidden="true">${friendly ? `<img src="${actorArt(HERO_ID)}" alt="">` : '◆'}</span>
-    <div class="duel-identity"><strong>${escapeHtml(name)}</strong><small>${player.mana}/${player.maxMana} mana · ${player.deck.length} lá bộ${friendly ? '' : ` · ${player.hand.length} lá tay`}</small></div>
+    <span class="duel-crest" aria-hidden="true">${friendly ? `<img src="${TCG_COMMANDER_ART}" alt="">` : '◆'}</span>
+    <div class="duel-identity"><strong>${escapeHtml(name)}</strong><small>${player.mana}/${player.maxMana} mana${friendly ? '' : ` · ${player.deck.length} lá bộ · ${player.hand.length} lá tay`}</small></div>
+    ${friendly ? `<button type="button" class="tcg-deck-target ${deckTarget ? 'spell-target' : ''}" data-tcg-deck ${deckTarget ? 'data-spell-target="deck"' : 'disabled'} aria-label="Bộ bài của bạn · ${player.deck.length} lá">Bộ · ${player.deck.length}</button>` : ''}
     ${tcgTrapSlots(match, index, targets)}
-    ${canStrike ? `<button type="button" class="commander-hp enemy-hp strike-target" data-duel-id="${id}" data-tcg-strike-target="commander" aria-pressed="${runtime.tcgStrike?.target === 'commander'}" aria-label="Tấn công ${escapeAttr(name)} · ${player.hp} HP">${hp}</button>`
+    ${canStrike ? `<button type="button" class="commander-hp enemy-hp strike-target" data-duel-id="${id}" data-tcg-strike-target="commander" aria-label="Tấn công ${escapeAttr(name)} · ${player.hp} HP">${hp}</button>`
       : targeting
-      ? `<button type="button" class="commander-hp ${friendly ? '' : 'enemy-hp'} spell-target" data-duel-id="${id}" data-spell-target="commander" aria-pressed="${runtime.selectedTarget === 'commander'}" aria-label="${escapeAttr(name)} · ${player.hp} HP">${hp}</button>`
+      ? `<button type="button" class="commander-hp ${friendly ? '' : 'enemy-hp'} spell-target" data-duel-id="${id}" data-spell-target="commander" aria-label="${escapeAttr(name)} · ${player.hp} HP">${hp}</button>`
       : `<div class="commander-hp ${friendly ? '' : 'enemy-hp'}" data-duel-id="${id}">${hp}</div>`}
     <meter class="commander-meter" min="0" max="${tcgCommanderMax(match, index)}" value="${player.hp}" aria-label="Máu ${escapeAttr(name)}"></meter>
   </div>`;
@@ -1677,8 +1724,6 @@ function boardChibi(id, key, direction, fallback) {
     data-chibi-key="${escapeAttr(key)}" data-chibi-facing="${direction}"></canvas>`;
 }
 
-function tcgSpriteKey(battleId, actorId) { return `${battleId}:${actorId}`; }
-
 function tcgLaneId(player, lane) { return `lane:p${player}:${lane}`; }
 
 function tcgImpact(id) {
@@ -1686,13 +1731,15 @@ function tcgImpact(id) {
   if (!impact || impact.matchId !== runtime.tcg.battleId || impact.expires <= performance.now()) return '';
   const delay = Math.round(impact.contact - performance.now());
   const texture = impact.style === 'shield' || impact.style === 'guard' ? combatArt('shield_bubble') : effectArt(impact.element, 'impact');
-  return `<span class="tcg-hit" style="--contact-delay:${delay}ms" aria-hidden="true">
-    <img class="tcg-impact" src="${texture}" alt=""><span class="tcg-damage tcg-${impact.style}">${escapeHtml(impact.text ?? '−' + impact.damage)}</span></span>`;
+  const color = (ELEMENT_ART[impact.element] ?? ELEMENT_ART.light).color;
+  return `<span class="tcg-hit" data-effect="${impact.style}" style="--contact-delay:${delay}ms;--impact-color:${color}" aria-hidden="true">
+    <i class="tcg-contact-ring"></i><img class="tcg-impact" src="${texture}" alt="">
+    <span class="tcg-damage tcg-${impact.style}">${escapeHtml(impact.text ?? '−' + impact.damage)}</span></span>`;
 }
 
 function renderTcg() {
   if (!runtime.tcg) runtime.tcg = startTcg(41);
-  else if (runtime.tcg.priority === 1 && !runtime.tcg.result) runtime.tcg = runTcgBot(runBotPriority(runtime.tcg), { yieldToPlayer: true });
+  else if (runtime.tcg.priority === 1 && !runtime.tcg.result) runtime.tcg = advanceTcgResponses(runtime.tcg);
   const match = runtime.tcg;
   for (const [id, impact] of runtime.tcgImpacts) {
     if (impact.matchId !== match.battleId || impact.expires <= performance.now()) runtime.tcgImpacts.delete(id);
@@ -1707,20 +1754,14 @@ function renderTcg() {
   const opening = match.mulliganDone === false && match.round === 1 && match.eventSeq === 0;
   const canPlay = !opening && !match.result && ['action', 'reaction'].includes(match.phase) && match.priority === 0;
   const spell = canPlay ? user.hand.find(card => card.instance_id === runtime.selectedSpell && !tcgCardIssue(match, 0, card)) : null;
-  const targets = spell ? tcgTablePlayTargets(match, spell) : [];
-  const canStrike = table && !opening && !match.result && match.activePlayer === 0 && match.priority === 0 && ['action', 'combat', 'round_end'].includes(match.phase);
+  const targets = spell ? tcgPlayTargets(match, spell) : [];
+  const canStrike = table && !opening && !spell && !match.result && match.activePlayer === 0 && match.priority === 0 && ['action', 'combat', 'round_end'].includes(match.phase);
   const attacker = canStrike ? user.units.find(unit => unit.instance_id === runtime.tcgStrike?.attacker && tcgCanAttack(unit)) : null;
   if (!attacker) runtime.tcgStrike = null;
   const strikes = attacker ? tcgStrikeTargets(match, 0) : [];
-  const defender = strikes.find(target => target.id === runtime.tcgStrike?.target);
-  const ready = canStrike ? user.units.filter(tcgCanAttack).length : 0;
+  const ready = user.units.filter(tcgCanAttack).length;
   const targetIds = new Set(targets.map(target => target.id));
-  if (!spell) {
-    runtime.selectedSpell = null;
-    runtime.selectedTarget = null;
-  }
-  if (!targetIds.has(runtime.selectedTarget)) runtime.selectedTarget = null;
-  if (targets.length === 1 && ['row', 'deck', 'set'].includes(targets[0].id)) runtime.selectedTarget = targets[0].id;
+  if (!spell) runtime.selectedSpell = null;
   const hand = user.hand.map((card) => {
     const reason = opening ? '' : tcgCardIssue(match, 0, card);
     const cost = tcgCardCost(match, 0, card);
@@ -1744,21 +1785,19 @@ function renderTcg() {
   const selected = runtime.tcgAttackers?.size ?? 0;
   const stackTop = match.stack.at(-1);
   const trapReveal = [...match.stack].reverse().find(item => item.card.type === 'trap');
-  const preview = defender && tcgStrikePreview(attacker, defender.unit, bot.hp);
   const strikeControls = attacker ? `<div class="tcg-strike-controls">
-    <div role="status"><strong>${escapeHtml(cardName(attacker))}${defender ? ' → ' + escapeHtml(defender.label) : ''}</strong>
-    <small>${preview ? `−${preview.damage} ${defender.unit ? 'DEF' : 'HP'}${preview.absorbed ? ` · ${preview.absorbed} vào hộ thuẫn` : ''}${defender.unit ? ` · Phản đòn −${preview.counter} DEF` : ''}${preview.spill ? ` · Xuyên −${preview.spill} HP` : ''}`
-      : strikes.some(target => target.unit?.keywords?.includes('guard')) ? 'Chọn Hộ vệ của đối thủ.' : 'Chọn Vị Linh địch hoặc chủ soái.'}</small></div>
-    <button class="button" data-tcg-confirm-strike ${defender ? '' : 'disabled'}>Xác nhận đòn</button><button class="button light" data-tcg-cancel-strike>Hủy</button></div>` : '';
+    <div role="status"><strong>${escapeHtml(cardName(attacker))}</strong>
+    <small data-tcg-strike-hint>${strikes.some(target => target.unit?.keywords?.includes('guard')) ? 'Bấm Hộ vệ để tấn công.' : 'Bấm Vị Linh địch hoặc chủ soái để tấn công.'}</small></div>
+    <button class="button light" data-tcg-cancel-strike>Hủy</button></div>` : '';
   const recipe = spell && TCG_RECIPES[tcgRecipeFor(match, 0, spell)];
-  const verb = spell?.type === 'unit' ? 'Triệu hồi' : spell?.type === 'trap' ? 'Úp bài' : 'Thi triển';
-  const spellControls = spell ? `<div class="action-row spell-confirm">
-    <label class="target-select"><span title="${escapeAttr(tcgEffectText(spell))}">${escapeHtml(cardName(spell))} · ${escapeHtml(spell.type === 'unit' ? `${spell.atk}/${spell.max_def}` : spell.type === 'trap' ? TCG_TRAP_LABELS[spell.trigger.when] : tcgEffectBadge(spell))}</span>
-      ${spell.type === 'trap' ? '' : `<select id="tcg-target"><option value="">Chọn mục tiêu</option>${targets.map(({ id, label }) =>
-        `<option value="${escapeAttr(id)}" ${runtime.selectedTarget === id ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select>`}
-    </label>
+  const targetHint = spell?.type === 'trap' ? 'Bấm ô bẫy sáng để đặt.'
+    : targets.some(target => target.fallen) ? 'Chọn Vị Linh cần hồi sinh.'
+    : 'Bấm mục tiêu đang sáng để thi triển.';
+  const spellControls = spell ? `<div class="tcg-target-prompt">
+    <div role="status"><strong>${escapeHtml(cardName(spell))}</strong><small>${targetHint}</small></div>
     ${recipe ? `<small class="tcg-recipe-hint" title="${escapeAttr(recipe.reward)}">Combo · ${recipe.name}</small>` : ''}
-    <button class="button" data-tcg-cast ${runtime.selectedTarget ? '' : 'disabled'}>${verb}</button><button class="button light" data-tcg-cancel-spell>Hủy chọn</button>
+    ${targets.some(target => target.fallen) ? '<button class="button light" data-tcg-grave-target>Xem mộ bài</button>' : ''}
+    <button class="button light" data-tcg-cancel-spell>Hủy</button>
   </div>` : '';
   const action = match.result ? ''
     : opening ? `<button class="button" data-tcg-mulligan>${runtime.mulligan.size ? 'Đổi ' + runtime.mulligan.size + ' lá' : 'Giữ bài và vào trận'}</button>`
@@ -1776,27 +1815,25 @@ function renderTcg() {
       <button type="button" data-tcg-graveyard ${user.graveyard.length ? '' : 'disabled'}>Mộ bài · ${user.graveyard.length}</button>
       <button type="button" data-tcg-restart>Ván mới · Bot ${TCG_DIFFICULTIES[match.difficulty] ?? TCG_DIFFICULTIES.normal}</button>
       ${match.result ? '' : '<button type="button" data-tcg-surrender>Đầu hàng</button>'}`)}
-    <div class="match-layout tcg-match" data-match-result="${Boolean(match.result)}" data-targeting="${Boolean(spell)}" data-tcg-phase="${match.phase}" ${table ? 'data-direct' : ''}>
-      <section class="duel-field" aria-label="Bàn đấu thẻ">
+    <div class="match-layout tcg-match" data-mulligan="${opening}" data-match-result="${Boolean(match.result)}" data-tcg-phase="${match.phase}" ${table ? 'data-direct' : ''}>
+      <section class="duel-field" aria-label="Bàn đấu thẻ" ${opening ? 'inert' : ''}>
         ${tcgCommander(match, 1, targets, strikes)}
-        <div class="unit-row enemy-row" data-tcg-row="1">${tcgLanes(bot.units, false, declared, blocked, targetIds, defending, canStrike, strikes)}</div>
+        ${tcgRow(bot.units, 1, targets, declared, blocked, targetIds, defending, canStrike, strikes)}
         <div class="duel-mid"><div class="stack-strip">
-          <b>Vòng ${match.round} · ${opening ? 'Đổi bài' : phaseLabel}</b>
+          <b>${opening ? 'Vòng 1' : 'Vòng ' + match.round + ' · ' + phaseLabel}</b>
           ${opening || match.result ? '' : `<span>${match.activePlayer === 0 ? 'Lượt bạn' : 'Lượt đối thủ'} · ${match.priority === 0 ? 'Bạn ưu tiên' : 'Bot ưu tiên'}</span>
             ${match.activePlayer === 0 ? `<span>${table ? ready + ' quân sẵn sàng' : user.attackUsedRound === match.round ? 'Đã đánh' : 'Còn lượt đánh'}</span>` : ''}`}
         </div>
-        ${stackTop ? `<button type="button" class="tcg-stack-button ${trapReveal ? 'has-trap' : ''}" data-tcg-stack>
-          <img src="${escapeAttr(cardArt(stackTop.card))}" alt=""><span>${stackTop.card.type === 'trap' ? 'Lật bẫy' : 'Xử lý trước'} · <b>${escapeHtml(cardName(stackTop.card))}</b></span><small>${match.stack.length} chờ</small>
-        </button>` : ''}</div>
-        <div class="unit-row friendly-row" data-tcg-row="0">${tcgLanes(user.units, true, declared, blocked, targetIds, defending, canStrike, strikes)}</div>
+        ${stackTop ? tcgStackControl(match, stackTop, trapReveal, targets) : ''}</div>
+        ${tcgRow(user.units, 0, targets, declared, blocked, targetIds, defending, canStrike, strikes)}
         ${tcgCommander(match, 0, targets, strikes)}
         <canvas class="duel-effects" aria-hidden="true" hidden></canvas>
         ${tcgStageBanners(match)}
         ${runtime.tcgRecipeFlash?.matchId === match.battleId && runtime.tcgRecipeFlash.expires > performance.now() ? `<span class="tcg-recipe-flash" role="status">Combo · ${runtime.tcgRecipeFlash.name}</span>` : ''}
       </section>
-      ${match.result ? '' : `<section class="match-command tcg-hand-dock" aria-label="Điều khiển đấu thẻ">
-        ${trapChoice ? tcgTrapPanel(match) : defending ? tcgDefensePanel(incoming, user.units) : `
-          <div class="hand-heading"><strong>${opening ? table ? 'Đổi tối đa 3 lá' : 'Chọn lá muốn đổi' : 'Bài trên tay'}</strong><span>${!opening && user.chainElement && !user.resonanceUsed ? `Cộng hưởng ${ELEMENT_NAMES[user.chainElement]} · ` : ''}${user.hand.length}/${tcgHandLimit(match)} lá</span></div>
+      ${match.result ? '' : `<section class="match-command tcg-hand-dock" aria-label="${opening ? 'Đổi bài đầu trận' : 'Điều khiển đấu thẻ'}">
+        ${trapChoice ? tcgTrapPanel(match) : defending ? tcgDefensePanel(incoming) : `
+          <div class="hand-heading"><strong>${opening ? table ? 'Đổi bài · Chọn tối đa 3 lá' : 'Chọn lá muốn đổi' : 'Bài trên tay'}</strong><span>${!opening && user.chainElement && !user.resonanceUsed ? `Cộng hưởng ${ELEMENT_NAMES[user.chainElement]} · ` : ''}${user.hand.length}/${tcgHandLimit(match)} lá</span></div>
           <div class="hand-row">${hand || '<p class="empty-message">Không còn bài trên tay.</p>'}</div>
           ${showCombat && selected ? '<p class="match-hint">Chạm Vị Linh để chọn quân tấn công.</p>' : ''}
           ${action ? `<div class="match-actions tcg-actions">${action}</div>` : ''}`}
@@ -1812,7 +1849,8 @@ function renderTcg() {
   app.querySelector('[data-tcg-log]').addEventListener('click', () => openInfoDialog('Nhật ký trận', renderTextLog(match.log)));
   app.querySelector('[data-tcg-rules]').addEventListener('click', showTcgRules);
   app.querySelector('[data-tcg-challenges]').addEventListener('click', () => openTcgSetup(match, true));
-  app.querySelector('[data-tcg-stack]')?.addEventListener('click', () => showTcgStack(match));
+  for (const button of app.querySelectorAll('[data-tcg-stack]')) button.addEventListener('click', () => showTcgStack(match, spell, targets));
+  app.querySelector('[data-tcg-grave-target]')?.addEventListener('click', () => showTcgGraveTargets(spell, targets));
   app.querySelector('[data-tcg-hand]')?.addEventListener('click', () => {
     const cards = user.hand.map(card => `<li><strong>${escapeHtml(cardName(card))} · ${card.cost} mana</strong><small>${escapeHtml(tcgCardRule(card))}</small></li>`);
     openInfoDialog('Bài trên tay', cards.length ? `<ul class="tcg-graveyard">${cards.join('')}</ul>` : '<p>Không còn bài trên tay.</p>');
@@ -1830,40 +1868,28 @@ function renderTcg() {
       actTcg(() => surrenderTcg(runtime.tcg, 0));
     }, { once: true });
   });
-  function selectSpellTarget(value) {
-    runtime.selectedTarget = value || null;
-    const picker = app.querySelector('#tcg-target');
-    if (picker) picker.value = value;
-    app.querySelector('[data-tcg-cast]').disabled = !runtime.selectedTarget;
-    for (const button of app.querySelectorAll('[data-spell-target]')) {
-      button.setAttribute('aria-pressed', String(button.dataset.spellTarget === runtime.selectedTarget));
-    }
-  }
-  app.querySelector('#tcg-target')?.addEventListener('change', event => selectSpellTarget(event.target.value));
-  app.querySelectorAll('[data-spell-target]').forEach(button =>
-    button.addEventListener('click', () => selectSpellTarget(button.dataset.spellTarget)));
-  app.querySelector('[data-tcg-cast]')?.addEventListener('click', () => {
-    if (runtime.selectedTarget) playTcgFromHand(spell, runtime.selectedTarget);
-  });
+  const spellButtons = [...app.querySelectorAll('[data-spell-target]')];
+  for (const button of spellButtons) button.addEventListener('click', () => playTcgFromHand(spell, button.dataset.spellTarget));
   app.querySelector('[data-tcg-cancel-spell]')?.addEventListener('click', () => {
     runtime.selectedSpell = null;
-    runtime.selectedTarget = null;
     renderTcg();
     app.querySelector(`[data-card="${CSS.escape(spell.instance_id)}"]`)?.focus({ preventScroll: true });
   });
-  app.querySelectorAll('[data-card]').forEach((button) => button.addEventListener('click', () => {
+  app.querySelectorAll('[data-card]').forEach(button => button.addEventListener('click', () => {
     const id = button.dataset.card;
     if (opening) {
       if (!runtime.mulligan.delete(id) && (!table || runtime.mulligan.size < 3)) runtime.mulligan.add(id);
       renderTcg();
       app.querySelector(`[data-card="${CSS.escape(id)}"]`)?.focus();
-    } else if (table || user.hand.find(card => card.instance_id === id)?.type.endsWith('_spell')) {
-      runtime.tcgStrike = null;
-      runtime.selectedSpell = runtime.selectedSpell === id ? null : id;
-      runtime.selectedTarget = null;
-      renderTcg();
-      app.querySelector('#tcg-target')?.focus({ preventScroll: true });
-    } else playTcgFromHand(user.hand.find(card => card.instance_id === id));
+      return;
+    }
+    const card = user.hand.find(item => item.instance_id === id);
+    if (!card || tcgCardIssue(match, 0, card)) return;
+    if (card.type === 'unit') {
+      playTcgFromHand(card);
+      return;
+    }
+    selectTcgCard(card, runtime.selectedSpell !== id);
   }));
   app.querySelector('[data-tcg-mulligan]')?.addEventListener('click', () => {
     actTcg(() => mulliganTcg(runtime.tcg, [...runtime.mulligan]));
@@ -1879,12 +1905,22 @@ function renderTcg() {
     renderTcg();
     app.querySelector(`[data-tcg-attacker="${CSS.escape(id)}"]`)?.focus({ preventScroll: true });
   }));
-  app.querySelectorAll('[data-tcg-strike-target]').forEach(button => button.addEventListener('click', () => {
-    runtime.tcgStrike.target = button.dataset.tcgStrikeTarget;
-    renderTcg();
-    app.querySelector('[data-tcg-confirm-strike]')?.focus({ preventScroll: true });
-  }));
-  app.querySelector('[data-tcg-confirm-strike]')?.addEventListener('click', () => actTcg(() => strikeTcg(runtime.tcg, 0, attacker.instance_id, defender.id)));
+  const strikeButtons = [...app.querySelectorAll('[data-tcg-strike-target]')];
+  for (const button of strikeButtons) {
+    button.addEventListener('click', () => actTcg(() => strikeTcg(runtime.tcg, 0, attacker.instance_id, button.dataset.tcgStrikeTarget)));
+  }
+  if (spell) bindTcgAim(app.querySelector(`[data-card="${CSS.escape(spell.instance_id)}"]`), spellButtons);
+  if (attacker) {
+    const hint = app.querySelector('[data-tcg-strike-hint]');
+    const defaultHint = hint.textContent;
+    bindTcgAim(app.querySelector(`[data-tcg-attacker="${CSS.escape(attacker.instance_id)}"]`), strikeButtons, button => {
+      const target = strikes.find(item => item.id === button?.dataset.tcgStrikeTarget);
+      const preview = target && tcgStrikePreview(attacker, target.unit, bot.hp);
+      hint.textContent = preview
+        ? `${target.label} · −${preview.damage} ${target.unit ? 'DEF' : 'HP'}${preview.absorbed ? ` · Khiên chặn ${preview.absorbed}` : ''}${target.unit ? ` · Phản đòn −${preview.counter} DEF` : ''}${preview.spill ? ` · Xuyên −${preview.spill} HP` : ''}`
+        : defaultHint;
+    });
+  }
   app.querySelector('[data-tcg-cancel-strike]')?.addEventListener('click', () => { runtime.tcgStrike = null; renderTcg(); });
   if (table && !opening && !match.result) bindTcgDrag(match, canStrike);
   app.querySelector('[data-tcg-attack]')?.addEventListener('click', () => actTcg(() => attackTcg(runtime.tcg, 0, [...runtime.tcgAttackers])));
@@ -1901,20 +1937,60 @@ function renderTcg() {
   saveNow();
 }
 
-function tcgTablePlayTargets(match, card) {
-  if (card.type === 'unit') return Array.from({ length: tcgBoardLimit(match) }, (_, lane) =>
-    ({ id: 'lane:' + lane, label: 'Ô triệu hồi ' + (lane + 1), lane })).filter(({ lane }) =>
-    !match.players[0].units.some(unit => unit.lane === lane));
-  if (card.type === 'trap') return [{ id: 'set', label: 'Ô bẫy của bạn' }];
+function bindTcgAim(origin, buttons, describe) {
+  if (!origin || !buttons.length) return;
+  const field = app.querySelector('.duel-field');
+  const line = document.createElement('span');
+  line.className = 'tcg-target-line';
+  line.setAttribute('aria-hidden', 'true');
+  line.hidden = true;
+  field.append(line);
+  let target;
+  const paint = () => {
+    line.hidden = !target;
+    if (!target) return;
+    const base = field.getBoundingClientRect();
+    const start = origin.getBoundingClientRect();
+    const end = target.getBoundingClientRect();
+    const x = start.left + start.width / 2;
+    const y = Math.min(start.top + start.height / 2, base.bottom - 2);
+    const dx = end.left + end.width / 2 - x;
+    const dy = end.top + end.height / 2 - y;
+    line.style.left = x - base.left + 'px';
+    line.style.top = y - base.top + 'px';
+    line.style.width = Math.hypot(dx, dy) + 'px';
+    line.style.rotate = Math.atan2(dy, dx) + 'rad';
+  };
+  const aim = button => { target = button; describe?.(button); paint(); };
+  for (const button of buttons) {
+    button.addEventListener('pointerenter', () => aim(button));
+    button.addEventListener('pointerleave', () => aim(document.activeElement === button ? button : null));
+    button.addEventListener('focus', () => aim(button));
+    button.addEventListener('blur', () => aim(null));
+  }
+  tcgTargetResize = new ResizeObserver(paint);
+  tcgTargetResize.observe(field);
+}
+
+function selectTcgCard(card, selected = true) {
+  runtime.tcgStrike = null;
+  runtime.selectedSpell = selected ? card.instance_id : null;
+  renderTcg();
+  const focus = selected && app.querySelector('[data-spell-target], [data-tcg-grave-target], [data-tcg-stack].spell-target, [data-tcg-stack][data-target-list]');
+  (focus || app.querySelector(`[data-card="${CSS.escape(card.instance_id)}"]`))?.focus({ preventScroll: true });
+}
+
+function tcgPlayTargets(match, card) {
+  if (card.type === 'unit') return [];
+  if (card.type === 'trap') return [{ id: 'set', player: 0, slot: match.players[0].traps.length, label: 'Ô bẫy của bạn' }];
   return tcgSpellTargets(match, 0, card);
 }
 
 function playTcgFromHand(card, target) {
   if (!card) return;
-  const lane = target?.startsWith('lane:') ? Number(target.slice(5)) : null;
   runtime.tcgPlayingCard = card;
   try {
-    actTcg(() => playTcgCard(runtime.tcg, 0, card.instance_id, card.type.endsWith('_spell') ? target : null, lane));
+    actTcg(() => playTcgCard(runtime.tcg, 0, card.instance_id, card.type.endsWith('_spell') ? target : null));
   } finally {
     runtime.tcgPlayingCard = null;
   }
@@ -1926,27 +2002,25 @@ function bindTcgDrag(match, canStrike) {
     read(element) {
       if (element.dataset.card) {
         const card = match.players[0].hand.find(item => item.instance_id === element.dataset.card);
-        if (card && !tcgCardIssue(match, 0, card)) return { card, targets: tcgTablePlayTargets(match, card) };
+        if (card && !tcgCardIssue(match, 0, card)) return { card, targets: tcgPlayTargets(match, card) };
       } else if (canStrike) {
         const unit = match.players[0].units.find(item => item.instance_id === element.dataset.tcgAttacker);
         if (unit && tcgCanAttack(unit)) return { unit, targets: tcgStrikeTargets(match, 0) };
       }
     },
     locate(source, element) {
-      const anchor = element?.closest('[data-tcg-stack], [data-duel-id], [data-tcg-row], .duel-bottom');
+      const anchor = element?.closest('[data-tcg-stack-top], [data-tcg-deck], [data-duel-id], [data-tcg-row], [data-spell-target="row"]');
       if (!anchor) return null;
+      const row = Number(anchor.closest('[data-tcg-row]')?.dataset.tcgRow);
       const id = anchor.dataset.duelId;
-      if (source.card?.effect?.kind === 'raise_ally' && anchor.hasAttribute('data-tcg-summon-lane')) {
-        return { element: anchor, state: 'valid', chooseGrave: true };
-      }
+      if (source.card?.type === 'unit' && row === 0) return { element: anchor.closest('[data-tcg-row]'), state: 'valid' };
+      if (source.card?.effect?.kind === 'raise_ally' && row === 0) return { element: anchor, state: 'valid', chooseGrave: true };
       const target = source.targets.find(item => {
         if (source.unit) return item.id === (id === 'commander:p1' ? 'commander' : id);
-        if (source.card.type === 'unit') return item.lane === Number(anchor.dataset.tcgSummonLane);
-        if (source.card.type === 'trap') return anchor.hasAttribute('data-tcg-set-slot');
         if (item.id === 'commander') return id === 'commander:p' + item.player;
-        if (item.id === 'deck') return anchor.classList.contains('duel-bottom') || id === 'commander:p0';
-        if (item.id === 'row') return Number(anchor.closest('[data-tcg-row]')?.dataset.tcgRow) === item.player;
-        if (item.item) return anchor.hasAttribute('data-tcg-stack') && match.stack.at(-1)?.id === item.item.id;
+        if (item.id === 'deck') return anchor.hasAttribute('data-tcg-deck');
+        if (item.id === 'row') return row === item.player;
+        if (item.item) return anchor.hasAttribute('data-tcg-stack-top') && match.stack.at(-1)?.id === item.item.id;
         if (item.slot !== undefined) return id === tcgTrapAnchor(item.player, item.slot);
         return item.id === id;
       });
@@ -1954,18 +2028,12 @@ function bindTcgDrag(match, canStrike) {
     },
     drop(source, { target, chooseGrave }) {
       if (chooseGrave) {
-        runtime.tcgStrike = null;
-        runtime.selectedSpell = source.card.instance_id;
-        runtime.selectedTarget = source.targets.length === 1 ? source.targets[0].id : null;
-        renderTcg();
-        app.querySelector('#tcg-target')?.focus({ preventScroll: true });
+        selectTcgCard(source.card);
+        showTcgGraveTargets(source.card, source.targets);
         return;
       }
-      if (source.card) return playTcgFromHand(source.card, target.id);
-      runtime.selectedSpell = null;
-      runtime.tcgStrike = { attacker: source.unit.instance_id, target: target.id };
-      renderTcg();
-      app.querySelector('[data-tcg-confirm-strike]')?.focus({ preventScroll: true });
+      if (source.card) return playTcgFromHand(source.card, target?.id);
+      actTcg(() => strikeTcg(runtime.tcg, 0, source.unit.instance_id, target.id));
     },
     preview({ card, unit }, ghost) {
       paintTableGhost(ghost, matchCardArt(card ?? unit), cardName(card ?? unit));
@@ -1976,7 +2044,7 @@ function bindTcgDrag(match, canStrike) {
     },
     reject({ card, unit }) {
       runtime.notice = unit ? 'Chọn mục tiêu đang được đánh dấu.'
-        : card.type === 'unit' ? 'Thả Vị Linh vào ô trống của bạn.'
+        : card.type === 'unit' ? 'Thả Vị Linh lên hàng của bạn hoặc bấm lá để triệu hồi.'
         : card.type === 'trap' ? 'Thả lá bẫy vào ô bẫy của bạn.' : 'Chọn mục tiêu hợp lệ cho lá bài.';
       renderTcg();
     },
@@ -2042,9 +2110,9 @@ function openTcgSetup(match, challenges = false) {
 
 function actTcg(action) {
   try {
-    runtime.tcg = runTcgBot(runBotPriority(action()), { yieldToPlayer: true });
+    tcgPresentationTurn++;
+    runtime.tcg = advanceTcgResponses(action());
     runtime.selectedSpell = null;
-    runtime.selectedTarget = null;
     runtime.tcgStrike = null;
     runtime.notice = '';
     saveNow();
@@ -2064,12 +2132,11 @@ function tcgTrapSlots(match, owner, targets) {
     if (!trap && owner === 1) return `<span class="tcg-trap-slot empty" data-duel-id="${id}" aria-label="Ô bẫy địch trống">${tcgImpact(id)}</span>`;
     const visible = trap && (owner === 0 || !trap.faceDown);
     const concealed = trap && (usesTcgTable(match) ? trap.faceDown : !visible);
-    const setting = !trap && owner === 0 && targets.some(target => target.id === 'set');
     const armed = trap && tcgTrapArmed(match, trap);
     const label = !trap ? 'Ô bẫy của bạn còn trống'
       : (visible ? cardName(trap.card) : 'Bẫy địch đang úp') + (armed ? ' · Sẵn sàng' : ' · Chờ đổi lượt');
     return `<button type="button" class="tcg-trap-slot ${trap ? 'set' : 'empty'} ${concealed ? 'tcg-card-back' : ''} ${armed ? 'armed' : ''} ${target ? 'spell-target' : ''}"
-      data-duel-id="${id}" ${!trap && owner === 0 ? 'data-tcg-set-slot' : ''} aria-label="${escapeAttr(label)}" ${setting ? 'data-spell-target="set"' : target ? `data-spell-target="${escapeAttr(target.id)}" aria-pressed="${runtime.selectedTarget === target.id}"` : `data-tcg-slot="${owner}:${slot}"`}>
+      data-duel-id="${id}" aria-label="${escapeAttr(label)}" ${target ? `data-spell-target="${escapeAttr(target.id)}"` : `data-tcg-slot="${owner}:${slot}"`}>
       ${concealed ? '<span aria-hidden="true">◆</span>' : visible ? `<img src="${escapeAttr(cardArt(trap.card))}" alt="">` : '+'}${tcgImpact(id)}
     </button>`;
   }).join('')}</div>`;
@@ -2084,7 +2151,7 @@ function showTcgTrapSlot(match, owner, slot) {
   }
   const hand = match.players[0].hand.filter(card => card.type === 'trap');
   const options = hand.map(card => `<button type="button" class="button light" data-place-trap="${escapeAttr(card.instance_id)}" ${tcgCardIssue(match, 0, card) || match.mulliganDone === false && match.eventSeq === 0 ? 'disabled' : ''}>${escapeHtml(cardName(card))} · ${card.cost} mana</button>`).join('');
-  const dialog = openInfoDialog('Đặt bẫy úp', hand.length ? `<div class="action-row">${options}</div>` : `<p>Chọn bẫy trên tay khi đến lượt triển khai. Bạn có ${tcgTrapLimit(match)} ô bẫy.</p>`);
+  const dialog = openInfoDialog('Đặt bẫy úp', hand.length ? `<div class="action-row">${options}</div>` : `<p>Chọn bẫy trên tay rồi bấm ô sáng khi đến lượt triển khai. Bạn có ${tcgTrapLimit(match)} ô bẫy.</p>`);
   dialog.querySelectorAll('[data-place-trap]').forEach(button => button.addEventListener('click', () => {
     dialog.close();
     playTcgFromHand(hand.find(card => card.instance_id === button.dataset.placeTrap));
@@ -2100,29 +2167,19 @@ function tcgTrapPanel(match) {
   return `<section class="tcg-reaction" aria-label="Cơ hội phản ứng">
     <header><strong>Cơ hội phản ứng</strong><span>${TCG_TRAP_LABELS[intent.when]}</span></header>
     <p class="trap-threat" title="${escapeAttr(threat)}">${escapeHtml(threat)}</p>
-    <div class="trap-options" role="group" aria-label="Chọn bẫy">${options.map(({ card }, index) =>
-      `<button type="button" class="trap-option element-${card.element}" data-tcg-trap-option="${escapeAttr(card.instance_id)}" aria-pressed="${index === 0}">
+    <div class="trap-options" role="group" aria-label="Chọn bẫy">${options.map(({ card }) =>
+      `<button type="button" class="trap-option element-${card.element}" data-tcg-trap-option="${escapeAttr(card.instance_id)}" title="${escapeAttr(tcgTrapRule(card))}">
         <img src="${escapeAttr(cardArt(card))}" alt=""><span>${escapeHtml(cardName(card))}</span>
       </button>`).join('')}</div>
-    <p class="trap-rule" data-tcg-trap-description>${escapeHtml(options.length ? tcgTrapRule(options[0].card) : '')}</p>
-    <div class="match-actions trap-actions"><button type="button" class="button" data-tcg-activate-trap ${options.length ? '' : 'disabled'}>Kích hoạt bẫy</button>
+    <div class="match-actions trap-actions"><span>Bấm lá để lật bẫy.</span>
       <button type="button" class="button light" data-tcg-hold-trap>Giữ bẫy</button></div>
   </section>`;
 }
 
 function bindTcgTrapPanel(match) {
-  const options = tcgTrapOptions(match);
-  let selected = options[0]?.card.instance_id;
-  const buttons = [...app.querySelectorAll('[data-tcg-trap-option]')];
-  for (const button of buttons) button.addEventListener('click', () => {
-    selected = button.dataset.tcgTrapOption;
-    for (const item of buttons) item.setAttribute('aria-pressed', String(item === button));
-    const trap = options.find(option => option.card.instance_id === selected);
-    app.querySelector('[data-tcg-trap-description]').textContent = tcgTrapRule(trap.card);
-  });
-  app.querySelector('[data-tcg-activate-trap]').addEventListener('click', () => {
-    if (selected) actTcg(() => decideTcgTrap(runtime.tcg, 0, selected));
-  });
+  for (const button of app.querySelectorAll('[data-tcg-trap-option]')) {
+    button.addEventListener('click', () => actTcg(() => decideTcgTrap(match, 0, button.dataset.tcgTrapOption)));
+  }
   app.querySelector('[data-tcg-hold-trap]').addEventListener('click', () => actTcg(() => decideTcgTrap(runtime.tcg, 0)));
 }
 
@@ -2130,7 +2187,7 @@ function showTcgRules() {
   openInfoDialog('Luật nhanh', `<ul class="tcg-quick-rules">
     <li>Triển khai bằng mana. Hai lá lộ hệ liên tiếp cùng hệ giảm 1 mana cho lá sau, một lần mỗi lượt. Úp bẫy ngắt chuỗi.</li>
     ${usesTcgTable(runtime.tcg)
-      ? '<li>Bộ 24 lá. Đặt tối đa 4 Vị Linh và 1 bẫy. Kéo lá lên bàn hoặc chạm để chọn, sau đó xác nhận.</li><li>Mỗi Vị Linh sẵn sàng đánh một lần trong lượt. Chọn mục tiêu để xem sát thương. Hộ vệ phải bị đánh trước. Hai Vị Linh giao chiến sẽ đánh trả đồng thời.</li>'
+      ? '<li>Bộ 24 lá. Đặt tối đa 4 Vị Linh và 1 bẫy. Bấm Vị Linh để tự vào ô trống đầu tiên. Chọn phép hoặc bẫy rồi bấm mục tiêu sáng.</li><li>Mỗi Vị Linh sẵn sàng đánh một lần trong lượt. Rê chuột hoặc đặt tiêu điểm để xem sát thương. Bấm mục tiêu để đánh. Hộ vệ phải bị đánh trước. Hai Vị Linh giao chiến sẽ đánh trả đồng thời.</li>'
       : '<li>Chọn quân đánh. Khi phòng thủ, chạm quân địch rồi chạm đồng minh để chặn. Quân bị trói không thể đánh hoặc chặn.</li>'}
     <li>Phép trong hàng chờ xử lý từ lá mới nhất. Tốc chú và Tức chú có thể phản ứng. Tức chú xử lý ngay.</li>
     <li>Bẫy sẵn sàng sau khi đổi lượt. Khi đúng điều kiện, chọn kích hoạt hoặc giữ lại. Đối thủ có thể phản ứng với bẫy đã lật.</li>
@@ -2138,22 +2195,66 @@ function showTcgRules() {
     <li>Tuyệt kỹ yêu cầu Vị Linh tương ứng còn trên bàn khi xử lý.</li></ul>`);
 }
 
-function showTcgStack(match) {
-  openInfoDialog('Hàng chờ phản ứng', `<ol class="tcg-stack-list">${[...match.stack].reverse().map(({ card, owner }, index) =>
-    `<li><img src="${escapeAttr(cardArt(card))}" alt=""><div><strong>${escapeHtml(cardName(card))}</strong>
-      <small>${owner === 0 ? 'Của bạn' : 'Đối thủ'}${index === 0 ? ' · Xử lý trước' : ''}</small><p>${escapeHtml(tcgCardRule(card))}</p></div></li>`).join('')}</ol>`);
+function tcgStackControl(match, top, reveal, targets) {
+  const direct = targets.find(target => target.item?.id === top.id);
+  const alternate = targets.some(target => target.item && target !== direct);
+  const label = top.card.type === 'trap' ? 'Lật bẫy' : 'Xử lý trước';
+  return `<div class="tcg-stack-controls"><button type="button" data-tcg-stack-top class="tcg-stack-button ${reveal ? 'has-trap' : ''} ${direct || alternate ? 'spell-target' : ''}"
+      ${direct ? `data-spell-target="${escapeAttr(direct.id)}"` : alternate ? 'data-tcg-stack data-target-list' : 'data-tcg-stack'}>
+      <img src="${escapeAttr(cardArt(top.card))}" alt=""><span>${label} · <b>${escapeHtml(cardName(top.card))}</b></span><small>${match.stack.length} chờ</small>
+    </button>${direct && alternate ? '<button type="button" class="tcg-target-extra spell-target" data-tcg-stack>Chọn lá khác</button>' : ''}</div>`;
+}
+
+function showTcgStack(match, spell, targets) {
+  const dialog = openInfoDialog('Hàng chờ phản ứng', `<ol class="tcg-stack-list">${[...match.stack].reverse().map(({ id, card, owner }, index) => {
+    const target = targets.find(item => item.item?.id === id);
+    return `<li><img src="${escapeAttr(cardArt(card))}" alt=""><div><strong>${escapeHtml(cardName(card))}</strong>
+      <small>${owner === 0 ? 'Của bạn' : 'Đối thủ'}${index === 0 ? ' · Xử lý trước' : ''}</small><p>${escapeHtml(tcgCardRule(card))}</p></div>
+      ${target ? `<button type="button" class="button" data-tcg-modal-target="${escapeAttr(target.id)}">Hóa giải</button>` : ''}</li>`;
+  }).join('')}</ol>`);
+  bindTcgModalTargets(dialog, spell);
+}
+
+function showTcgGraveTargets(spell, targets) {
+  const dialog = openInfoDialog('Chọn Vị Linh hồi sinh', `<div class="tcg-grave-choices">${targets.filter(target => target.fallen).map(({ id, fallen }) =>
+    `<button type="button" class="button light" data-tcg-modal-target="${escapeAttr(id)}">
+      <img src="${escapeAttr(matchCardArt(fallen))}" alt=""><span>${escapeHtml(cardName(fallen))}</span>
+    </button>`).join('')}</div>`);
+  bindTcgModalTargets(dialog, spell);
+}
+
+function bindTcgModalTargets(dialog, spell) {
+  for (const button of dialog.querySelectorAll('[data-tcg-modal-target]')) button.addEventListener('click', () => {
+    dialog.close();
+    playTcgFromHand(spell, button.dataset.tcgModalTarget);
+  });
 }
 
 function tcgStageBanners(match) {
   const now = performance.now();
   const reveal = runtime.tcgReveal;
   const cut = runtime.tcgCutIn;
-  const ultimate = cut?.matchId === match.battleId && cut.expires > now && runtime.cards.cards.find(card => card.card_id === cut.card_id);
-  const trap = !ultimate && reveal?.matchId === match.battleId && reveal.expires > now && runtime.cards.cards.find(card => card.card_id === reveal.card_id);
+  const card = cut?.matchId === match.battleId && cut.expires > now && runtime.cards.cards.find(card => card.card_id === cut.card_id);
+  const trap = reveal?.matchId === match.battleId && reveal.expires > now && runtime.cards.cards.find(card => card.card_id === reveal.card_id);
+  const commander = cut?.quote && cut.player_index === 0;
+  const art = commander ? TCG_COMMANDER_ART : card && matchCardArt(card);
   return `${trap ? `<div class="tcg-trap-flash element-${trap.element}" role="status" style="--flash-duration:${Math.round(reveal.expires - now)}ms">
     <img src="${escapeAttr(cardArt(trap))}" alt=""><span><small>${reveal.trigger === 'scout' ? 'Lộ bẫy' : 'Lật bẫy'}</small><b>${escapeHtml(cardName(trap))}</b></span></div>` : ''}
-  ${ultimate ? `<div class="tcg-cutin element-${ultimate.element}" aria-hidden="true" style="--flash-duration:${Math.round(cut.expires - now)}ms">
-    <img src="${cutinArt(cut.character_id)}" alt=""><strong>${escapeHtml(cardName(ultimate))}</strong></div>` : ''}`;
+  ${card ? `<div class="tcg-cutin element-${card.element}" data-invocation="${cut.kind}" data-owner="${cut.player_index}" role="status"
+      style="--flash-duration:${Math.round(cut.expires - now)}ms">
+    <img class="tcg-cutin-art" src="${escapeAttr(art)}" alt="">
+    <div><small>${cut.player_index === 1 ? 'Đối thủ · ' : ''}${cut.title}</small><strong>${escapeHtml(cardName(card))}</strong>
+      ${cut.quote ? `<span>“${cut.quote}”</span>` : ''}</div>
+    ${commander ? `<img class="tcg-cutin-card" src="${escapeAttr(matchCardArt(card))}" alt="">` : ''}
+  </div>` : ''}`;
+}
+
+function tcgRow(units, player, targets, ...options) {
+  const row = targets.find(target => target.id === 'row' && target.player === player);
+  return `<div class="unit-row ${player === 0 ? 'friendly' : 'enemy'}-row ${row ? 'tcg-row-target' : ''}" data-tcg-row="${player}">
+    ${tcgLanes(units, player === 0, ...options)}
+    ${row ? `<button type="button" class="tcg-row-action spell-target" data-spell-target="row">${escapeHtml(row.label)}</button>` : ''}
+  </div>`;
 }
 
 function tcgLanes(units, friendly, declared, blocked, targetIds, defending, canStrike, strikes) {
@@ -2164,11 +2265,9 @@ function tcgLanes(units, friendly, declared, blocked, targetIds, defending, canS
     if (!unit) {
       const impact = runtime.tcgImpacts.get(laneId);
       const fallen = impact?.matchId === runtime.tcg.battleId && impact.expires > performance.now() ? impact.fallen : null;
-      const summon = friendly && targetIds.has('lane:' + lane);
-      const tag = summon ? 'button' : 'div';
-      return `<${tag} class="empty-slot ${summon ? 'spell-target' : ''}" data-duel-id="${laneId}" ${friendly ? `data-tcg-summon-lane="${lane}"` : ''} ${summon ? `type="button" data-spell-target="lane:${lane}" aria-pressed="${runtime.selectedTarget === 'lane:' + lane}"` : ''} aria-label="Vị trí ${lane + 1} trống">
-        ${fallen ? `<span class="tcg-unit-avatar tcg-fallen" style="--contact-delay:${Math.round(impact.contact - performance.now())}ms">${boardChibi(fallen.id, tcgSpriteKey(runtime.tcg.battleId, fallen.targetId), fallen.direction, '')}</span>` : ''}
-        ${tcgImpact(laneId)}</${tag}>`;
+      return `<div class="empty-slot" data-duel-id="${laneId}" aria-label="Vị trí ${lane + 1} trống">
+        ${fallen ? `<span class="tcg-unit-avatar tcg-fallen" style="--contact-delay:${Math.round(impact.contact - performance.now())}ms"><img src="${escapeAttr(fallen)}" alt=""></span>` : ''}
+        ${tcgImpact(laneId)}</div>`;
     }
     const selectable = friendly && (canStrike || runtime.tcgAttackers) && tcgCanAttack(unit);
     const selected = Boolean(selectable && (runtime.tcgStrike?.attacker === unit.instance_id || runtime.tcgAttackers?.has(unit.instance_id)));
@@ -2178,19 +2277,20 @@ function tcgLanes(units, friendly, declared, blocked, targetIds, defending, canS
     const badge = unit.rootedUntil ? 'Trói' : selected || attacking ? 'Tấn công' : blocking ? 'Chặn' : unit.ready ? 'Sẵn sàng' : 'Nghỉ';
     const mark = badge === 'Tấn công' ? '⚔' : badge === 'Chặn' ? '◆' : badge;
     const css = `tcg-unit element-${unit.element} ${friendly ? 'friendly' : ''} ${selected || attacking ? 'tcg-attacking' : ''} ${blocking ? 'tcg-blocking' : ''}`;
-    const portrait = `<img src="${escapeAttr(cardArt(unit))}" alt="">`;
-    const chibi = boardChibi(unit.character_id, tcgSpriteKey(runtime.tcg.battleId, unit.instance_id), friendly ? 'E' : 'W', portrait);
-    const identity = `data-duel-id="${escapeAttr(unit.instance_id)}" data-ready="${tcgCanAttack(unit)}" data-rooted="${Boolean(unit.rootedUntil)}" ${guard ? 'data-guard' : ''}`;
+    const portrait = `<img src="${escapeAttr(matchCardArt(unit))}" alt="" draggable="false">`;
+    const impact = runtime.tcgImpacts.get(unit.instance_id);
+    const timing = impact?.style === 'damage' ? `style="--splash-hit-delay:${Math.round(impact.contact - performance.now())}ms"` : '';
+    const identity = `data-duel-id="${escapeAttr(unit.instance_id)}" data-ready="${tcgCanAttack(unit)}" data-rooted="${Boolean(unit.rootedUntil)}" ${guard ? 'data-guard' : ''} ${timing}`;
     const atk = tcgUnitAttack(unit);
     const shield = unit.shield ? `<span class="lane-shield" title="Hộ thuẫn ${unit.shield}">+${unit.shield}</span>` : '';
-    const content = `<span class="tcg-unit-avatar">${chibi}</span><b>${escapeHtml(cardName(unit))}</b>
+    const content = `<span class="tcg-unit-avatar">${portrait}</span><b>${escapeHtml(cardName(unit))}</b>
       <span class="lane-stats" aria-label="${atk} tấn công, ${unit.current_def} phòng thủ${unit.shield ? ', ' + unit.shield + ' hộ thuẫn' : ''}"><b class="${unit.attackBuff < 0 ? 'lane-weakened' : unit.attackBuff > 0 ? 'lane-boost' : ''}">${atk}</b> / <b>${unit.current_def}</b>${shield}</span>
       <small class="lane-state" title="${badge}" aria-label="${badge}">${mark}</small>${guard ? '<span class="lane-guard" title="Hộ vệ" aria-label="Hộ vệ">◆</span>' : ''}${tcgImpact(unit.instance_id)}`;
     if (targetIds.has(unit.instance_id)) {
-      return `<button type="button" class="${css} spell-target" ${identity} data-spell-target="${escapeAttr(unit.instance_id)}" aria-pressed="${runtime.selectedTarget === unit.instance_id}">${content}</button>`;
+      return `<button type="button" class="${css} spell-target" ${identity} data-spell-target="${escapeAttr(unit.instance_id)}">${content}</button>`;
     }
     if (strikes.some(target => target.id === unit.instance_id)) {
-      return `<button type="button" class="${css} strike-target" ${identity} data-tcg-strike-target="${escapeAttr(unit.instance_id)}" aria-pressed="${runtime.tcgStrike.target === unit.instance_id}">${content}</button>`;
+      return `<button type="button" class="${css} strike-target" ${identity} data-tcg-strike-target="${escapeAttr(unit.instance_id)}">${content}</button>`;
     }
     if (defending && !friendly && attacking) return `<button type="button" class="${css}" ${identity} data-tcg-incoming="${lane}" aria-pressed="false">${content}</button>`;
     if (defending && friendly && tcgCanBlock(unit)) return `<button type="button" class="${css}" ${identity} data-tcg-defender="${escapeAttr(unit.instance_id)}" aria-pressed="false">${content}</button>`;
@@ -2200,17 +2300,12 @@ function tcgLanes(units, friendly, declared, blocked, targetIds, defending, canS
   }).join('');
 }
 
-function tcgDefensePanel(attackers, defenders) {
-  const units = defenders.filter(tcgCanBlock);
+function tcgDefensePanel(attackers) {
   return `<section class="tcg-defense" aria-label="Chọn quân chặn">
     <div class="tcg-defense-header"><strong>Chọn quân chặn</strong><span data-tcg-exposed role="status"></span></div>
-    <div class="tcg-block-grid">${attackers.map(unit => `<label>
-      <span>Đường ${unit.lane + 1} · ${escapeHtml(cardName(unit))} · ${tcgUnitAttack(unit)} ATK</span>
-      <select data-tcg-block="${unit.lane}" data-damage="${tcgUnitAttack(unit)}">
-        <option value="">Không chặn</option>
-        ${units.map(blocker => `<option value="${escapeAttr(blocker.instance_id)}">${escapeHtml(cardName(blocker))} · ${tcgUnitAttack(blocker)}/${blocker.current_def}${blocker.shield ? ' +' + blocker.shield + ' khiên' : ''}</option>`).join('')}
-      </select>
-    </label>`).join('')}</div>
+    <div class="tcg-block-grid">${attackers.map(unit => `<button type="button" class="button light" data-tcg-block-lane="${unit.lane}" aria-pressed="false">
+      ${escapeHtml(cardName(unit))} · ${tcgUnitAttack(unit)} ATK
+    </button>`).join('')}</div>
     <div class="tcg-defense-actions">
       <button type="button" class="button" data-tcg-confirm-block>Chốt phòng thủ</button>
       <button type="button" class="button light" data-tcg-hand>Bài trên tay</button>
@@ -2219,38 +2314,30 @@ function tcgDefensePanel(attackers, defenders) {
 }
 
 function bindTcgDefense() {
-  const fields = [...app.querySelectorAll('[data-tcg-block]')];
   const exposed = app.querySelector('[data-tcg-exposed]');
-  const incoming = [...app.querySelectorAll('[data-tcg-incoming]')];
+  const incoming = [...app.querySelectorAll('[data-tcg-incoming], [data-tcg-block-lane]')];
   const defenders = [...app.querySelectorAll('[data-tcg-defender]')];
-  let lane = Number(fields[0]?.dataset.tcgBlock);
-  const blocks = () => fields.filter(field => field.value)
-    .map(field => ({ lane: Number(field.dataset.tcgBlock), blockerId: field.value }));
+  const incomingLane = button => Number(button?.dataset.tcgIncoming ?? button?.dataset.tcgBlockLane);
+  const assignments = new Map();
+  let lane = incomingLane(incoming[0]);
+  const blocks = () => [...assignments].map(([lane, blockerId]) => ({ lane, blockerId }));
   function updateBlocks() {
-    const selected = new Set(fields.map(field => field.value).filter(Boolean));
-    for (const field of fields) {
-      for (const option of field.options) option.disabled = option.value !== field.value && selected.has(option.value);
-    }
-    for (const button of incoming) button.setAttribute('aria-pressed', String(Number(button.dataset.tcgIncoming) === lane));
+    for (const button of incoming) button.setAttribute('aria-pressed', String(incomingLane(button) === lane));
     for (const button of defenders) {
-      const assigned = fields.find(field => field.value === button.dataset.tcgDefender);
+      const assigned = blocks().find(block => block.blockerId === button.dataset.tcgDefender);
       button.setAttribute('aria-pressed', String(Boolean(assigned)));
-      button.dataset.blockLane = assigned ? String(Number(assigned.dataset.tcgBlock) + 1) : '';
+      button.dataset.blockLane = assigned ? String(assigned.lane + 1) : '';
     }
     const damage = tcgExposedDamage(declaredTcgAttackers(runtime.tcg), runtime.tcg.players[0].units, blocks());
     exposed.textContent = `Chủ soái dự kiến nhận ${damage} sát thương`;
   }
-  for (const field of fields) field.addEventListener('change', () => { lane = Number(field.dataset.tcgBlock); updateBlocks(); });
-  for (const button of incoming) button.addEventListener('click', () => { lane = Number(button.dataset.tcgIncoming); updateBlocks(); });
+  for (const button of incoming) button.addEventListener('click', () => { lane = incomingLane(button); updateBlocks(); });
   for (const button of defenders) button.addEventListener('click', () => {
-    const field = fields.find(field => Number(field.dataset.tcgBlock) === lane);
-    if (!field) return;
+    if (!Number.isInteger(lane)) return;
     const id = button.dataset.tcgDefender;
-    const same = field.value === id;
-    for (const option of fields) if (option.value === id) option.value = '';
-    const newOption = [...field.options].find(option => option.value === id);
-    if (newOption) newOption.disabled = false;
-    field.value = same ? '' : id;
+    const same = assignments.get(lane) === id;
+    for (const [otherLane, blockerId] of assignments) if (blockerId === id) assignments.delete(otherLane);
+    if (!same) assignments.set(lane, id);
     updateBlocks();
   });
   updateBlocks();
@@ -2484,19 +2571,19 @@ function renderChess() {
       <div><small>${round.neutral ? 'Vòng quái' : 'Vòng'}</small><b>${run.lobby ? round.label : run.round + '/10'}</b></div>
       <div><small>Chỉ huy</small><b>${run.hp} HP</b></div>
       <div><small>Cấp ${run.level}</small><b>${xp ? `${run.experience}/${xp} XP` : 'Tối đa'}</b></div>
-      <div><small>Vàng</small><b class="chess-gold">◈ ${run.gold}</b></div>
+      <div title="Lãi +${Math.min(Math.floor(run.gold / 10), 5)} vàng"><small>Vàng</small><b class="chess-gold">◈ ${run.gold}</b></div>
       <div><small>${locking ? 'Đã khóa' : preparing ? 'Chuẩn bị' : replaying ? 'Giao tranh' : 'Kết quả'}</small>
         ${preparing ? `<b class="${run.preparationSeconds <= 5 ? 'clock-urgent' : ''}" data-chess-clock role="timer">${Math.ceil(run.preparationSeconds)} s</b>` : `<b>${run.wins}T · ${run.losses}B</b>`}</div>
     </div>
     <div class="match-layout chess-match" data-chess-phase="${preparing ? 'prep' : replaying ? 'combat' : locking ? 'locking' : 'result'}"><section class="chess-stage" aria-label="Bàn cờ">
       ${replaying ? '<div class="chess-replay-stage"><canvas class="chess-replay" id="chess-replay" width="760" height="480" aria-label="Giao tranh Auto Chess"></canvas></div>'
-        : !preparing && !locking ? '<div class="chess-result-stage" aria-hidden="true"></div>' : `<div class="chess-formation ${run.lobby ? 'chess-hex' : ''}">
+        : !preparing ? '<div class="chess-result-stage" aria-hidden="true"></div>' : `<div class="chess-board-fit"><div class="chess-formation ${run.lobby ? 'chess-hex' : ''}">
           <div class="formation-label rival-label">${escapeHtml(opponentName)}${opponent ? `${opponent.neutral ? '' : ` <span>${opponent.hp} HP</span>`}<span class="rival-lineup" aria-hidden="true">${opponent.units.map(chessPortrait).join('')}</span>` : ''}</div>
           <div class="chess-grid enemy-formation" role="group" aria-label="Nửa bàn đối thủ">${enemyCells}</div>
           <div class="formation-divider" aria-hidden="true"><i>◆</i></div>
           <div class="chess-grid player-formation" role="group" aria-label="Nửa bàn của bạn, 7 cột 4 hàng">${boardCells}</div>
           <div class="formation-label">Đội hình <span>${run.board.length}/${run.level} quân</span></div>
-        </div>`}
+        </div></div>`}
       ${preparing ? `<div class="chess-bench"><div class="bench-heading"><strong>Băng ghế · ${run.bench.length}/9</strong>${run.lobby ? `<button type="button" class="chess-bag" data-chess-items>Túi vật phẩm · ${run.items.length}</button>` : ''}</div><div class="bench-row" data-chess-bench-zone>${bench}</div></div>` : ''}
     </section>${preparing || replaying || locking ? `<section class="match-command chess-controls" aria-label="Điều khiển đấu cờ">
       ${replaying ? '<div class="replay-controls"><progress data-chess-replay-progress max="1" value="0" aria-label="Tiến độ giao tranh"></progress><div class="match-actions"><button class="button light" data-chess-pause>Tạm dừng</button><button class="button light" data-chess-speed aria-pressed="false">2×</button><button class="button" data-chess-skip>Bỏ qua</button></div></div>' : ''}
@@ -2611,27 +2698,29 @@ function updateChessClock(delta) {
 
 function bindChessDrag(run) {
   bindTableDrag(app.querySelector('.chess-match'), {
-    sources: '[data-chess-board-index], [data-bench]',
+    sources: '[data-chess-board-index], [data-bench], [data-buy]:enabled',
     read(element) {
-      const { chessBoardIndex, bench } = element.dataset;
+      const { chessBoardIndex, bench, buy } = element.dataset;
+      if (buy !== undefined) return { zone: 'shop', index: Number(buy) };
       return chessBoardIndex !== undefined ? { zone: 'board', index: Number(chessBoardIndex) } : { zone: 'bench', index: Number(bench) };
     },
     locate(source, element) {
       const destination = element?.closest('[data-cell], [data-chess-bench-slot], [data-chess-sell-zone]');
       if (!destination) return null;
-      if (destination.hasAttribute('data-chess-sell-zone')) return { element: destination, zone: 'sell', state: 'sell' };
+      if (destination.hasAttribute('data-chess-sell-zone')) return { element: destination, zone: 'sell', state: source.zone === 'shop' ? 'blocked' : 'sell' };
       const { cell, chessBenchSlot } = destination.dataset;
       const [x, y] = cell?.split(',').map(Number) ?? [];
       const place = cell ? { zone: 'board', x, y } : { zone: 'bench', slot: Number(chessBenchSlot) };
       return { element: destination, state: chessDropState(run, source, place), ...place };
     },
     drop(source, destination) {
+      if (source.zone === 'shop') return updateChess(() => buyChessOffer(run, source.index, destination));
       updateChess(() => destination.zone === 'sell' ? sellChessUnit(run, source.zone, source.index) : arrangeChessUnit(run, source, destination));
     },
     inspect: source => showChessUnit(run, source),
     preview(source, ghost) {
       const unit = run[source.zone][source.index];
-      paintTableGhost(ghost, cardArt({ character_id: unit.id }), unit.display_name + ' ' + '★'.repeat(unit.star));
+      paintTableGhost(ghost, cardArt({ character_id: unit.id }), unit.display_name + ' ' + '★'.repeat(unit.star ?? 1));
     },
   });
 }
@@ -2652,6 +2741,11 @@ function chessStars(unit, x, y, benchSlot = null) {
 function showChessUnit(run, source) {
   const unit = source && run[source.zone][source.index];
   if (!unit) return;
+  if (source.zone === 'shop') {
+    openInfoDialog(unit.display_name, `<div class="inspect-tcg">${chessPortrait(unit)}<div><strong>${unit.cost} vàng · Hệ ${ELEMENT_NAMES[unit.element]}</strong>
+      <p>Chạm để mua vào băng ghế hoặc kéo vào một ô trống trên bàn.</p></div></div>`);
+    return;
+  }
   const copies = [...run.board, ...run.bench].filter(other => other.id === unit.id && other.star === unit.star).length;
   openInfoDialog(unit.display_name, `<div class="inspect-tcg">${chessPortrait(unit)}<div><strong>${'★'.repeat(unit.star)} · Hệ ${ELEMENT_NAMES[unit.element]}</strong>
     <p>${unit.star < 3 ? `Đang có ${copies}/3 quân cùng số sao để hợp thể.` : 'Đã đạt 3 sao.'}</p>
@@ -2991,24 +3085,29 @@ const SPIRIT_ROLES = { fighter: 'Đấu sĩ', mage: 'Pháp sư', support: 'Hỗ 
 
 function renderRoster() {
   const { save } = runtime;
+  const fromTeam = adventureParty(save).map(actor => actor.id);
   const available = META.characters.filter(spirit => runtime.rosterFilter === 'owned'
-    ? save.roster.some(member => member.id === spirit.id) : runtime.rosterFilter === 'all' || spirit.rarity === runtime.rosterFilter);
+    ? save.roster.some(member => member.id === spirit.id) : runtime.rosterFilter === 'team' ? fromTeam.includes(spirit.id)
+      : runtime.rosterFilter === 'all' || [spirit.rarity, spirit.element, spirit.role].includes(runtime.rosterFilter));
   const definition = available.find(spirit => spirit.id === runtime.rosterId) ?? available[0];
   const member = save.roster.find(actor => actor.id === definition.id);
   const profile = member && spiritProfile(save, member.id);
   const battleActive = Boolean(runtime.adventure.battle);
   const { name, rarity, element, role } = definition;
-  const title = `Hệ ${ELEMENT_NAMES[element]} · ${SPIRIT_ROLES[role]}`;
+  const title = `${ELEMENT_NAMES[element]} · ${SPIRIT_ROLES[role]}`;
+  const model = boardChibi(definition.id, 'roster:' + definition.id, 'E', '');
   const party = adventureParty(save);
   const deployed = party.some(actor => actor.id === member?.id);
   const from = available.findIndex(spirit => spirit.id === definition.id);
   shell(`<section class="spirit-profile" aria-label="Hồ sơ Vị Linh">
       <div class="spirit-portrait" style="--unit-color:${elementColors[element]}" data-rarity="${rarity}">
-        ${spiritImage(definition.id, Boolean(member))}
-        ${spriteRenderer.sheets.has(definition.id) ? `<div class="spirit-model" aria-label="Mô hình chibi">${boardChibi(definition.id, 'roster:' + definition.id, 'E', '')}</div>` : ''}
-        <div class="spirit-portrait-label"><span>${rarity} · ${title}</span><h2>${escapeHtml(name)}</h2></div>
+        <div class="spirit-stage-art">${spiritImage(definition.id, true)}</div>
+        ${model ? `<div class="spirit-model" aria-label="Mô hình chibi" hidden>${model}</div>
+          <button type="button" class="button light spirit-view-toggle" data-spirit-view aria-pressed="false">Chibi</button>` : ''}
       </div>
-      <div class="spirit-detail"><h1 class="spirit-scene-heading">Hồ sơ Vị Linh</h1>
+      <div class="spirit-detail"><header class="spirit-identity" data-rarity="${rarity}">
+        <p><b>${rarity}</b> ${title}${profile ? ` · ${'★'.repeat(profile.star ?? 1)}` : ''}</p>
+        <h1 class="spirit-scene-heading">${escapeHtml(name)}</h1></header>
         ${member ? `<div class="spirit-tabs" role="group" aria-label="Mục hồ sơ">${Object.entries(SPIRIT_TABS).map(([id, label]) =>
           `<button class="button light" data-spirit-tab="${id}" aria-pressed="${runtime.rosterTab === id}">${label}</button>`).join('')}</div>
         <div class="spirit-tab-body">${renderSpiritTab(member, profile, battleActive)}</div>
@@ -3020,12 +3119,8 @@ function renderRoster() {
         ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}
       </div>
       <div class="spirit-browse"><button type="button" class="button light" data-roster-cycle="-1" aria-label="Vị Linh trước" ${available.length < 2 ? 'disabled' : ''}>‹</button>
-      <label class="meta-roster-filter">Bộ sưu tập <select data-roster-filter>${Object.entries({ owned: 'Đã chiêu mộ', all: 'Tất cả', N: 'N', R: 'R', SR: 'SR', SSR: 'SSR' }).map(([id, label]) =>
-        `<option value="${id}" ${runtime.rosterFilter === id ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
+      <button type="button" class="button light" data-open-roster aria-haspopup="dialog">Đổi Vị Linh</button>
       <button type="button" class="button light" data-roster-cycle="1" aria-label="Vị Linh tiếp theo" ${available.length < 2 ? 'disabled' : ''}>›</button></div>
-      <div class="spirit-picker meta-roster-picker" role="group" aria-label="Chọn Vị Linh">${available.map(spirit =>
-        `<button class="spirit-choice" data-rarity="${spirit.rarity}" data-spirit-choice="${spirit.id}" aria-pressed="${spirit.id === definition.id}">
-          ${spiritImage(spirit.id)}<span>${spirit.name}</span><small>${spirit.rarity}${save.roster.some(actor => actor.id === spirit.id) ? '' : ' · Chưa có'}</small></button>`).join('')}</div>
     </section>`);
   if (runtime.spiritUpgrade?.id === definition.id && runtime.spiritUpgrade.until > performance.now()) {
     app.querySelector('.spirit-portrait').classList.add('spirit-upgrade-flash');
@@ -3034,15 +3129,27 @@ function renderRoster() {
     const offset = Number(button.dataset.rosterCycle);
     runtime.rosterId = available[(from + offset + available.length) % available.length].id;
     runtime.notice = '';
+    runtime.audio.play('sfx_ui_confirm', { gain: .45 });
     renderRoster();
     app.querySelector(`[data-roster-cycle="${offset}"]`)?.focus({ preventScroll: true });
   }));
-  const activePortrait = app.querySelector('[data-spirit-choice][aria-pressed="true"]');
-  activePortrait?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-  app.querySelector('[data-roster-filter]').addEventListener('change', event => {
-    runtime.rosterFilter = event.target.value;
-    renderRoster();
-    app.querySelector('[data-roster-filter]').focus();
+  app.querySelector('[data-open-roster]').addEventListener('click', openSpiritCollection);
+  const stage = app.querySelector('.spirit-portrait');
+  const showModel = show => {
+    if (!model) return;
+    stage.querySelector('.spirit-model').hidden = !show;
+    stage.querySelector('.spirit-stage-art').hidden = show;
+    stage.querySelector('[data-spirit-view]').setAttribute('aria-pressed', String(show));
+    stage.querySelector('[data-spirit-view]').textContent = show ? 'Minh họa' : 'Chibi';
+  };
+  stage.querySelector('[data-spirit-view]')?.addEventListener('click', event => showModel(event.target.getAttribute('aria-pressed') !== 'true'));
+  app.querySelector('[data-preview-spirit]')?.addEventListener('click', () => {
+    showModel(true);
+    if (model) boardSprites.cue('roster:' + definition.id, 'ultimate_01', performance.now());
+    stage.classList.remove('spirit-upgrade-flash');
+    void stage.offsetWidth;
+    stage.classList.add('spirit-upgrade-flash');
+    runtime.audio.play(`sfx_element_${element}_cast`, { gain: .6 });
   });
   app.querySelector('[data-party-toggle]')?.addEventListener('click', () => {
     try {
@@ -3055,13 +3162,11 @@ function renderRoster() {
     renderRoster();
   });
   if (member && !battleActive) bindInventoryActions(member, renderRoster);
-  app.querySelectorAll('[data-spirit-choice], [data-spirit-tab]').forEach(button => button.addEventListener('click', () => {
-    const { spiritChoice, spiritTab } = button.dataset;
-    if (spiritChoice) runtime.rosterId = spiritChoice;
-    if (spiritTab) runtime.rosterTab = spiritTab;
+  app.querySelectorAll('[data-spirit-tab]').forEach(button => button.addEventListener('click', () => {
+    runtime.rosterTab = button.dataset.spiritTab;
     runtime.notice = '';
     renderRoster();
-    app.querySelector(`[data-${spiritChoice ? 'spirit-choice' : 'spirit-tab'}="${CSS.escape(spiritChoice ?? spiritTab)}"]`)?.focus({ preventScroll: true });
+    app.querySelector(`[data-spirit-tab="${CSS.escape(runtime.rosterTab)}"]`)?.focus({ preventScroll: true });
   }));
   app.querySelectorAll('[data-spirit-action]').forEach(button => button.addEventListener('click', () => {
     const { spiritAction: type, gearId } = button.dataset;
@@ -3079,13 +3184,45 @@ function renderRoster() {
   }));
 }
 
+function openSpiritCollection() {
+  const { save } = runtime;
+  const owned = new Set(save.roster.map(actor => actor.id));
+  const team = new Set(adventureParty(save).map(actor => actor.id));
+  const groups = [['Phạm vi', { all: 'Tất cả', owned: 'Đã chiêu mộ', team: 'Đội Adventure' }],
+    ['Độ hiếm', { N: 'N', R: 'R', SR: 'SR', SSR: 'SSR' }], ['Hệ', ELEMENT_NAMES], ['Vai trò', SPIRIT_ROLES]];
+  const dialog = openInfoDialog('Bộ sưu tập Vị Linh', `<label class="meta-roster-filter">Lọc <select data-roster-filter>${groups.map(([label, options]) =>
+    `<optgroup label="${label}">${Object.entries(options).map(([id, name]) => `<option value="${id}" ${runtime.rosterFilter === id ? 'selected' : ''}>${name}</option>`).join('')}</optgroup>`).join('')}</select></label>
+    <div class="spirit-collection">${META.characters.map(spirit => `<button class="spirit-choice" data-rarity="${spirit.rarity}" data-spirit-choice="${spirit.id}" aria-pressed="${spirit.id === runtime.rosterId}">
+      ${spiritImage(spirit.id)}<strong>${escapeHtml(spirit.name)}</strong><small>${spirit.rarity} · ${owned.has(spirit.id) ? ELEMENT_NAMES[spirit.element] : 'Chưa có'}</small></button>`).join('')}</div>`);
+  const filter = dialog.querySelector('select');
+  const choices = [...dialog.querySelectorAll('[data-spirit-choice]')];
+  const apply = () => choices.forEach(button => {
+    const id = button.dataset.spiritChoice;
+    const spirit = SPIRITS[id];
+    const group = filter.value;
+    button.hidden = !(group === 'all' || (group === 'owned' && owned.has(id)) || (group === 'team' && team.has(id))
+      || [spirit.rarity, spirit.element, spirit.role].includes(group));
+  });
+  filter.addEventListener('change', apply);
+  apply();
+  for (const button of choices) button.addEventListener('click', () => {
+    runtime.rosterFilter = filter.value;
+    runtime.rosterId = button.dataset.spiritChoice;
+    runtime.notice = '';
+    runtime.audio.play('sfx_ui_confirm', { gain: .45 });
+    dialog.close();
+    renderRoster();
+    app.querySelector('[data-open-roster]').focus({ preventScroll: true });
+  });
+}
+
 function renderSpiritTab(member, profile, battleActive) {
   const { save } = runtime;
   if (runtime.rosterTab === 'skills') {
     const skill = adventureBalance.ultimates[member.id];
     return `<div class="spirit-skill"><img src="${effectArt(member.element, 'impact')}" alt=""><div><h3>${skill.name}</h3>
       <p>${skill.description}</p><small>100 năng lượng · hồi ${adventureBalance.ultimateCooldown / ADVENTURE_TICK_RATE} giây</small></div></div>
-      <p class="muted-copy">Đòn thường tự dùng trong tầm. Chạm tuyệt kỹ của Vị Linh trong trận khi đã nạp đủ năng lượng.</p>`;
+      <button type="button" class="button light" data-preview-spirit>Thử hiệu ứng</button>`;
   }
   if (runtime.rosterTab === 'gear') {
     const { ownedGear, profiles } = save.adventure.spirits;
@@ -3124,10 +3261,15 @@ function renderSpiritTab(member, profile, battleActive) {
   const stats = adventureSpiritStats(member, profile, undefined, save);
   const cost = SPIRIT_RANKS[profile.rank - 1];
   const next = cost ? adventureSpiritStats(member, profile, profile.rank + 1, save) : stats;
+  const equipped = Object.fromEntries([...profile.equipped.map(id => [CRAFTED_GEAR_SLOTS[id], SPIRIT_GEAR[id].name]),
+    ...adventureGearFor(save, member.id).map(([, entry]) => [ADVENTURE_OFFERS[entry.item].slot, ADVENTURE_OFFERS[entry.item].name])]);
   const values = [['HP tối đa', stats.maxHp, next.maxHp], ['ATK', stats.atk, next.atk], ['DEF', stats.def, next.def],
-    ['Tốc độ/giây', Math.round(stats.speed * ADVENTURE_TICK_RATE), Math.round(next.speed * ADVENTURE_TICK_RATE)]];
+    ['Di chuyển · px/s', Math.round(stats.speed * ADVENTURE_TICK_RATE), Math.round(next.speed * ADVENTURE_TICK_RATE)],
+    ['Tốc đánh · đòn/s', (ADVENTURE_TICK_RATE / adventureBalance.roles[member.role].interval).toFixed(2)],
+    ['Năng lượng', `${member.energy}/100`]];
   return `<div class="spirit-rank"><strong>Cấp ${profile.rank}/${MAX_SPIRIT_RANK}</strong><progress max="${MAX_SPIRIT_RANK}" value="${profile.rank}" aria-label="Cấp Vị Linh"></progress></div>
     <dl class="spirit-stats">${values.map(([label, current, upgraded]) => `<div><dt>${label}</dt><dd><b>${current.toLocaleString('vi')}</b>${upgraded > current ? ` <small>→ ${upgraded.toLocaleString('vi')}</small>` : ''}</dd></div>`).join('')}</dl>
+    <div class="spirit-loadout">${Object.entries(GEAR_SLOTS).map(([id, label]) => `<div><small>${label}</small><b>${escapeHtml(equipped[id] ?? 'Trống')}</b></div>`).join('')}</div>
     ${cost ? `<button class="button" data-spirit-action="rank" ${battleActive || !canAffordSpiritCost(save.player, cost) ? 'disabled' : ''}>Nâng cấp · ${spiritCostLabel(cost)}</button>` : '<p>Đã đạt cấp tối đa.</p>'}`;
 }
 
@@ -3212,6 +3354,11 @@ window.addEventListener('keydown', (event) => {
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
   if (event.target?.matches?.('input, select, textarea') || app.querySelector('dialog[open]')) return;
   if (key === 'Escape' && !event.repeat) {
+    const cancel = app.querySelector('[data-tcg-cancel-spell], [data-tcg-cancel-strike]');
+    if (cancel && !event.defaultPrevented && !app.querySelector('.match-menu[open]')) {
+      cancel.click();
+      return;
+    }
     const summary = app.querySelector('.match-menu summary');
     if (summary && !event.defaultPrevented) { summary.click(); summary.focus(); }
     return;
@@ -3248,15 +3395,15 @@ function animate(now) {
     if (runtime.chessReplay) drawChessReplay(delta);
     else updateChessClock(delta);
   }
-  if (['home', 'tcg', 'roster'].includes(runtime.page) || (runtime.page === 'chess' && !runtime.chessReplay)) {
-    const reducedMotion = app.dataset.motion === 'reduced';
+  const reducedMotion = app.dataset.motion === 'reduced';
+  if (['home', 'roster'].includes(runtime.page) || (runtime.page === 'chess' && !runtime.chessReplay)) {
     boardSprites.paint(app, delta, now, reducedMotion);
-    if (runtime.page === 'tcg') {
-      duelEffects.paint(app.querySelector('.duel-effects'), runtime.tcg?.battleId, now, reducedMotion,
-        event => runtime.audio.handle(event.type === 'tcg_support_resolved'
-          ? { ...event, type: event.payload.kind === 'shield' ? 'shield_applied' : 'heal_resolved' } : event));
-    }
   }
+  if (runtime.page === 'tcg') duelEffects.paint(app.querySelector('.duel-effects'), runtime.tcg?.battleId, now, reducedMotion, event => {
+    if (event.type !== 'tcg_support_resolved') runtime.audio.handle(event);
+    else if (event.payload.kind === 'boost') runtime.audio.handle({ ...event, type: 'cast_started' });
+    else runtime.audio.handle({ ...event, type: event.payload.kind === 'shield' ? 'shield_applied' : 'heal_resolved' });
+  });
   requestAnimationFrame(animate);
 }
 requestAnimationFrame(animate);

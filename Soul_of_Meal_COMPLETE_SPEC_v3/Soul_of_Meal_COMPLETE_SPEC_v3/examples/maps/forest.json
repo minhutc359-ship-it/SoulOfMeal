@@ -28,7 +28,7 @@
     ]
   },
   "transitions": [
-    { "id": "forest_return_portal", "type": "door", "from": "forest", "to": "village", "targetMap": "village", "spawn": { "x": 878, "y": 260 }, "label": "Về làng" }
+    { "id": "forest_return_portal", "type": "door", "from": "forest", "to": "village", "targetMap": "village", "spawn": { "x": 485, "y": 122 }, "label": "Về làng" }
   ],
   "interactables": [
     { "id": "forest_clue_salt", "kind": "clue", "action": "forest_clue_salt", "label": "Muối đã mất vị", "x": 268, "y": 435, "radius": 48 },

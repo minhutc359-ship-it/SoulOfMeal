@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { gameEvents } from '../src/core/events.js';
-import { createTcgChallenge, createTcgMatch, decideTcgTrap, endTcgTurn, mulliganTcg, passTcgPriority, playTcgCard,
+import { advanceTcgResponses, createTcgChallenge, createTcgMatch, decideTcgTrap, endTcgTurn, mulliganTcg, passTcgPriority, playTcgCard,
   strikeTcg, tcgCardIssue, tcgStrikePreview, tcgStrikeTargets, tcgSpellTargets, tcgTableDeck, validateDeck } from '../src/modes/tcg.js';
 import { TCG_TABLE_VERSION, tcgRecipeFor } from '../src/modes/tcgCards.js';
 import { tcgTrapArmed } from '../src/modes/tcgTraps.js';
@@ -49,6 +49,32 @@ test('summoning validates the exact slot, preserves the previous state and shiel
   const summoned = next.players[0].units.at(-1);
   assert.equal(summoned.lane, 3);
   assert.equal(summoned.shield, 100);
+  assert.equal(playTcgCard(match, 0, 'card_demo_01').players[0].units.at(-1).lane, 0);
+});
+
+test('table clicks can resolve an uncontested spell while retaining real responses and trap choices', () => {
+  const match = fresh();
+  const spell = card('card_demo_11');
+  const response = card('card_tcg_refute');
+  match.players[0].hand = [spell];
+  const cast = playTcgCard(match, 0, spell.instance_id, 'commander');
+  assert.equal(advanceTcgResponses(cast).players[1].hp, 2500);
+  // The next spell is an enemy effect, so the refute in hand is a real response.
+  const enemy = fresh();
+  enemy.players[0].hand = [response];
+  enemy.players[1].hand = [spell];
+  enemy.priority = 1;
+  const queued = advanceTcgResponses(playTcgCard(enemy, 1, spell.instance_id, 'commander'));
+  assert.equal(queued.phase, 'reaction');
+  assert.equal(queued.priority, 0);
+  const trap = card('card_demo_16');
+  enemy.players[0].hand = [];
+  enemy.players[0].traps = [{ card: trap, setRound: 1, setTurn: 1, token: 1, faceDown: true }];
+  const pending = advanceTcgResponses(playTcgCard(enemy, 1, spell.instance_id, 'commander'));
+  assert.equal(pending.phase, 'trap_choice');
+  const revealed = advanceTcgResponses(decideTcgTrap(pending, 0, trap.instance_id));
+  assert.equal(revealed.players[0].hp, 3400);
+  assert.ok(revealed.log.some(entry => entry.type === 'stack_item_countered'));
 });
 
 test('Hộ vệ protects targets until removed, counter damage is simultaneous and a unit only strikes once', () => {

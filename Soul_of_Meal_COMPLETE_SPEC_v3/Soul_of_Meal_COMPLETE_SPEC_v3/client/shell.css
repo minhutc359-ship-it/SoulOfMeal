@@ -16,7 +16,7 @@ body { height: 100%; min-height: 0; overflow: hidden; background: var(--night); 
   background: #152822 center / cover no-repeat;
 }
 #web-stage[data-scene="title"] { background-image: url('./assets/original/scenes/title.webp'); }
-#web-stage[data-scene="home"] { background-image: url('./assets/original/scenes/home.webp'); }
+#web-stage[data-scene="home"] { background-image: url('./assets/original/scenes/village.webp'); }
 #web-stage:not([data-scene="title"], [data-scene="home"]) { visibility: hidden; }
 #web-stage canvas { display: block; }
 

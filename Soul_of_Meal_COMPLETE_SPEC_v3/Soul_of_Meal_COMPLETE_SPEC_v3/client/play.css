@@ -189,11 +189,7 @@
 .trap-slots .face-down { background: repeating-linear-gradient(135deg, #6d437b, #6d437b 3px, #41263f 3px, #41263f 6px); border: 1px solid #ebc189; box-shadow: inset 0 0 0 2px #38273c; }
 .trap-slots .face-down::before { content: ''; width: 6px; aspect-ratio: 1; border: 1px solid #ffe5a0; transform: rotate(45deg); }
 .spell-target { cursor: crosshair; }
-.spell-target[aria-pressed="true"] { outline: 2px solid #f39e39; outline-offset: -2px; }
 button.enemy-hp { border: 1px solid #f3c788; border-radius: 7px; background: #442931; padding: 4px 7px; }
-.spell-confirm .target-select { color: #563824; flex-wrap: wrap; }
-.spell-confirm select { min-height: 36px; }
-.tcg-hand-dock .spell-confirm { margin: 0 0 6px; }
 .tcg-hand-dock { min-width: 0; }
 .tcg-hand-dock .hand-heading { margin-top: 0; }
 .tcg-hand-dock .hand-row { scroll-snap-type: x proximity; }
@@ -280,7 +276,6 @@ button.enemy-hp { border: 1px solid #f3c788; border-radius: 7px; background: #44
   .main .tcg-hand-dock .playing-card strong { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
   .main .tcg-hand-dock .notice { margin: 4px 0; padding: 5px 7px; }
   .main .tcg-hand-dock .action-row { margin-top: 6px; }
-  .main .tcg-hand-dock .spell-confirm { margin-top: 0; }
   .tcg-hand-dock .action-row .button { padding: 6px 8px; font-size: 11px; }
   .main .tcg-hand-dock .mode-shortcuts .button { padding-inline: 5px; font-size: 10px; }
   .tcg-hand-dock .tcg-defense { margin-top: 0; }
@@ -331,7 +326,6 @@ button.enemy-hp { border: 1px solid #f3c788; border-radius: 7px; background: #44
     padding: 5px;
   }
   .tcg-hand-dock .tcg-block-grid {
-    grid-template-columns: repeat(auto-fit, minmax(min(104px, 100%), 1fr));
     overflow-y: auto;
     overscroll-behavior: contain;
     margin: 3px 0;

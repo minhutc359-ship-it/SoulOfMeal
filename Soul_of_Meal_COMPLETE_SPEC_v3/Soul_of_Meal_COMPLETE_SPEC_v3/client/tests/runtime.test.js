@@ -119,7 +119,7 @@ test('Adventure requires nearby interaction and persists quest/chest/route progr
   result = interactAdventure(result.state, result.save);
   assert.equal(result.save.adventure.chestOpened, true);
   assert.equal(result.save.player.gold, 150);
-  result.state.x = 878; result.state.y = 260;
+  result.state.x = 485; result.state.y = 110;
   result = interactAdventure(result.state, result.save);
   assert.equal(result.save.adventure.map, 'forest');
   assert.equal(result.state.map, 'forest');
@@ -391,11 +391,11 @@ test('targeted basic attacks and ultimates can interrupt the boss on the final c
 test('Adventure movement advances in world units on simulation time', () => {
   const save = createDefaultSave();
   const state = createAdventureState(save);
-  state.x = 100; state.y = 100;
+  state.x = 100; state.y = 310;
   setAdventureInput(state, 1, 0);
   stepAdventure(state, save, 1);
   assert.equal(state.x, 290);
-  assert.equal(state.y, 100);
+  assert.equal(state.y, 310);
 });
 
 test('Adventure transitions use authored map spawn points and persist them to save state', () => {
@@ -445,7 +445,7 @@ test('Adventure collision blocks building penetration and permits wall sliding',
 });
 
 test('Adventure tap navigation routes around solid buildings', () => {
-  const path = findAdventurePath('village', { x: 250, y: 160 }, { x: 100, y: 160 });
+  const path = findAdventurePath('village', { x: 250, y: 160 }, { x: 100, y: 290 });
   assert.ok(path.length > 1);
   assert.ok(path.every((point) => !collidesWithWorld('village', point.x, point.y)));
   assert.ok(path.some((point) => point.y > 237 || point.y < 91));
@@ -757,6 +757,22 @@ test('Auto Chess merges across board and bench while keeping the placed survivor
   assert.equal(run.board[0].star, 2);
   assert.deepEqual([run.board[0].x, run.board[0].y], [4, 2]);
   assert.equal(run.bench.length, 0);
+});
+
+test('Auto Chess shop drop buys directly into a valid empty tile once', async () => {
+  const { units } = await readJson('examples/auto_chess/units.json');
+  const shop = await readJson('examples/auto_chess/shop_odds.json');
+  const run = createChessRun(units, shop, 3);
+  const offer = run.shop[0];
+  const cell = { zone: 'board', x: 2, y: 0 };
+  assert.throws(() => buyChessOffer(run, 0, { ...cell, y: -1 }), /ô trống/);
+  const placed = buyChessOffer(run, 0, cell);
+  assert.equal(placed.gold, run.gold - offer.cost);
+  assert.equal(placed.shop[0], null);
+  assert.deepEqual(placed.bench, []);
+  assert.deepEqual(placed.board.map(({ id, x, y }) => ({ id, x, y })), [{ id: offer.id, x: 2, y: 0 }]);
+  assert.throws(() => buyChessOffer(placed, 0, cell), /cửa hàng trống/);
+  assert.throws(() => buyChessOffer({ ...run, board: placed.board }, 0, cell), /ô trống/);
 });
 
 test('Auto Chess run reaches a terminal result at the round cap', async () => {

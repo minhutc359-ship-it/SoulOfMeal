@@ -1,25 +1,14 @@
 import { drawElementEffect } from './elementEffects.js';
-import { BOARD_SPRITE } from './boardSprites.js';
+import { ELEMENT_ART } from './spriteAssets.js';
 import { canvasContext, canvasResolution } from './canvasSurface.js';
 
-function position(field, id, bounds, renderer, clip) {
+function position(field, id, bounds) {
   if (!id || !bounds.width || !bounds.height) return null;
   const cell = field.querySelector(`[data-duel-id="${CSS.escape(id)}"]`);
   if (!cell) return null;
   const rect = (cell.querySelector('.tcg-unit-avatar') ?? cell).getBoundingClientRect();
-  let x = rect.left + rect.width / 2;
-  let y = rect.top + rect.height / 2;
-  const sprite = clip && cell.querySelector('[data-chibi-id]');
-  const rig = sprite && renderer.rigs?.get(sprite.dataset.chibiId);
-  const { width, height, x: baseX, baseline, scale } = BOARD_SPRITE;
-  const socket = rig?.effectPoint(clip, baseX, baseline, sprite.dataset.chibiFacing, scale);
-  if (socket) {
-    const box = sprite.getBoundingClientRect();
-    const drawnWidth = Math.min(box.width, box.height * width / height);
-    const drawnHeight = drawnWidth * height / width;
-    x = box.left + (box.width - drawnWidth) / 2 + socket.x / width * drawnWidth;
-    y = box.top + (box.height - drawnHeight) / 2 + socket.y / height * drawnHeight;
-  }
+  const x = rect.left + rect.width / 2;
+  const y = rect.top + rect.height / 2;
   return { x: (x - bounds.left) / bounds.width, y: (y - bounds.top) / bounds.height };
 }
 
@@ -29,15 +18,14 @@ export class DuelEffects {
     this.attacks = [];
   }
 
-  queue(field, event, now, reducedMotion, clip) {
+  queue(field, event, now, reducedMotion) {
     const bounds = field?.getBoundingClientRect();
     const { target_player, target_lane, ultimate, effect_kind } = event.payload;
     const support = event.type === 'tcg_support_resolved';
     const source = `commander:p${support ? target_player : 1 - target_player}`;
-    const to = bounds && (position(field, event.target_id, bounds, this.renderer)
-      ?? position(field, `lane:p${target_player}:${target_lane}`, bounds, this.renderer));
-    const from = bounds && (position(field, event.source_id, bounds, this.renderer, clip)
-      ?? (support ? to : position(field, source, bounds, this.renderer)));
+    const to = bounds && (position(field, event.target_id, bounds)
+      ?? position(field, `lane:p${target_player}:${target_lane}`, bounds));
+    const from = bounds && (position(field, event.source_id, bounds) ?? position(field, source, bounds) ?? to);
     const animated = !reducedMotion && Boolean(from && to);
     const windup = ultimate ? 130 : support ? 55 : 60;
     const flight = ultimate ? 200 : support ? 112 : effect_kind ? 175 : 123;
@@ -68,17 +56,28 @@ export class DuelEffects {
       const t = Math.max(0, (now - attack.launch) / Math.max(1, attack.contact - attack.launch));
       const dx = (attack.to.x - attack.from.x) * width;
       const dy = (attack.to.y - attack.from.y) * height;
+      const size = (ultimate ? 65 : 37) + Math.min(22, width * .035);
+      const x = attack.from.x * width, y = attack.from.y * height;
+      const color = (ELEMENT_ART[element] ?? ELEMENT_ART.light).color;
       if (now < attack.launch || Math.hypot(dx, dy) < 8) {
         const charge = Math.min(1, (now - attack.now) / Math.max(1, attack.launch - attack.now));
         drawElementEffect(context, this.renderer, element, 'impact', {
-          x: attack.from.x * width, y: attack.from.y * height, size: (ultimate ? 66 : 40) * (.55 + charge * .45),
-          opacity: .27 + charge * .43,
+          x, y, size: size * (.55 + charge * .45), opacity: .27 + charge * .43,
         });
         continue;
       }
+      context.save();
+      context.strokeStyle = color;
+      context.lineCap = 'round';
+      context.lineWidth = ultimate ? 4 : 2;
+      context.globalAlpha = .45 * Math.sin(Math.PI * t);
+      context.beginPath();
+      context.moveTo(x + dx * Math.max(0, t - .3), y + dy * Math.max(0, t - .3));
+      context.lineTo(x + dx * t, y + dy * t);
+      context.stroke();
+      context.restore();
       drawElementEffect(context, this.renderer, element, 'trail', {
-        x: attack.from.x * width + dx * t, y: attack.from.y * height + dy * t,
-        angle: Math.atan2(dy, dx), size: (ultimate ? 65 : 37) + Math.min(22, width * .035),
+        x: x + dx * t, y: y + dy * t, angle: Math.atan2(dy, dx), size,
         opacity: Math.min(1, .35 + t * 2),
       });
     }

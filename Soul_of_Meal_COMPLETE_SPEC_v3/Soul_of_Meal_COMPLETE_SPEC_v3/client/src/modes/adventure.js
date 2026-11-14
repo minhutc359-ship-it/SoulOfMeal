@@ -1,5 +1,5 @@
 import { gameEvents } from '../core/events.js';
-import { moveWithCollision } from './adventureNavigation.js';
+import { hasClearLine, moveWithCollision, safeAdventurePosition } from './adventureNavigation.js';
 import { getAdventureMap } from './mapCatalog.js';
 import { adventureBalance as balance, adventureEncounters, ADVENTURE_TICK_RATE } from './adventureBalance.js';
 import { FOREST_CLUES, FOREST_CLUE_IDS, FOREST_LANTERNS, HARBOR_CLUES, HARBOR_CLUE_IDS } from './adventureStory.js';
@@ -44,12 +44,13 @@ function restoreBattle(save) {
   return { ...structuredClone(battle), events: [], paused: battle.phase === 'battle_running' };
 }
 
-export function createAdventureState(save) {
+export function createAdventureState(save, maps) {
+  const position = safeAdventurePosition(save.adventure.map, save.adventure, maps);
   const battle = restoreBattle(save);
   return {
     map: save.adventure.map,
-    x: save.adventure.x,
-    y: save.adventure.y,
+    x: position.x,
+    y: position.y,
     facing: 'down',
     tick: 0,
     input: { x: 0, y: 0 },
@@ -76,7 +77,7 @@ export function resolveMapTransition(mapId, toMap, maps) {
   const map = getAdventureMap(maps, mapId);
   if (map?.transitions) {
     const transition = map.transitions.find((door) => door.to === toMap || door.targetMap === toMap);
-    if (transition?.spawn) return transition.spawn;
+    if (transition?.spawn) return safeAdventurePosition(toMap, transition.spawn, maps);
   }
   return resolveMapSpawn(toMap, maps);
 }
@@ -93,6 +94,7 @@ export function transitionMap(state, save, mapId, maps) {
   state.y = spawn.y;
   state.walkPath = [];
   state.walkTarget = null;
+  state.tapInteraction = null;
   return { state, save: updated, changed: true };
 }
 
@@ -114,9 +116,11 @@ export function setAdventureInput(state, x, y) {
 
 export function nearestInteraction(state, save, maps) {
   if (state.battle) return null;
+  const radius = getAdventureMap(maps, state.map)?.world.player_radius;
   return availableAdventureInteractions(state.map, save, maps)
     .map((item) => ({ ...item, id: item.action, distance: Math.hypot(item.x - state.x, item.y - state.y) }))
-    .filter((item) => item.distance <= item.radius)
+    .filter((item) => item.distance <= item.radius && (!['portal', 'room_door'].includes(item.kind)
+      || hasClearLine(state.map, state, item, radius, maps)))
     .sort((a, b) => a.distance - b.distance)[0] ?? null;
 }
 

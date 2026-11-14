@@ -91,8 +91,12 @@
 }
 .tcg-match .duel-field .enemy-row .tcg-unit { background: radial-gradient(ellipse at 50% 52%, #665146, #483031 63%, #2d1b1e); }
 .tcg-match .duel-field .tcg-unit:is(.tcg-attacking, .tcg-blocking, [aria-pressed="true"]) { box-shadow: inset 0 0 0 2px #efc47c, 0 0 9px #eec87e82; }
-.tcg-match .duel-field .tcg-unit-avatar { position: relative; width: min(100%, 140px); height: 100%; min-height: 0; margin: 0 auto; }
-.tcg-match .tcg-unit-avatar .board-chibi { position: absolute; width: 135%; height: 145%; top: -26%; left: -17.5%; }
+.tcg-match .duel-field .tcg-unit-avatar { position: relative; width: 100%; height: 100%; min-height: 0; margin: 0 auto; background: transparent; }
+.tcg-match .tcg-unit-avatar img { object-position: center 47%; filter: drop-shadow(0 3px 4px #0b1715b5); }
+.tcg-match .duel-field .tcg-unit:has(.tcg-hit[data-effect="summon"]) .tcg-unit-avatar img { animation: tcg-splash-enter 540ms ease-out both; }
+.tcg-match .duel-field .tcg-unit:has(.tcg-hit[data-effect="damage"]) .tcg-unit-avatar img { animation: tcg-splash-hit 360ms var(--splash-hit-delay, 0ms) ease-out both; }
+@keyframes tcg-splash-enter { from { opacity: 0; transform: translateY(10%) scale(.8); } to { opacity: 1; transform: none; } }
+@keyframes tcg-splash-hit { 30% { transform: translateX(5px); filter: brightness(1.6); } 55% { transform: translateX(-3px); } }
 .tcg-match .tcg-unit > b, .lane-stats { font-size: clamp(9px, 1.1vw, 12px); }
 .lane-stats { color: #f4ce96; }
 .lane-stats b:last-child { color: #b3dfba; }
@@ -138,12 +142,13 @@
   border-radius: 50%; background: #152823ed; border-color: #d3ac72; color: #fff2c9; font: 700 14px Georgia, serif;
 }
 .tcg-match .match-actions > .button:not(.light) { flex: 1; }
-.main .tcg-match .spell-confirm { width: 100%; margin: 0; }
-.tcg-match .spell-confirm .target-select { width: 100%; color: #fff1d6; font-weight: 700; }
-.tcg-match .spell-confirm select { max-width: none; width: 100%; min-height: 26px; padding: 3px; }
+.tcg-target-prompt { display: flex; align-items: center; flex-wrap: wrap; gap: 5px 8px; color: #fff1d6; }
+.tcg-target-prompt > div { flex: 1 1 110px; font-size: 12px; }
+.tcg-target-prompt small { display: block; color: #e6d5b6; font-size: 10px; }
 .tcg-match .tcg-defense { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; margin: 0; padding: 6px; color: #fff1d8; background: #243b31; border-color: #9f8157; }
 .tcg-match .tcg-defense-header span { color: #ffd59c; }
-.tcg-match .tcg-block-grid { overflow-y: auto; }
+.tcg-match .tcg-block-grid { display: flex; flex-wrap: wrap; gap: 4px; overflow-y: auto; }
+.tcg-match [data-tcg-block-lane][aria-pressed="true"] { background: #efd2a1; color: #1d352b; }
 
 .chess-hud { flex: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 3px; }
 .chess-hud > div { min-width: 0; display: flex; justify-content: center; align-items: baseline; gap: 5px; padding: 4px 2px; }
@@ -220,7 +225,6 @@
   .main .tcg-match .tcg-hand-dock .playing-card { height: clamp(87px, 16dvh, 135px); }
   .tcg-match .duel-top, .tcg-match .duel-bottom { min-height: 39px; padding-inline: 5px; }
   .duel-crest { width: 24px; height: 24px; }
-  .tcg-match[data-targeting="true"] :is(.hand-heading, .hand-row) { display: none; }
   .tcg-match .tcg-defense { max-height: 28dvh; }
   .chess-hud > div { display: grid; justify-items: center; gap: 2px; padding: 3px 0; }
   .chess-match .chess-formation { min-height: clamp(125px, 21dvh, 192px); }
@@ -265,12 +269,39 @@
 .tcg-setup { display: flex; align-items: center; gap: 6px; color: inherit; font-size: 12px; font-weight: 750; }
 .tcg-setup select { min-height: 34px; padding: 4px 6px; color: #233d32; background: #fff6e1; border: 1px solid #b99b70; border-radius: 5px; font: inherit; }
 .game-info-dialog .tcg-setup { margin-top: 10px; }
-.tcg-match .tcg-unit.spell-target { outline: 2px solid #bfe5bd; outline-offset: -2px; }
-.tcg-match .tcg-unit.spell-target[aria-pressed="true"] { outline-color: #ffd17e; }
+.tcg-match .spell-target { outline: 2px solid #c9f0bf; outline-offset: -2px; cursor: crosshair; box-shadow: inset 0 0 14px #8ce8a046; }
+.tcg-match :is(.spell-target, .strike-target):is(:focus-visible, :hover) { outline: 2px solid #ffe1a3; outline-offset: -2px; }
+.tcg-deck-target, .tcg-row-action, .tcg-target-extra {
+  min-height: 28px; padding: 3px 8px; border: 1px solid #ad955f; border-radius: 5px;
+  background: #152c24; color: #f8e9c3; font: 750 11px system-ui, sans-serif;
+}
+.tcg-deck-target:disabled { opacity: .82; }
+.tcg-match .tcg-row-target { position: relative; outline: 1px solid #b3e6a5; outline-offset: -1px; border-radius: 7px; }
+.tcg-match .tcg-row-action { position: absolute; z-index: 3; inset: 50% auto auto 50%; translate: -50% -50%; white-space: nowrap; }
+.tcg-stack-controls { display: flex; align-items: center; gap: 5px; }
+.tcg-stack-controls .tcg-target-extra { flex: none; }
+.tcg-grave-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 6px; }
+.tcg-grave-choices .button { display: grid; justify-items: center; gap: 5px; }
+.tcg-grave-choices img { width: 100%; height: 66px; object-fit: contain; }
 .tcg-match .lane-stats .lane-boost { color: #ffb578; }
 .tcg-match .lane-shield { display: inline-block; margin-left: 3px; color: #e8d9ff; font-size: .88em; }
-.tcg-hit .tcg-support { background: #286441; color: #f0ffd8; }
+.tcg-hit :is(.tcg-support, .tcg-heal) { background: #286441; color: #f0ffd8; }
+.tcg-hit .tcg-boost { background: #6a3d20; color: #ffdfac; }
+.tcg-hit :is(.tcg-summon, .tcg-trap) { background: #382c4d; color: #eadcff; }
 .tcg-hit :is(.tcg-guard, .tcg-shield) { background: #55477b; color: #f8e5ff; }
+.tcg-contact-ring {
+  position: absolute; z-index: 2; inset: 50% auto auto 50%; translate: -50% -50%; width: min(85%, 92px); aspect-ratio: 1;
+  --ring-color: var(--contact-color, var(--impact-color, #ffd183));
+  border: 2px solid var(--ring-color); border-radius: 50%; pointer-events: none;
+  box-shadow: inset 0 0 14px var(--ring-color), 0 0 15px var(--ring-color);
+  animation: tcg-contact 580ms var(--contact-delay, 0ms) ease-out both;
+}
+.tcg-hit[data-effect="heal"] { --contact-color: #9dffad; }
+.tcg-hit:is([data-effect="shield"], [data-effect="guard"]) { --contact-color: #b7c9ff; }
+.tcg-hit[data-effect="trap"] { --contact-color: #dbb2ff; }
+.tcg-hit[data-effect="summon"] .tcg-contact-ring { border-style: double; border-width: 5px; }
+.tcg-hit[data-effect="trap"] .tcg-contact-ring { border-radius: 12%; transform: rotate(45deg); }
+@keyframes tcg-contact { 0% { opacity: 0; scale: .55; } 22% { opacity: .9; } 100% { opacity: 0; scale: 1.2; } }
 .tcg-match .empty-slot { position: relative; }
 .tcg-match .empty-slot .tcg-fallen {
   position: absolute; inset: 0; pointer-events: none; animation: tcg-defeat .55s var(--contact-delay, 0ms) ease-in both;
@@ -278,7 +309,6 @@
 @keyframes tcg-defeat { 0%, 14% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 #app[data-motion="reduced"] .tcg-fallen { display: none; }
 .tcg-match .commander-hp.spell-target { background: #18332e; border: 1px solid #c8d9a0; border-radius: 5px; cursor: pointer; }
-.tcg-match .commander-hp.spell-target[aria-pressed="true"] { border-color: #ffd17e; box-shadow: 0 0 6px #ffc57588; }
 .tcg-match .tcg-trap-slot {
   position: relative; display: grid; place-items: center; flex: none; width: clamp(23px, 3.6vw, 32px); height: 30px;
   padding: 0; color: #f7dfaa; border: 1px solid #bea46d83; border-radius: 4px; background: #13251e;
@@ -289,10 +319,8 @@
 .tcg-match .tcg-trap-slot.set { background: radial-gradient(ellipse at 40% 26%, #765875, #332137 74%); }
 .tcg-match .tcg-trap-slot.armed { border-color: #edd197; box-shadow: inset 0 0 0 1px #edd19742; }
 .tcg-match .tcg-trap-slot.spell-target { outline: 2px solid #bfe5bd; }
-.tcg-match .tcg-trap-slot.spell-target[aria-pressed="true"] { outline-color: #ffd17e; }
 .tcg-trap-slot > img { width: 100%; height: 100%; object-fit: contain; }
 .tcg-trap-slot .tcg-damage { white-space: nowrap; font-size: 10px; }
-.tcg-match .target-select > span { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .match-layout .playing-card .card-cost.resonant { color: #142722; border-color: #def3ae; background: #c9efa7; }
 .main .tcg-match .tcg-hand-dock .ultimate-card { box-shadow: inset 0 0 0 1px var(--unit-color); }
 .tcg-match .ultimate-card .card-thumb img { object-fit: cover; object-position: 50% 30%; }
@@ -315,7 +343,7 @@
 .trap-option span { min-width: 0; }
 .tcg-reaction .trap-rule { margin: 0; max-height: 3em; overflow: auto; color: #fff0d4; font-size: 11px; line-height: 1.4; }
 .tcg-reaction .trap-actions { margin: 0; }
-.tcg-trap-flash, .tcg-cutin {
+.tcg-trap-flash {
   position: absolute; inset: 12% auto auto 50%; translate: -50% 0; z-index: 6; pointer-events: none;
   display: flex; align-items: center; gap: 6px; max-width: 85%; padding: 4px 8px; border-radius: 6px;
   border: 1px solid var(--unit-color, #f2d496); background: #202024ec; color: #fff4dd;
@@ -324,9 +352,24 @@
 .tcg-trap-flash img { width: 29px; height: 29px; object-fit: contain; }
 .tcg-trap-flash span { min-width: 0; }
 .tcg-trap-flash small { display: block; color: #f1d1a4; font-size: 9px; }
-.tcg-trap-flash b, .tcg-cutin strong { font-size: 12px; }
-.tcg-cutin { inset-block-start: 17%; overflow: hidden; }
-.tcg-cutin img { width: clamp(44px, 14vw, 94px); height: clamp(27px, 7dvh, 52px); object-fit: cover; object-position: center 30%; border-radius: 4px; }
+.tcg-trap-flash b { font-size: 12px; }
+.tcg-cutin {
+  position: absolute; z-index: 6; inset: 50% auto auto 50%; translate: -50% -50%; pointer-events: none;
+  width: min(79%, 580px); min-height: clamp(65px, 15dvh, 124px); display: flex; align-items: center; gap: 7px;
+  padding: 4px 10px; color: #fff2ce; border-block: 1px solid var(--unit-color, #ffd895);
+  background: linear-gradient(105deg, #151d1cee 12%, #30282cf5 50%, #171e1ded 91%);
+  box-shadow: 0 0 24px #171312bc; animation: tcg-command-sweep var(--flash-duration, 1160ms) ease-out both;
+}
+.tcg-cutin[data-owner="1"] { flex-direction: row-reverse; text-align: right; }
+.tcg-cutin img { align-self: center; width: clamp(42px, 14vw, 128px); height: clamp(69px, 23dvh, 186px); object-fit: contain; filter: drop-shadow(0 0 8px var(--unit-color)); }
+.tcg-cutin .tcg-cutin-card { margin-inline-start: auto; width: clamp(35px, 11vw, 104px); height: clamp(48px, 16dvh, 120px); }
+.tcg-cutin div { display: grid; gap: 2px; min-width: 0; }
+.tcg-cutin small { color: var(--unit-color, #ffe0a1); text-transform: uppercase; font-weight: 850; letter-spacing: .06em; font-size: clamp(8px, 1.25vw, 13px); }
+.tcg-cutin strong { font-size: clamp(13px, 2.6vw, 24px); line-height: 1.1; }
+.tcg-cutin span { color: #ffe6b9; font-size: clamp(10px, 1.7vw, 15px); }
+@keyframes tcg-command-sweep { 0% { opacity: 0; transform: translateX(-7%) skewX(-6deg); } 15%, 78% { opacity: 1; transform: none; } 100% { opacity: 0; visibility: hidden; transform: translateX(4%); } }
+#app[data-motion="reduced"] .tcg-match .duel-field .tcg-unit .tcg-unit-avatar img { animation: none; }
+#app[data-motion="reduced"] .tcg-contact-ring { display: none; }
 @keyframes tcg-reveal { 0% { opacity: 0; transform: translateY(-4px); } 15%, 73% { opacity: 1; transform: none; } 100% { opacity: 0; visibility: hidden; } }
 #app[data-motion="reduced"] :is(.tcg-trap-flash, .tcg-cutin) { animation-name: tcg-flash-quiet; }
 @keyframes tcg-flash-quiet { from, 94% { opacity: 1; } to { opacity: 0; visibility: hidden; } }
@@ -398,7 +441,7 @@
 .table-drag-ghost[data-valid="true"] { border-color: #a6eed1; box-shadow: 0 0 12px #a6eed15c; }
 .table-drag-ghost img { width: 62px; height: 60px; object-fit: contain; }
 .table-drag-ghost b { font: 700 10px/1.1 system-ui, sans-serif; }
-.chess-match :is([data-chess-board-index], [data-bench]), .tcg-match [data-tcg-attacker] { touch-action: none; cursor: grab; }
+.chess-match :is([data-chess-board-index], [data-bench], [data-buy]:enabled), .tcg-match [data-tcg-attacker] { touch-action: none; cursor: grab; }
 .tcg-match[data-direct] [data-card]:not(:disabled) { touch-action: pan-x; cursor: grab; }
 .chess-match .bench-slot { width: 100%; padding: 0; color: inherit; }
 .chess-match .chess-ready:not(.has-board-selection) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -422,8 +465,7 @@
   position: absolute; top: 3px; right: 4px; z-index: 1; border-radius: 5px; padding: 2px 4px; background: #3f3420;
   color: #ffe4a6; font: 800 10px/1 system-ui, sans-serif;
 }
-.tcg-match .strike-target, .tcg-match .duel-field .empty-slot.spell-target { outline: 1px dashed #ffcf86; outline-offset: -3px; cursor: pointer; }
-.tcg-match .strike-target[aria-pressed="true"], .tcg-match .duel-field .empty-slot[aria-pressed="true"] { outline: 2px solid #ffe3a6; }
+.tcg-match .strike-target { outline: 1px dashed #ffcf86; outline-offset: -3px; cursor: crosshair; }
 .tcg-strike-controls { display: flex; align-items: center; gap: 5px; width: 100%; }
 .tcg-strike-controls > div { min-width: 0; flex: 1; font-size: 11px; }
 .tcg-strike-controls small { display: block; margin-top: 3px; color: #ebd6b0; font-size: 10px; }

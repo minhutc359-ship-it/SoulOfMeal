@@ -1,3 +1,5 @@
+import { obstaclePoints } from '../modes/worldCollision.js';
+
 export function bindWorldStick(stick, onInput) {
   const thumb = stick.querySelector('i');
   let activePointer = null;
@@ -38,11 +40,18 @@ export function drawWorldMinimap(canvas, map, player, interactions, objective) {
   const ctx = canvas.getContext('2d');
   const sx = canvas.width / map.world.width;
   const sy = canvas.height / map.world.height;
-  ctx.fillStyle = '#182d29';
+  ctx.fillStyle = '#657452';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#374d3f';
+  ctx.fillStyle = '#283a31';
   for (const item of map.collision.obstacles) {
-    ctx.fillRect(item.x * sx, item.y * sy, item.width * sx, item.height * sy);
+    const points = obstaclePoints(item);
+    ctx.beginPath();
+    for (const [index, [x, y]] of points.entries()) {
+      if (index === 0) ctx.moveTo(x * sx, y * sy);
+      else ctx.lineTo(x * sx, y * sy);
+    }
+    ctx.closePath();
+    ctx.fill();
   }
   if (player.walkPath?.length) {
     ctx.beginPath();

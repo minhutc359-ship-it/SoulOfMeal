@@ -294,8 +294,8 @@
     },
     {
       "path": "docs/01_gameplay/TCG_RULEBOOK.md",
-      "bytes": 11813,
-      "sha256": "548df617ab3bd4091dc87ccb38493dfd5f8d5856b2bec1dd5141d70069be21c5"
+      "bytes": 12632,
+      "sha256": "4cfdb9e4f1f577d4513dc1c8dd497ca52e4d9188b425463298d8743b438df4c0"
     },
     {
       "path": "docs/02_art/LICENSE_AND_PROVENANCE.md",
@@ -794,33 +794,33 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 202587,
-      "sha256": "fe4de74efcf3395e2d71ddd25d6448e84e2a9fe54881f612eacc453335d9278c"
+      "bytes": 209297,
+      "sha256": "13eb86e9565264556db54567b78d7039d9f22d4b06d46fbce77cb486238061bf"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 44753,
-      "sha256": "02aa81aa81b2802f5da0a79787dcc734f4021b3393a48b4c2c3a64e72e399a2b"
+      "bytes": 45117,
+      "sha256": "8180343f7d4859710b841d4f71c7fd8056f31e9bff5bef107c8386909303308f"
     },
     {
       "path": "client/src/modes/autoChess.js",
-      "bytes": 25054,
-      "sha256": "b1669186aea7a2bca500e6776ee304faba3e7408430258d3d7d3ae5388f0d160"
+      "bytes": 25908,
+      "sha256": "eb6a3f59d6807ab37f31c917a538fa1fd75f7b01639889915cab0675c7932167"
     },
     {
       "path": "client/src/modes/tcg.js",
-      "bytes": 56731,
-      "sha256": "2c13d32839b6a4de95b2b1ddd33a2d09d5f2f3a76729b0cf5e0d2804cca61a1c"
+      "bytes": 57464,
+      "sha256": "642cd2507deb43600ee6bd33a82469f4e02b8e22c4cf2c43724be534e28d68d2"
     },
     {
       "path": "client/styles.css",
-      "bytes": 19460,
-      "sha256": "4de8fa61a9a1928104645f65558d97a0aac21188d033516c3eb49f1ef5a4119b"
+      "bytes": 19061,
+      "sha256": "c08175185cf8ae99fe5a3a3387661073a5edbb1e71d603c9f7f8a1d9558b3996"
     },
     {
       "path": "client/tests/runtime.test.js",
-      "bytes": 51367,
-      "sha256": "f76dc9a3c7690919bea068a3f09dee57a62107727571602b374723125eadaf88"
+      "bytes": 52248,
+      "sha256": "f93d28eb4ceba856438cd79fceeb89b39759e6eb7685f8fbaae4c890d081b88c"
     },
     {
       "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
@@ -849,8 +849,8 @@
     },
     {
       "path": "client/src/modes/adventureNavigation.js",
-      "bytes": 9769,
-      "sha256": "c038bdd2a8b6d5ebd9e3e0fbf848f5db74c24d0489c202389cd043f00be3aec8"
+      "bytes": 8085,
+      "sha256": "442fc8d9639f8c1290c96d87a389871c37aee8e0d45b13d6bbd40673f0aa6f24"
     },
     {
       "path": "client/assets/avatars/avatar_banhbao_bachngoc.png",
@@ -1249,8 +1249,8 @@
     },
     {
       "path": "client/src/modes/mapCatalog.js",
-      "bytes": 11647,
-      "sha256": "8ab470de1775f50f48d80bce038f6756a41030f3d974433d7ec0c810e8e18206"
+      "bytes": 11552,
+      "sha256": "3244a12718621f236b22e76300fdb9327b6a1e196fd11036d924f4242c1d32a5"
     },
     {
       "path": "client/src/render/animationManifest.js",
@@ -1259,8 +1259,8 @@
     },
     {
       "path": "client/src/render/spriteAssets.js",
-      "bytes": 4047,
-      "sha256": "4c3b1529719f1607257f5ce9468bce1684982b38a63591791257fb7a7920a1d9"
+      "bytes": 4144,
+      "sha256": "57d44b259516136c8ba428e46186ab3092e10e63de0370388c42d74d2de458e6"
     },
     {
       "path": "client/src/render/spriteRenderer.js",
@@ -1270,12 +1270,12 @@
     {
       "path": "examples/maps/forest.json",
       "bytes": 4833,
-      "sha256": "c0e6cb3c2ac899a046e5827c164e7e600b61da21ee90e733e5dd691f8b5684ed"
+      "sha256": "76bf2cd48e2f8a042680e4658c1425391d703c8b7e1df280a611c6274c89bbfd"
     },
     {
       "path": "examples/maps/village.json",
-      "bytes": 4936,
-      "sha256": "ae03d7ec256dc61d0fbf82f828d4b0046363a5563b319bb85781b21fcc200e4e"
+      "bytes": 6091,
+      "sha256": "832cdfb02d575f4e42b264b524d6dc7329ea4b15cc45e9845c7a7d7ef77c7b0c"
     },
     {
       "path": "client/assets/avatars/avatar_lilia.png",
@@ -2224,8 +2224,8 @@
     },
     {
       "path": "client/shell.css",
-      "bytes": 22103,
-      "sha256": "d4d2d9b9d9cd2a6d0fd889f9373fe395f9f923db20c984ebec43822d10043282"
+      "bytes": 22106,
+      "sha256": "28dde1c4baffd3df23e720afe17241526066aeac55ab8b80619fb2e854b1a11e"
     },
     {
       "path": "client/src/shell/entry.js",
@@ -2234,8 +2234,8 @@
     },
     {
       "path": "client/src/shell/webStage.ts",
-      "bytes": 3122,
-      "sha256": "1e23ba554876a66c8a8d27c5fd3758b02b46fc63adf6626df65168cf34897397"
+      "bytes": 3125,
+      "sha256": "75823aa56fe6bef30123338f9833b9135f0ca3793b15cdfcf9c1c9d24feb4d17"
     },
     {
       "path": "client/tsconfig.json",
@@ -2460,7 +2460,7 @@
     {
       "path": "examples/maps/harbor.json",
       "bytes": 2776,
-      "sha256": "f3a6c0eb42d5c29d25fedbdae50eeedb2efc49dd573a5ca6575d01c144d438f1"
+      "sha256": "2040398417b22d9f4d9abc73ec884b0a536f26796db218a668446d7c33890593"
     },
     {
       "path": "client/assets/original/props/hollow_cauldron.webp",
@@ -2534,13 +2534,13 @@
     },
     {
       "path": "client/play.css",
-      "bytes": 22519,
-      "sha256": "d70ef3b2efa7978581ceb11c17c70fe5a79f74a84c1d6353842771d0973d25a0"
+      "bytes": 22135,
+      "sha256": "41765753ff530644e145a743656bd6644bba108a6e622dd815a0a7d2134d4bd6"
     },
     {
       "path": "client/src/render/worldHud.js",
-      "bytes": 2600,
-      "sha256": "c48ee7b668db12c1d64ca31c71094a7626b897be63a3e0e0dc2608ee157169a6"
+      "bytes": 2832,
+      "sha256": "5b04d541ad774bfb78fbb153a4ccb4839d22d6925f3a6abef0da137a347c5788"
     },
     {
       "path": "client/tests/ux.test.js",
@@ -2744,8 +2744,8 @@
     },
     {
       "path": "client/src/render/duelEffects.js",
-      "bytes": 4248,
-      "sha256": "b8c8abf07bbf8138d0d29dc8649e98c600da8f41165a01ea749db25b7dca1e4b"
+      "bytes": 3923,
+      "sha256": "e56f82bdaaaaf367b654d0dec172520296a3057f626dce51745c6efd006c49dd"
     },
     {
       "path": "scripts/build_combat_audio.py",
@@ -2845,7 +2845,7 @@
     {
       "path": "examples/maps/village_guild.json",
       "bytes": 1493,
-      "sha256": "dd3ffe83db6803bd589ee1b765896afcf92f577e827b9937b5ded18ddd9e3883"
+      "sha256": "3b19c5aabf4cfe1e38e84818d84ae5fd0c20cd0e0e3556abf2a9acda3ba5b35a"
     },
     {
       "path": "examples/maps/village_kitchen.json",
@@ -2944,8 +2944,8 @@
     },
     {
       "path": "client/arena.css",
-      "bytes": 36068,
-      "sha256": "d4c70644b03dece55e1f8169f16c5ee159fa700a0b3c8dcce7ec23e88a29e676"
+      "bytes": 39694,
+      "sha256": "54af8dace85b533b1315a0bdc10f57ac01ccdb58759dd48e9b35873141ce1377"
     },
     {
       "path": "client/src/modes/adventureChallenges.js",
@@ -3004,8 +3004,8 @@
     },
     {
       "path": "client/tests/tcgTable.test.js",
-      "bytes": 11735,
-      "sha256": "a3eea8f7d91af04f5a49d0721b0018e4d56b6e7c6af0e1df01c34b70945e0a41"
+      "bytes": 13120,
+      "sha256": "0388f34a80d4b075027c787a8f49cea7e7d8fd40323ef1c2f1010028f337da7e"
     },
     {
       "path": "client/assets/audio/sound_track/ORIGINAL_FILENAMES.md",
@@ -3204,13 +3204,13 @@
     },
     {
       "path": "client/scene.css",
-      "bytes": 21699,
-      "sha256": "d741461424471e60bfd4bd79ffc64925fcbb35da56920ffe115642f81927fafd"
+      "bytes": 28334,
+      "sha256": "c728557f3e4bdccf8a322a930882640bd85cc77813831840a5f52974e5be3ed0"
     },
     {
       "path": "client/scripts/smoke-web-client.cjs",
-      "bytes": 12135,
-      "sha256": "036af5674f7a0ae87ee4c7df5ebc2704ac505132150dc194d3b54aa4dcdef2d3"
+      "bytes": 20952,
+      "sha256": "67f661afe99133a23a1f18cf8a214a7e4c2df61b1fb5c471b4078ab6eec3c453"
     },
     {
       "path": "client/src/shell/sceneNavigation.js",
@@ -3241,6 +3241,26 @@
       "path": "client/tests/gachaCinematic.test.js",
       "bytes": 1858,
       "sha256": "b1b75687f8fb01fe0ea0508912147e78dfcf543d87f2aeb8587c1f03a9dc26d1"
+    },
+    {
+      "path": "client/src/modes/worldCollision.js",
+      "bytes": 2212,
+      "sha256": "bedf79b8b97a744a2fc0c0de3c07d6ffc809f094979b8d0215099adece39a459"
+    },
+    {
+      "path": "client/tests/worldInteraction.test.js",
+      "bytes": 2865,
+      "sha256": "8c0fb0096cc3a611817ae5306149bfdb7b519dfa4cb661712770c04773599e25"
+    },
+    {
+      "path": "docs/05_production/WORLD_INTERACTION_V2_QA.md",
+      "bytes": 3726,
+      "sha256": "43c17d19e2399904b651fa8cc73604372ae43bf0b879316fbdbac008670ee88d"
+    },
+    {
+      "path": "client/assets/original/cutins/tcg_commander.webp",
+      "bytes": 75358,
+      "sha256": "203a7e3bbf1814fd5e025c7bc6d461021870e7325da7ed316c6d3d40dd225504"
     }
   ]
 }
