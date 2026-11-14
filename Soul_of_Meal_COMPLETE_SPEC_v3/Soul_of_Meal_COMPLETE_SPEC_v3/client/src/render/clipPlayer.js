@@ -1,3 +1,5 @@
+import { PRESENTATION } from "../core/rules.js";
+
 export const CLIP_PRIORITY = Object.freeze({
   idle: 0,
   walk: 1,
@@ -13,13 +15,17 @@ export const CLIP_PRIORITY = Object.freeze({
 
 export function validateAnimationManifest(manifest, availableFrameIds) {
   const errors = [];
-  if (!isRecord(manifest)) return { valid: false, errors: ['manifest must be an object'] };
-  if (manifest.schema_version !== 1) errors.push('schema_version must equal 1');
-  if (!isId(manifest.character_id)) errors.push('character_id must be a non-empty ID');
-  if (!isId(manifest.skin_id)) errors.push('skin_id must be a non-empty ID');
-  if (typeof manifest.asset_version !== 'string' || !manifest.asset_version) errors.push('asset_version must be a non-empty string');
-  if (typeof manifest.atlas !== 'string' || !manifest.atlas) errors.push('atlas must be a non-empty asset path');
-  if (!isRecord(manifest.clips)) errors.push('clips must be an object');
+  if (!isRecord(manifest))
+    return { valid: false, errors: ["manifest must be an object"] };
+  if (manifest.schema_version !== 1) errors.push("schema_version must equal 1");
+  if (!isId(manifest.character_id))
+    errors.push("character_id must be a non-empty ID");
+  if (!isId(manifest.skin_id)) errors.push("skin_id must be a non-empty ID");
+  if (typeof manifest.asset_version !== "string" || !manifest.asset_version)
+    errors.push("asset_version must be a non-empty string");
+  if (typeof manifest.atlas !== "string" || !manifest.atlas)
+    errors.push("atlas must be a non-empty asset path");
+  if (!isRecord(manifest.clips)) errors.push("clips must be an object");
 
   if (isRecord(manifest.clips)) {
     for (const [clipId, clip] of Object.entries(manifest.clips)) {
@@ -27,36 +33,69 @@ export function validateAnimationManifest(manifest, availableFrameIds) {
         errors.push(`clips.${clipId} must be an object`);
         continue;
       }
-      if (typeof clip.loop !== 'boolean') errors.push(`clips.${clipId}.loop must be a boolean`);
-      if (!Number.isFinite(clip.fps) || clip.fps <= 0 || clip.fps > 120) errors.push(`clips.${clipId}.fps must be between 0 and 120`);
-      if (!isRecord(clip.directions) || Object.keys(clip.directions).length === 0) {
+      if (typeof clip.loop !== "boolean")
+        errors.push(`clips.${clipId}.loop must be a boolean`);
+      if (!Number.isFinite(clip.fps) || clip.fps <= 0 || clip.fps > 120)
+        errors.push(`clips.${clipId}.fps must be between 0 and 120`);
+      if (
+        !isRecord(clip.directions) ||
+        Object.keys(clip.directions).length === 0
+      ) {
         errors.push(`clips.${clipId}.directions must be a non-empty object`);
         continue;
       }
 
-      for (const [direction, directionData] of Object.entries(clip.directions)) {
+      for (const [direction, directionData] of Object.entries(
+        clip.directions,
+      )) {
         const path = `clips.${clipId}.directions.${direction}`;
         if (!isRecord(directionData)) {
           errors.push(`${path} must be an object`);
           continue;
         }
-        if (!Array.isArray(directionData.frames) || directionData.frames.length === 0 || directionData.frames.some((frameId) => !isId(frameId))) {
+        if (
+          !Array.isArray(directionData.frames) ||
+          directionData.frames.length === 0 ||
+          directionData.frames.some((frameId) => !isId(frameId))
+        ) {
           errors.push(`${path}.frames must contain non-empty frame IDs`);
         } else {
-          if (new Set(directionData.frames).size !== directionData.frames.length) errors.push(`${path}.frames contains duplicates`);
+          if (
+            new Set(directionData.frames).size !== directionData.frames.length
+          )
+            errors.push(`${path}.frames contains duplicates`);
           if (availableFrameIds) {
             for (const frameId of directionData.frames) {
-              if (!availableFrameIds.has(frameId)) errors.push(`${path} references missing frame ${frameId}`);
+              if (!availableFrameIds.has(frameId))
+                errors.push(`${path} references missing frame ${frameId}`);
             }
           }
         }
         const anchor = directionData.anchor_normalized;
-        if (!Array.isArray(anchor) || anchor.length !== 2 || anchor.some((value) => !Number.isFinite(value) || value < 0 || value > 1)) {
-          errors.push(`${path}.anchor_normalized must be two numbers in [0, 1]`);
+        if (
+          !Array.isArray(anchor) ||
+          anchor.length !== 2 ||
+          anchor.some(
+            (value) => !Number.isFinite(value) || value < 0 || value > 1,
+          )
+        ) {
+          errors.push(
+            `${path}.anchor_normalized must be two numbers in [0, 1]`,
+          );
         }
-        if (directionData.events !== undefined && (!Array.isArray(directionData.events) || directionData.events.some((event) => (
-          !isRecord(event) || !Number.isInteger(event.frame) || event.frame < 0 || event.frame >= (directionData.frames?.length ?? 0) || !isId(event.name)
-        )))) errors.push(`${path}.events contains an invalid frame event`);
+        if (
+          directionData.events !== undefined &&
+          (!Array.isArray(directionData.events) ||
+            directionData.events.some(
+              (event) =>
+                !isRecord(event) ||
+                !Number.isInteger(event.frame) ||
+                event.frame < 0 ||
+                event.frame >= (directionData.frames?.length ?? 0) ||
+                !isId(event.name),
+            ))
+        )
+          errors.push(`${path}.events contains an invalid frame event`);
       }
     }
   }
@@ -65,13 +104,17 @@ export function validateAnimationManifest(manifest, availableFrameIds) {
 }
 
 export class ClipPlayer {
-  constructor(manifest = null, { direction = 'S', fallbackClip = 'idle', reducedMotion = false } = {}) {
+  constructor(
+    manifest = null,
+    { direction = "S", fallbackClip = "idle", reducedMotion = false } = {},
+  ) {
     this.manifest = manifest;
     this.direction = direction;
     this.fallbackClip = fallbackClip;
     this.reducedMotion = reducedMotion;
     this.current = null;
     this.elapsedMs = 0;
+    this.frameIndex = 0;
     this.completed = false;
     this.missingClip = false;
     this.play(fallbackClip, { force: true });
@@ -92,9 +135,22 @@ export class ClipPlayer {
     const resolved = this.#resolveClip(requestedClipId);
     const nextPriority = CLIP_PRIORITY[requestedClipId] ?? 10;
     const currentPriority = CLIP_PRIORITY[this.current?.requestedClipId] ?? 10;
-    if (!force && this.current && !this.current.loop && !this.completed && nextPriority < currentPriority) return false;
+    if (
+      !force &&
+      this.current &&
+      !this.current.loop &&
+      !this.completed &&
+      nextPriority < currentPriority
+    )
+      return false;
     if (!restart && this.current?.clipId === resolved.clipId) return true;
-    if (!force && this.current?.requestedClipId === requestedClipId && !this.completed && !restart) return true;
+    if (
+      !force &&
+      this.current?.requestedClipId === requestedClipId &&
+      !this.completed &&
+      !restart
+    )
+      return true;
 
     this.current = { ...resolved, requestedClipId };
     this.elapsedMs = 0;
@@ -104,11 +160,20 @@ export class ClipPlayer {
   }
 
   advance(deltaMs) {
-    if (!this.current || !Number.isFinite(deltaMs) || deltaMs <= 0) return this.snapshot();
+    if (!this.current || !Number.isFinite(deltaMs) || deltaMs <= 0)
+      return this.snapshot();
     const frameCount = this.current.frames.length;
     if (this.reducedMotion) return this.snapshot();
     this.elapsedMs += deltaMs;
-    const frameDuration = 1000 / this.current.fps;
+    const combatClip = [
+      "attack_a",
+      "attack_b",
+      "skill_01",
+      "ultimate_01",
+      "hit",
+    ].includes(this.current.requestedClipId);
+    const frameDuration =
+      1000 / (this.current.fps * (combatClip ? PRESENTATION.combatSpeed : 1));
     const totalFramesElapsed = Math.floor(this.elapsedMs / frameDuration);
     if (this.current.loop) {
       this.frameIndex = totalFramesElapsed % frameCount;
@@ -125,7 +190,10 @@ export class ClipPlayer {
 
   snapshot() {
     if (!this.current) return null;
-    const frameIndex = Math.min(this.frameIndex ?? 0, this.current.frames.length - 1);
+    const frameIndex = Math.min(
+      this.frameIndex ?? 0,
+      this.current.frames.length - 1,
+    );
     return {
       clipId: this.current.clipId,
       requestedClipId: this.current.requestedClipId,
@@ -157,7 +225,9 @@ export class ClipPlayer {
   #readClip(clipId) {
     const clip = this.manifest?.clips?.[clipId];
     if (!clip) return null;
-    const direction = clip.directions?.[this.direction] ?? Object.values(clip.directions ?? {})[0];
+    const direction =
+      clip.directions?.[this.direction] ??
+      Object.values(clip.directions ?? {})[0];
     if (!direction?.frames?.length) return null;
     return {
       clipId,
@@ -170,9 +240,9 @@ export class ClipPlayer {
 }
 
 function isRecord(value) {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 function isId(value) {
-  return typeof value === 'string' && value.trim().length > 0;
+  return typeof value === "string" && value.trim().length > 0;
 }

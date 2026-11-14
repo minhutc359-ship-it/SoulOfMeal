@@ -23,3 +23,7 @@ Các baseline D-001 đến D-017 dưới đây được Project Owner duyệt ng
 | D-017 | Release content | P0 scope: five characters, one village and one forest map | [D-017](decisions/D-017.md) | Capacity and slice acceptance; approval is not delivery |
 
 Decision records được lưu `docs/00_foundation/decisions/D-XXX.md`, gồm context, decision, approver, date, implications, rollback và test fixtures. Người duyệt được ghi là Project Owner theo xác nhận trong phiên làm việc; tên hiển thị chưa được cung cấp. Các mục có cổng nghiệm thu vẫn là prototype cho đến khi bằng chứng kiểm thử/duyệt tương ứng được ghi nhận.
+
+## D-018 · Three-mode playable upgrade · PROPOSED (2026-11-15)
+
+Implement the user-shared three-mode brief as a local playable client while retaining the v3 prototype status. `client/src/core/rules.js` and the JSON catalogs hold proposed balances. Seven-bot tournament adjudication, overtime, items, region/progression rewards, 900-damage paid elemental combo and 0.7 combat presentation speed are documented in `docs/03_engineering/THREE_MODE_UPGRADE.md`. This implementation does not mark art, balance, engine/device performance or multiplayer as approved. Legacy Python reference slices retain their existing contracts.

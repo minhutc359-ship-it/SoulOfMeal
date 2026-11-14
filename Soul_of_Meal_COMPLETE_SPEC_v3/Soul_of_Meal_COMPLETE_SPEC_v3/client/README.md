@@ -1,62 +1,40 @@
-# Soul of Meal Browser Runtime
+# Soul of Meal · playable client 0.4
 
-This is the local, dependency-free technical vertical slice. It uses placeholder Canvas 2D scene rendering; no production sprite, animation, audio, WebGL renderer, server or art asset is included. The rules runtime emits events so an animation/render adapter can be attached without changing gameplay outcomes.
+Dependency-free browser game with three independent rule systems, shared Vị Linh IDs, Canvas sprites and local saves. Balance is **PROPOSED**, recorded in `src/core/rules.js` and the JSON catalogs. This is a substantial local PvE upgrade, not a production-art or online multiplayer release.
 
-## Run
+## Run and verify
 
-From the package root:
+From this package root:
 
-```bash
-python3 -m http.server 4173 --directory .
+```sh
+npm run dev
+# Open http://127.0.0.1:4173/client/
+npm test
+npm run build
+npm run check
+python -m unittest discover -s tests -v
+python scripts/update_file_index.py .
+python scripts/validate_package.py .
 ```
 
-Open `http://localhost:4173/client/`. The JSON catalogs are loaded from `examples/`. Progress is stored in this browser's local storage under a versioned save key.
+No dependency install is needed. `scripts/dev.mjs` accepts the preview host/port flags. Open `scripts/viewport.html` on this server to inspect 390×844, 844×390 and 1280×800 viewports. `?mode=adventure`, `?mode=tcg`, `?mode=chess` and page hashes support entry links.
 
-Run the client tests from the package root:
+## Playable scope
 
-```bash
-node --test client/tests/*.test.js
-```
+- **Adventure:** six data-authored maps with A*, collision sliding, collider recovery, follow camera and depth sorting; village quest/chest loop; return travel; one protagonist and up to four selected spirits; 30 Hz auto combat, manual/optional auto ultimates, healing, shields, burn and water delay; two story waves or three farm waves; boss tells, two interruptible stoves and phase changes; repeatable materials, one-time recipe puzzles, crafting, resting, upgrades and region unlocks.
+- **TCG:** validated 36-card decks, four editable presets and 24 named cards; mulligan and surrender; five unit/two trap slots; mana, summon rest, chosen attackers/targets and guardian protection; sequential bot actions with human priority windows; LIFO spell/counter/trap stack; damage, buffs with expiry, healing, shields, draw and stun; paid fire/water/wood combo; commander defeat, mandatory deck-out and round limit retain terminal state.
+- **Auto Chess:** five-offer shop with seeded odds, gold/interest/streak income, XP purchases, persistent shop lock, nine-slot bench, swaps/recall/sale, cross-zone triple merging capped at three stars, items and active unique-ID synergies. Seven bots own their gold/XP/shop/bench/board and choose different strategies. Neutral, elite and PvP rounds pair and resolve every living competitor; commander elimination determines placement and TOP 1. A documented overtime tiebreak prevents endless tied final rounds. Hex combat uses occupied-cell pathfinding, actual ranges, role abilities and deterministic event/frame playback; grid lines disappear during combat.
+- **Presentation:** a single event bus drives the existing animation adapter, sprite anchors and VFX; combat clips run at 70% speed without changing simulation time. Existing sprite sheets are loaded into the adapter, with explicit fallbacks for missing art. Original Web Audio sequences provide mode music and a common `epic_boss_battle` score with crossfade. There is no Vietnamese TTS or voice setting.
+- **Client/PWA:** viewport layout for desktop and portrait/landscape mobile, touch joystick, tap-to-inspect cards, drag/tap chess placement, secondary overlays, reduced motion, original install icons, a versioned precache and explicit update notification. Practice is browser-local, with save backup export/import.
 
-## Implemented Slices
+## Save and offline behavior
 
-- **Adventure:** WASD/arrow keys with collision/axis sliding around static village buildings and props; tap-to-move with 24-world-unit grid A* around static obstacles; Lilia quest; one-time chest claim; village/forest route; two encounter waves including a phased boss; 30 Hz combat; auto attacks; manual ultimates; win/loss results; quest and reward persistence.
-- **TCG:** seeded 36-card setup; units, traps, sample fast/slow damage spells, mana/turn flow, sequential priority, trap reaction and LIFO counter resolution, lane attacks/blocks, bot turns, commander defeat, deck-out and round limit.
-- **Auto Chess:** seeded five-slot shop, buy/refresh/lock/sell, bench, 7×4 player board, placement/move, cross-zone three-copy merge, deterministic bot squads, fixed-tick combat, payouts and ten-round run state.
-- **Profile:** five shared identities, local versioned save migration, audio/accessibility setting state and navigation between modes.
+Save v3 uses `soul-of-meal.save.v3`; v1/v2 are migrated without deleting player progression or resources. Incompatible v2 in-progress matches are closed with a migration message. Adventure snapshots and awarded results are checkpointed; one-time claims remain idempotent. Chess render samples are omitted from persistent saves except for the final frame, so long animations do not fill local storage. A loaded chess result shows its final state rather than replaying the transient animation. Storage failures are caught and reported.
 
-## Animation Adapter
+`npm run build` regenerates `offline-manifest.js` from actual runtime files and catalogs. A failed precache cannot replace an existing working worker. Updates wait for the player's explicit **Áp dụng & tải lại** action. Offline play requires a first successful online load/cache. Development requests on `127.0.0.1` bypass the cache; use `client/?offline=1` to exercise the production cache locally. Competitive service, account/cloud sync and cross-device saves are not provided.
 
-Agent implementation contract, current event coverage, manifest shape and acceptance checklist are in [`docs/02_art/ANIMATION_INTEGRATION_SPEC.md`](../docs/02_art/ANIMATION_INTEGRATION_SPEC.md). Read that spec before adding an adapter or changing event payloads.
+## Remaining production work
 
-The first runtime adapter now exists in `client/src/render/`: `clipPlayer.js` validates clip manifests and advances frame IDs; `actorViewRegistry.js` holds render-only transforms; `animationAdapter.js` maps actor events to clip state and non-actor events to named presentation cues. Adventure reads authoritative movement/battle state and applies simple procedural pose changes to its existing placeholder shapes. With no approved frame assets supplied, this proves event wiring, priority and fallback behavior only; it is not production animation playback or an art approval.
+Existing portraits and sprites are inherited prototype assets; no new approved HD portraits, individual frame sets, turnaround, eight-direction motion or music recording was produced. Anchor/atlas fixes cannot repair a head already drawn incorrectly inside source pixels. `hero_ketvi`, normal monsters and boss objects use distinct procedural fallbacks until their art is supplied; the existing `boss_thief` sheet remains a boss presentation stand-in. Four new regions reuse the existing environment library with data/palette variations. There are five shared playable spirits, so some high trait thresholds need a larger authored roster. All provenance/art approval and actual iPhone/Android hardware/audio/install benchmarks remain pending. There is no matchmaking, authoritative server, anti-cheat, full deterministic command replay archive or full content/story campaign.
 
-Listen for events on `window`:
-
-```js
-window.addEventListener('soul:game-event', ({ detail }) => {
-  if (detail.type === 'hit_resolved') {
-    // Render the event; never apply gameplay damage here.
-  }
-});
-```
-
-Events include `type`, `seq`, `tick`, `payload` and optional mode context such as `battle_id`, `rules_version`, `source_id`, `target_id` or TCG `action_seq`. The adapter publishes `presentation-event` actions including `scene_transition`, `wave_transition`, `boss_phase`, `trap_reveal`, `unit_summon`, `chess_merge` and result cues. The simulation owns damage, phase transitions and rewards. Animation can be delayed, skipped for reduced motion or replaced without affecting state. The adapter listens to the internal event bus once; do not attach a second adapter listener to the mirrored window event or the same cue may be presented twice.
-
-Presentation-only consumers can listen to the browser singleton:
-
-```js
-window.soulOfMealAnimation.addEventListener('presentation-event', ({ detail }) => {
-  for (const action of detail.actions) {
-    // Route visual/audio cues only; never mutate simulation state.
-  }
-});
-```
-
-## Known Technical Gaps
-
-- Canvas 2D is placeholder presentation only; the approved WebGL renderer baseline still needs a named-engine/device benchmark.
-- Adventure currently has simple grid A* over hard-coded placeholder map obstacles, not tile-authored collision, navmesh/chunk streaming, dynamic doors or authored interactable bounds; full boss mechanics, healing/status grammar and mid-battle recovery remain incomplete.
-- TCG implements only the sample effect grammar; mulligan UI, deck builder, full effect grammar, surrender, timers and opponent-private network projections are absent.
-- Auto Chess is a local round-vs-bot prototype, not a complete eight-player tournament. Opponent planning, finite pool, complete economy progression, combat replay and active synergy effects remain incomplete.
-- No production sprites/animations/audio, PWA offline/update flow, cloud save, online service, telemetry backend, device benchmark or release/legal gate is delivered.
+The Python rule prototypes are kept as their existing v3 reference slices; the upgraded playable rules live in `client/src/modes/`. Do not confuse a successful Python/package check with browser-game coverage.

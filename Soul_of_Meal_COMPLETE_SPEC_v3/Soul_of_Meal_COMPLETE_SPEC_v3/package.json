@@ -1,0 +1,10 @@
+{
+  "name": "soul-of-meal",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "test": "node --test client/tests/*.test.js",
+    "build": "node scripts/build_offline.mjs",
+    "check": "node scripts/check_client.mjs"
+  }
+}

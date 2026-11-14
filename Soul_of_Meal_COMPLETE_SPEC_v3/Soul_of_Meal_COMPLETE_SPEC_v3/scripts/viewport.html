@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="vi">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>Soul of Meal — viewport QA</title
+  ><style>
+    body {
+      margin: 0;
+      background: #263d36;
+      color: #fff;
+      font: 14px system-ui;
+    }
+    header {
+      padding: 10px;
+      position: sticky;
+      top: 0;
+      background: #263d36;
+      display: flex;
+      gap: 10px;
+      z-index: 3;
+    }
+    button,
+    select {
+      padding: 8px;
+    }
+    iframe {
+      display: block;
+      border: 0;
+      margin: 15px auto;
+      background: #f6f0de;
+      box-shadow: 0 0 0 1px #fff3;
+      width: 390px;
+      height: 844px;
+    }
+    main {
+      overflow: auto;
+    }
+  </style>
+  <header>
+    <button data-size="390,844">390 × 844 · dọc</button
+    ><button data-size="844,390">844 × 390 · ngang</button
+    ><button data-size="1280,800">1280 × 800 · desktop</button
+    ><select id="mode">
+      <option value="home">Trang chủ</option>
+      <option value="adventure">Adventure</option>
+      <option value="tcg">TCG</option>
+      <option value="chess">Auto Chess</option>
+    </select>
+  </header>
+  <main>
+    <iframe title="Soul of Meal viewport" src="../client/?mode=home"></iframe>
+  </main>
+  <script>
+    const frame = document.querySelector("iframe");
+    document.querySelectorAll("[data-size]").forEach(
+      (button) =>
+        (button.onclick = () => {
+          const [w, h] = button.dataset.size.split(",");
+          frame.style.width = w + "px";
+          frame.style.height = h + "px";
+        }),
+    );
+    document.querySelector("#mode").onchange = (event) => {
+      frame.src = "../client/?mode=" + event.target.value;
+    };
+  </script>
+</html>

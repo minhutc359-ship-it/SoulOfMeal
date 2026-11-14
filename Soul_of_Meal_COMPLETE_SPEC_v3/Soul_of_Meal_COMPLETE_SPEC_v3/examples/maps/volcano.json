@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "catalog_version": "three-modes-v4-proposed",
+  "map_id": "env_volcano",
+  "runtime_key": "volcano",
+  "display_name": "Núi Lửa Gia Vị",
+  "element": "fire",
+  "material": "ember",
+  "world": {
+    "width": 960,
+    "height": 540,
+    "player_radius": 14,
+    "spawn": {
+      "x": 120,
+      "y": 440
+    }
+  },
+  "collision": {
+    "obstacles": [
+      {
+        "id": "volcano_obstacle_0",
+        "type": "rect",
+        "x": 100,
+        "y": 120,
+        "width": 45,
+        "height": 42
+      },
+      {
+        "id": "volcano_obstacle_1",
+        "type": "rect",
+        "x": 200,
+        "y": 80,
+        "width": 45,
+        "height": 42
+      },
+      {
+        "id": "volcano_obstacle_2",
+        "type": "rect",
+        "x": 320,
+        "y": 140,
+        "width": 45,
+        "height": 42
+      },
+      {
+        "id": "volcano_obstacle_3",
+        "type": "rect",
+        "x": 540,
+        "y": 100,
+        "width": 45,
+        "height": 42
+      },
+      {
+        "id": "volcano_obstacle_4",
+        "type": "rect",
+        "x": 740,
+        "y": 90,
+        "width": 45,
+        "height": 42
+      },
+      {
+        "id": "volcano_obstacle_5",
+        "type": "rect",
+        "x": 160,
+        "y": 330,
+        "width": 45,
+        "height": 42
+      },
+      {
+        "id": "volcano_obstacle_6",
+        "type": "rect",
+        "x": 730,
+        "y": 350,
+        "width": 45,
+        "height": 42
+      }
+    ]
+  },
+  "transitions": [
+    {
+      "id": "volcano_return",
+      "type": "door",
+      "from": "volcano",
+      "to": "village",
+      "targetMap": "village",
+      "spawn": {
+        "x": 878,
+        "y": 260
+      },
+      "label": "Về làng"
+    }
+  ],
+  "interactables": [
+    {
+      "id": "volcano_return",
+      "kind": "portal",
+      "action": "village_return",
+      "label": "Về làng",
+      "x": 85,
+      "y": 440,
+      "radius": 52
+    },
+    {
+      "id": "volcano_resource",
+      "kind": "resource",
+      "action": "harvest",
+      "label": "Thu thập nguyên liệu",
+      "material": "ember",
+      "x": 380,
+      "y": 360,
+      "radius": 58
+    },
+    {
+      "id": "volcano_encounter",
+      "kind": "encounter",
+      "action": "farm",
+      "label": "Thử thách Núi Lửa Gia Vị",
+      "x": 620,
+      "y": 270,
+      "radius": 62
+    },
+    {
+      "id": "volcano_puzzle",
+      "kind": "puzzle",
+      "action": "puzzle",
+      "label": "Bia đá công thức",
+      "x": 840,
+      "y": 400,
+      "radius": 58
+    }
+  ],
+  "visuals": [
+    {
+      "id": "volcano_obstacle_0",
+      "kind": "tree",
+      "x": 122,
+      "y": 130,
+      "palette": "forest_dark"
+    },
+    {
+      "id": "volcano_obstacle_1",
+      "kind": "tree",
+      "x": 222,
+      "y": 90,
+      "palette": "forest_dark"
+    },
+    {
+      "id": "volcano_obstacle_2",
+      "kind": "tree",
+      "x": 342,
+      "y": 150,
+      "palette": "forest_dark"
+    },
+    {
+      "id": "volcano_obstacle_3",
+      "kind": "tree",
+      "x": 562,
+      "y": 110,
+      "palette": "forest_dark"
+    },
+    {
+      "id": "volcano_obstacle_4",
+      "kind": "tree",
+      "x": 762,
+      "y": 100,
+      "palette": "forest_dark"
+    },
+    {
+      "id": "volcano_obstacle_5",
+      "kind": "tree",
+      "x": 182,
+      "y": 340,
+      "palette": "forest_dark"
+    },
+    {
+      "id": "volcano_obstacle_6",
+      "kind": "tree",
+      "x": 752,
+      "y": 360,
+      "palette": "forest_dark"
+    },
+    {
+      "id": "volcano_return",
+      "kind": "marker",
+      "x": 85,
+      "y": 440,
+      "label": "VỀ LÀNG",
+      "palette": "gold"
+    },
+    {
+      "id": "volcano_resource",
+      "kind": "marker",
+      "x": 380,
+      "y": 360,
+      "label": "NGUYÊN LIỆU",
+      "palette": "wood"
+    },
+    {
+      "id": "volcano_encounter",
+      "kind": "marker",
+      "x": 620,
+      "y": 270,
+      "label": "THỬ THÁCH",
+      "palette": "coral"
+    },
+    {
+      "id": "volcano_puzzle",
+      "kind": "marker",
+      "x": 840,
+      "y": 400,
+      "label": "BIA ĐÁ",
+      "palette": "gold"
+    }
+  ]
+}

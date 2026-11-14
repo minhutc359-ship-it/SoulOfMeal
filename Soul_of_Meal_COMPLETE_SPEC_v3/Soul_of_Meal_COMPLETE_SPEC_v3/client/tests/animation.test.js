@@ -48,7 +48,8 @@ test('clip player advances frames and loops without wall-clock dependencies', ()
 test('one-shot clips complete and return to the idle fallback', () => {
   const player = new ClipPlayer(manifest);
   assert.equal(player.play('hit'), true);
-  const completed = player.advance(200);
+  assert.equal(player.advance(200).clipId, 'hit');
+  const completed = player.advance(100);
   assert.equal(completed.completedClip, 'hit');
   assert.equal(player.snapshot().clipId, 'idle');
 });
