@@ -324,8 +324,8 @@
     },
     {
       "path": "docs/04_qa/ACCEPTANCE_TEST_PLAN.md",
-      "bytes": 7209,
-      "sha256": "dd92bb81b8947627729700e3a4eb5936f9445844d11b12c5fc53738ac15c2408"
+      "bytes": 8948,
+      "sha256": "132ee6258649760afe93a7c173ed5a9c07fcfd8d5c6e0aa654dd2bfb4c661128"
     },
     {
       "path": "docs/05_production/PRODUCTION_PLAN.md",
@@ -3205,12 +3205,12 @@
     {
       "path": "client/scene.css",
       "bytes": 35861,
-      "sha256": "9d8ff6f05dfbe16859691e328643a138763e081b44690b26db003c5ccce1233b"
+      "sha256": "0bd99a192188208beb3b5f4e23f23dddd71c4a9bb6350e4c53dafa7c464fa2a0"
     },
     {
       "path": "client/scripts/smoke-web-client.cjs",
-      "bytes": 22180,
-      "sha256": "991104a7977cba85fe575abe911f823204cd95ee359eb194f646c8fa716476b4"
+      "bytes": 23144,
+      "sha256": "f04282133bd47c74d45b5c12eecfc87aabb624ad87a3bdb2410c961989b9971c"
     },
     {
       "path": "client/src/shell/sceneNavigation.js",

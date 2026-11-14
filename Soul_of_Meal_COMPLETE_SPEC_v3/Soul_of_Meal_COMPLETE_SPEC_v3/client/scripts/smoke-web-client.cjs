@@ -130,6 +130,23 @@ async function checkVillageDoors(page) {
   assert.ok(Number(await canvas.getAttribute('data-world-y')) >= 100, 'North wall stops the avatar');
 }
 
+async function checkSupplyPuzzle(page, width, height) {
+  await tap(page, '[data-guide-objective]');
+  await page.getByRole('button', { name: 'Rương nguyên liệu', exact: true }).tap();
+  const board = page.locator('.puzzle-board');
+  const cells = board.locator('[data-puzzle-cell]');
+  await cells.first().waitFor();
+  assert.equal(await cells.count(), 36);
+  const box = await board.boundingBox();
+  assert.ok(box.x >= 0 && box.y >= 0 && box.x + box.width <= width && box.y + box.height <= height);
+  for (const tile of await cells.all()) {
+    const { width: tileWidth, height: tileHeight } = await tile.boundingBox();
+    assert.ok(tileWidth >= 44 && tileHeight >= 44, `Puzzle touch target ${tileWidth}×${tileHeight} at ${width}×${height}`);
+  }
+  await tap(page, '[data-puzzle-back]');
+  await page.waitForSelector(screen('adventure'));
+}
+
 async function checkTcgTargets(page) {
   const { createTcgMatch, tcgTableDeck } = await import('../src/modes/tcg.js');
   const { TCG_TABLE_VERSION } = await import('../src/modes/tcgCards.js');
@@ -270,6 +287,7 @@ async function check(page, width, height) {
     await click(page, '[data-interact]:visible');
     await page.waitForSelector('.story-dialog[open]');
     await page.keyboard.press('Escape');
+    if (!reference && (size === '844x390' || size === '390x844')) await checkSupplyPuzzle(page, width, height);
     if (width === 844 && !reference) await checkVillageDoors(page);
   }
   await lobby(page);

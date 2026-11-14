@@ -421,7 +421,7 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 4px;
-  width: min(58dvh, 48vw, 490px);
+  width: min(80dvh, 48vw, 490px);
   aspect-ratio: 1;
 }
 .puzzle-board.sliding-board { grid-template-columns: repeat(3, minmax(0, 1fr)); }
