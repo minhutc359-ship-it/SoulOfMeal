@@ -4,38 +4,41 @@
   "map_id": "env_spice_caldera",
   "runtime_key": "caldera",
   "display_name": "Núi Lửa Gia Vị",
-  "world": {
-    "width": 960,
-    "height": 540,
-    "player_radius": 14,
-    "spawn": { "x": 100, "y": 327 }
-  },
+  "world": {"width": 960, "height": 540, "player_radius": 14, "spawn": {"x": 100, "y": 327}},
   "collision": {
     "obstacles": [
-      { "id": "caldera_ovens", "type": "rect", "x": 0, "y": 0, "width": 960, "height": 157 },
-      { "id": "caldera_lava_west", "type": "rect", "x": 0, "y": 157, "width": 42, "height": 383 },
-      { "id": "caldera_lava_east", "type": "rect", "x": 913, "y": 157, "width": 47, "height": 383 },
-      { "id": "caldera_lava_south", "type": "rect", "x": 0, "y": 481, "width": 960, "height": 59 }
+      {"id": "caldera_ovens", "type": "polygon", "points": [[0, 0], [960, 0], [960, 174], [0, 222]]},
+      {"id": "caldera_lava_west", "type": "polygon", "points": [[0, 345], [33, 385], [140, 540], [0, 540]]},
+      {"id": "caldera_lava_east", "type": "polygon", "points": [[815, 540], [934, 335], [960, 322], [960, 540]]},
+      {"id": "caldera_lava_south", "type": "polygon", "points": [[98, 498], [830, 498], [889, 540], [105, 540]]}
+    ]
+  },
+  "layers": {
+    "occlusion": [
+      {"id": "caldera_left_roof", "depth": 214, "points": [[0, 38], [127, 25], [128, 77], [69, 125], [0, 154]]},
+      {"id": "caldera_near_crates", "depth": 480, "points": [[0, 355], [38, 373], [71, 426], [84, 479], [0, 453]]}
     ]
   },
   "transitions": [
-    { "id": "caldera_return", "type": "door", "from": "caldera", "to": "harbor", "spawn": { "x": 831, "y": 468 }, "label": "Về bến cảng" },
-    { "id": "sanctum_route", "type": "door", "from": "caldera", "to": "sanctum", "spawn": { "x": 100, "y": 327 }, "label": "Điện Hội Vô Vị" }
+    {"id": "caldera_return", "type": "door", "from": "caldera", "to": "harbor", "spawn": {"x": 831, "y": 468}, "label": "Về bến cảng"},
+    {"id": "sanctum_route", "type": "door", "from": "caldera", "to": "sanctum", "spawn": {"x": 100, "y": 327}, "label": "Điện Hội Vô Vị"}
   ],
   "interactables": [
-    { "id": "caldera_return", "kind": "portal", "action": "caldera_return", "label": "Xuống bến cảng", "x": 83, "y": 268, "radius": 50 },
-    { "id": "forge_guide", "kind": "finale_guide", "action": "forge_guide", "label": "Bún Bò Hỏa Linh", "x": 218, "y": 301, "radius": 50 },
-    { "id": "forge_ledger", "kind": "finale_objective", "action": "forge_ledger", "label": "Đọc sổ chuyến than", "x": 360, "y": 379, "radius": 50 },
-    { "id": "forge_valve", "kind": "finale_objective", "action": "forge_valve", "label": "Xem bảng dẫn hơi", "x": 558, "y": 245, "radius": 50 },
-    { "id": "forge_encounter", "kind": "finale_encounter", "action": "forge_encounter", "label": "Lò Than Mất Vị", "x": 750, "y": 331, "radius": 62 },
-    { "id": "sanctum_route", "kind": "portal", "action": "sanctum_route", "label": "Lối sau lò", "x": 860, "y": 216, "radius": 50 }
+    {"id": "caldera_return", "kind": "portal", "action": "caldera_return", "label": "Xuống bến cảng", "x": 83, "y": 268, "radius": 50},
+    {"id": "forge_guide", "kind": "finale_guide", "action": "forge_guide", "label": "Bún Bò Hỏa Linh", "x": 218, "y": 301, "radius": 50},
+    {"id": "forge_ledger", "kind": "finale_objective", "action": "forge_ledger", "label": "Đọc sổ chuyến than", "x": 360, "y": 379, "radius": 50},
+    {"id": "forge_valve", "kind": "finale_objective", "action": "forge_valve", "label": "Xem bảng dẫn hơi", "x": 558, "y": 245, "radius": 50},
+    {"id": "forge_encounter", "kind": "finale_encounter", "action": "forge_encounter", "label": "Lò Than Mất Vị", "x": 750, "y": 331, "radius": 62},
+    {"id": "sanctum_route", "kind": "portal", "action": "sanctum_route", "label": "Lối sau lò", "x": 860, "y": 216, "radius": 50},
+    {"id": "caldera_artisan", "kind": "resident", "action": "caldera_artisan", "label": "Thợ lò", "x": 476, "y": 342, "radius": 50, "note": "Ghi nhớ trật tự van hơi và van than. Xoay sai thứ tự sẽ khó ngắt đòn của lò."}
   ],
   "visuals": [
-    { "id": "caldera_return", "kind": "portal", "x": 83, "y": 268, "label": "VỀ CẢNG" },
-    { "id": "forge_guide", "kind": "guide", "x": 218, "y": 301, "label": "BÚN BÒ HỎA LINH", "actorId": "chr_bunbo_holinh" },
-    { "id": "forge_ledger", "kind": "clue", "x": 360, "y": 379, "label": "SỔ CHUYẾN THAN", "element": "fire" },
-    { "id": "forge_valve", "kind": "clue", "x": 558, "y": 245, "label": "BẢNG DẪN HƠI", "element": "water" },
-    { "id": "forge_encounter", "kind": "seal", "x": 750, "y": 331, "label": "LÒ THAN MẤT VỊ", "artId": "boss_stove" },
-    { "id": "sanctum_route", "kind": "portal", "x": 860, "y": 216, "label": "LỐI SAU LÒ" }
+    {"id": "caldera_return", "kind": "portal", "x": 83, "y": 268, "label": "VỀ CẢNG"},
+    {"id": "forge_guide", "kind": "guide", "x": 218, "y": 301, "label": "BÚN BÒ HỎA LINH", "actorId": "chr_bunbo_holinh"},
+    {"id": "forge_ledger", "kind": "clue", "x": 360, "y": 379, "label": "SỔ CHUYẾN THAN", "element": "fire"},
+    {"id": "forge_valve", "kind": "clue", "x": 558, "y": 245, "label": "BẢNG DẪN HƠI", "element": "water"},
+    {"id": "forge_encounter", "kind": "seal", "x": 750, "y": 331, "label": "LÒ THAN MẤT VỊ", "artId": "boss_stove"},
+    {"id": "sanctum_route", "kind": "portal", "x": 860, "y": 216, "label": "LỐI SAU LÒ"},
+    {"id": "caldera_artisan", "kind": "resident", "x": 476, "y": 342, "actorId": "chr_som_009", "label": "Thợ lò"}
   ]
 }

@@ -1,4 +1,13 @@
 import village from '../../../examples/maps/village.json' with { type: 'json' };
+import forest from '../../../examples/maps/forest.json' with { type: 'json' };
+import harbor from '../../../examples/maps/harbor.json' with { type: 'json' };
+import caldera from '../../../examples/maps/caldera.json' with { type: 'json' };
+import sanctum from '../../../examples/maps/sanctum.json' with { type: 'json' };
+import orchard from '../../../examples/maps/orchard.json' with { type: 'json' };
+import spice_garden from '../../../examples/maps/spice_garden.json' with { type: 'json' };
+import village_guild from '../../../examples/maps/village_guild.json' with { type: 'json' };
+import village_kitchen from '../../../examples/maps/village_kitchen.json' with { type: 'json' };
+import village_merchant from '../../../examples/maps/village_merchant.json' with { type: 'json' };
 import { walkablePoint } from './worldCollision.js';
 
 export function validateAdventureMap(map) {
@@ -100,68 +109,8 @@ function validPolygon(points, width, height) {
   return turns.every(turn => turn > 0) || turns.every(turn => turn < 0);
 }
 
-const DEFAULT_ADVENTURE_MAPS = createAdventureMapRegistry([
-  village,
-  {
-    schema_version: 1,
-    catalog_version: 'client-p0-v1',
-    map_id: 'env_ingredient_forest',
-    runtime_key: 'forest',
-    display_name: 'Rừng Nguyên Liệu',
-    world: { width: 960, height: 540, player_radius: 14, spawn: { x: 82, y: 420 } },
-    collision: {
-      obstacles: [
-        { id: 'forest_tree_01', type: 'rect', x: 16, y: 60, width: 50, height: 58 },
-        { id: 'forest_tree_02', type: 'rect', x: 153, y: 139, width: 50, height: 58 },
-        { id: 'forest_tree_03', type: 'rect', x: 290, y: 218, width: 50, height: 58 },
-        { id: 'forest_tree_04', type: 'rect', x: 427, y: 297, width: 50, height: 58 },
-        { id: 'forest_tree_05', type: 'rect', x: 564, y: 376, width: 50, height: 58 },
-        { id: 'forest_tree_06', type: 'rect', x: 701, y: 115, width: 50, height: 58 },
-        { id: 'forest_tree_07', type: 'rect', x: 838, y: 194, width: 50, height: 58 },
-        { id: 'forest_tree_08', type: 'rect', x: 15, y: 273, width: 50, height: 58 },
-        { id: 'forest_tree_09', type: 'rect', x: 152, y: 352, width: 50, height: 58 },
-        { id: 'forest_tree_10', type: 'rect', x: 289, y: 91, width: 50, height: 58 },
-        { id: 'forest_tree_11', type: 'rect', x: 426, y: 170, width: 50, height: 58 },
-        { id: 'forest_tree_12', type: 'rect', x: 563, y: 249, width: 50, height: 58 },
-        { id: 'forest_tree_13', type: 'rect', x: 700, y: 328, width: 50, height: 58 },
-      ],
-    },
-    transitions: [
-      { id: 'forest_return_portal', type: 'door', from: 'forest', to: 'village', targetMap: 'village', spawn: { x: 485, y: 122 }, label: 'Về làng' },
-    ],
-    interactables: [
-      { id: 'forest_clue_salt', kind: 'clue', action: 'forest_clue_salt', label: 'Muối đã mất vị', x: 268, y: 435, radius: 48 },
-      { id: 'forest_clue_ladle', kind: 'clue', action: 'forest_clue_ladle', label: 'Chiếc vá ám khói', x: 682, y: 207, radius: 48 },
-      { id: 'forest_encounter_p0', kind: 'encounter', action: 'encounter', label: 'Sân bếp Hỏa Diệm', x: 500, y: 300, radius: 62 },
-      { id: 'forest_lantern_wood', kind: 'lantern', action: 'forest_lantern_wood', label: 'Đèn Mộc', x: 340, y: 194, radius: 48 },
-      { id: 'forest_lantern_light', kind: 'lantern', action: 'forest_lantern_light', label: 'Đèn Quang', x: 824, y: 307, radius: 48 },
-      { id: 'forest_seal_altar', kind: 'encounter', action: 'seal_encounter', label: 'Đàn đá Bát Rỗng', x: 786, y: 134, radius: 57 },
-      { id: 'forest_return_portal', kind: 'portal', action: 'village_return', label: 'Về làng', x: 900, y: 470, radius: 62 },
-    ],
-    visuals: [
-      { id: 'forest_tree_01', kind: 'tree', x: 41, y: 70, palette: 'forest_dark' },
-      { id: 'forest_tree_02', kind: 'tree', x: 178, y: 149, palette: 'forest_light' },
-      { id: 'forest_tree_03', kind: 'tree', x: 315, y: 228, palette: 'forest_dark' },
-      { id: 'forest_tree_04', kind: 'tree', x: 452, y: 307, palette: 'forest_light' },
-      { id: 'forest_tree_05', kind: 'tree', x: 589, y: 386, palette: 'forest_dark' },
-      { id: 'forest_tree_06', kind: 'tree', x: 726, y: 125, palette: 'forest_light' },
-      { id: 'forest_tree_07', kind: 'tree', x: 863, y: 204, palette: 'forest_dark' },
-      { id: 'forest_tree_08', kind: 'tree', x: 40, y: 283, palette: 'forest_light' },
-      { id: 'forest_tree_09', kind: 'tree', x: 177, y: 362, palette: 'forest_dark' },
-      { id: 'forest_tree_10', kind: 'tree', x: 314, y: 101, palette: 'forest_light' },
-      { id: 'forest_tree_11', kind: 'tree', x: 451, y: 180, palette: 'forest_dark' },
-      { id: 'forest_tree_12', kind: 'tree', x: 588, y: 259, palette: 'forest_light' },
-      { id: 'forest_tree_13', kind: 'tree', x: 725, y: 338, palette: 'forest_dark' },
-      { id: 'forest_clue_salt', kind: 'clue', x: 268, y: 435, label: 'MUỐI NHẠT' },
-      { id: 'forest_clue_ladle', kind: 'clue', x: 682, y: 207, label: 'VÁ ÁM KHÓI' },
-      { id: 'forest_encounter_p0', kind: 'marker', x: 500, y: 300, label: 'SÂN BẾP', palette: 'coral' },
-      { id: 'forest_lantern_wood', kind: 'lantern', element: 'wood', x: 340, y: 194, label: 'ĐÈN MỘC' },
-      { id: 'forest_lantern_light', kind: 'lantern', element: 'light', x: 824, y: 307, label: 'ĐÈN QUANG' },
-      { id: 'forest_seal_altar', kind: 'seal', x: 786, y: 134, label: 'ĐÀN ĐÁ' },
-      { id: 'forest_return_portal', kind: 'portal', x: 900, y: 470, label: 'VỀ LÀNG' },
-    ],
-  },
-]);
+export const ADVENTURE_MAP_KEYS = Object.freeze(['village', 'forest', 'harbor', 'caldera', 'sanctum', 'orchard', 'spice_garden', 'village_guild', 'village_kitchen', 'village_merchant']);
+const DEFAULT_ADVENTURE_MAPS = createAdventureMapRegistry([village, forest, harbor, caldera, sanctum, orchard, spice_garden, village_guild, village_kitchen, village_merchant]);
 
 export function getAdventureMap(maps, mapKey) {
   if (!maps) return DEFAULT_ADVENTURE_MAPS.get(mapKey) ?? null;

@@ -5,13 +5,17 @@ import { ROOM_EXIT, VILLAGE_ROOMS } from './villageRooms.js';
 
 const STEPS = Object.freeze([
   'Gặp Lilia ở quảng trường',
-  'Mở rương tiếp tế',
+  'Giải khóa rương tiếp tế',
   'Lần theo manh mối trong rừng',
   'Đối mặt Bếp Trưởng Hỏa Diệm',
   'Trở về báo tin cho Lilia',
 ]);
 
 export function adventureJournal(save) {
+  if (['orchard', 'spice_garden'].includes(save.adventure.map)) {
+    const journal = outdoorJournal({ ...save.adventure, map: 'forest' });
+    return { ...journal, action: save.adventure.map === 'orchard' ? 'orchard_to_forest' : 'garden_to_orchard' };
+  }
   if (VILLAGE_ROOMS.includes(save.adventure.map)) {
     const journal = outdoorJournal({ ...save.adventure, map: 'village' });
     return journal.action || journal.nextChapterAction

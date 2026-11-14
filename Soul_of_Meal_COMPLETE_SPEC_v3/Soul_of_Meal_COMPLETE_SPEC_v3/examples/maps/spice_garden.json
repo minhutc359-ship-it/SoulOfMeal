@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "catalog_version": "client-p0-v1",
+  "map_id": "env_spice_garden",
+  "runtime_key": "spice_garden",
+  "display_name": "Vườn Gia Vị",
+  "world": {"width": 960, "height": 540, "player_radius": 14, "spawn": {"x": 123, "y": 385}},
+  "collision": {
+    "obstacles": [
+      {"id": "garden_rear_terrace", "type": "polygon", "points": [[0, 0], [960, 0], [960, 172], [0, 221]]},
+      {"id": "garden_island", "type": "polygon", "points": [[571, 364], [631, 274], [726, 248], [799, 272], [827, 328], [789, 406], [679, 421], [600, 402]]},
+      {"id": "garden_left_wall", "type": "polygon", "points": [[0, 197], [78, 166], [99, 242], [72, 308], [41, 343], [0, 351]]},
+      {"id": "garden_right_wall", "type": "polygon", "points": [[881, 300], [902, 168], [960, 166], [960, 358], [911, 344]]},
+      {"id": "garden_south_left", "type": "polygon", "points": [[0, 431], [81, 456], [122, 495], [161, 540], [0, 540]]},
+      {"id": "garden_south_right", "type": "polygon", "points": [[786, 540], [869, 464], [960, 430], [960, 540]]}
+    ]
+  },
+  "layers": {
+    "occlusion": [
+      {"id": "garden_tree_crown", "depth": 411, "points": [[574, 324], [603, 255], [682, 203], [711, 199], [757, 211], [826, 273], [813, 330], [771, 366], [676, 383], [616, 373]]},
+      {"id": "garden_near_herbs", "depth": 534, "points": [[825, 540], [898, 469], [960, 430], [960, 540]]}
+    ]
+  },
+  "transitions": [
+    {"id": "garden_to_orchard", "type": "door", "to": "orchard", "spawn": {"x": 839, "y": 410}}
+  ],
+  "interactables": [
+    {"id": "garden_to_orchard", "kind": "room_door", "action": "garden_to_orchard", "label": "Về Vườn Nấm Sương", "x": 86, "y": 392, "radius": 50},
+    {"id": "garden_keeper", "kind": "resident", "action": "garden_keeper", "label": "Người trông đèn", "x": 212, "y": 327, "radius": 50, "note": "Giữa vườn có đá phát sáng. Thú Mè và Linh Khói tụ tập quanh đó khi đèn lên."},
+    {"id": "garden_patrol", "kind": "field_encounter", "action": "garden_patrol", "label": "Bầy Thú Mè", "x": 470, "y": 267, "radius": 50, "encounter": "garden_patrol"}
+  ],
+  "visuals": [
+    {"id": "garden_to_orchard", "kind": "portal", "label": "Về Vườn Nấm Sương", "x": 86, "y": 392},
+    {"id": "garden_keeper", "kind": "resident", "x": 212, "y": 327, "actorId": "chr_som_013", "label": "Người trông đèn"},
+    {"id": "garden_patrol", "kind": "field_encounter", "label": "Bầy Thú Mè", "actorId": "mob_sesame_boar", "x": 470, "y": 267}
+  ]
+}

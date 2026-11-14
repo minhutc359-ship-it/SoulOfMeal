@@ -4,8 +4,25 @@ import village from '../../examples/maps/village.json' with { type: 'json' };
 import { createDefaultSave } from '../src/core/save.js';
 import { createAdventureState, interactAdventure, nearestInteraction, setAdventureInput, stepAdventure } from '../src/modes/adventure.js';
 import { collidesWithWorld, findAdventurePath, hasClearLine, moveWithCollision } from '../src/modes/adventureNavigation.js';
+import { ADVENTURE_MAP_KEYS, getAdventureMap } from '../src/modes/mapCatalog.js';
 
 const walkable = ({ x, y }) => !collidesWithWorld('village', x, y);
+
+test('all exploration maps have solid geometry and walkable routes to every interaction', () => {
+  for (const key of ADVENTURE_MAP_KEYS) {
+    const map = getAdventureMap(null, key);
+    const radius = map.world.player_radius;
+    assert.ok(map.collision.obstacles.length > 0, key);
+    assert.ok(map.layers.occlusion.length > 0, key);
+    for (const destination of map.interactables) {
+      assert.equal(collidesWithWorld(key, destination.x, destination.y, radius), false, destination.id);
+      const path = findAdventurePath(key, map.world.spawn, destination, radius);
+      assert.ok(path.length, destination.id);
+      const last = path.at(-1);
+      assert.ok(Math.hypot(last.x - destination.x, last.y - destination.y) < 1, destination.id);
+    }
+  }
+});
 
 test('north wall stops a swept foot hitbox on both sides of the gate', () => {
   for (const x of [...Array.from({ length: 10 }, (_, i) => 244 + i * 18), ...Array.from({ length: 10 }, (_, i) => 537 + i * 31)]) {

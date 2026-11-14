@@ -4,71 +4,70 @@
   "map_id": "env_village_square",
   "runtime_key": "village",
   "display_name": "Làng Ẩm Thực",
-  "world": {
-    "width": 960,
-    "height": 540,
-    "player_radius": 14,
-    "spawn": { "x": 120, "y": 310 }
-  },
+  "world": {"width": 960, "height": 540, "player_radius": 14, "spawn": {"x": 120, "y": 310}},
   "collision": {
     "obstacles": [
-      { "id": "north_outside", "type": "rect", "x": 0, "y": 0, "width": 960, "height": 56 },
-      { "id": "north_wall_west", "type": "polygon", "points": [[0,56],[459,56],[460,99],[0,143]] },
-      { "id": "north_wall_east", "type": "polygon", "points": [[514,56],[960,56],[960,123],[516,99]] },
-      { "id": "west_garden", "type": "polygon", "points": [[0,293],[331,540],[0,540]] },
-      { "id": "east_garden", "type": "polygon", "points": [[960,290],[960,540],[656,540]] },
-      { "id": "south_wall", "type": "rect", "x": 190, "y": 508, "width": 610, "height": 32 },
-      { "id": "west_stall", "type": "rect", "x": 0, "y": 203, "width": 94, "height": 67 },
-      { "id": "east_stall", "type": "rect", "x": 829, "y": 216, "width": 131, "height": 52 },
-      { "id": "building_kitchen", "type": "rect", "x": 60, "y": 105, "width": 176, "height": 118 },
-      { "id": "building_guild", "type": "rect", "x": 339, "y": 113, "width": 120, "height": 98 },
-      { "id": "building_merchant", "type": "rect", "x": 640, "y": 100, "width": 176, "height": 118 },
-      { "id": "plaza_table", "type": "rect", "x": 270, "y": 395, "width": 85, "height": 52 }
+      {"id": "north_outside", "type": "rect", "x": 0, "y": 0, "width": 960, "height": 56},
+      {"id": "north_wall_west", "type": "polygon", "points": [[0, 56], [459, 56], [460, 99], [0, 143]]},
+      {"id": "north_wall_east", "type": "polygon", "points": [[514, 56], [960, 56], [960, 123], [516, 99]]},
+      {"id": "west_garden", "type": "polygon", "points": [[0, 293], [331, 540], [0, 540]]},
+      {"id": "east_garden", "type": "polygon", "points": [[960, 290], [960, 540], [656, 540]]},
+      {"id": "south_wall", "type": "rect", "x": 190, "y": 508, "width": 610, "height": 32},
+      {"id": "west_stall", "type": "rect", "x": 0, "y": 203, "width": 94, "height": 67},
+      {"id": "east_stall", "type": "rect", "x": 829, "y": 216, "width": 131, "height": 52},
+      {"id": "building_kitchen", "type": "rect", "x": 60, "y": 105, "width": 176, "height": 118},
+      {"id": "building_guild", "type": "rect", "x": 339, "y": 113, "width": 120, "height": 98},
+      {"id": "building_merchant", "type": "rect", "x": 640, "y": 100, "width": 176, "height": 118},
+      {"id": "plaza_table", "type": "rect", "x": 270, "y": 395, "width": 85, "height": 52}
     ]
   },
   "layers": {
     "occlusion": [
-      { "id": "north_gate_canopy", "depth": 81, "points": [[426,14],[485,3],[550,27],[549,57],[421,57]] },
-      { "id": "south_west_wall_face", "depth": 527, "points": [[0,462],[146,465],[310,508],[329,540],[0,540]] },
-      { "id": "south_east_wall_face", "depth": 527, "points": [[791,464],[960,457],[960,540],[653,540],[676,511]] }
+      {"id": "north_gate_canopy", "depth": 81, "points": [[426, 14], [485, 3], [550, 27], [549, 57], [421, 57]]},
+      {"id": "south_west_wall_face", "depth": 527, "points": [[0, 462], [146, 465], [310, 508], [329, 540], [0, 540]]},
+      {"id": "south_east_wall_face", "depth": 527, "points": [[791, 464], [960, 457], [960, 540], [653, 540], [676, 511]]}
     ]
   },
   "transitions": [
     {"id": "village_merchant_door", "type": "door", "from": "village", "to": "village_merchant", "spawn": {"x": 480, "y": 439}, "label": "Tiệm Nguyên Liệu"},
     {"id": "village_guild_door", "type": "door", "from": "village", "to": "village_guild", "spawn": {"x": 480, "y": 439}, "label": "Hội Quán"},
     {"id": "village_kitchen_door", "type": "door", "from": "village", "to": "village_kitchen", "spawn": {"x": 480, "y": 439}, "label": "Nhà Bếp"},
-    { "id": "portal_ingredient_forest", "type": "door", "from": "village", "to": "forest", "targetMap": "forest", "spawn": { "x": 82, "y": 420 }, "label": "Cổng Rừng Nguyên Liệu" },
-    { "id": "village_harbor_route", "type": "door", "from": "village", "to": "harbor", "spawn": { "x": 114, "y": 425 }, "label": "Hải Vực Hương Biển" }
+    {"id": "portal_ingredient_forest", "type": "door", "from": "village", "to": "forest", "targetMap": "forest", "spawn": {"x": 82, "y": 420}, "label": "Cổng Rừng Nguyên Liệu"},
+    {"id": "village_harbor_route", "type": "door", "from": "village", "to": "harbor", "spawn": {"x": 114, "y": 425}, "label": "Hải Vực Hương Biển"}
   ],
   "interactables": [
     {"id": "village_merchant_door", "kind": "room_door", "action": "village_merchant_door", "label": "Tiệm Nguyên Liệu", "x": 728, "y": 240, "radius": 47},
     {"id": "village_guild_door", "kind": "room_door", "action": "village_guild_door", "label": "Hội Quán", "x": 399, "y": 235, "radius": 47},
     {"id": "village_kitchen_door", "kind": "room_door", "action": "village_kitchen_door", "label": "Nhà Bếp", "x": 148, "y": 244, "radius": 47},
-    { "id": "npc_lilia", "kind": "npc", "action": "lilia", "label": "Lilia", "x": 235, "y": 260, "radius": 62 },
-    { "id": "village_supply_chest_p0", "kind": "chest", "action": "chest", "label": "Rương nguyên liệu", "x": 680, "y": 355, "radius": 62 },
-    { "id": "portal_ingredient_forest", "kind": "portal", "action": "portal", "label": "Cổng Rừng Nguyên Liệu", "x": 485, "y": 101, "radius": 23 },
-    { "id": "village_harbor_route", "kind": "portal", "action": "harbor_route", "label": "Thuyền đi Hải Vực", "x": 785, "y": 391, "radius": 54 },
-    { "id": "feast_lilia", "kind": "finale_guide", "action": "feast_lilia", "label": "Lilia ở bàn tiệc", "x": 461, "y": 332, "radius": 56 },
-    { "id": "feast_broth", "kind": "finale_objective", "action": "feast_broth", "label": "Nêm nước dùng", "x": 242, "y": 305, "radius": 50 },
-    { "id": "feast_table", "kind": "finale_objective", "action": "feast_table", "label": "Dọn bàn tiệc", "x": 381, "y": 414, "radius": 50 }
+    {"id": "npc_lilia", "kind": "npc", "action": "lilia", "label": "Lilia", "x": 235, "y": 260, "radius": 62},
+    {"id": "village_supply_chest_p0", "kind": "chest", "action": "chest", "label": "Rương nguyên liệu", "x": 680, "y": 355, "radius": 62},
+    {"id": "portal_ingredient_forest", "kind": "portal", "action": "portal", "label": "Cổng Rừng Nguyên Liệu", "x": 485, "y": 101, "radius": 23},
+    {"id": "village_harbor_route", "kind": "portal", "action": "harbor_route", "label": "Thuyền đi Hải Vực", "x": 785, "y": 391, "radius": 54},
+    {"id": "feast_lilia", "kind": "finale_guide", "action": "feast_lilia", "label": "Lilia ở bàn tiệc", "x": 461, "y": 332, "radius": 56},
+    {"id": "feast_broth", "kind": "finale_objective", "action": "feast_broth", "label": "Nêm nước dùng", "x": 242, "y": 305, "radius": 50},
+    {"id": "feast_table", "kind": "finale_objective", "action": "feast_table", "label": "Dọn bàn tiệc", "x": 381, "y": 414, "radius": 50},
+    {"id": "village_guard", "kind": "resident", "action": "village_guard", "label": "Gác làng", "x": 553, "y": 201, "radius": 50, "note": "Qua cổng phía bắc là Rừng Nguyên Liệu. Hãy tìm Lilia để nhận việc đầu tiên."},
+    {"id": "village_cook", "kind": "resident", "action": "village_cook", "label": "Thợ bếp", "x": 176, "y": 373, "radius": 50, "note": "Ở Nhà Bếp có bàn chế tác. Túi đồ giúp dùng canh hồi HP trước khi vào trận."}
   ],
   "visuals": [
     {"id": "village_merchant_door", "kind": "room_entrance", "x": 728, "y": 240, "element": "light"},
     {"id": "village_guild_door", "kind": "room_entrance", "x": 399, "y": 235, "element": "wood"},
     {"id": "village_kitchen_door", "kind": "room_entrance", "x": 148, "y": 244, "element": "fire"},
-    { "id": "building_kitchen", "kind": "house", "x": 60, "y": 105, "width": 176, "height": 118, "palette": "coral" },
-    { "id": "building_guild", "kind": "house", "x": 339, "y": 113, "width": 120, "height": 98, "palette": "sage" },
-    { "id": "building_merchant", "kind": "house", "x": 640, "y": 100, "width": 176, "height": 118, "palette": "gold" },
-    { "id": "plaza_table", "kind": "table", "x": 270, "y": 395, "width": 85, "height": 52 },
-    { "id": "npc_lilia", "kind": "marker", "x": 235, "y": 260, "label": "LILIA", "palette": "wood" },
-    { "id": "village_supply_chest_p0", "kind": "chest", "x": 680, "y": 355, "label": "RƯƠNG" },
-    { "id": "portal_ingredient_forest", "kind": "portal", "x": 485, "y": 101, "label": "RỪNG", "painted": true },
-    { "id": "village_harbor_route", "kind": "portal", "x": 785, "y": 391, "label": "BẾN THUYỀN" },
-    { "id": "feast_lilia", "kind": "marker", "x": 461, "y": 332, "label": "LILIA", "palette": "wood" },
-    { "id": "feast_broth", "kind": "clue", "x": 242, "y": 305, "label": "NÊM NƯỚC DÙNG", "element": "fire" },
-    { "id": "feast_table", "kind": "clue", "x": 381, "y": 414, "label": "DỌN BÀN TIỆC", "element": "light" },
-    { "id": "feast_guest_goicuon", "kind": "feast_guest", "x": 250, "y": 418, "actorId": "chr_goicuon_diepnhi", "element": "wood" },
-    { "id": "feast_guest_banhbao", "kind": "feast_guest", "x": 377, "y": 433, "actorId": "chr_banhbao_bachngoc", "element": "light" },
-    { "id": "feast_guest_davu", "kind": "feast_guest", "x": 336, "y": 465, "actorId": "chr_caphe_davu", "element": "shadow" }
+    {"id": "building_kitchen", "kind": "house", "x": 60, "y": 105, "width": 176, "height": 118, "palette": "coral"},
+    {"id": "building_guild", "kind": "house", "x": 339, "y": 113, "width": 120, "height": 98, "palette": "sage"},
+    {"id": "building_merchant", "kind": "house", "x": 640, "y": 100, "width": 176, "height": 118, "palette": "gold"},
+    {"id": "plaza_table", "kind": "table", "x": 270, "y": 395, "width": 85, "height": 52},
+    {"id": "npc_lilia", "kind": "marker", "x": 235, "y": 260, "label": "LILIA", "palette": "wood"},
+    {"id": "village_supply_chest_p0", "kind": "chest", "x": 680, "y": 355, "label": "RƯƠNG"},
+    {"id": "portal_ingredient_forest", "kind": "portal", "x": 485, "y": 101, "label": "RỪNG", "painted": true},
+    {"id": "village_harbor_route", "kind": "portal", "x": 785, "y": 391, "label": "BẾN THUYỀN"},
+    {"id": "feast_lilia", "kind": "marker", "x": 461, "y": 332, "label": "LILIA", "palette": "wood"},
+    {"id": "feast_broth", "kind": "clue", "x": 242, "y": 305, "label": "NÊM NƯỚC DÙNG", "element": "fire"},
+    {"id": "feast_table", "kind": "clue", "x": 381, "y": 414, "label": "DỌN BÀN TIỆC", "element": "light"},
+    {"id": "feast_guest_goicuon", "kind": "feast_guest", "x": 250, "y": 418, "actorId": "chr_goicuon_diepnhi", "element": "wood"},
+    {"id": "feast_guest_banhbao", "kind": "feast_guest", "x": 377, "y": 433, "actorId": "chr_banhbao_bachngoc", "element": "light"},
+    {"id": "feast_guest_davu", "kind": "feast_guest", "x": 336, "y": 465, "actorId": "chr_caphe_davu", "element": "shadow"},
+    {"id": "village_guard", "kind": "resident", "x": 553, "y": 201, "actorId": "chr_som_024", "label": "Gác làng"},
+    {"id": "village_cook", "kind": "resident", "x": 176, "y": 373, "actorId": "chr_som_011", "label": "Thợ bếp"}
   ]
 }

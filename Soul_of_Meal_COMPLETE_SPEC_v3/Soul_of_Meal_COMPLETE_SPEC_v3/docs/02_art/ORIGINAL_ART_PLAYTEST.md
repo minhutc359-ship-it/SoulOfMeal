@@ -78,7 +78,7 @@ Cả năm rig dùng atlas WebP RGBA 704×528, mỗi rig có 12 lớp gắn xươ
 | Bánh Bao Bạch Ngọc | `chr_banhbao_bachngoc` | 15 | Tiếng đòn thường theo va chạm, hiệu ứng mở khiên lấy đầu thìa làm neo |
 | Cà Phê Dạ Vũ | `chr_caphe_davu` | 16 | Hai đòn luân phiên lấy hai đầu dao làm neo |
 
-Adventure, TCG và Auto Chess dùng chung rig cho năm ID Vị Linh. TCG và Chess phát hoạt ảnh ở mốc trình bày của trận hoặc replay. Bản đồ khám phá tiếp tục dùng bộ bốn hướng của Bún Bò. Rig chiến đấu dùng hướng đông và phản chiếu hướng tây. Khi tải rig lỗi, nhân vật dùng atlas pose sẵn có. Logic giao tranh quyết định sát thương, hồi máu và hộ thuẫn theo tick của trận.
+Adventure và Auto Chess dùng chung rig cho năm ID Vị Linh. TCG dùng splash art và phát hiệu ứng theo mốc trình bày của trận. Bản đồ khám phá tiếp tục dùng bộ bốn hướng của Bún Bò. Rig chiến đấu dùng hướng đông và phản chiếu hướng tây. Khi tải rig lỗi, nhân vật dùng atlas pose sẵn có. Logic giao tranh quyết định sát thương, hồi máu và hộ thuẫn theo tick của trận.
 
 ```bash
 python3 scripts/bunbo_rig.py --character chr_pho_lamvu --export /path/to/pho-editor
@@ -93,4 +93,36 @@ Ba nền anime mới phục vụ đi bộ trong Nhà Bếp, Hội Quán và Ti�
 
 ## Chân dung chibi Vị Linh v4
 
-19 ảnh `client/assets/original/actors/chr_som_*.webp` được tạo riêng cho Soul of Meal bằng ImageGen từ mô tả Vị Linh trong spec v4. Ảnh nguồn là lưới RGBA 5×4, được cắt theo ID và đặt chân về cùng đường chuẩn. Gacha, hồ sơ và Adventure sử dụng cùng ảnh. Trong Adventure, nhân vật mới dùng chuyển động sprite tĩnh theo trạng thái và hiệu ứng nguyên tố. Bộ rig nhiều lớp, key pose và voice riêng cần duyệt mỹ thuật trước phát hành.
+19 ảnh `client/assets/original/actors/chr_som_*.webp` được tạo riêng cho Soul of Meal bằng ImageGen từ mô tả Vị Linh trong spec v4. Ảnh nguồn là lưới RGBA 5×4, được cắt theo ID và đặt chân về cùng đường chuẩn. Gacha, hồ sơ và Adventure sử dụng cùng ảnh. Trong Adventure và Auto Chess, 19 chân dung này được phân vùng trên ảnh nguồn để hoạt ảnh điều khiển riêng đầu, thân, hai chân và tay cầm đạo cụ. Mỗi ID có đường cắt và khớp tương ứng. Điểm phát phép nằm trên xương tay. Bản hiện tại tái sử dụng ảnh phẳng gốc đã đăng ký trong manifest nguồn. Các lớp vẽ lại, PNG pose từng hướng, bộ xuất Spine và duyệt mỹ thuật trực tiếp vẫn là phần sản xuất kế tiếp.
+
+
+## Hiệu ứng chiến đấu dùng chung
+
+Trong game, mở **Hướng dẫn → Hiệu ứng** để phát thử 7 kiểu hoạt ảnh với 5 nguyên tố. Bộ Canvas phối ảnh gốc của từng hệ với vệt đạn, hạt, pháp trận, vòng va chạm, khiên và dư ảnh. Dữ liệu chiến đấu giữ nguyên vai trò quyết định kết quả. Chế độ giảm chuyển động dùng ảnh hiệu ứng gọn, bỏ chuyển động hạt và cut-in toàn màn hình.
+
+| Chế độ | Nguồn thời điểm | Trình bày |
+|---|---|---|
+| Adventure | Tick lấy đà, phát đòn, trúng và gục | Sáu quái thường và năm boss có kỹ năng. Đòn vùng khóa tọa độ lúc tụ chiêu. Các pha boss hiện vùng nguy hiểm trước khi tung đòn. |
+| TCG | Sự kiện phép, bẫy, hỗ trợ và sát thương đã xử lý | Sân dùng splash art. Hàng phản ứng hiển thị lá xử lý trước. Ánh sáng, chém và vệt phép đi theo mục tiêu hợp lệ. |
+| Auto Chess | Tick từng sự kiện trong bản ghi vòng đấu | Replay giữ nhịp lấy đà, hồi phục, hộ thuẫn, vệt đánh và gục ngã. Bàn cờ ẩn lưới trong giao tranh. |
+
+## Tranh hồ sơ và minh họa TCG bổ sung
+
+Toàn bộ 24 hồ sơ Vị Linh nạp tranh WebP RGBA theo ID từ `client/assets/original/showcase/` khi mở. Năm nhân vật chính dùng minh họa anime dựa trên tranh cut-in, cạnh dài bản xuất 1.113–1.530 px. Mười chín Vị Linh còn lại dùng tranh chibi được vẽ lại từ thiết kế nhân vật gốc, cạnh dài bản xuất 410–609 px. Nếu ảnh hồ sơ tải lỗi, game dùng cut-in hoặc chân dung gốc. Tranh hồ sơ và rig chiến đấu là các tệp riêng. Cả 19 rig từ ảnh phẳng đã được chỉnh mốc cổ, vùng tay và vị trí chân theo alpha. Các lớp vẽ rời và pose theo hướng vẫn cần duyệt mỹ thuật.
+
+Mười hai tranh phép và bẫy trong `client/assets/original/cards/` được tạo thành lưới 4×3, cắt theo biên và gắn với ID thẻ qua `spriteAssets.js`. Bộ gồm Lửa Rạn Khiên, Triều Rút Về, Mầm Về Đất, Ngọc Tái Chiến, Sương Hạ Nhiệt, Dạ Yến, Soi Dấu Bẫy, Phá Ấn Thất Vị, Phản Chú Hư Vị, Bạch Ngọc Hộ Trận, Tàn Hỏa Phục Kích và Lá Bện Khóa Lối. Tranh và phần chữ được lưu riêng. Nguồn ảnh là tạo tác gốc cho Soul of Meal, trạng thái duyệt mỹ thuật và quyền sử dụng là pending review.
+
+| Nguồn | SHA-256 PNG gốc |
+|---|---|
+| Bún Bò | `2f70658787825afe2c6f6dc559acda2d20acec136c1fd336f25b31a91ea60a64` |
+| Phở | `55f905db5a5af4db248c663f8eb68eb118a543b8111c40a7460c0c4915340deb` |
+| Bánh Bao | `445cd1bf5107396b2b067962ec049a5fd6d1ba72110e3ba29809ec5b3fe4b55e` |
+| Gỏi Cuốn | `640fa2c6aa08e66fb0a92c62727974136498de84093adebe7aa4b4306ad5a275` |
+| Cà Phê | `d14b636b5031cb54a223245f0161002006cdd2039e99b0f522bd244456d2b5fe` |
+| Lưới TCG | `ca4ff564d7033662853b2f37c0de14d7b4eecf8c0b5f0d34eb19120cbf647b8c` |
+| Hồ sơ 002–005 | `657b9181ca6600834fe597a762c4645e55aae577de6c59a2494c9d4c443c0c0f` |
+| Hồ sơ 006–009 | `69f16eae711459a620702b135346ace0ce1a2c84c0554860e2ca87f8927f53b6` |
+| Hồ sơ 016, 017, 019, 020 | `7684a2239a16fbb70cfee9ae84022ee34e8709e7b7296c25b781ffc908a03a7a` |
+| Hồ sơ 010–013, 022–024 | `d21a40b4eee837dae52f28b31b94c343b140fd94a320b4cf8ef8d1246acc664e` |
+
+Các lưới hồ sơ dùng ảnh Vị Linh gốc của Soul of Meal để bám nhận diện, phục trang và đạo cụ. Hình được tạo riêng cho game, cắt theo ô và giữ alpha. Duyệt mỹ thuật và quyền sử dụng thương mại vẫn đang chờ.

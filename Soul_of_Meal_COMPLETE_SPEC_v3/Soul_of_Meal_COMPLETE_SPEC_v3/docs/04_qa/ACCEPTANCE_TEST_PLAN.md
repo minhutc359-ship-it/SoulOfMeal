@@ -52,6 +52,19 @@
 
 The Python suite covers engine-independent fixtures. The browser playtest also has Node suites under `client/tests/` covering local save migration, Adventure movement and reward flow, TCG turn and reaction order, Auto Chess preparation and result flow, and animation, atlas rendering and original asset checks. The current Canvas/DOM smoke exercises chapters 1–6 on a fresh PostgreSQL-backed account, confirms the unclaimed final-boss result and epilogue can be saved, and opens TCG and Auto Chess after completing Adventure. Runtime regressions cover the forest corner route, final quest gating, and resuming a saved boss charge without rerunning its elapsed ticks. See the [playtest audit](PLAYTEST_CONCEPT_GAP.md) for the implementation and remaining art scope.
 
+### Bằng chứng nghiệm thu demo PR #11
+
+| Hạng mục | Kết quả trên Chromium cảm ứng mô phỏng |
+| --- | --- |
+| Adventure | Hồ sơ mới gặp Lilia, giải khóa rương, tìm hai manh mối, tải lại giữa trận, vượt hai đợt quái và Bếp Trưởng Hỏa Diệm, nhận thưởng rồi xem cảnh kết Chương 1. Kiểm tra cửa Hội Quán, Tiệm Nguyên Liệu và va chạm tường làng. |
+| TCG v4 | Ván thử theo fixture 5 ô Vị Linh và 2 ô bẫy. Triệu hồi, đặt bẫy úp ở ô 2, tải lại khi chờ phản ứng, lật bẫy phản phép rồi hạ chủ soái. |
+| Auto Chess | Cửa hàng tái lập theo seed. Mua quân, kéo từ bench lên bàn bằng cảm ứng, ghép 2 sao, mở lại ván đã lưu, kiểm tra ẩn lưới khi đấu và đi đến kết quả chung cuộc. |
+| Web app | Bản build trả manifest, biểu tượng Android và Apple touch icon. Mô phỏng đưa ứng dụng xuống nền rồi quay lại xác nhận nhạc dừng và phát tiếp. Kiểm tra lại bố cục khi đổi từ dọc sang ngang. |
+
+`client/scripts/smoke-web-client.cjs` đo bàn ghép ba ở 844×390 và 390×844, yêu cầu cả 36 ô chạm đạt tối thiểu 44×44 CSS px và cả bàn nằm trong viewport.
+
+Nghiệm thu còn mở trên iPhone Safari và Android Chrome thật. Dùng cùng bản preview để thêm vào màn hình chính, mở từ biểu tượng, xác nhận chế độ hiển thị và safe area khi xoay, thử chạm trong cả ba chế độ, rồi chuyển sang ứng dụng khác và quay lại để kiểm tra nhạc. Ghi thiết bị, phiên bản hệ điều hành, trình duyệt và SHA preview khi ghi kết quả.
+
 ## G. Web Client–Server acceptance
 
 The account playtest smoke checks registration, login, session revocation, CSRF, account isolation, cross-session persistence, idempotent retries, and concurrent save revisions against PostgreSQL. The full inventory, authoritative rewards, reconnect and device benchmarks below remain production acceptance goals.

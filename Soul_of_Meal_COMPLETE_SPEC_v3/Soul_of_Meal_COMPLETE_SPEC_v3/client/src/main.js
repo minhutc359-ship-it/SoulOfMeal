@@ -1,7 +1,7 @@
-import { adventureCheckpoint, createAdventureState, interactAdventure, nearestInteraction, availableAdventureInteractions, purchaseAdventureSupplies, setAdventureInput, stepAdventure, activateUltimate, activateLanternWard, retreatFromTide, activateBossCounter, beginAdventureChallenge, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, leaveAdventureDefeat, WORLD } from './modes/adventure.js';
+import { adventureCheckpoint, createAdventureState, interactAdventure, claimAdventurePuzzle, findBattleTarget, nearestInteraction, availableAdventureInteractions, purchaseAdventureSupplies, setAdventureInput, stepAdventure, activateUltimate, activateLanternWard, retreatFromTide, activateBossCounter, beginAdventureChallenge, beginBattle, bossTelegraphTargets, focusBossStove, claimBattleResult, leaveAdventureDefeat, WORLD } from './modes/adventure.js';
 import { createTcgChallenge, createTcgMatch, playTcgCard, passTcgPriority, advanceTcgResponses, attackTcg, assignTcgBlockers, declaredTcgAttackers, endTcgTurn, mulliganTcg, surrenderTcg, validateDeck, tcgCardIssue, tcgEffectText, tcgTableDeck, tcgTableDraft, tcgSpellTargets, strikeTcg, tcgStrikePreview, tcgStrikeTargets, decideTcgTrap, tcgExposedDamage, tcgTrapAnchor, TCG_DIFFICULTIES } from './modes/tcg.js';
 import { tcgCanAttack, tcgCanBlock, tcgUnitAttack } from './modes/tcgStrategy.js';
-import { tcgCardCost, tcgEffectBadge, tcgRecipeFor, TCG_RECIPES, tcgBoardLimit, tcgTrapLimit, tcgHandLimit, tcgCommanderMax, usesTcgTable, TCG_TABLE_VERSION, TCG_TABLE_DECK_SIZE, TCG_KEYWORDS } from './modes/tcgCards.js';
+import { tcgCardCost, tcgEffectBadge, tcgRecipeFor, TCG_RECIPES, tcgBoardLimit, tcgTrapLimit, tcgTrapSlot, tcgOpenTrapSlots, tcgHandLimit, tcgCommanderMax, usesTcgTable, TCG_TABLE_VERSION, TCG_TABLE_DECK_SIZE, TCG_KEYWORDS } from './modes/tcgCards.js';
 import { TCG_TRAP_LABELS, tcgAttackLanes, tcgTrapArmed, tcgTrapOptions, tcgTrapRule } from './modes/tcgTraps.js';
 import { advanceChessRound, arrangeChessUnit, benchChessUnit, buyChessOffer, chessBenchSlots, chessDropState, createChessRun, nextChessOpponent, refreshChessShop, sellChessUnit, startChessCombat, toggleChessLock, buyChessExperience, canBuyChessOffer, chessRoundInfo, chessStandings, chessXpNeeded, equipChessItem, chessTraits, CHESS_PREPARATION_SECONDS, CHESS_TRAITS } from './modes/autoChess.js';
 import { CHESS_ITEMS, chessItemPlacement } from './modes/chessItems.js';
@@ -9,18 +9,21 @@ import { gameEvents } from './core/events.js';
 import { loadSave, migrateSave, persistSave, SAVE_KEY } from './core/save.js';
 import { AnimationAdapter } from './render/animationAdapter.js';
 import { findAdventurePath, safeAdventurePosition } from './modes/adventureNavigation.js';
-import { createAdventureMapRegistry, getAdventureMap } from './modes/mapCatalog.js';
+import { ADVENTURE_MAP_KEYS, createAdventureMapRegistry, getAdventureMap } from './modes/mapCatalog.js';
 import { spriteRenderer } from './render/spriteRenderer.js';
-import { actorArt, chapterArt, combatArt, cutinArt, effectArt, ELEMENT_ART, HERO_ID, HERO_NAMES as characterNames, originalCardArt, preloadGameAssets, propArt, sceneArt, TCG_COMMANDER_ART, TRAVEL_HERO } from './render/spriteAssets.js';
+import { actorArt, chapterArt, combatArt, cutinArt, effectArt, ELEMENT_ART, HERO_ID, HERO_NAMES as characterNames, itemArt, originalCardArt, preloadGameAssets, propArt, sceneArt, TCG_COMMANDER_ART, TRAVEL_HERO } from './render/spriteAssets.js';
 import { drawEffectTexture, drawElementEffect } from './render/elementEffects.js';
+import { drawCombatAccent, drawCombatTrail } from './render/combatVfx.js';
 import { ADVENTURE_TICK_RATE, adventureBalance, adventureEncounters } from './modes/adventureBalance.js';
 import { adventureSpiritStats, canAffordSpiritCost, changeSpiritProgress, MAX_SPIRIT_RANK, SPIRIT_AWAKENING, SPIRIT_BONDS, SPIRIT_GEAR, SPIRIT_GIFTS, SPIRIT_MEMORIES, SPIRIT_RANKS, spiritProfile } from './modes/spiritProgress.js';
 import { BattleEffects } from './render/battleEffects.js';
 import { BattleRigClock, loadSpiritRigs } from './render/spiritRig.js';
 import { adventureCamera, battleCamera, adventureViewport, battleActorPoint, SPIRIT_RIG_SCALE } from './render/adventureStage.js';
 import { GameAudio } from './core/audio.js';
+import { GameVoice } from './core/voice.js';
 import { resolveSoundScene } from './core/soundScenes.js';
 import { ADVENTURE_CHALLENGE_TIERS, adventureChallenge, adventureChallenges } from './modes/adventureChallenges.js';
+import { ADVENTURE_PUZZLES, createAdventurePuzzle, playAdventurePuzzle } from './modes/adventurePuzzle.js';
 import { adventureJournal } from './modes/adventureJournal.js';
 import { ROOM_EXIT, VILLAGE_ROOMS } from './modes/villageRooms.js';
 import { adventureChronicle, CHAPTER_DIALOGUES } from './modes/adventureStory.js';
@@ -53,7 +56,7 @@ const pinnedRelease = pinnedContentRelease(new URL(location.href));
 const accountApi = import.meta.env?.SOM_ACCOUNTS ? createAccountApi() : null;
 const runtime = {
   page: 'title', save: loadSave(), adventure: null, cards: null, deck: null, units: null, maps: null,
-  shopConfig: null, tcg: null, chess: null, selectedSpell: null, tcgAttackers: null, tcgStrike: null, selectedBench: null, mulligan: new Set(),
+  shopConfig: null, tcg: null, chess: null, selectedSpell: null, tcgAttackers: null, tcgStrike: null, selectedBench: null, selectedChessItem: null, mulligan: new Set(),
   deckDrafts: new Map(), deckSlot: null, chessUpgrade: null,
   account: null, cloud: null, cloudStatus: 'saved', cloudError: null, deckFilters: { search: '', type: '', element: '', view: 'all' },
   selectedBoard: null, chessLock: null, chessReplayPaused: false, chessReplaySpeed: 1, notice: '', lastSavedLocation: 0, heldKeys: new Set(), tcgImpacts: new Map(),
@@ -69,9 +72,11 @@ const duelEffects = new DuelEffects(spriteRenderer);
 const tcgCardMotion = new TcgCardMotion();
 let tcgPresentationTurn = 0;
 runtime.audio = new GameAudio(runtime.save.settings);
+runtime.voice = new GameVoice(runtime.save.settings);
+runtime.voice.onPlaying = playing => runtime.audio.setVoicePlaying(playing);
 void runtime.audio.loadSoundtracks();
 window.addEventListener('click', () => runtime.audio.unlock(), { capture: true });
-window.addEventListener('keydown', () => runtime.audio.unlock(), { once: true, capture: true });
+window.addEventListener('keydown', () => runtime.audio.unlock(), { capture: true });
 gameEvents.addEventListener('game-event', ({ detail }) => {
   if (detail.type === 'chess_units_merged' && runtime.page === 'chess') {
     runtime.chessUpgrade = { ...detail.payload, expires: performance.now() + 950 };
@@ -81,6 +86,9 @@ gameEvents.addEventListener('game-event', ({ detail }) => {
   const delayedSlash = clock && detail.type === 'attack_started' && !detail.payload.travel_ticks;
   const origin = clock ? handleAdventureRigEvent(detail, battle, clock) : undefined;
   if (!delayedSlash) runtime.effects.handle(detail, battle, origin);
+  if (runtime.page === 'adventure' && detail.type === 'cast_started' && detail.payload.source_kind === 'ultimate') {
+    runtime.voice.speak(detail.payload.name + '!', detail.source_id, { clip: 'skill-' + detail.source_id });
+  }
   if (detail.rules_version?.startsWith('client-tcg-') && handleTcgPresentation(detail)) return;
   if (!delayedSlash && detail.payload.source_kind !== 'auto_chess_attack') {
     runtime.audio.handle(detail);
@@ -138,6 +146,7 @@ function handleTcgPresentation(detail) {
     const isSameExchange = current?.matchId === matchId && current.turn === tcgPresentationTurn;
     if (!isSameExchange || (payload.player_index === 0 && current.player_index !== 0) || type === 'tcg_ultimate_resolved') {
       runtime.tcgCutIn = { ...payload, ...command, matchId, turn: tcgPresentationTurn, expires: now + (reduced ? 760 : 1160) };
+      if (payload.player_index === 0 && command.quote) runtime.voice.speak(command.quote, 'commander', { clip: 'commander-' + command.kind });
     }
   }
   if (type === 'tcg_ultimate_resolved' || type === 'tcg_spell_resolved') {
@@ -181,7 +190,8 @@ function handleTcgPresentation(detail) {
 }
 
 function handleAdventureRigEvent({ type, payload, source_id }, battle, clock) {
-  const strike = type === 'hit_resolved' && !payload.travel_ticks;
+  const strike = (type === 'hit_resolved' && !payload.travel_ticks && payload.source_kind !== 'enemy_skill')
+    || type === 'enemy_skill_released';
   const support = type === 'support_cast_released';
   if (!strike && !support && type !== 'projectile_spawned') return;
   const actor = battle.actors.find(item => item.actor_id === source_id);
@@ -191,7 +201,7 @@ function handleAdventureRigEvent({ type, payload, source_id }, battle, clock) {
     app.dataset.motion === 'reduced');
   if (strike) {
     runtime.effects.add('strike', payload.element, .24, { ...point, angle: actor.direction === 'W' ? Math.PI : 0 });
-    if (payload.source_kind === 'basic') runtime.audio.handle({ type: 'attack_started', payload });
+    if (['basic', 'enemy_attack'].includes(payload.source_kind)) runtime.audio.handle({ type: 'attack_started', payload });
   } else if (support) {
     runtime.effects.add('cast', payload.element, .36, point);
   }
@@ -204,8 +214,7 @@ const elementColors = { fire: '#dd684a', water: '#428eac', wood: '#548d56', ligh
 const contentFiles = [
   'cards/cards.catalog.json', 'cards/starter_deck.json',
   'auto_chess/units.json', 'auto_chess/shop_odds.json',
-  'maps/village.json', 'maps/forest.json', 'maps/harbor.json', 'maps/caldera.json', 'maps/sanctum.json',
-  ...VILLAGE_ROOMS.map(key => 'maps/' + key + '.json'),
+  ...ADVENTURE_MAP_KEYS.map(key => 'maps/' + key + '.json'),
 ];
 
 async function loadContent(report) {
@@ -308,6 +317,8 @@ function replaceProfile(save) {
   runtime.effects = new BattleEffects(spriteRenderer);
   runtime.animations?.retainActors([]);
   runtime.audio.setSettings(save.settings);
+  runtime.voice.stop();
+  runtime.voice.setSettings(save.settings);
   syncMotion();
 }
 
@@ -529,6 +540,7 @@ function showScene(page) {
   runtime.worldStick = null;
   setAdventureInput(runtime.adventure, 0, 0);
   if (runtime.page !== page) {
+    runtime.voice.stop();
     boardSprites.clear();
     duelEffects.clear();
     runtime.tcgImpacts.clear();
@@ -537,6 +549,7 @@ function showScene(page) {
     runtime.tcgRecipeFlash = null;
     runtime.selectedSpell = null;
     runtime.tcgStrike = null;
+    runtime.selectedChessItem = null;
     tcgCardMotion.clear();
   }
   runtime.page = page;
@@ -579,14 +592,14 @@ function shell(content) {
   if (runtime.page !== 'settings') runtime.audio.setScene(resolveSoundScene(runtime.page, runtime.adventure));
   const player = runtime.save.player;
   const lobby = runtime.page === 'home';
-  const playScene = ['adventure', 'tcg', 'chess'].includes(runtime.page);
+  const playScene = ['adventure', 'puzzle', 'tcg', 'chess'].includes(runtime.page);
   const sameScreen = app.querySelector('.shell')?.dataset.screen === runtime.page;
   const scrollTop = sameScreen ? app.querySelector('.main').scrollTop : 0;
   const handScroll = sameScreen ? app.querySelector('.hand-row')?.scrollLeft : undefined;
   const rosterScroll = sameScreen ? app.querySelector('.meta-roster-picker')?.scrollLeft : undefined;
   const previousFocus = document.activeElement;
   const focusKey = sameScreen && app.contains(previousFocus)
-    ? ['data-card', 'data-tcg-pass', 'data-tcg-end', 'data-bench', 'data-cell', 'data-buy'].find(key => previousFocus.hasAttribute(key))
+    ? ['data-puzzle-cell', 'data-chess-item', 'data-card', 'data-tcg-pass', 'data-tcg-end', 'data-bench', 'data-cell', 'data-buy'].find(key => previousFocus.hasAttribute(key))
     : null;
   const focusValue = focusKey ? previousFocus.getAttribute(focusKey) : null;
   const gold = escapeHtml(player.gold);
@@ -601,6 +614,7 @@ function shell(content) {
           <span title="Tinh hoa" aria-label="${essence} tinh hoa"><i aria-hidden="true">✦</i> ${essence}</span>
         </div>
         ${runtime.cloud ? '<button class="cloud-badge" data-page="settings" title="Trạng thái lưu trên máy chủ"></button>' : ''}
+        ${lobby ? '<button class="shell-icon" data-page="guide" aria-label="Hướng dẫn">?</button>' : ''}
         ${document.fullscreenEnabled ? '<button class="shell-icon" type="button" data-fullscreen>⛶</button>' : ''}
       </header>`}
       <main class="main">${content}</main>
@@ -651,7 +665,8 @@ function pageHeader(kicker, title, description) {
 
 function renderHome() {
   const { save } = runtime;
-  const companion = save.roster.find(member => member.id === META.mascot) ?? save.roster[0];
+  const companion = save.roster.find(member => member.id === save.settings.homeCompanion)
+    ?? save.roster.find(member => member.id === META.mascot) ?? save.roster[0];
   const companionName = SPIRITS[companion.id].name;
   const journal = adventureJournal(save);
   const headline = journal.completedCampaign ? 'Đã hoàn thành Hành Trình Vị Linh'
@@ -676,6 +691,7 @@ function renderHome() {
     runtime.rosterFilter = 'owned';
     runtime.rosterTab = 'info';
     navigate('roster');
+    runtime.voice.speak(SPIRITS[companion.id].lore, companion.id, { clip: 'home-' + companion.id });
   });
   void checkForContentUpdate();
 }
@@ -753,7 +769,7 @@ function renderAdventure() {
     const actor = battle?.actors.find((candidate) => candidate.actor_id === member.id) ?? adventureSpiritStats(member, spiritProfile(save, member.id), undefined, save);
     const skill = adventureBalance.ultimates[actor.id];
     return `<div class="combatant skill-card" data-actor="${actor.id}" data-primed="${actor.energy >= 100}">
-      <button type="button" class="party-avatar" data-profile-id="${escapeAttr(actor.id)}" aria-label="Hồ sơ ${escapeAttr(SPIRITS[actor.id]?.name)}">${spiritImage(actor.id)}</button>
+      <span class="party-avatar">${spiritImage(actor.id)}</span>
       <div class="skill-info"><strong>${escapeHtml(SPIRITS[actor.id]?.name)}</strong>
         <div class="meter" aria-label="Sinh lực"><i data-hp style="width:${actor.hp / actor.maxHp * 100}%"></i></div>
         <div class="meter energy" aria-label="Năng lượng"><i data-energy style="width:${actor.energy}%"></i></div>
@@ -775,7 +791,7 @@ function renderAdventure() {
   const battleControls = battle?.phase === 'battle_running' ? `
     <button class="button light compact" data-battle-pause></button>
     <button class="button light compact" data-battle-speed aria-label="Tăng tốc trận đấu" aria-pressed="false">2×</button>
-    <span class="key-hint">1–5 · Tuyệt kỹ</span>` : '';
+    <button class="button light compact" data-auto-ultimate aria-pressed="${Boolean(save.settings.autoAdventureUltimate)}">Tự dùng tuyệt kỹ</button>` : '';
   const sequenceOptions = encounter?.phases[2]?.sequence?.options;
   const sequenceButtons = Object.entries(sequenceOptions ?? {}).map(([id, label]) =>
     `<button class="button light compact" type="button" data-boss-counter="${id}">${label}</button>`).join('');
@@ -795,7 +811,7 @@ function renderAdventure() {
         ${sceneMenu()}
       </header>
       ${battle ? '' : `<div class="minimap-widget">
-        <button class="map-toggle" type="button" data-map-toggle aria-haspopup="dialog">Bản đồ</button>
+        <button class="map-toggle" type="button" data-map-toggle aria-pressed="${runtime.showMinimap}">Bản đồ</button>
         <canvas id="world-minimap" width="180" height="102" aria-hidden="true" ${runtime.showMinimap ? '' : 'hidden'}></canvas>
       </div><div class="world-stick" data-world-stick aria-hidden="true"><i></i></div>
       <button class="button adventure-interact" type="button" data-interact ${target ? '' : 'hidden'}>${escapeHtml(actionLabel)}</button>
@@ -822,18 +838,12 @@ function renderAdventure() {
           ${inRoom ? '<button class="button light" data-leave-room>Ra quảng trường</button>'
             : guideAction ? '<button class="button light" data-guide-objective>Dẫn đường</button>' : ''}
         </section>`}
-      </aside>${battle ? party : ''}
+      </aside>${battle ? party : ''}${resultPanel ? `<section class="adventure-result-inline" aria-label="Kết quả phiêu lưu">${resultPanel}</section>` : ''}
     </div>
   `);
   app.querySelector('[data-interact]')?.addEventListener('click', doAdventureInteract);
   app.querySelector('[data-open-journal]')?.addEventListener('click', () => renderAdventureJournal(true));
   app.querySelector('[data-explore-party]')?.addEventListener('click', () => navigate('roster'));
-  app.querySelectorAll('[data-profile-id]').forEach(button => button.addEventListener('click', () => {
-    runtime.rosterId = button.dataset.profileId;
-    runtime.rosterFilter = 'owned';
-    runtime.rosterTab = 'info';
-    navigate('roster');
-  }));
   app.querySelector('[data-guide-objective]')?.addEventListener('click', () => guideToObjective(guideAction));
   app.querySelector('[data-leave-room]')?.addEventListener('click', () => {
     const exit = availableAdventureInteractions(adventure.map, save, runtime.maps).find(item => item.action === ROOM_EXIT);
@@ -855,31 +865,25 @@ function renderAdventure() {
     saveNow();
     updateBattleHud(battle);
   });
+  app.querySelector('[data-auto-ultimate]')?.addEventListener('click', event => {
+    save.settings.autoAdventureUltimate = !save.settings.autoAdventureUltimate;
+    event.currentTarget.setAttribute('aria-pressed', String(save.settings.autoAdventureUltimate));
+    saveNow();
+  });
   app.querySelector('[data-battle-speed]')?.addEventListener('click', () => {
     battle.speed = battle.speed === 2 ? 1 : 2;
     updateBattleHud(battle);
   });
-  if (resultPanel) showBattleResult('Kết quả phiêu lưu', resultPanel);
   app.querySelector('[data-battle-result]')?.addEventListener('click', claimAdventureBattle, { once: true });
   app.querySelector('[data-adventure-prepare]')?.addEventListener('click', () => {
     if (leaveAdventureDefeat(adventure)) navigate('roster');
   });
   const canvas = app.querySelector('#adventure-canvas');
   canvas?.addEventListener('pointerdown', onWorldPointer);
-  app.querySelector('[data-map-toggle]')?.addEventListener('click', () => {
-    const map = getAdventureMap(runtime.maps, adventure.map);
-    if (!map) return;
-    const points = availableAdventureInteractions(adventure.map, save, runtime.maps);
-    const dialog = openInfoDialog(mapTitle, `<canvas class="world-map-expanded" width="720" height="405" aria-label="Bản đồ khu vực"></canvas>
-      <div class="action-row"><button class="button light" data-minimap-visibility>${runtime.showMinimap ? 'Ẩn bản đồ nhỏ' : 'Hiện bản đồ nhỏ'}</button>
-      ${guideAction ? '<button class="button" data-map-guide>Dẫn đường</button>' : ''}</div>`);
-    drawWorldMinimap(dialog.querySelector('canvas'), map, adventure, points, guideAction);
-    dialog.querySelector('[data-minimap-visibility]').addEventListener('click', event => {
-      runtime.showMinimap = !runtime.showMinimap;
-      app.querySelector('#world-minimap').hidden = !runtime.showMinimap;
-      event.currentTarget.textContent = runtime.showMinimap ? 'Ẩn bản đồ nhỏ' : 'Hiện bản đồ nhỏ';
-    });
-    dialog.querySelector('[data-map-guide]')?.addEventListener('click', () => { dialog.close(); guideToObjective(guideAction); });
+  app.querySelector('[data-map-toggle]')?.addEventListener('click', event => {
+    runtime.showMinimap = !runtime.showMinimap;
+    event.currentTarget.setAttribute('aria-pressed', String(runtime.showMinimap));
+    app.querySelector('#world-minimap').hidden = !runtime.showMinimap;
   });
   runtime.minimapObjective = guideAction;
   const stick = app.querySelector('[data-world-stick]');
@@ -912,17 +916,18 @@ function renderAdventureJournal(asOverlay = false) {
       <div class="action-row">
         ${guideAction && !adventure.battle ? `<button class="button" data-guide-objective>${guideAction === ROOM_EXIT ? 'Dẫn đến lối ra' : 'Dẫn đường'}</button>` : ''}
         ${!adventure.battle && adventureChallenges(save).some(item => item.unlocked) ? '<button type="button" class="button light" data-adventure-challenges>Khiêu chiến</button>' : ''}
+        ${asOverlay ? '<button class="button light" data-open-chronicle>Manga hành trình</button>' : ''}
         ${asOverlay ? '' : '<button class="button light" data-scene-back>Về bản đồ</button>'}
       </div>
     </section>
-    <section class="panel chronicle-panel" aria-label="Manga Hành Trình Vị Linh">
+    ${asOverlay ? '' : `<section class="panel chronicle-panel" aria-label="Manga Hành Trình Vị Linh">
       <h2>Manga Hành Trình Vị Linh</h2>
       <div class="chronicle-grid">${chronicle.map(chapter => `<article class="chronicle-entry ${chapter.scenes.length ? '' : 'locked'}">
         ${chapter.scenes.length ? `<img loading="lazy" src="${chapterArt(chapter.number)}" alt="">` : ''}
         <div class="chronicle-copy"><span>Chương ${chapter.number}${chapter.scenes.length ? '' : ' · Chưa mở'}</span><h3>${chapter.title}</h3>
           ${chapter.scenes.map(scene => `<button class="button light compact" data-story-replay="${scene}">${CHAPTER_DIALOGUES[scene].title}</button>`).join('')}
         </div></article>`).join('')}</div>
-    </section>`;
+    </section>`}`;
   let dialog;
   if (asOverlay) {
     dialog = openInfoDialog('Nhật ký hành trình', journalContent);
@@ -931,9 +936,83 @@ function renderAdventureJournal(asOverlay = false) {
   const host = dialog ?? app;
   host.querySelector('[data-guide-objective]')?.addEventListener('click', () => { dialog?.close(); guideToObjective(guideAction); });
   host.querySelector('[data-adventure-challenges]')?.addEventListener('click', () => { dialog?.close(); openAdventureChallenges(); });
-  host.querySelectorAll('[data-story-replay]').forEach(button => {
-    button.addEventListener('click', () => openStoryDialog(app, button.dataset.storyReplay));
+  host.querySelector('[data-open-chronicle]')?.addEventListener('click', () => {
+    dialog.close();
+    navigate('journey');
+    app.querySelector('.chronicle-panel')?.scrollIntoView({ block: 'start' });
   });
+  host.querySelectorAll('[data-story-replay]').forEach(button => {
+    button.addEventListener('click', () => openStoryDialog(app, button.dataset.storyReplay, runtime.voice));
+  });
+}
+
+const GUIDE_PAGES = { world: 'Thế giới', adventure: 'Phiêu lưu', tcg: 'Thẻ chiến thuật', autochess: 'Auto Chess', effects: 'Hiệu ứng', update: 'Cập nhật game' };
+const EFFECT_PREVIEWS = {
+  spell: 'Tụ phép và phóng đạn', slash: 'Đòn cận chiến', cast: 'Tuyệt kỹ', shield: 'Hộ thuẫn',
+  heal: 'Hồi phục', trap: 'Lật bẫy', defeat: 'Gục ngã',
+};
+
+function renderGuide() {
+  const guide = runtime.guidePage ?? 'adventure';
+  shell(pageHeader('Hướng dẫn', guide === 'effects' ? 'Xem thử hiệu ứng' : 'Đọc truyện tranh hướng dẫn', '') + `
+    <div class="guide-reader">
+      <nav class="meta-banner-tabs" aria-label="Mục hướng dẫn">${Object.entries(GUIDE_PAGES).map(([id, label]) =>
+        `<button class="button light" data-guide-page="${id}" aria-pressed="${guide === id}">${label}</button>`).join('')}</nav>
+      ${guide === 'effects' ? `<div class="effect-gallery">
+        <canvas width="760" height="280" data-effect-preview aria-label="Sân thử hiệu ứng nguyên tố"></canvas>
+        <div class="action-row effect-preview-controls">
+          <label>Nguyên tố<select data-effect-element>${Object.entries(ELEMENT_NAMES).map(([id, label]) =>
+            `<option value="${id}">${label}</option>`).join('')}</select></label>
+          <label>Hoạt ảnh<select data-effect-kind>${Object.entries(EFFECT_PREVIEWS).map(([id, label]) =>
+            `<option value="${id}">${label}</option>`).join('')}</select></label>
+          <button type="button" class="button" data-effect-play>Phát hiệu ứng</button>
+        </div>
+      </div>` : `<img class="guide-comic" src="./assets/original/guides/${guide}.webp" alt="Truyện tranh hướng dẫn · ${GUIDE_PAGES[guide]}">`}
+    </div>`);
+  const play = app.querySelector('[data-effect-play]');
+  if (play) {
+    const show = () => {
+      runtime.effectPreview = {
+        element: app.querySelector('[data-effect-element]').value,
+        kind: app.querySelector('[data-effect-kind]').value,
+        start: performance.now(),
+      };
+    };
+    play.addEventListener('click', show);
+    show();
+  }
+  app.querySelectorAll('[data-guide-page]').forEach(button => button.addEventListener('click', () => {
+    runtime.guidePage = button.dataset.guidePage;
+    renderGuide();
+    app.querySelector('[data-guide-page][aria-pressed="true"]')?.focus({ preventScroll: true });
+  }));
+}
+
+function paintEffectPreview(now, reducedMotion) {
+  const canvas = app.querySelector('[data-effect-preview]');
+  if (!canvas || !runtime.effectPreview) return;
+  const preview = runtime.effectPreview;
+  const { element, kind, start } = preview;
+  const progress = reducedMotion ? .73 : (now - start) / 1350;
+  if (preview.reducedMotion === reducedMotion && (preview.finished || reducedMotion)) return;
+  preview.reducedMotion = reducedMotion;
+  preview.finished = progress > 1;
+  const width = 760, height = 280;
+  const context = canvasContext(canvas, canvasResolution(canvas, width, height, true), width, height);
+  if (!context) return;
+  context.clearRect(0, 0, width, height);
+  const at = { x: width / 2, y: height * .61 };
+  const from = { x: 166, y: at.y }, to = { x: width - 166, y: at.y };
+  if (preview.finished) return;
+  if (kind === 'spell' && progress < .28) {
+    drawCombatAccent(context, spriteRenderer, { element, kind: 'charge', ...from, size: 112, progress: progress / .28 });
+  } else if (kind === 'spell' && progress < .65) {
+    drawCombatTrail(context, spriteRenderer, { element, from, to, progress: (progress - .28) / .37, size: 96, arc: 58 });
+  } else {
+    const point = kind === 'spell' ? to : at;
+    drawCombatAccent(context, spriteRenderer, { element, kind: kind === 'spell' ? 'hit' : kind, ...point,
+      size: 148, progress: kind === 'spell' ? (progress - .65) / .35 : progress, reducedMotion });
+  }
 }
 
 function openAdventureChallenges() {
@@ -1087,7 +1166,7 @@ function doAdventureInteract() {
   const result = interactAdventure(runtime.adventure, runtime.save, runtime.maps);
   runtime.adventure = result.state;
   runtime.save = result.save;
-  if (result.changed || result.dialogue || result.service) {
+  if (result.changed || result.dialogue || result.service || result.puzzle) {
     runtime.heldKeys.clear();
     setAdventureInput(runtime.adventure, 0, 0);
     runtime.adventure.walkPath = [];
@@ -1095,9 +1174,82 @@ function doAdventureInteract() {
     runtime.adventure.tapInteraction = null;
   }
   if (result.changed) saveNow();
+  if (result.puzzle) {
+    runtime.adventurePuzzle = createAdventurePuzzle(result.puzzle);
+    runtime.puzzleSelection = null;
+    runtime.puzzleNote = '';
+    return navigate('puzzle');
+  }
   if (result.service) return openVillageService(result.service, result.offer);
   render();
-  if (result.dialogue) openStoryDialog(app, result.dialogue);
+  if (result.dialogue && !runtime.adventure.battle) openStoryDialog(app, result.dialogue, runtime.voice);
+  else if (result.voice) runtime.voice.speak(result.voice.text, result.voice.speaker, { priority: true, clip: result.voice.clip });
+}
+
+const PUZZLE_INGREDIENTS = [
+  ['Ớt', 'fire'], ['Giọt sương', 'water'], ['Lá thơm', 'wood'], ['Mật ong', 'light'], ['Nấm', 'shadow'],
+];
+
+function renderAdventurePuzzle() {
+  const puzzle = runtime.adventurePuzzle;
+  if (!puzzle) return navigate('adventure', { replace: true });
+  const spec = ADVENTURE_PUZZLES[puzzle.id];
+  const slide = spec.kind === 'slide';
+  shell(`<section class="adventure-puzzle" aria-labelledby="puzzle-title">
+    <div class="puzzle-copy"><h1 id="puzzle-title">${spec.title}</h1>
+      <p>${spec.instructions}</p>
+      <p class="puzzle-score">${slide ? `${puzzle.moves} lượt trượt` : `Đã ghép ${puzzle.score}/${spec.goal} · Còn ${spec.moves - puzzle.moves} lượt`}</p>
+      ${spec.reward ? `<p>Thưởng: ${spec.reward.gold} vàng, ${spec.reward.essence} tinh hoa và mở Cổng Rừng Nguyên Liệu.</p>` : ''}
+      <p class="puzzle-note" role="status">${puzzle.status === 'won' ? 'Đã giải được thử thách.' :
+        puzzle.status === 'lost' ? 'Đã hết lượt. Thử lại để tiếp tục.' : runtime.puzzleNote}</p>
+      <div class="action-row">
+        <button class="button light" data-puzzle-back>Quay lại</button>
+        ${puzzle.status === 'won' ? `<button class="button" data-puzzle-claim>${spec.reward ? 'Nhận thưởng' : 'Tiếp tục nhiệm vụ'}</button>`
+          : puzzle.moves || puzzle.status === 'lost' ? '<button class="button light" data-puzzle-reset>Chơi lại</button>' : ''}
+      </div>
+    </div>
+    <div class="puzzle-board ${slide ? 'sliding-board' : ''}" role="group" aria-label="Bàn giải đố">
+      ${puzzle.board.map((value, index) => {
+        const [name, element] = slide ? [value ? 'Mảnh ' + value : 'Ô trống', 'light'] : PUZZLE_INGREDIENTS[value];
+        return `<button class="puzzle-tile element-${element}" data-puzzle-cell="${index}"
+          aria-label="${name}, ô ${index + 1}" ${slide ? '' : `aria-pressed="${runtime.puzzleSelection === index}"`}
+          ${puzzle.status !== 'playing' || (slide && !value) ? 'disabled' : ''}>
+          ${slide ? value || '' : `<img src="${effectArt(element, 'impact')}" alt=""><small>${name}</small>`}
+        </button>`;
+      }).join('')}
+    </div>
+  </section>`);
+  const back = () => sceneNavigation.back();
+  app.querySelector('[data-puzzle-back]').addEventListener('click', back);
+  app.querySelector('[data-puzzle-reset]')?.addEventListener('click', () => {
+    runtime.adventurePuzzle = createAdventurePuzzle(puzzle.id, puzzle.seed);
+    runtime.puzzleSelection = null;
+    runtime.puzzleNote = '';
+    renderAdventurePuzzle();
+  });
+  app.querySelector('[data-puzzle-claim]')?.addEventListener('click', () => {
+    const result = claimAdventurePuzzle(runtime.adventure, runtime.save, runtime.maps, puzzle);
+    runtime.save = result.save;
+    runtime.adventurePuzzle = null;
+    if (result.changed) saveNow();
+    back();
+  });
+  for (const button of app.querySelectorAll('[data-puzzle-cell]')) button.addEventListener('click', () => {
+    const index = Number(button.dataset.puzzleCell);
+    const selected = runtime.puzzleSelection;
+    if (slide || (selected !== null && selected !== index)) {
+      const next = slide ? playAdventurePuzzle(puzzle, index, puzzle.board.indexOf(0)) : playAdventurePuzzle(puzzle, selected, index);
+      runtime.adventurePuzzle = next;
+      runtime.puzzleSelection = !slide && next === puzzle ? index : null;
+      runtime.puzzleNote = next !== puzzle ? '' : slide ? 'Chọn mảnh cạnh ô trống.' : 'Hãy đổi hai ô kề nhau để tạo một bộ ba.';
+      if (next !== puzzle) runtime.audio.play('sfx_ui_confirm', { gain: .5 });
+    } else {
+      runtime.puzzleSelection = selected === index ? null : index;
+      runtime.puzzleNote = '';
+    }
+    renderAdventurePuzzle();
+    if (runtime.adventurePuzzle.status === 'won') app.querySelector('[data-puzzle-claim]').focus();
+  });
 }
 
 function openVillageService(service, offer) {
@@ -1107,26 +1259,8 @@ function openVillageService(service, offer) {
   }
   if (service === 'journal') return renderAdventureJournal(true);
   if (service !== 'supplies' || !offer) return;
-  const affordable = runtime.save.player.gold >= offer.gold;
-  const dialog = openInfoDialog('Tiệm Nguyên Liệu', `
-    <p>Đổi vàng lấy tinh hoa dùng để nâng cấp, chế tác và tặng quà Vị Linh.</p>
-    <p><b>${escapeHtml(offer.essence)} tinh hoa</b> · ${escapeHtml(offer.gold)} vàng</p>
-    <div class="action-row"><button class="button light" data-open-store>Cửa hàng</button><button type="button" class="button" data-buy-supplies ${affordable ? '' : 'disabled'}>${affordable ? 'Đổi nguyên liệu' : 'Chưa đủ vàng'}</button></div>`);
-  dialog.querySelector('[data-open-store]').addEventListener('click', () => { dialog.close(); navigate('store'); });
-  dialog.querySelector('[data-buy-supplies]').addEventListener('click', () => {
-    const purchase = purchaseAdventureSupplies(runtime.adventure, runtime.save, runtime.maps);
-    if (purchase.purchased) {
-      runtime.save = purchase.save;
-      runtime.adventure.lastMessage = `Đã đổi ${offer.gold} vàng lấy ${offer.essence} tinh hoa.`;
-      saveNow();
-      runtime.audio.play('sfx_ui_confirm');
-    } else {
-      runtime.adventure.lastMessage = 'Không thể đổi nguyên liệu. Kiểm tra số vàng và vị trí.';
-    }
-    dialog.close();
-    renderAdventure();
-    app.querySelector('[data-interact]')?.focus({ preventScroll: true });
-  }, { once: true });
+  runtime.storeTab = 'all';
+  navigate('store');
 }
 
 function useUltimate(actorId) {
@@ -1375,7 +1509,8 @@ function drawMapVisuals(context, map, save, feetY, drawHero) {
       const { quest, chapterTwo } = save.adventure;
       const questStage = quest === 'completed' ? chapterTwo.stage : quest;
       if (['not_started', 'ready_to_claim'].includes(questStage)) drawMapLabel(context, '!', x, y - 60);
-    } else if (visual.kind === 'guide') {
+    } else if (['guide', 'resident', 'field_encounter'].includes(visual.kind)
+        && (visual.kind !== 'field_encounter' || activeIds.has(visual.id))) {
       drawFitted(context, actorArt(visual.actorId), x, y + 11, 65, 70);
       drawMapLabel(context, visual.label, x, y + 24);
     } else if (visual.kind === 'feast_guest' && save.adventure.finale[6].stage === 'completed') {
@@ -1434,9 +1569,10 @@ function drawFitted(context, path, x, baseline, width, height) {
 }
 
 function drawBattleScene(context, battle, view) {
+  const encounter = adventureEncounters[battle.encounter ?? 'forest'];
   context.fillStyle = '#283f33';
   context.fillRect(0, 0, 960, 540);
-  spriteRenderer.drawImage(context, sceneArt(adventureEncounters[battle.encounter ?? 'forest'].scene ?? 'arena'), 0, 0, 960, 540);
+  spriteRenderer.drawImage(context, sceneArt(encounter.battleScene ?? encounter.scene ?? 'arena'), 0, 0, 960, 540);
   if (battle.encounter === 'seal') {
     context.fillStyle = '#2f154852';
     context.fillRect(0, 0, 960, 540);
@@ -1468,6 +1604,40 @@ function drawBattleScene(context, battle, view) {
   const actors = [...battle.actors, ...battle.stoves]
     .map(actor => ({ actor, ...battleActorPoint(actor, blend, battle.bossTelegraph?.safeX) })).sort((a, b) => a.y - b.y);
   for (const { actor, x, y } of actors) {
+    const action = actor.action;
+    if (!actor.alive || action?.sourceKind !== 'enemy_skill' || battle.tick >= action.launchTick) continue;
+    const target = findBattleTarget(battle, action.targetId);
+    const aim = action.aim ?? (target?.alive && battleActorPoint(target, blend, battle.bossTelegraph?.safeX));
+    if (!aim) continue;
+    const opacity = .45 + .5 * (1 - (action.launchTick - battle.tick) / action.windup);
+    context.save();
+    context.globalAlpha = opacity;
+    context.fillStyle = '#9d241c70';
+    context.strokeStyle = '#ff986e';
+    context.lineWidth = 2;
+    context.setLineDash([7, 5]);
+    if (action.radius) {
+      context.beginPath();
+      context.ellipse(aim.x, aim.y, action.radius, action.radius * .5, 0, 0, Math.PI * 2);
+      context.fill();
+      context.stroke();
+      for (const ally of actors) {
+        if (ally.actor.team !== 'player' || !ally.actor.alive
+            || Math.hypot(ally.actor.x - aim.x, ally.actor.y - aim.y) > action.radius) continue;
+        context.beginPath();
+        context.ellipse(ally.x, ally.y, 21, 8, 0, 0, Math.PI * 2);
+        context.stroke();
+      }
+    } else {
+      context.beginPath();
+      context.moveTo(x, y - 38);
+      context.lineTo(aim.x, aim.y - 18);
+      context.stroke();
+    }
+    context.restore();
+    drawMapLabel(context, action.name, x, y - (actor.boss ? 144 : 105));
+  }
+  for (const { actor, x, y } of actors) {
     if (actor.stove) {
       if (actor.alive) drawBossStove(context, actor, battle.stoveTargetId === actor.actor_id);
     } else {
@@ -1479,7 +1649,7 @@ function drawBattleScene(context, battle, view) {
         x, y, rigMotion);
     }
   }
-  runtime.effects.draw(context, battle, reducedMotion, view, fraction, blend);
+  runtime.effects.draw(context, battle, reducedMotion, view, fraction, blend, runtime.save.settings.effectsLimited);
 }
 
 function drawTideWarning(context, safeX, opacity) {
@@ -1531,7 +1701,12 @@ function drawActor(context, actor, animation, guarded, x, y, rigMotion) {
   const drawn = (rigMotion && spriteRenderer.rigs.get(actor.id).draw(context, rigMotion, x, y, actor.direction, SPIRIT_RIG_SCALE))
     || (!actor.stationary && spriteRenderer.drawSprite(context, actor.id, animation, x, y, { scale: actor.boss ? 1.04 : .67 }));
   if (actor.stationary) {
-    drawFitted(context, propArt(actor.artId ?? actor.id), x, y, 150, 129);
+    const charging = actor.action?.sourceKind === 'enemy_skill' || animation?.requestedClipId === 'skill_01';
+    const pose = app.dataset.motion === 'reduced' ? 0 : Math.sin((animation?.motionPhase ?? 0) * Math.PI);
+    if (charging) drawElementEffect(context, spriteRenderer, actor.element, 'impact', {
+      x, y: y - 54, size: 150 + pose * 24, opacity: .35 + pose * .20,
+    });
+    drawFitted(context, propArt(actor.artId ?? actor.id), x, y - (charging ? pose * 5 : 0), 150, 129);
   } else if (!drawn) {
     const pose = placeholderPose(animation);
     const art = actorArt(actor.id);
@@ -1629,7 +1804,9 @@ function tcgChallenge(match) {
 }
 
 function cardArt(card) {
+  const dedicated = originalCardArt(card.card_id);
   const entry = card.card_id && runtime.cards.cards.find((candidate) => candidate.card_id === card.card_id);
+  if (dedicated) return dedicated;
   if (card.art_prop) return propArt(card.art_prop);
   if (card.art_effect) return combatArt(card.art_effect);
   return actorArt(card.character_id ?? entry?.character_id)
@@ -1638,9 +1815,11 @@ function cardArt(card) {
 }
 
 function matchCardArt(card) {
+  const artwork = originalCardArt(card.card_id);
+  if (artwork) return artwork;
   if (Object.hasOwn(characterNames, card.requires_character)) return cutinArt(card.requires_character);
   return Object.hasOwn(characterNames, card.character_id) ? cutinArt(card.character_id)
-    : originalCardArt(card.card_id) ?? cardArt(card);
+    : cardArt(card);
 }
 
 function matchHeader(title, controls) {
@@ -1650,6 +1829,7 @@ function matchHeader(title, controls) {
 
 function sceneMenu(controls = '') {
   return `<details class="match-menu"><summary aria-label="Menu game">☰</summary><div>${controls}
+    <button type="button" data-page="guide">Hướng dẫn</button>
     <button type="button" data-scene-settings>Cài đặt</button>
     ${document.fullscreenEnabled ? '<button type="button" data-fullscreen>Toàn màn hình</button>' : ''}
     <button type="button" data-page="home">Về sảnh</button>
@@ -1669,8 +1849,14 @@ function tcgCommander(match, index, targets, strikes) {
   const hp = `<b>${player.hp}</b><small>HP</small>${tcgImpact(id)}`;
   return `<div class="${friendly ? 'duel-bottom' : 'duel-top'}">
     <span class="duel-crest" aria-hidden="true">${friendly ? `<img src="${TCG_COMMANDER_ART}" alt="">` : '◆'}</span>
-    <div class="duel-identity"><strong>${escapeHtml(name)}</strong><small>${player.mana}/${player.maxMana} mana${friendly ? '' : ` · ${player.deck.length} lá bộ · ${player.hand.length} lá tay`}</small></div>
-    ${friendly ? `<button type="button" class="tcg-deck-target ${deckTarget ? 'spell-target' : ''}" data-tcg-deck ${deckTarget ? 'data-spell-target="deck"' : 'disabled'} aria-label="Bộ bài của bạn · ${player.deck.length} lá">Bộ · ${player.deck.length}</button>` : ''}
+    <div class="duel-identity"><strong>${escapeHtml(name)}</strong><small>${player.mana}/${player.maxMana} mana${friendly ? '' : ` · ${player.hand.length} lá tay`}</small></div>
+    <div class="tcg-piles" aria-label="${friendly ? 'Bộ bài của bạn' : 'Bộ bài đối thủ'}">
+      ${deckTarget ? `<button type="button" class="tcg-deck-target spell-target" data-tcg-deck data-spell-target="deck">Bộ ${player.deck.length}</button>`
+        : `<span class="tcg-deck-target" ${friendly ? 'data-tcg-deck' : ''} title="Bài còn trong bộ">Bộ ${player.deck.length}</span>`}
+      ${friendly && player.graveyard.length ? `<button type="button" class="tcg-deck-target"
+        data-tcg-graveyard>Mộ ${player.graveyard.length}</button>`
+        : `<span class="tcg-deck-target" title="Số lá trong mộ bài">Mộ ${player.graveyard.length}</span>`}
+    </div>
     ${tcgTrapSlots(match, index, targets)}
     ${canStrike ? `<button type="button" class="commander-hp enemy-hp strike-target" data-duel-id="${id}" data-tcg-strike-target="commander" aria-label="Tấn công ${escapeAttr(name)} · ${player.hp} HP">${hp}</button>`
       : targeting
@@ -1719,7 +1905,7 @@ function showTcgGraveyard(cards) {
 }
 
 function boardChibi(id, key, direction, fallback) {
-  if (!id || !spriteRenderer.sheets.get(id)?.loaded) return fallback;
+  if (!id || (!spriteRenderer.rigs.has(id) && !spriteRenderer.sheets.get(id)?.loaded)) return fallback;
   return `<canvas class="board-chibi" width="${BOARD_SPRITE.width}" height="${BOARD_SPRITE.height}" aria-hidden="true" data-chibi-id="${escapeAttr(id)}"
     data-chibi-key="${escapeAttr(key)}" data-chibi-facing="${direction}"></canvas>`;
 }
@@ -1783,8 +1969,6 @@ function renderTcg() {
   if (showCombat) runtime.tcgAttackers ??= new Set(user.units.filter(tcgCanAttack).map(unit => unit.instance_id));
   else runtime.tcgAttackers = null;
   const selected = runtime.tcgAttackers?.size ?? 0;
-  const stackTop = match.stack.at(-1);
-  const trapReveal = [...match.stack].reverse().find(item => item.card.type === 'trap');
   const strikeControls = attacker ? `<div class="tcg-strike-controls">
     <div role="status"><strong>${escapeHtml(cardName(attacker))}</strong>
     <small data-tcg-strike-hint>${strikes.some(target => target.unit?.keywords?.includes('guard')) ? 'Bấm Hộ vệ để tấn công.' : 'Bấm Vị Linh địch hoặc chủ soái để tấn công.'}</small></div>
@@ -1796,9 +1980,9 @@ function renderTcg() {
   const spellControls = spell ? `<div class="tcg-target-prompt">
     <div role="status"><strong>${escapeHtml(cardName(spell))}</strong><small>${targetHint}</small></div>
     ${recipe ? `<small class="tcg-recipe-hint" title="${escapeAttr(recipe.reward)}">Combo · ${recipe.name}</small>` : ''}
-    ${targets.some(target => target.fallen) ? '<button class="button light" data-tcg-grave-target>Xem mộ bài</button>' : ''}
     <button class="button light" data-tcg-cancel-spell>Hủy</button>
   </div>` : '';
+  const graveChoices = targets.filter(target => target.fallen);
   const action = match.result ? ''
     : opening ? `<button class="button" data-tcg-mulligan>${runtime.mulligan.size ? 'Đổi ' + runtime.mulligan.size + ' lá' : 'Giữ bài và vào trận'}</button>`
     : spell ? spellControls
@@ -1812,10 +1996,9 @@ function renderTcg() {
       <button type="button" data-tcg-log>Nhật ký</button><button type="button" data-page="deck">Sửa bộ bài</button>
       <button type="button" data-tcg-rules>Luật nhanh</button>
       <button type="button" data-tcg-challenges>Thử thách</button>
-      <button type="button" data-tcg-graveyard ${user.graveyard.length ? '' : 'disabled'}>Mộ bài · ${user.graveyard.length}</button>
       <button type="button" data-tcg-restart>Ván mới · Bot ${TCG_DIFFICULTIES[match.difficulty] ?? TCG_DIFFICULTIES.normal}</button>
       ${match.result ? '' : '<button type="button" data-tcg-surrender>Đầu hàng</button>'}`)}
-    <div class="match-layout tcg-match" data-mulligan="${opening}" data-match-result="${Boolean(match.result)}" data-tcg-phase="${match.phase}" ${table ? 'data-direct' : ''}>
+    <div class="match-layout tcg-match" data-mulligan="${opening}" data-match-result="${Boolean(match.result)}" data-tcg-phase="${match.phase}" style="--tcg-columns:${tcgBoardLimit(match)}" ${table ? 'data-direct' : ''}>
       <section class="duel-field" aria-label="Bàn đấu thẻ" ${opening ? 'inert' : ''}>
         ${tcgCommander(match, 1, targets, strikes)}
         ${tcgRow(bot.units, 1, targets, declared, blocked, targetIds, defending, canStrike, strikes)}
@@ -1824,7 +2007,7 @@ function renderTcg() {
           ${opening || match.result ? '' : `<span>${match.activePlayer === 0 ? 'Lượt bạn' : 'Lượt đối thủ'} · ${match.priority === 0 ? 'Bạn ưu tiên' : 'Bot ưu tiên'}</span>
             ${match.activePlayer === 0 ? `<span>${table ? ready + ' quân sẵn sàng' : user.attackUsedRound === match.round ? 'Đã đánh' : 'Còn lượt đánh'}</span>` : ''}`}
         </div>
-        ${stackTop ? tcgStackControl(match, stackTop, trapReveal, targets) : ''}</div>
+        ${match.stack.length ? tcgStackControl(match, targets) : ''}</div>
         ${tcgRow(user.units, 0, targets, declared, blocked, targetIds, defending, canStrike, strikes)}
         ${tcgCommander(match, 0, targets, strikes)}
         <canvas class="duel-effects" aria-hidden="true" hidden></canvas>
@@ -1834,7 +2017,10 @@ function renderTcg() {
       ${match.result ? '' : `<section class="match-command tcg-hand-dock" aria-label="${opening ? 'Đổi bài đầu trận' : 'Điều khiển đấu thẻ'}">
         ${trapChoice ? tcgTrapPanel(match) : defending ? tcgDefensePanel(incoming) : `
           <div class="hand-heading"><strong>${opening ? table ? 'Đổi bài · Chọn tối đa 3 lá' : 'Chọn lá muốn đổi' : 'Bài trên tay'}</strong><span>${!opening && user.chainElement && !user.resonanceUsed ? `Cộng hưởng ${ELEMENT_NAMES[user.chainElement]} · ` : ''}${user.hand.length}/${tcgHandLimit(match)} lá</span></div>
-          <div class="hand-row">${hand || '<p class="empty-message">Không còn bài trên tay.</p>'}</div>
+          <div class="hand-row" ${graveChoices.length ? 'aria-label="Chọn Vị Linh trong mộ bài"' : ''}>${graveChoices.length
+            ? graveChoices.map(({ id, fallen }) => `<button type="button" class="tcg-grave-card spell-target" data-spell-target="${escapeAttr(id)}">
+              <img src="${escapeAttr(matchCardArt(fallen))}" alt=""><span>${escapeHtml(cardName(fallen))}</span></button>`).join('')
+            : hand || '<p class="empty-message">Không còn bài trên tay.</p>'}</div>
           ${showCombat && selected ? '<p class="match-hint">Chạm Vị Linh để chọn quân tấn công.</p>' : ''}
           ${action ? `<div class="match-actions tcg-actions">${action}</div>` : ''}`}
         ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}
@@ -1849,8 +2035,7 @@ function renderTcg() {
   app.querySelector('[data-tcg-log]').addEventListener('click', () => openInfoDialog('Nhật ký trận', renderTextLog(match.log)));
   app.querySelector('[data-tcg-rules]').addEventListener('click', showTcgRules);
   app.querySelector('[data-tcg-challenges]').addEventListener('click', () => openTcgSetup(match, true));
-  for (const button of app.querySelectorAll('[data-tcg-stack]')) button.addEventListener('click', () => showTcgStack(match, spell, targets));
-  app.querySelector('[data-tcg-grave-target]')?.addEventListener('click', () => showTcgGraveTargets(spell, targets));
+  for (const button of app.querySelectorAll('[data-tcg-stack]')) button.addEventListener('click', () => showTcgStack(match));
   app.querySelector('[data-tcg-hand]')?.addEventListener('click', () => {
     const cards = user.hand.map(card => `<li><strong>${escapeHtml(cardName(card))} · ${card.cost} mana</strong><small>${escapeHtml(tcgCardRule(card))}</small></li>`);
     openInfoDialog('Bài trên tay', cards.length ? `<ul class="tcg-graveyard">${cards.join('')}</ul>` : '<p>Không còn bài trên tay.</p>');
@@ -1860,7 +2045,7 @@ function renderTcg() {
     const [owner, slot] = button.dataset.tcgSlot.split(':').map(Number);
     showTcgTrapSlot(match, owner, slot);
   }));
-  app.querySelector('[data-tcg-graveyard]').addEventListener('click', () => showTcgGraveyard(user.graveyard));
+  app.querySelector('[data-tcg-graveyard]')?.addEventListener('click', () => showTcgGraveyard(user.graveyard));
   app.querySelector('[data-tcg-surrender]')?.addEventListener('click', () => {
     const dialog = openInfoDialog('Đầu hàng ván đấu này?', '<button type="button" class="button danger" data-confirm-surrender>Đầu hàng</button>');
     dialog.querySelector('[data-confirm-surrender]').addEventListener('click', () => {
@@ -1976,13 +2161,14 @@ function selectTcgCard(card, selected = true) {
   runtime.tcgStrike = null;
   runtime.selectedSpell = selected ? card.instance_id : null;
   renderTcg();
-  const focus = selected && app.querySelector('[data-spell-target], [data-tcg-grave-target], [data-tcg-stack].spell-target, [data-tcg-stack][data-target-list]');
+  const focus = selected && app.querySelector('[data-spell-target]');
   (focus || app.querySelector(`[data-card="${CSS.escape(card.instance_id)}"]`))?.focus({ preventScroll: true });
 }
 
 function tcgPlayTargets(match, card) {
   if (card.type === 'unit') return [];
-  if (card.type === 'trap') return [{ id: 'set', player: 0, slot: match.players[0].traps.length, label: 'Ô bẫy của bạn' }];
+  if (card.type === 'trap') return tcgOpenTrapSlots(match, 0).map(slot =>
+    ({ id: 'set:' + slot, player: 0, slot, label: 'Ô bẫy ' + (slot + 1) }));
   return tcgSpellTargets(match, 0, card);
 }
 
@@ -1990,7 +2176,7 @@ function playTcgFromHand(card, target) {
   if (!card) return;
   runtime.tcgPlayingCard = card;
   try {
-    actTcg(() => playTcgCard(runtime.tcg, 0, card.instance_id, card.type.endsWith('_spell') ? target : null));
+    actTcg(() => playTcgCard(runtime.tcg, 0, card.instance_id, target));
   } finally {
     runtime.tcgPlayingCard = null;
   }
@@ -2009,7 +2195,7 @@ function bindTcgDrag(match, canStrike) {
       }
     },
     locate(source, element) {
-      const anchor = element?.closest('[data-tcg-stack-top], [data-tcg-deck], [data-duel-id], [data-tcg-row], [data-spell-target="row"]');
+      const anchor = element?.closest('[data-tcg-stack-id], [data-tcg-deck], [data-duel-id], [data-tcg-row], [data-spell-target="row"]');
       if (!anchor) return null;
       const row = Number(anchor.closest('[data-tcg-row]')?.dataset.tcgRow);
       const id = anchor.dataset.duelId;
@@ -2020,7 +2206,7 @@ function bindTcgDrag(match, canStrike) {
         if (item.id === 'commander') return id === 'commander:p' + item.player;
         if (item.id === 'deck') return anchor.hasAttribute('data-tcg-deck');
         if (item.id === 'row') return row === item.player;
-        if (item.item) return anchor.hasAttribute('data-tcg-stack-top') && match.stack.at(-1)?.id === item.item.id;
+        if (item.item) return anchor.dataset.tcgStackId === String(item.item.id);
         if (item.slot !== undefined) return id === tcgTrapAnchor(item.player, item.slot);
         return item.id === id;
       });
@@ -2029,7 +2215,6 @@ function bindTcgDrag(match, canStrike) {
     drop(source, { target, chooseGrave }) {
       if (chooseGrave) {
         selectTcgCard(source.card);
-        showTcgGraveTargets(source.card, source.targets);
         return;
       }
       if (source.card) return playTcgFromHand(source.card, target?.id);
@@ -2126,14 +2311,14 @@ function tcgTrapSlots(match, owner, targets) {
   const traps = match.players[owner].traps;
   const limit = tcgTrapLimit(match);
   return `<div class="trap-slots" role="group" aria-label="${traps.length} trên ${limit} ô bẫy">${Array.from({ length: limit }, (_, slot) => {
-    const trap = traps[slot];
+    const trap = traps.find((trap, index) => tcgTrapSlot(trap, index) === slot);
     const id = tcgTrapAnchor(owner, slot);
     const target = targets.find(target => target.player === owner && target.slot === slot);
     if (!trap && owner === 1) return `<span class="tcg-trap-slot empty" data-duel-id="${id}" aria-label="Ô bẫy địch trống">${tcgImpact(id)}</span>`;
     const visible = trap && (owner === 0 || !trap.faceDown);
     const concealed = trap && (usesTcgTable(match) ? trap.faceDown : !visible);
     const armed = trap && tcgTrapArmed(match, trap);
-    const label = !trap ? 'Ô bẫy của bạn còn trống'
+    const label = !trap ? 'Ô bẫy ' + (slot + 1) + ' còn trống'
       : (visible ? cardName(trap.card) : 'Bẫy địch đang úp') + (armed ? ' · Sẵn sàng' : ' · Chờ đổi lượt');
     return `<button type="button" class="tcg-trap-slot ${trap ? 'set' : 'empty'} ${concealed ? 'tcg-card-back' : ''} ${armed ? 'armed' : ''} ${target ? 'spell-target' : ''}"
       data-duel-id="${id}" aria-label="${escapeAttr(label)}" ${target ? `data-spell-target="${escapeAttr(target.id)}"` : `data-tcg-slot="${owner}:${slot}"`}>
@@ -2143,7 +2328,7 @@ function tcgTrapSlots(match, owner, targets) {
 }
 
 function showTcgTrapSlot(match, owner, slot) {
-  const trap = match.players[owner].traps[slot];
+  const trap = match.players[owner].traps.find((trap, index) => tcgTrapSlot(trap, index) === slot);
   if (trap) {
     if (owner === 0 || !trap.faceDown) showTcgCard(trap.card.card_id);
     else openInfoDialog('Bẫy địch đang úp', `<p>${tcgTrapArmed(match, trap) ? 'Bẫy đã sẵn sàng.' : 'Bẫy sẵn sàng khi đổi lượt.'} Bạn có thể dùng phép Soi Dấu Bẫy để biết danh tính hoặc Phá Ấn Thất Vị để gỡ.</p>`);
@@ -2154,7 +2339,7 @@ function showTcgTrapSlot(match, owner, slot) {
   const dialog = openInfoDialog('Đặt bẫy úp', hand.length ? `<div class="action-row">${options}</div>` : `<p>Chọn bẫy trên tay rồi bấm ô sáng khi đến lượt triển khai. Bạn có ${tcgTrapLimit(match)} ô bẫy.</p>`);
   dialog.querySelectorAll('[data-place-trap]').forEach(button => button.addEventListener('click', () => {
     dialog.close();
-    playTcgFromHand(hand.find(card => card.instance_id === button.dataset.placeTrap));
+    playTcgFromHand(hand.find(card => card.instance_id === button.dataset.placeTrap), 'set:' + slot);
   }));
 }
 
@@ -2187,7 +2372,7 @@ function showTcgRules() {
   openInfoDialog('Luật nhanh', `<ul class="tcg-quick-rules">
     <li>Triển khai bằng mana. Hai lá lộ hệ liên tiếp cùng hệ giảm 1 mana cho lá sau, một lần mỗi lượt. Úp bẫy ngắt chuỗi.</li>
     ${usesTcgTable(runtime.tcg)
-      ? '<li>Bộ 24 lá. Đặt tối đa 4 Vị Linh và 1 bẫy. Bấm Vị Linh để tự vào ô trống đầu tiên. Chọn phép hoặc bẫy rồi bấm mục tiêu sáng.</li><li>Mỗi Vị Linh sẵn sàng đánh một lần trong lượt. Rê chuột hoặc đặt tiêu điểm để xem sát thương. Bấm mục tiêu để đánh. Hộ vệ phải bị đánh trước. Hai Vị Linh giao chiến sẽ đánh trả đồng thời.</li>'
+      ? `<li>Bộ 24 lá. Đặt tối đa ${tcgBoardLimit(runtime.tcg)} Vị Linh và ${tcgTrapLimit(runtime.tcg)} bẫy. Bấm Vị Linh để tự vào ô trống đầu tiên. Chọn phép hoặc bẫy rồi bấm mục tiêu sáng.</li><li>Mỗi Vị Linh sẵn sàng đánh một lần trong lượt. Rê chuột hoặc đặt tiêu điểm để xem sát thương. Bấm mục tiêu để đánh. Hộ vệ phải bị đánh trước. Hai Vị Linh giao chiến sẽ đánh trả đồng thời.</li>`
       : '<li>Chọn quân đánh. Khi phòng thủ, chạm quân địch rồi chạm đồng minh để chặn. Quân bị trói không thể đánh hoặc chặn.</li>'}
     <li>Phép trong hàng chờ xử lý từ lá mới nhất. Tốc chú và Tức chú có thể phản ứng. Tức chú xử lý ngay.</li>
     <li>Bẫy sẵn sàng sau khi đổi lượt. Khi đúng điều kiện, chọn kích hoạt hoặc giữ lại. Đối thủ có thể phản ứng với bẫy đã lật.</li>
@@ -2195,39 +2380,27 @@ function showTcgRules() {
     <li>Tuyệt kỹ yêu cầu Vị Linh tương ứng còn trên bàn khi xử lý.</li></ul>`);
 }
 
-function tcgStackControl(match, top, reveal, targets) {
-  const direct = targets.find(target => target.item?.id === top.id);
-  const alternate = targets.some(target => target.item && target !== direct);
-  const label = top.card.type === 'trap' ? 'Lật bẫy' : 'Xử lý trước';
-  return `<div class="tcg-stack-controls"><button type="button" data-tcg-stack-top class="tcg-stack-button ${reveal ? 'has-trap' : ''} ${direct || alternate ? 'spell-target' : ''}"
-      ${direct ? `data-spell-target="${escapeAttr(direct.id)}"` : alternate ? 'data-tcg-stack data-target-list' : 'data-tcg-stack'}>
-      <img src="${escapeAttr(cardArt(top.card))}" alt=""><span>${label} · <b>${escapeHtml(cardName(top.card))}</b></span><small>${match.stack.length} chờ</small>
-    </button>${direct && alternate ? '<button type="button" class="tcg-target-extra spell-target" data-tcg-stack>Chọn lá khác</button>' : ''}</div>`;
+function tcgStackControl(match, targets) {
+  return `<div class="tcg-stack-controls" aria-label="Thứ tự xử lý phản ứng">
+    ${[...match.stack].reverse().map(({ id, card, owner }, order) => {
+      const direct = targets.find(target => target.item?.id === id);
+      const label = `${order + 1}. ${cardName(card)} · ${owner === 0 ? 'Của bạn' : 'Đối thủ'}`;
+      return `<button type="button" data-tcg-stack-id="${escapeAttr(id)}"
+        class="tcg-stack-button ${card.type === 'trap' ? 'has-trap' : ''} ${direct ? 'spell-target' : ''}"
+        title="${escapeAttr(label)}" aria-label="${escapeAttr(label)}"
+        ${direct ? `data-spell-target="${escapeAttr(direct.id)}"` : 'data-tcg-stack'}>
+        <small>${order + 1}</small><img src="${escapeAttr(matchCardArt(card))}" alt=""><b>${escapeHtml(cardName(card))}</b>
+      </button>`;
+    }).join('')}
+  </div>`;
 }
 
-function showTcgStack(match, spell, targets) {
-  const dialog = openInfoDialog('Hàng chờ phản ứng', `<ol class="tcg-stack-list">${[...match.stack].reverse().map(({ id, card, owner }, index) => {
-    const target = targets.find(item => item.item?.id === id);
+function showTcgStack(match) {
+  openInfoDialog('Hàng chờ phản ứng', `<ol class="tcg-stack-list">${[...match.stack].reverse().map(({ card, owner }, index) => {
     return `<li><img src="${escapeAttr(cardArt(card))}" alt=""><div><strong>${escapeHtml(cardName(card))}</strong>
       <small>${owner === 0 ? 'Của bạn' : 'Đối thủ'}${index === 0 ? ' · Xử lý trước' : ''}</small><p>${escapeHtml(tcgCardRule(card))}</p></div>
-      ${target ? `<button type="button" class="button" data-tcg-modal-target="${escapeAttr(target.id)}">Hóa giải</button>` : ''}</li>`;
+      </li>`;
   }).join('')}</ol>`);
-  bindTcgModalTargets(dialog, spell);
-}
-
-function showTcgGraveTargets(spell, targets) {
-  const dialog = openInfoDialog('Chọn Vị Linh hồi sinh', `<div class="tcg-grave-choices">${targets.filter(target => target.fallen).map(({ id, fallen }) =>
-    `<button type="button" class="button light" data-tcg-modal-target="${escapeAttr(id)}">
-      <img src="${escapeAttr(matchCardArt(fallen))}" alt=""><span>${escapeHtml(cardName(fallen))}</span>
-    </button>`).join('')}</div>`);
-  bindTcgModalTargets(dialog, spell);
-}
-
-function bindTcgModalTargets(dialog, spell) {
-  for (const button of dialog.querySelectorAll('[data-tcg-modal-target]')) button.addEventListener('click', () => {
-    dialog.close();
-    playTcgFromHand(spell, button.dataset.tcgModalTarget);
-  });
 }
 
 function tcgStageBanners(match) {
@@ -2512,6 +2685,15 @@ function renderChess() {
   const round = chessRoundInfo(run);
   const xp = chessXpNeeded(run);
   const traits = chessTraits(run.board);
+  const activeItem = run.items?.[runtime.selectedChessItem];
+  const probabilities = runtime.shopConfig.probabilities_percent[String(run.level)] ?? [];
+  const odds = probabilities.map((chance, index) => [runtime.shopConfig.cost_tiers[index], chance]);
+  const oddsLabel = odds.map(([cost, chance]) => `${cost} vàng: ${chance}%`).join(' · ');
+  const itemTarget = unit => activeItem && unit && chessItemPlacement(unit, activeItem);
+  const itemHint = unit => {
+    const placement = itemTarget(unit);
+    return placement ? (placement.id === activeItem ? 'Trang bị ' : 'Ghép thành ') + CHESS_ITEMS[placement.id].name : '';
+  };
   const activeTraits = Object.entries(CHESS_TRAITS).filter(([id]) => run.lobby || Object.hasOwn(ELEMENT_NAMES, id));
   const activeSynergies = activeTraits.filter(([id]) => traits.get(id) >= 2).length;
   const synergies = renderSynergies(traits, activeTraits);
@@ -2520,7 +2702,7 @@ function renderChess() {
     const unitIndex = run.board.findIndex((unit) => unit.x === x && unit.y === y);
     const unit = run.board[unitIndex];
     const chibi = unit ? boardChibi(unit.id, `chess:${run.seed}:p:${unitIndex}:${unit.id}`, 'E', chessPortrait(unit)) : '';
-    return `<button class="chess-cell ${run.lobby && y % 2 ? 'hex-offset' : ''} ${unit ? 'occupied element-' + unit.element : ''} ${runtime.selectedBench !== null && (unit || run.board.length < run.level) ? 'place-target' : ''} ${runtime.selectedBoard === unitIndex && unit ? 'selected' : ''}" data-cell="${x},${y}" ${preparing && unit ? `data-chess-board-index="${unitIndex}"` : ''} ${preparing ? '' : 'disabled'} aria-label="Ô ${x + 1}, ${y + 1}${unit ? ', ' + escapeAttr(unit.display_name) : ''}">${unit ? `${chibi}${chessStars(unit, x, y)}${chessEquipmentMarker(unit)}` : ''}</button>`;
+    return `<button class="chess-cell ${run.lobby && y % 2 ? 'hex-offset' : ''} ${unit ? 'occupied element-' + unit.element : ''} ${runtime.selectedBench !== null && (unit || run.board.length < run.level) ? 'place-target' : ''} ${runtime.selectedBoard === unitIndex && unit ? 'selected' : ''} ${itemTarget(unit) ? 'place-target' : ''}" title="${escapeAttr(itemHint(unit))}" data-cell="${x},${y}" ${preparing && unit ? `data-chess-board-index="${unitIndex}"` : ''} ${preparing ? '' : 'disabled'} aria-label="Ô ${x + 1}, ${y + 1}${unit ? ', ' + escapeAttr(unit.display_name) : ''}">${unit ? `${chibi}${chessStars(unit, x, y)}${chessEquipmentMarker(unit)}` : ''}</button>`;
   }).join('');
   const owned = [...run.board, ...run.bench];
   const shop = run.shop.map((unit, index) => {
@@ -2535,7 +2717,7 @@ function renderChess() {
   const bench = chessBenchSlots(run).map((index, slot) => {
     const unit = run.bench[index];
     const position = 'data-chess-bench-slot="' + slot + '"';
-    return unit ? `<button class="bench-unit element-${unit.element} ${runtime.selectedBench === index ? 'selected' : ''}" data-bench="${index}" ${position} aria-label="${escapeAttr(unit.display_name)} · ${unit.star} sao">${chessPortrait(unit)}${chessStars(unit, null, null, slot)}${chessEquipmentMarker(unit)}</button>`
+    return unit ? `<button class="bench-unit element-${unit.element} ${runtime.selectedBench === index ? 'selected' : ''} ${itemTarget(unit) ? 'place-target' : ''}" title="${escapeAttr(itemHint(unit))}" data-bench="${index}" ${position} aria-label="${escapeAttr(unit.display_name)} · ${unit.star} sao">${chessPortrait(unit)}${chessStars(unit, null, null, slot)}${chessEquipmentMarker(unit)}</button>`
       : `<button type="button" class="bench-slot" ${position} aria-label="Ghế ${slot + 1} trống"></button>`;
   }).join('');
   const enemyCells = Array.from({ length: 28 }, (_, index) => {
@@ -2546,7 +2728,7 @@ function renderChess() {
     const chibi = unit ? boardChibi(unit.id, `chess:${run.seed}:rival:${opponent.id}:${index}:${unit.id}`, 'W', chessPortrait(unit)) : '';
     return `<div class="chess-cell rival-cell ${run.lobby && row % 2 === 0 ? 'hex-offset' : ''} ${unit ? 'occupied element-' + unit.element : ''}" ${unit ? `title="${escapeAttr(unit.display_name)} · ${unit.star}★"` : 'aria-hidden="true"'}>${unit ? `${chibi}<small>${unit.star}★</small>` : ''}</div>`;
   }).join('');
-  const selectionHint = runtime.selectedBench !== null && run.board.length >= run.level ? 'Đổi với quân đang trên bàn'
+  const selectionHint = activeItem ? CHESS_ITEMS[activeItem].name + ' · Chọn quân sáng' : runtime.selectedBench !== null && run.board.length >= run.level ? 'Đổi với quân đang trên bàn'
     : runtime.selectedBench !== null || runtime.selectedBoard !== null ? 'Chọn vị trí để chuyển hoặc đổi quân'
     : run.bench.length ? 'Kéo quân hoặc chạm để xếp đội' : 'Mua quân để xếp đội';
   const result = run.phase === 'finished'
@@ -2556,7 +2738,7 @@ function renderChess() {
       <strong>${run.result.won ? 'Chiến thắng' : run.result.draw ? 'Hòa' : 'Thất bại'}</strong>
       <p>${run.result.won ? opponent?.neutral ? 'Đã vượt vòng quái.' : `Đối thủ mất ${run.result.enemyDamage ?? 12} HP.`
         : run.result.draw ? 'Hai chỉ huy giữ nguyên HP.' : `Mất ${run.result.damage} HP.`} · +${run.result.income} vàng${run.result.payout ? ` (${run.result.payout.base} cơ bản · ${run.result.payout.win} thắng · ${run.result.payout.interest} lãi · ${run.result.payout.streak} chuỗi)` : ''}</p>
-      ${run.result.rewardItem ? `<p>Nhặt được <b>${CHESS_ITEMS[run.result.rewardItem].name}</b>. Trang bị trong Túi vật phẩm ở vòng sau.</p>` : ''}
+      ${run.result.rewardItem ? `<p>Nhặt được <b>${CHESS_ITEMS[run.result.rewardItem].name}</b>. Trang bị từ băng ghế ở vòng sau.</p>` : ''}
       <div class="action-row"><button class="button" data-chess-next>${run.hp <= 0 || !remaining || run.round >= (run.lobby?.max_rounds ?? 10) ? 'Xem kết quả' : 'Sang vòng tiếp'}</button>${run.combat?.startActors ? '<button class="button light" data-chess-replay>Xem lại</button>' : ''}</div></div>` : '';
   const hasSelection = runtime.selectedBench !== null || runtime.selectedBoard !== null;
   shell(`
@@ -2584,10 +2766,10 @@ function renderChess() {
           <div class="chess-grid player-formation" role="group" aria-label="Nửa bàn của bạn, 7 cột 4 hàng">${boardCells}</div>
           <div class="formation-label">Đội hình <span>${run.board.length}/${run.level} quân</span></div>
         </div></div>`}
-      ${preparing ? `<div class="chess-bench"><div class="bench-heading"><strong>Băng ghế · ${run.bench.length}/9</strong>${run.lobby ? `<button type="button" class="chess-bag" data-chess-items>Túi vật phẩm · ${run.items.length}</button>` : ''}</div><div class="bench-row" data-chess-bench-zone>${bench}</div></div>` : ''}
+      ${preparing ? `<div class="chess-bench"><div class="bench-heading"><strong>Băng ghế · ${run.bench.length}/9</strong>${run.lobby ? renderChessItemBelt(run) : ''}</div><div class="bench-row" data-chess-bench-zone>${bench}</div></div>` : ''}
     </section>${preparing || replaying || locking ? `<section class="match-command chess-controls" aria-label="Điều khiển đấu cờ">
       ${replaying ? '<div class="replay-controls"><progress data-chess-replay-progress max="1" value="0" aria-label="Tiến độ giao tranh"></progress><div class="match-actions"><button class="button light" data-chess-pause>Tạm dừng</button><button class="button light" data-chess-speed aria-pressed="false">2×</button><button class="button" data-chess-skip>Bỏ qua</button></div></div>' : ''}
-      ${preparing ? `<div class="shop-heading"><strong>Cửa hàng</strong><span>${hasSelection ? selectionHint : `${run.shopLocked ? 'Đã khóa · ' : ''}Lãi +${Math.min(Math.floor(run.gold / 10), 5)} ◈`}</span></div>
+      ${preparing ? `<div class="shop-heading"><strong>Cửa hàng</strong><span>${activeItem || hasSelection ? escapeHtml(selectionHint) : `<span class="chess-odds" title="${escapeAttr(oddsLabel)}" aria-label="Tỷ lệ cửa hàng. ${escapeAttr(oddsLabel)}">${odds.map(([cost, chance]) => `<b data-shop-tier="${cost}">${chance}%</b>`).join('')}</span>`}</span></div>
       <div class="shop-row">${shop}</div><div class="chess-shop-actions"><div class="match-actions shop-tools">
         <button class="button light" data-chess-refresh ${run.gold < 2 || run.shopLocked ? 'disabled' : ''}>Làm mới · 2 ◈</button>
         <button class="button light" data-chess-xp ${run.gold < 4 || run.level >= 9 ? 'disabled' : ''}>${run.lobby ? '+4 XP' : 'Nâng cấp'} · 4 ◈</button>
@@ -2605,7 +2787,12 @@ function renderChess() {
   if (result) showBattleResult('Kết quả đấu cờ', result);
   app.querySelector('[data-chess-log]').addEventListener('click', () => openInfoDialog('Nhật ký đấu trường', renderTextLog(run.log)));
   app.querySelector('[data-chess-standings]').addEventListener('click', () => showChessStandings(run));
-  app.querySelector('[data-chess-items]')?.addEventListener('click', () => showChessItems(run));
+  for (const button of app.querySelectorAll('[data-chess-item]')) button.addEventListener('click', () => {
+    const index = Number(button.dataset.chessItem);
+    runtime.selectedChessItem = runtime.selectedChessItem === index ? null : index;
+    runtime.selectedBench = runtime.selectedBoard = null;
+    renderChess();
+  });
   app.querySelector('[data-chess-reset]')?.addEventListener('click', () => {
     const dialog = openInfoDialog('Ván đấu cờ mới', '<p>Ván đang chơi sẽ kết thúc. Bắt đầu lại với bàn lục giác và bảy đối thủ bot.</p><button type="button" class="button" data-chess-confirm-new>Bắt đầu ván mới</button>');
     dialog.querySelector('[data-chess-confirm-new]').addEventListener('click', () => {
@@ -2618,17 +2805,24 @@ function renderChess() {
   if (replaying) {
     app.querySelector('[data-chess-pause]').textContent = runtime.chessReplayPaused ? 'Tiếp tục' : 'Tạm dừng';
     app.querySelector('[data-chess-speed]').setAttribute('aria-pressed', String(runtime.chessReplaySpeed === 2));
-    runtime.chessReplay.draw(app.querySelector('#chess-replay'));
+    runtime.chessReplay.draw(app.querySelector('#chess-replay'), runtime.save.settings.effectsLimited);
   }
   app.querySelectorAll('[data-buy]').forEach((button) => button.addEventListener('click', () => updateChess(() => buyChessOffer(runtime.chess, Number(button.dataset.buy)))));
   app.querySelectorAll('[data-chess-bench-slot]').forEach(button => button.addEventListener('click', () => {
+    if (runtime.selectedChessItem !== null) {
+      if (button.hasAttribute('data-bench')) placeChessItem(run, runtime.selectedChessItem, 'bench', Number(button.dataset.bench));
+      return;
+    }
     const slot = Number(button.dataset.chessBenchSlot);
     const source = selectedChessSource();
     if (source) updateChess(() => arrangeChessUnit(run, source, { zone: 'bench', slot }));
     else if (button.hasAttribute('data-bench')) { runtime.selectedBench = Number(button.dataset.bench); renderChess(); }
   }));
   app.querySelector('[data-chess-inspect]')?.addEventListener('click', () => showChessUnit(run, selectedChessSource()));
-  app.querySelectorAll('[data-cell]').forEach((button) => button.addEventListener('click', () => onChessCell(button.dataset.cell)));
+  app.querySelectorAll('[data-cell]').forEach(button => button.addEventListener('click', () => {
+    if (runtime.selectedChessItem === null) return onChessCell(button.dataset.cell);
+    if (button.hasAttribute('data-chess-board-index')) placeChessItem(run, runtime.selectedChessItem, 'board', Number(button.dataset.chessBoardIndex));
+  }));
   app.querySelector('[data-chess-refresh]')?.addEventListener('click', () => updateChess(() => refreshChessShop(runtime.chess, runtime.units, runtime.shopConfig)));
   app.querySelector('[data-chess-lock]')?.addEventListener('click', () => updateChess(() => toggleChessLock(runtime.chess)));
   app.querySelector('[data-chess-bench]')?.addEventListener('click', () => updateChess(() => benchChessUnit(runtime.chess, runtime.selectedBoard)));
@@ -2656,6 +2850,7 @@ function startNewChessRun() {
   runtime.chessUpgrade = null;
   runtime.selectedBench = null;
   runtime.selectedBoard = null;
+  runtime.selectedChessItem = null;
   runtime.chessLock = null;
   runtime.chessReplay = null;
   runtime.notice = '';
@@ -2698,15 +2893,24 @@ function updateChessClock(delta) {
 
 function bindChessDrag(run) {
   bindTableDrag(app.querySelector('.chess-match'), {
-    sources: '[data-chess-board-index], [data-bench], [data-buy]:enabled',
+    sources: '[data-chess-board-index], [data-bench], [data-buy]:enabled, [data-chess-item]',
     read(element) {
-      const { chessBoardIndex, bench, buy } = element.dataset;
+      const { chessBoardIndex, bench, buy, chessItem } = element.dataset;
+      if (chessItem !== undefined) return { zone: 'items', index: Number(chessItem) };
       if (buy !== undefined) return { zone: 'shop', index: Number(buy) };
       return chessBoardIndex !== undefined ? { zone: 'board', index: Number(chessBoardIndex) } : { zone: 'bench', index: Number(bench) };
     },
     locate(source, element) {
       const destination = element?.closest('[data-cell], [data-chess-bench-slot], [data-chess-sell-zone]');
       if (!destination) return null;
+      if (source.zone === 'items') {
+        const { chessBoardIndex, bench } = destination.dataset;
+        const zone = chessBoardIndex !== undefined ? 'board' : 'bench';
+        const index = Number(chessBoardIndex ?? bench);
+        const unit = run[zone][index];
+        const valid = unit && chessItemPlacement(unit, run.items[source.index]);
+        return { element: destination, zone, index, state: valid ? 'valid' : 'blocked' };
+      }
       if (destination.hasAttribute('data-chess-sell-zone')) return { element: destination, zone: 'sell', state: source.zone === 'shop' ? 'blocked' : 'sell' };
       const { cell, chessBenchSlot } = destination.dataset;
       const [x, y] = cell?.split(',').map(Number) ?? [];
@@ -2714,11 +2918,18 @@ function bindChessDrag(run) {
       return { element: destination, state: chessDropState(run, source, place), ...place };
     },
     drop(source, destination) {
+      if (source.zone === 'items') return placeChessItem(run, source.index, destination.zone, destination.index);
       if (source.zone === 'shop') return updateChess(() => buyChessOffer(run, source.index, destination));
       updateChess(() => destination.zone === 'sell' ? sellChessUnit(run, source.zone, source.index) : arrangeChessUnit(run, source, destination));
     },
-    inspect: source => showChessUnit(run, source),
+    inspect(source) {
+      if (source.zone === 'items') {
+        const item = CHESS_ITEMS[run.items[source.index]];
+        openInfoDialog(item.name, `<p>${chessItemStats(item)}. Hai linh kiện tương thích tự ghép khi đặt lên cùng một quân.</p>`);
+      } else showChessUnit(run, source);
+    },
     preview(source, ghost) {
+      if (source.zone === 'items') return paintTableGhost(ghost, null, CHESS_ITEMS[run.items[source.index]].name);
       const unit = run[source.zone][source.index];
       paintTableGhost(ghost, cardArt({ character_id: unit.id }), unit.display_name + ' ' + '★'.repeat(unit.star ?? 1));
     },
@@ -2772,46 +2983,29 @@ function showChessStandings(run) {
   }
 }
 
-function showChessItems(run) {
-  const candidates = ['board', 'bench'].flatMap(zone => run[zone].map((unit, index) => ({ zone, index, unit })));
-  if (!run.items.length || !candidates.length) {
-    openInfoDialog('Túi vật phẩm', `<p>${run.items.length ? 'Mua một Vị Linh để trang bị.' : 'Thắng vòng quái để nhận linh kiện.'}</p><p>Hai linh kiện tương thích trên cùng một quân sẽ tự ghép. Mỗi quân mang tối đa ba món.</p>`);
-    return;
+function chessItemStats(item) {
+  const names = { atk: 'ATK', def: 'DEF', maxHp: 'HP' };
+  return Object.entries(item.stats).map(([key, value]) => `+${value} ${names[key]}`).join(' · ');
+}
+
+function renderChessItemBelt(run) {
+  if (!run.items?.length) return '<small class="chess-item-empty">Thắng vòng quái để nhận linh kiện</small>';
+  return `<div class="chess-item-belt" aria-label="Linh kiện">
+    ${run.items.map((id, index) => {
+      const item = CHESS_ITEMS[id];
+      const label = item.name + ' · ' + chessItemStats(item);
+      return `<button type="button" class="chess-item-chip" data-chess-item="${index}" data-item-kind="${id}"
+        aria-pressed="${runtime.selectedChessItem === index}" aria-label="${escapeAttr(label)}" title="${escapeAttr(label)}">${item.icon}</button>`;
+    }).join('')}</div>`;
+}
+
+function placeChessItem(run, itemIndex, zone, unitIndex) {
+  const unit = run[zone][unitIndex];
+  if (!unit || !chessItemPlacement(unit, run.items[itemIndex])) {
+    runtime.notice = 'Quân này đã đủ ba món và không có công thức ghép phù hợp.';
+    return renderChess();
   }
-  const dialog = openInfoDialog('Túi vật phẩm', `<div class="challenge-pickers">
-    <label>Vị Linh<select data-chess-gear-unit>${candidates.map(({ zone, index, unit }) =>
-      `<option value="${zone}:${index}">${escapeHtml(unit.display_name)} · ${unit.star}★ · ${zone === 'board' ? 'Trên bàn' : 'Ghế'}</option>`).join('')}</select></label>
-    <label>Linh kiện<select data-chess-gear-item>${run.items.map((id, index) =>
-      `<option value="${index}">${CHESS_ITEMS[id].icon} ${CHESS_ITEMS[id].name}</option>`).join('')}</select></label>
-    </div><p data-chess-item-detail aria-live="polite"></p><button class="button" data-chess-equip>Trang bị</button>`);
-  const unitPicker = dialog.querySelector('[data-chess-gear-unit]');
-  const itemPicker = dialog.querySelector('[data-chess-gear-item]');
-  const description = dialog.querySelector('[data-chess-item-detail]');
-  const equip = dialog.querySelector('[data-chess-equip]');
-  if (runtime.selectedBoard !== null) unitPicker.value = 'board:' + runtime.selectedBoard;
-  else if (runtime.selectedBench !== null) unitPicker.value = 'bench:' + runtime.selectedBench;
-  function selection() {
-    const [zone, index] = unitPicker.value.split(':');
-    return { zone, index: Number(index), item: Number(itemPicker.value) };
-  }
-  function update() {
-    const { zone, index, item } = selection();
-    const unit = run[zone][index];
-    const placement = chessItemPlacement(unit, run.items[item]);
-    const held = (unit.items ?? []).map(id => CHESS_ITEMS[id].name).join(', ');
-    equip.disabled = !placement;
-    const names = { atk: 'ATK', def: 'DEF', maxHp: 'HP' };
-    const stats = placement ? Object.entries(CHESS_ITEMS[placement.id].stats).map(([key, value]) => '+' + value + ' ' + names[key]).join(' · ') : '';
-    description.textContent = (held ? 'Đang mang ' + held + '. ' : '') + (!placement ? 'Đã đủ ba món.'
-      : placement.id === run.items[item] ? stats : 'Ghép thành ' + CHESS_ITEMS[placement.id].name + ' · ' + stats);
-  }
-  dialog.addEventListener('change', update);
-  equip.addEventListener('click', () => {
-    const { zone, index, item } = selection();
-    dialog.close();
-    updateChess(() => equipChessItem(runtime.chess, zone, index, item));
-  });
-  update();
+  updateChess(() => equipChessItem(run, zone, unitIndex, itemIndex));
 }
 
 function showChessScout(opponent, hex = false) {
@@ -2845,7 +3039,7 @@ function drawChessReplay(delta) {
   if (runtime.chessReplayPaused) return;
   const replay = runtime.chessReplay;
   const ended = replay.advance(delta * runtime.chessReplaySpeed, event => runtime.audio.handle(event));
-  replay.draw(canvas);
+  replay.draw(canvas, runtime.save.settings.effectsLimited);
   app.querySelector('[data-chess-replay-progress]').value = Math.min(1, replay.elapsed / replay.duration);
   if (ended) {
     runtime.chessReplay = null;
@@ -2875,7 +3069,7 @@ function sellSelectedChessUnit() {
 }
 
 function updateChess(action) {
-  try { runtime.chess = action(); runtime.selectedBench = null; runtime.selectedBoard = null; runtime.notice = ''; saveNow(); }
+  try { runtime.chess = action(); runtime.selectedBench = null; runtime.selectedBoard = null; runtime.selectedChessItem = null; runtime.notice = ''; saveNow(); }
   catch (error) { runtime.notice = error.message; }
   render();
 }
@@ -3034,49 +3228,55 @@ function renderStore() {
   const member = save.roster.find(spirit => spirit.id === runtime.storeMember) ?? adventureParty(save)[0];
   const tabs = { all: 'Tất cả', consumable: 'Hồi phục', gear: 'Trang bị', material: 'Vật liệu', bag: 'Túi đồ' };
   const inBattle = Boolean(runtime.adventure.battle);
+  const counter = nearestInteraction(runtime.adventure, save, runtime.maps);
+  const supplies = runtime.adventure.map === 'village_merchant' && counter?.id === 'supplies' ? counter.offer : null;
   shell(`${pageHeader('Làng Ẩm Thực', 'Cửa hàng Adventure', '')}
     <section class="meta-store"><div class="store-shopkeeper" aria-label="Tiệm Nguyên Liệu">
       <img src="${actorArt('npc_lilia')}" alt=""><div><small>Tiệm Nguyên Liệu</small><strong>Lilia</strong></div>
     </div><div class="store-workspace"><div class="meta-banner-tabs" role="group" aria-label="Mục cửa hàng">
     ${Object.entries(tabs).map(([id, label]) => `<button class="button light" data-store-tab="${id}" aria-pressed="${id === storeTab}">${label}</button>`).join('')}</div>
-    <label>Vị Linh <select data-store-member>${save.roster.map(spirit => `<option value="${escapeAttr(spirit.id)}"
-      ${spirit.id === member.id ? 'selected' : ''}>${escapeHtml(SPIRITS[spirit.id]?.name)}</option>`).join('')}</select></label>
+    ${storeTab === 'bag' ? `<label>Vị Linh <select data-store-member>${save.roster.map(spirit => `<option value="${escapeAttr(spirit.id)}"
+      ${spirit.id === member.id ? 'selected' : ''}>${escapeHtml(SPIRITS[spirit.id]?.name)}</option>`).join('')}</select></label>` : ''}
     ${inBattle ? '<p class="notice">Kết thúc trận Adventure để mua, dùng hoặc đổi trang bị.</p>' : ''}
     <fieldset class="meta-shop-body" ${inBattle ? 'disabled' : ''}><legend class="sr-only">Vật phẩm</legend>
+    ${supplies && storeTab === 'all' ? `<div class="store-exchange"><span>Đổi ${supplies.gold} vàng lấy ${supplies.essence} tinh hoa</span>
+      <button class="button light" type="button" data-buy-supplies ${save.player.gold < supplies.gold ? 'disabled' : ''}>Đổi tinh hoa</button></div>` : ''}
     ${storeTab === 'bag' ? inventoryRows(save, member) : `<div class="meta-offers">${Object.entries(ADVENTURE_OFFERS)
       .filter(([, offer]) => storeTab === 'all' || offer.category === storeTab).map(([id, offer]) =>
-        `<article><h2>${offer.name}</h2><p>${storeDetail(offer)}</p><button class="button" data-store-offer="${id}"
-          ${save.player.gold < offer.price ? 'disabled' : ''}>Mua · ${offer.price} ◈</button></article>`).join('')}</div>`}</fieldset>
+        `<article><div class="store-item-summary"><img src="${itemArt(id)}" alt=""><div><h2>${offer.name}</h2><p>${storeDetail(offer)}</p></div></div>
+          <form class="store-buy-row" data-store-offer="${id}"><label class="store-quantity">SL <input name="quantity" type="number" aria-label="Số lượng ${offer.name}" min="1" max="${Math.max(1, Math.min(10, Math.floor(save.player.gold / offer.price)))}" value="1" required></label>
+          <button class="button" type="submit" ${save.player.gold < offer.price ? 'disabled' : ''}>Mua · ${offer.price} ◈</button></form></article>`).join('')}</div>`}</fieldset>
     ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}</div></section>`);
   app.querySelectorAll('[data-store-tab]').forEach(button => button.addEventListener('click', () => {
     runtime.storeTab = button.dataset.storeTab;
     runtime.notice = '';
     renderStore();
   }));
-  app.querySelector('[data-store-member]').addEventListener('change', event => {
+  app.querySelector('[data-store-member]')?.addEventListener('change', event => {
     runtime.storeMember = event.target.value;
     renderStore();
     app.querySelector('[data-store-member]').focus();
   });
-  app.querySelectorAll('[data-store-offer]').forEach(button => button.addEventListener('click', () => {
-    const id = button.dataset.storeOffer;
+  app.querySelector('[data-buy-supplies]')?.addEventListener('click', () => {
+    const purchase = purchaseAdventureSupplies(runtime.adventure, runtime.save, runtime.maps);
+    if (!purchase.purchased) return;
+    runtime.save = purchase.save;
+    runtime.notice = `Đã nhận ${supplies.essence} tinh hoa.`;
+    runtime.audio.play('sfx_ui_confirm');
+    saveNow();
+    renderStore();
+  });
+  app.querySelectorAll('[data-store-offer]').forEach(form => {
+    const id = form.dataset.storeOffer;
     const offer = ADVENTURE_OFFERS[id];
-    const comparison = adventureGearFor(save, member.id).find(([, item]) => ADVENTURE_OFFERS[item.item].slot === offer.slot)?.[1];
-    const cap = Math.min(10, Math.floor(save.player.gold / offer.price));
-    const dialog = openInfoDialog(offer.name, `<p>${storeDetail(offer)}</p>
-      ${comparison ? `<p>Đang dùng ${ADVENTURE_OFFERS[comparison.item].name} · ${storeDetail(ADVENTURE_OFFERS[comparison.item], comparison.level)}</p>` : ''}
-      <form data-store-purchase><label>Số lượng <input name="quantity" type="number" required min="1" max="${cap}" value="1"></label>
-      <button class="button" type="submit">Mua · ${offer.price} ◈</button></form>`);
-    const form = dialog.querySelector('form');
     form.elements.quantity.addEventListener('input', () => {
       form.querySelector('button').textContent = 'Mua · ' + (offer.price * (form.elements.quantity.valueAsNumber || 0)) + ' ◈';
     });
     form.addEventListener('submit', event => {
       event.preventDefault();
-      dialog.close();
       handleInventoryAction({ type: 'buy', id, quantity: form.elements.quantity.valueAsNumber }, member, renderStore);
-    }, { once: true });
-  }));
+    });
+  });
   bindInventoryActions(member, renderStore);
 }
 
@@ -3101,7 +3301,7 @@ function renderRoster() {
   const from = available.findIndex(spirit => spirit.id === definition.id);
   shell(`<section class="spirit-profile" aria-label="Hồ sơ Vị Linh">
       <div class="spirit-portrait" style="--unit-color:${elementColors[element]}" data-rarity="${rarity}">
-        <div class="spirit-stage-art">${spiritImage(definition.id, true)}</div>
+        <div class="spirit-stage-art">${spiritImage(definition.id, true, { showcase: true })}</div>
         ${model ? `<div class="spirit-model" aria-label="Mô hình chibi" hidden>${model}</div>
           <button type="button" class="button light spirit-view-toggle" data-spirit-view aria-pressed="false">Chibi</button>` : ''}
       </div>
@@ -3112,7 +3312,9 @@ function renderRoster() {
           `<button class="button light" data-spirit-tab="${id}" aria-pressed="${runtime.rosterTab === id}">${label}</button>`).join('')}</div>
         <div class="spirit-tab-body">${renderSpiritTab(member, profile, battleActive)}</div>
         <div class="action-row"><button class="button light" data-party-toggle
-          ${battleActive || (deployed ? party.length <= 1 : party.length >= 5) ? 'disabled' : ''}>${deployed ? 'Rút khỏi đội' : 'Thêm vào đội'}</button><small>Đội Adventure · ${party.length}/5</small></div>` :
+          ${battleActive || (deployed ? party.length <= 1 : party.length >= 5) ? 'disabled' : ''}>${deployed ? 'Rút khỏi đội' : 'Thêm vào đội'}</button><button class="button light" data-home-companion
+          aria-pressed="${save.settings.homeCompanion === member.id}">${save.settings.homeCompanion === member.id ? 'Đang ở sảnh' : 'Đặt ở sảnh'}</button>
+          <small>Đội Adventure · ${party.length}/5</small></div>` :
           `<div class="spirit-tab-body"><h3>Chưa chiêu mộ</h3><p>${escapeHtml(definition.lore)}</p><p><strong>${escapeHtml(definition.ultimate)}</strong> · ${escapeHtml(definition.concept)}</p>
           <button class="button" data-page="gacha">Tới Giao Ước</button></div>`}
         ${battleActive && runtime.rosterTab !== 'skills' ? '<p class="muted-copy">Kết thúc trận Adventure để nâng cấp, đổi trang bị hoặc tặng quà.</p>' : ''}
@@ -3135,6 +3337,10 @@ function renderRoster() {
   }));
   app.querySelector('[data-open-roster]').addEventListener('click', openSpiritCollection);
   const stage = app.querySelector('.spirit-portrait');
+  const showcase = stage.querySelector('[data-fallback-art]');
+  showcase?.addEventListener('error', () => {
+    showcase.src = showcase.dataset.fallbackArt;
+  }, { once: true });
   const showModel = show => {
     if (!model) return;
     stage.querySelector('.spirit-model').hidden = !show;
@@ -3150,6 +3356,13 @@ function renderRoster() {
     void stage.offsetWidth;
     stage.classList.add('spirit-upgrade-flash');
     runtime.audio.play(`sfx_element_${element}_cast`, { gain: .6 });
+  });
+  app.querySelector('[data-home-companion]')?.addEventListener('click', () => {
+    save.settings.homeCompanion = member.id;
+    saveNow();
+    runtime.voice.speak(definition.lore, member.id, { clip: 'home-' + member.id });
+    renderRoster();
+    app.querySelector('[data-home-companion]')?.focus({ preventScroll: true });
   });
   app.querySelector('[data-party-toggle]')?.addEventListener('click', () => {
     try {
@@ -3227,7 +3440,7 @@ function renderSpiritTab(member, profile, battleActive) {
   if (runtime.rosterTab === 'gear') {
     const { ownedGear, profiles } = save.adventure.spirits;
     return `<fieldset class="meta-shop-body" ${battleActive ? 'disabled' : ''}><legend>Trang bị cửa hàng</legend>
-      ${inventoryRows(save, member, { equipmentOnly: true })}</fieldset>
+      ${inventoryRows(save, member, { equipmentOnly: true, compare: true })}</fieldset>
       <button class="button light" data-page="store">Mở cửa hàng</button>
       <h3>Trang bị chế tác · ${ownedGear.length}/${Object.keys(SPIRIT_GEAR).length}</h3>
       <div class="spirit-gear-grid">${Object.entries(SPIRIT_GEAR).map(([id, gear]) => {
@@ -3279,10 +3492,23 @@ function renderSettings(asOverlay = false) {
   const settings = runtime.save.settings;
   const guestActions = runtime.cloud ? '' : '<div class="action-row"><button class="button light" data-page="title">Về màn hình bắt đầu</button><button class="button danger" data-reset-save>Khởi tạo lại tiến trình</button></div>';
   const cloudPanel = runtime.cloud ? `<section class="settings-list panel cloud-panel"><h2>Tài khoản ${escapeHtml(runtime.account.username)}</h2><p>Tiến trình luyện tập lưu trên máy chủ.</p><p role="status" data-cloud-status></p><div class="action-row"><button class="button light" data-cloud-action="retry" hidden>Thử lưu lại</button><button class="button light" data-cloud-action="reload" hidden>Tải bản trên máy chủ</button><button class="button light" data-cloud-action="reauth" hidden>Đăng nhập lại</button><button class="button danger" data-cloud-action="logout">Lưu và đăng xuất</button></div></section>` : '';
-  const content = `<section class="settings-list panel">${[['music', 'Nhạc'], ['sfx', 'Hiệu ứng'], ['ambience', 'Môi trường']].map(([key, label]) => `<label class="setting-row"><span>${label}</span><input type="range" min="0" max="100" value="${settings[key]}" data-setting="${key}"><b>${settings[key]}%</b></label>`).join('')}<label class="setting-row"><span>Giảm chuyển động</span><input type="checkbox" data-setting-motion ${settings.reducedMotion ? 'checked' : ''}><b>${settings.reducedMotion ? 'Bật' : 'Tắt'}</b></label>${asOverlay ? '' : guestActions}</section>${asOverlay ? '' : cloudPanel}`;
+  const content = `<section class="settings-list panel">${[['music', 'Nhạc'], ['sfx', 'Hiệu ứng'], ['voice', 'Giọng đọc'], ['ambience', 'Môi trường']].map(([key, label]) => `<label class="setting-row"><span>${label}</span><input type="range" min="0" max="100" value="${settings[key]}" data-setting="${key}"><b>${settings[key]}%</b></label>`).join('')}<label class="setting-row"><span>Giảm chuyển động</span><input type="checkbox" data-setting-motion ${settings.reducedMotion ? 'checked' : ''}><b>${settings.reducedMotion ? 'Bật' : 'Tắt'}</b></label>
+    <label class="setting-row"><span>Giảm mật độ hiệu ứng</span><input type="checkbox" data-setting-effects ${settings.effectsLimited ? 'checked' : ''}>
+    <b>${settings.effectsLimited ? 'Bật' : 'Tắt'}</b></label>
+    <div class="action-row"><button type="button" class="button light compact" data-voice-preview>Thử giọng tiếng Việt</button><small data-voice-status role="status"></small></div>${asOverlay ? '' : guestActions}</section>${asOverlay ? '' : cloudPanel}`;
   const host = asOverlay ? openInfoDialog('Cài đặt', content) : app;
   if (!asOverlay) shell(pageHeader(runtime.cloud ? 'Tài khoản' : 'Thiết bị này', 'Cài đặt', '') + content);
-  host.querySelectorAll('[data-setting]').forEach((input) => input.addEventListener('input', () => { runtime.save.settings[input.dataset.setting] = Number(input.value); input.nextElementSibling.textContent = `${input.value}%`; runtime.audio.setSettings(runtime.save.settings); saveNow(); }));
+  host.querySelectorAll('[data-setting]').forEach((input) => input.addEventListener('input', () => { runtime.save.settings[input.dataset.setting] = Number(input.value); input.nextElementSibling.textContent = `${input.value}%`; runtime.audio.setSettings(runtime.save.settings); runtime.voice.setSettings(runtime.save.settings); saveNow(); }));
+  host.querySelector('[data-voice-preview]')?.addEventListener('click', () => {
+    const spoken = runtime.voice.speak('Chào mừng Người Kết Vị đến Làng Ẩm Thực!', 'npc_lilia', { priority: true, clip: 'system-welcome' });
+    host.querySelector('[data-voice-status]').textContent = spoken ? ''
+      : !settings.voice ? 'Giọng đọc đang tắt.' : 'Thiết bị chưa có giọng tiếng Việt.';
+  });
+  host.querySelector('[data-setting-effects]')?.addEventListener('change', ({ target }) => {
+    settings.effectsLimited = target.checked;
+    target.nextElementSibling.textContent = settings.effectsLimited ? 'Bật' : 'Tắt';
+    saveNow();
+  });
   host.querySelector('[data-setting-motion]')?.addEventListener('change', (event) => { runtime.save.settings.reducedMotion = event.target.checked; syncMotion(); saveNow(); event.target.nextElementSibling.textContent = settings.reducedMotion ? 'Bật' : 'Tắt'; });
   host.querySelector('[data-reset-save]')?.addEventListener('click', () => {
     if (!confirm('Xóa tiến trình đã lưu trên thiết bị này?')) return;
@@ -3335,7 +3561,9 @@ function render() {
   if (runtime.page === 'store') return renderStore();
   if (runtime.page === 'home') return renderHome();
   if (runtime.page === 'adventure') return renderAdventure();
+  if (runtime.page === 'puzzle') return renderAdventurePuzzle();
   if (runtime.page === 'journey') return renderAdventureJournal();
+  if (runtime.page === 'guide') return renderGuide();
   if (runtime.page === 'tcg') return renderTcg();
   if (runtime.page === 'chess') return renderChess();
   if (runtime.page === 'roster') return renderRoster();
@@ -3354,6 +3582,11 @@ window.addEventListener('keydown', (event) => {
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
   if (event.target?.matches?.('input, select, textarea') || app.querySelector('dialog[open]')) return;
   if (key === 'Escape' && !event.repeat) {
+    if (runtime.page === 'puzzle') return sceneNavigation.back();
+    if (runtime.page === 'chess' && runtime.selectedChessItem !== null) {
+      app.querySelector('[data-chess-item][aria-pressed="true"]')?.click();
+      return;
+    }
     const cancel = app.querySelector('[data-tcg-cancel-spell], [data-tcg-cancel-strike]');
     if (cancel && !event.defaultPrevented && !app.querySelector('.match-menu[open]')) {
       cancel.click();
@@ -3383,6 +3616,14 @@ window.addEventListener('blur', () => {
   runtime.heldKeys.clear();
   runtime.worldStick = null;
 });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    runtime.heldKeys.clear();
+    runtime.worldStick = null;
+    runtime.voice.stop();
+  }
+  runtime.audio.syncVisibility(document.hidden);
+});
 window.addEventListener('focus', () => { if (runtime.page === 'home') void checkForContentUpdate(); });
 
 let lastFrame = 0;
@@ -3396,6 +3637,7 @@ function animate(now) {
     else updateChessClock(delta);
   }
   const reducedMotion = app.dataset.motion === 'reduced';
+  if (runtime.page === 'guide' && runtime.guidePage === 'effects') paintEffectPreview(now, reducedMotion);
   if (['home', 'roster'].includes(runtime.page) || (runtime.page === 'chess' && !runtime.chessReplay)) {
     boardSprites.paint(app, delta, now, reducedMotion);
   }
@@ -3403,7 +3645,7 @@ function animate(now) {
     if (event.type !== 'tcg_support_resolved') runtime.audio.handle(event);
     else if (event.payload.kind === 'boost') runtime.audio.handle({ ...event, type: 'cast_started' });
     else runtime.audio.handle({ ...event, type: event.payload.kind === 'shield' ? 'shield_applied' : 'heal_resolved' });
-  });
+  }, runtime.save.settings.effectsLimited);
   requestAnimationFrame(animate);
 }
 requestAnimationFrame(animate);

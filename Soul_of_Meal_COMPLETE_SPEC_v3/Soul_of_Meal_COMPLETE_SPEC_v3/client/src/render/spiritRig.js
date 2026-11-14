@@ -1,4 +1,5 @@
-import { HERO_ID, HERO_NAMES } from './spriteAssets.js';
+import { actorArt, FIELD_MONSTER_IDS, HERO_ID, HERO_NAMES } from './spriteAssets.js';
+import { SPIRITS } from '../modes/metaProgress.js';
 
 const ASSETS = './assets/original/rigs/';
 const RAD = Math.PI / 180;
@@ -74,8 +75,8 @@ export class SpiritRig {
   lowestFoot(pose) {
     return Math.min(...this.feet.map(({ bone, attachment }) => {
       const joint = pose[bone];
-      const sole = attachment.y - attachment.height / 2 + 1;
-      return joint.y + attachment.x * Math.sin(joint.angle) + sole * Math.cos(joint.angle);
+      const { x = attachment.x, y = attachment.y - attachment.height / 2 + 1 } = attachment.sole ?? {};
+      return joint.y + x * Math.sin(joint.angle) + y * Math.cos(joint.angle);
     }));
   }
 
@@ -130,8 +131,15 @@ export class SpiritRig {
       ctx.translate(joint.x, joint.y);
       ctx.rotate(joint.angle);
       ctx.scale(1, -1);
-      ctx.drawImage(this.image, ...region, attachment.x - attachment.width / 2,
-        -attachment.y - attachment.height / 2, attachment.width, attachment.height);
+      const left = attachment.x - attachment.width / 2;
+      const top = -attachment.y - attachment.height / 2;
+      if (attachment.mask) {
+        ctx.beginPath();
+        for (const [u, v] of attachment.mask) ctx.lineTo(left + u * attachment.width, top + v * attachment.height);
+        ctx.closePath();
+        ctx.clip();
+      }
+      ctx.drawImage(this.image, ...region, left, top, attachment.width, attachment.height);
       ctx.restore();
     }
     ctx.restore();
@@ -181,7 +189,13 @@ export class BattleRigClock {
         ? 1 : clamp((tick - this.defeat.tick) / this.tickRate / this.rig.clips.defeat.duration);
       return { id: 'defeat', phase };
     }
-    const fallback = { id: animation?.requestedClipId ?? (actor.alive ? 'idle' : 'defeat'), phase: animation?.motionPhase ?? 0 };
+    const id = animation?.requestedClipId ?? 'idle';
+    const fallbackClip = this.rig.clips[id];
+    const rawPhase = animation?.motionPhase ?? 0;
+    const phase = animation?.missingClip && fallbackClip
+      ? (['idle', 'walk', 'run'].includes(id) ? (rawPhase / fallbackClip.duration) % 1 : clamp(rawPhase / fallbackClip.duration))
+      : rawPhase;
+    const fallback = { id, phase };
     if (animation?.motionPhase == null) return fallback;
     const { action } = actor;
     if (actor.alive && battle.phase === 'battle_running' && action) {
@@ -247,6 +261,149 @@ async function loadSpiritRig(renderer, id, signal) {
 }
 
 export async function loadSpiritRigs(renderer, signal) {
-  const entries = await Promise.all(Object.keys(HERO_NAMES).map(async id => [id, await loadSpiritRig(renderer, id, signal)]));
+  const actors = [...Object.values(SPIRITS), ...FIELD_MONSTER_IDS.map(id => ({ id, role: 'fighter' }))];
+  const entries = await Promise.all(actors.map(async spirit => {
+    const id = spirit.id;
+    const rig = Object.hasOwn(HERO_NAMES, id) && await loadSpiritRig(renderer, id, signal);
+    return [id, rig || await loadPortraitRig(renderer, spirit)];
+  }));
   return new Map(entries.filter(([, rig]) => rig));
+}
+
+// Body seams and the forward hand side are measured on each original portrait.
+const neckAndHip = {
+  '002': [.54, .79], '003': [.57, .80], '004': [.48, .75], '005': [.51, .74],
+  '006': [.44, .78], '007': [.46, .75], '008': [.50, .75], '009': [.48, .76],
+  '010': [.49, .78], '011': [.49, .75], '012': [.50, .77], '013': [.53, .79],
+  '016': [.50, .77], '017': [.51, .76], '019': [.49, .76], '020': [.51, .77],
+  '022': [.48, .79], '023': [.44, .74], '024': [.46, .75],
+};
+
+const handSeams = {
+  '002': .65, '003': .73, '004': .66, '005': .69, '006': .62, '007': .64,
+  '008': .67, '009': .62, '010': .64, '011': .65, '012': .62, '013': .63,
+  '016': .65, '017': .64, '019': .70, '020': .64, '022': .71, '023': .62, '024': .56,
+};
+
+async function loadPortraitRig(renderer, spirit) {
+  const image = await renderer.loadImage(actorArt(spirit.id));
+  if (!image) return null;
+  const width = image.naturalWidth, height = image.naturalHeight;
+  const soles = Object.hasOwn(handSeams, spirit.id.slice(-3)) ? measurePortraitSoles(image, width, height) : null;
+  return new SpiritRig(...portraitRigDefinition(spirit, width, height, soles), image);
+}
+
+function measurePortraitSoles(image, width, height) {
+  if (!globalThis.document) return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext('2d', { willReadFrequently: true });
+  if (!context) return null;
+  try {
+    context.drawImage(image, 0, 0);
+    const pixels = context.getImageData(0, 0, width, height).data;
+    return portraitSoles(pixels, width, height);
+  } catch {
+    return null;
+  }
+}
+
+export function portraitSoles(pixels, width, height) {
+  const split = Math.round(width * .51);
+  return [[0, split], [split, width]].map(([start, end]) => {
+    for (let y = height - 1; y >= height * .78; y--) {
+      let count = 0, sum = 0;
+      for (let x = start; x < end; x++) {
+        if (pixels[(y * width + x) * 4 + 3] >= 144) {
+          count++;
+          sum += x;
+        }
+      }
+      if (count >= Math.max(2, Math.floor(width * .015))) return { x: sum / count, y };
+    }
+    return null;
+  });
+}
+
+export function portraitRigDefinition(spirit, width, height, soles = null) {
+  const [neck, hip] = neckAndHip[spirit.id.slice(-3)] ?? [.49, .75];
+  const size = Math.min(89 / height, 106 / width);
+  const neckY = Math.round(neck * height), hipY = Math.round(hip * height);
+  const overlap = Math.max(2, Math.round(height * .022));
+  const hand = handSeams[spirit.id.slice(-3)];
+  const shift = hand == null ? 0 : (hand - .5) * width * size;
+  const soleY = Math.max(0, ...(soles ?? []).map(sole => sole?.y ?? 0)) || height;
+  const shoulder = hand == null ? 0 : (hipY - neckY) * .76 * size;
+  const shin = (height - hipY) * .53 * size;
+  const spread = width * size * .12;
+  const strips = [
+    ['feet', hipY - overlap, height, height],
+    ['head', 0, neckY + overlap, neckY],
+    ['body', neckY - overlap, hipY + overlap, hipY],
+  ];
+  if (hand != null) {
+    const bodyMask = [[0, 0], [hand + .06, 0], [hand - .065, .42], [hand + .05, 1], [0, 1]];
+    const armMask = [[hand + .04, 0], [1, 0], [1, 1], [hand + .02, 1], [hand - .1, .42]];
+    strips.splice(0, 1,
+      ['leg_far', hipY - overlap, height, height - shin / size, -spread, [[0, 0], [.51, 0], [.51, 1], [0, 1]]],
+      ['leg_near', hipY - overlap, height, height - shin / size, spread, [[.51, 0], [1, 0], [1, 1], [.51, 1]]]);
+    strips.splice(3, 1, ['body', neckY - overlap, hipY + overlap, hipY, 0, bodyMask],
+      ['hand', neckY - overlap, hipY + overlap, hipY - shoulder / size, shift, armMask]);
+  }
+  const regions = {}, attachments = {};
+  const slots = strips.map(([name, top, bottom, pivot, x = 0, mask]) => {
+    regions[name] = [0, top, width, bottom - top];
+    const sole = name === 'leg_far' ? soles?.[0] : name === 'leg_near' ? soles?.[1] : null;
+    const isLeg = name === 'feet' || name.startsWith('leg_');
+    const localY = isLeg ? pivot - (height - soleY) : pivot;
+    attachments[name] = { [name]: { x: -x, y: (localY - (top + bottom) / 2) * size,
+      width: width * size, height: (bottom - top) * size, mask,
+      ...(sole ? { sole: { x: (sole.x - width / 2) * size - x, y: (localY - sole.y) * size } } : {}),
+    } };
+    return { name, bone: name, attachment: name };
+  });
+  const bones = [{ name: 'feet' }, { name: 'body', parent: 'feet', y: (soleY - hipY) * size },
+    { name: 'head', parent: 'body', y: (hipY - neckY) * size }];
+  if (hand != null) bones.push({ name: 'hand', parent: 'body', x: shift, y: shoulder },
+    { name: 'leg_far', parent: 'feet', x: -spread, y: shin }, { name: 'leg_near', parent: 'feet', x: spread, y: shin });
+  bones.push({ name: 'effect_tip', parent: hand == null ? 'body' : 'hand',
+    x: Math.min(36, width * size * .4) - shift, y: height * size * .28 - shoulder });
+  const melee = ['guardian', 'fighter', 'assassin'].includes(spirit.role);
+  const track = (duration, pivot, middle) => [{ time: 0, ...pivot }, { time: duration / 2, ...middle }, { time: duration, ...pivot }];
+  const motion = (duration, x, y, turn, contact, end = {}) => ({
+    bones: {
+      feet: { translate: [{ time: 0, x: 0, y: 0 }, { time: contact ?? duration / 2, x, y }, { time: duration, x: end.x ?? 0, y: 0 }] },
+      body: { rotate: [{ time: 0, value: 0 }, { time: contact ?? duration / 2, value: turn }, { time: duration, value: end.turn ?? 0 }] },
+      head: { rotate: track(duration, { value: 0 }, { value: -turn * .82 }) },
+      ...(hand == null ? {} : { hand: { rotate: [
+        { time: 0, value: 0 }, { time: (contact ?? duration / 2) * .48, value: contact ? 5 : 0 },
+        { time: contact ?? duration / 2, value: contact ? -9 + turn * .3 : -turn }, { time: duration, value: 0 },
+      ] } }),
+    },
+    ...(contact ? { events: [{ time: contact, name: 'effect_contact' }] } : {}),
+  });
+  const gait = (duration, lift, lean) => {
+    const clip = motion(duration, 0, lift, -lean);
+    clip.bones.feet.translate = [0, .25, .5, .75, 1].map((beat, i) => ({
+      time: duration * beat, x: [0, 1.5, 0, -1.5, 0][i], y: i % 2 ? lift : 0,
+    }));
+    clip.bones.body.rotate = track(duration, { value: -lean }, { value: -lean * .4 });
+    if (hand != null) {
+      for (const [leg, sign] of [['leg_far', 1], ['leg_near', -1]]) {
+        clip.bones[leg] = { rotate: [0, .25, .5, .75, 1].map((beat, i) => ({
+          time: duration * beat, value: [0, 4 * sign, 0, -4 * sign, 0][i],
+        })) };
+      }
+    }
+    return clip;
+  };
+  const animations = {
+    idle: motion(1.8, 0, .75, 1), walk: gait(.58, 1.7, 2.5), run: gait(.40, 2.25, 4),
+    attack_a: motion(.54, melee ? 8 : 2, 1, melee ? -12 : -4, .28),
+    attack_b: motion(.56, melee ? 6 : 2, 2, melee ? -9 : 4, .29),
+    skill_01: motion(.72, 3, 3, -6, .39), ultimate_01: motion(.93, 6, 5, -9, .50),
+    hit: motion(.30, -4, 0, 8), victory: motion(1.0, 0, 6, -3), defeat: motion(.59, -4, 0, 14, null, { x: -6, turn: 34 }),
+  };
+  return [{ bones, slots, skins: [{ name: 'default', attachments }], animations }, regions];
 }

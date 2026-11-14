@@ -1,5 +1,6 @@
 import { combatArt, cutinArt, ELEMENT_ART, HERO_NAMES } from './spriteAssets.js';
 import { drawEffectTexture, drawElementEffect } from './elementEffects.js';
+import { drawCombatAccent, drawCombatTrail } from './combatVfx.js';
 import { findBattleTarget } from '../modes/adventure.js';
 import { adventureViewport, battleActorPoint } from './adventureStage.js';
 
@@ -36,17 +37,27 @@ export class BattleEffects {
         this.effects = this.effects.filter((effect) => effect.type !== 'cutin');
         this.add('cutin', element, .63, { id: source_id, text: payload.name });
       }
-    } else if (type === 'boss_cast_released' && source && ['shadow', 'water'].includes(element)) {
-      this.add('impact', element, .9, { x: source.x, y: source.y - 64, strong: true });
+    } else if (type === 'enemy_skill_released' && source) {
+      const { x, y } = payload.aim ?? target ?? source;
+      this.add('shockwave', element, .58, { x, y, radius: payload.radius ?? 56 });
     } else if (type === 'boss_cast_released' && source) {
-      const flipX = attacker.direction !== 'E';
-      this.add('boss_cleave', element, .48, { x: source.x + (flipX ? -66 : 66), y: source.y - 54, flipX });
+      if (payload.safeX != null) {
+        this.add('tide', element, .92, { x: payload.safeX, y: source.y });
+      } else {
+        this.add('shockwave', element, .95, { x: source.x, y: source.y, radius: 190 });
+        if (element === 'fire') {
+          const flipX = attacker.direction !== 'E';
+          this.add('boss_cleave', element, .52, { x: source.x + (flipX ? -66 : 66), y: source.y - 54, flipX });
+        }
+      }
     } else if (type === 'boss_stove_destroyed' && target) {
       this.add('impact', element, .65, { x: target.x, y: target.y - 32, text: 'Bếp vỡ', strong: true });
     } else if (type === 'boss_cast_interrupted' && source) {
       this.add('impact', 'light', .85, { x: source.x, y: source.y - 76, text: 'Ngắt chiêu!', strong: true });
     } else if (type === 'lantern_ward_activated' && source) {
       this.add('impact', 'light', .75, { x: source.x - 175, y: source.y - 132, text: 'Đèn Giữ Vị' });
+    } else if (type === 'actor_died' && target) {
+      this.add('defeat', defender.element, .64, { x: target.x, y: target.y - 12 });
     } else if (type === 'shield_broken' && target) {
       this.add('shield_break', 'light', .38, { x: target.x, y: target.y - 39 });
     } else if (target && ['hit_resolved', 'heal_resolved', 'shield_applied'].includes(type)) {
@@ -56,7 +67,9 @@ export class BattleEffects {
           : payload.hp_damage ? '−' + payload.hp_damage : payload.guarded ? 'Hộ thuẫn bếp' : 'Chặn đòn';
       this.add('impact', element, .72, {
         x: target.x, y: target.y - (defender.stove ? 27 : 42), text, guarded: payload.guarded,
-        strong: type !== 'hit_resolved' || ['ultimate', 'boss_telegraph'].includes(payload.source_kind),
+        accent: type === 'heal_resolved' ? 'heal' : type === 'shield_applied' ? 'shield'
+          : payload.guarded || !payload.hp_damage ? 'guard' : 'hit',
+        strong: type !== 'hit_resolved' || ['ultimate', 'boss_telegraph', 'enemy_skill'].includes(payload.source_kind),
       });
     }
   }
@@ -70,7 +83,7 @@ export class BattleEffects {
     this.effects = this.effects.filter((effect) => effect.elapsed < effect.duration);
   }
 
-  draw(context, battle, reducedMotion, view = adventureViewport(false), fraction = 0, blend = 1) {
+  draw(context, battle, reducedMotion, view = adventureViewport(false), fraction = 0, blend = 1, effectsLimited = false) {
     let cutin;
     for (const effect of this.effects) {
       const progress = effect.elapsed / effect.duration;
@@ -83,13 +96,31 @@ export class BattleEffects {
         if (travel >= 1) continue;
         const tracked = findBattleTarget(battle, effect.targetId);
         const target = tracked?.alive ? battleActorPoint(tracked, blend, battle.bossTelegraph?.safeX) : effect.to;
-        const dx = target.x - effect.from.x;
-        const dy = target.y - (tracked?.stove ? 26 : 42) - effect.from.y;
-        const x = effect.from.x + dx * travel;
-        const y = effect.from.y + dy * travel - Math.sin(Math.PI * travel) * 20;
-        drawElementEffect(context, this.renderer, effect.element, 'trail', {
-          x, y, size: 96, angle: Math.atan2(dy, dx), opacity: .95,
+        const to = { x: target.x, y: target.y - (tracked?.stove ? 26 : 42) };
+        if (reducedMotion) {
+          const x = travel < .65 ? effect.from.x : to.x;
+          const y = travel < .65 ? effect.from.y : to.y;
+          drawElementEffect(context, this.renderer, effect.element, 'trail', { x, y, size: 65, opacity: .6 });
+        } else drawCombatTrail(context, this.renderer, {
+          element: effect.element, from: effect.from, to, progress: travel, size: 81, arc: 20,
         });
+      } else if (effect.type === 'tide') {
+        const x = reducedMotion ? effect.x + 35 : 960 + (effect.x - 960) * progress;
+        context.save();
+        context.globalAlpha = fade * .52;
+        const wash = context.createLinearGradient(effect.x, 0, 960, 0);
+        wash.addColorStop(0, 'transparent');
+        wash.addColorStop(.36, color);
+        wash.addColorStop(1, '#a5f2ff');
+        context.fillStyle = wash;
+        context.fillRect(effect.x, 220, 960 - effect.x, 320);
+        context.restore();
+        for (const y of [275, 372, 468]) {
+          drawElementEffect(context, this.renderer, effect.element, 'impact', { x, y, size: 180, opacity: fade * .86 });
+        }
+      } else if (effect.type === 'shockwave' || effect.type === 'defeat') {
+        drawCombatAccent(context, this.renderer, { ...effect, kind: effect.type === 'defeat' ? 'defeat' : 'cast',
+          size: effect.radius ? effect.radius * 1.46 : 69, progress, reducedMotion, effectsLimited });
       } else if (effect.type === 'boss_cleave' || effect.type === 'shield_break') {
         const size = (effect.type === 'boss_cleave' ? 220 : 90) * (reducedMotion ? 1 : .78 + .35 * progress);
         const options = { x: effect.x, y: effect.y, size, flipX: effect.flipX, opacity: fade };
@@ -98,17 +129,10 @@ export class BattleEffects {
         }
       } else {
         const strike = effect.type === 'strike';
-        const size = strike ? 88 : effect.strong ? 128 : effect.type === 'cast' ? 96 : 72;
-        const growth = reducedMotion ? 1 : .78 + progress * .42;
-        drawElementEffect(context, this.renderer, effect.element, strike ? 'trail' : 'impact', {
-          x: effect.x, y: effect.y, size: size * growth, opacity: fade * (effect.strong ? .78 : .72), angle: effect.angle,
+        const size = strike ? 84 : effect.strong ? 120 : effect.type === 'cast' ? 86 : 64;
+        drawCombatAccent(context, this.renderer, { ...effect, size, progress, reducedMotion, effectsLimited,
+          kind: effect.accent ?? (strike ? 'slash' : effect.type === 'cast' ? 'charge' : 'hit'),
         });
-        if (effect.strong && !reducedMotion) {
-          drawElementEffect(context, this.renderer, effect.element, 'impact', {
-            x: effect.x, y: effect.y, size: size * (1.08 + progress * .43),
-            angle: .2 + progress * .4, opacity: fade * .35,
-          });
-        }
         if (!effect.text) continue;
         context.save();
         context.globalAlpha = fade;

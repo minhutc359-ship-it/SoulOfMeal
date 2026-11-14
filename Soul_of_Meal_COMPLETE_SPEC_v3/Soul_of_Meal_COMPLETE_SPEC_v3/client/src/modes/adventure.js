@@ -1,9 +1,10 @@
 import { gameEvents } from '../core/events.js';
 import { hasClearLine, moveWithCollision, safeAdventurePosition } from './adventureNavigation.js';
 import { getAdventureMap } from './mapCatalog.js';
-import { adventureBalance as balance, adventureEncounters, ADVENTURE_TICK_RATE } from './adventureBalance.js';
+import { adventureBalance as balance, adventureEncounters, enemySkills, ADVENTURE_TICK_RATE } from './adventureBalance.js';
 import { FOREST_CLUES, FOREST_CLUE_IDS, FOREST_LANTERNS, HARBOR_CLUES, HARBOR_CLUE_IDS } from './adventureStory.js';
 import { FINALE_CHAPTERS, FINALE_ROUTES, finaleChapterComplete } from './adventureFinale.js';
+import { ADVENTURE_PUZZLES } from './adventurePuzzle.js';
 import { adventureChallenge } from './adventureChallenges.js';
 import { adventureSpiritStats, spiritProfile } from './spiritProgress.js';
 import { adventureParty, recruitSpirit, STARTER_REWARDS } from './metaProgress.js';
@@ -31,17 +32,18 @@ function restoreBattle(save) {
   if (battle?.checkpointVersion !== CHECKPOINT_VERSION || !Object.hasOwn(adventureEncounters, battle.encounter)) return null;
   const encounter = adventureEncounters[battle.encounter];
   const allowedMap = encounter.scene ?? 'forest';
+  const wave = battle.actors?.some?.(actor => actor?.boss) ? encounter.waves.length - 1 : battle.wave;
   const validLocation = battle.challengeTier == null ? save.adventure.map === allowedMap
-    : Boolean(adventureChallenge(save, battle.encounter, battle.challengeTier)) && battle.wave === encounter.waves.length - 1;
+    : Boolean(adventureChallenge(save, battle.encounter, battle.challengeTier)) && wave === encounter.waves.length - 1;
   if (!validLocation || !Number.isInteger(battle.tick) || battle.tick < 0
-      || !Number.isInteger(battle.wave) || !encounter.waves[battle.wave] || typeof battle.id !== 'string'
+      || !Number.isInteger(wave) || !encounter.waves[wave] || typeof battle.id !== 'string'
       || !['battle_running', 'battle_end'].includes(battle.phase)
       || !Array.isArray(battle.actors) || !Array.isArray(battle.stoves)
       || !adventureParty(save).every(member => battle.actors.some(actor => actor?.actor_id === member.id && actor.team === 'player'))) return null;
   if (battle.phase === 'battle_end' && !['victory', 'defeat'].includes(battle.result)) return null;
   const tell = battle.bossTelegraph;
   if (tell && (!encounter.phases[tell.phase] || !Number.isFinite(tell.ticks))) return null;
-  return { ...structuredClone(battle), events: [], paused: battle.phase === 'battle_running' };
+  return { ...structuredClone(battle), wave, events: [], paused: battle.phase === 'battle_running' };
 }
 
 export function createAdventureState(save, maps) {
@@ -119,8 +121,7 @@ export function nearestInteraction(state, save, maps) {
   const radius = getAdventureMap(maps, state.map)?.world.player_radius;
   return availableAdventureInteractions(state.map, save, maps)
     .map((item) => ({ ...item, id: item.action, distance: Math.hypot(item.x - state.x, item.y - state.y) }))
-    .filter((item) => item.distance <= item.radius && (!['portal', 'room_door'].includes(item.kind)
-      || hasClearLine(state.map, state, item, radius, maps)))
+    .filter(item => item.distance <= item.radius && hasClearLine(state.map, state, item, radius, maps))
     .sort((a, b) => a.distance - b.distance)[0] ?? null;
 }
 
@@ -130,7 +131,9 @@ export function availableAdventureInteractions(mapId, save, maps) {
   const items = map?.interactables ?? [];
   const investigating = quest === 'completed' && chapterTwo.stage === 'accepted';
   const chapter = FINALE_CHAPTERS.find(item => item.map === mapId);
-  return items.filter(({ action, kind }) => {
+  return items.filter(({ action, kind, encounter }) => {
+    if (kind === 'field_encounter') return Boolean(adventureEncounters[encounter]?.field)
+      && !save.adventure.rewardClaims.includes(adventureEncounters[encounter].claimId);
     if (kind === 'room_door') {
       const destination = map.transitions?.find(door => door.id === action)?.to;
       return Boolean(getAdventureMap(maps, destination));
@@ -177,6 +180,15 @@ export function interactAdventure(state, save, maps) {
     state.lastMessage = 'Không có điểm tương tác nào trong tầm với.';
     return { state, save, changed: false };
   }
+  if (target.kind === 'resident') {
+    state.lastMessage = target.label + ' · ' + target.note;
+    const speaker = getAdventureMap(maps, state.map)?.visuals?.find(item => item.id === target.id)?.actorId;
+    return { state, save, changed: false, voice: { text: target.note, speaker, clip: 'npc-' + target.id } };
+  }
+  if (target.kind === 'field_encounter') {
+    beginBattle(state, save, target.encounter);
+    return { state, save, changed: true };
+  }
   if (target.kind === 'room_door') {
     const map = getAdventureMap(maps, state.map).transitions.find(door => door.id === target.id).to;
     const result = transitionMap(state, save, map, maps);
@@ -193,8 +205,8 @@ export function interactAdventure(state, save, maps) {
     if (updated.adventure.quest === 'not_started') {
       updated.adventure.quest = 'accepted';
       const reward = updated.meta?.profile && recruitSpirit(updated, STARTER_REWARDS.quest, true);
-      state.lastMessage = reward ? 'Cơm Nắm Tròn Trịa đã gia nhập. Mở rương tiếp tế ở phía đông quảng trường.'
-        : 'Đã nhận nhiệm vụ. Mở rương tiếp tế ở phía đông quảng trường.';
+      state.lastMessage = reward ? 'Cơm Nắm Tròn Trịa đã gia nhập. Đến rương tiếp tế ở phía đông để giải khóa.'
+        : 'Đã nhận nhiệm vụ. Đến rương tiếp tế ở phía đông để giải khóa.';
       dialogue = 'opening';
       gameEvents.emit('quest_accepted', { quest_id: 'quest_missing_flavor' }, { map_id: 'village' });
     } else if (updated.adventure.quest === 'ready_to_claim') {
@@ -220,24 +232,16 @@ export function interactAdventure(state, save, maps) {
         return { state, save, changed: false, dialogue: 'forestOpening' };
       }
     } else {
-      state.lastMessage = 'Lilia: Rương ở phía đông quảng trường có thể giúp bạn chuẩn bị.';
+      state.lastMessage = updated.adventure.chestOpened
+        ? 'Lilia: Qua cổng phía bắc và lần theo dấu Bếp Trưởng trong rừng.'
+        : 'Lilia: Ghép các nguyên liệu trên khóa rương ở phía đông để lấy đồ tiếp tế.';
     }
   } else if (target.id === 'chest') {
-    if (updated.adventure.quest === 'not_started') {
+    if (updated.adventure.quest !== 'accepted') {
       state.lastMessage = 'Chiếc rương cần một nhiệm vụ đang hoạt động.';
       return { state, save, changed: false };
     }
-    if (!updated.adventure.chestOpened) {
-      const claimId = 'village_supply_chest_p0';
-      if (!updated.adventure.rewardClaims.includes(claimId)) {
-        updated.adventure.rewardClaims.push(claimId);
-        updated.player.gold += 30;
-        updated.player.essence += 5;
-      }
-      updated.adventure.chestOpened = true;
-      state.lastMessage = 'Rương đã mở: nhận 30 vàng và 5 tinh hoa. Cổng rừng đã sáng.';
-      gameEvents.emit('chest_opened', { chest_id: claimId, gold: 30, essence: 5 }, { map_id: 'village' });
-    }
+    return { state, save, changed: false, puzzle: target.id };
   } else if (target.id === 'portal') {
     const routed = transitionMap(state, updated, 'forest', maps);
     Object.assign(updated, routed.save);
@@ -298,6 +302,9 @@ export function interactAdventure(state, save, maps) {
     gameEvents.emit('route_changed', { map }, { map_id: map });
     return result;
   } else if (['finale_guide', 'finale_objective', 'finale_encounter'].includes(target.kind)) {
+    if (target.kind === 'finale_objective' && Object.hasOwn(ADVENTURE_PUZZLES, target.id)) {
+      return { state, save, changed: false, puzzle: target.id };
+    }
     return interactFinale(state, save, updated, target);
   } else if (target.id === 'village_return') {
     const routed = transitionMap(state, updated, 'village', maps);
@@ -309,6 +316,28 @@ export function interactAdventure(state, save, maps) {
     gameEvents.emit('route_changed', { map: 'village' }, { map_id: 'village' });
   }
   return { state, save: updated, changed: true, dialogue };
+}
+
+export function claimAdventurePuzzle(state, save, maps, puzzle) {
+  const result = { state, save, changed: false };
+  if (puzzle?.status !== 'won' || !Object.hasOwn(ADVENTURE_PUZZLES, puzzle.id)) return result;
+  const target = nearestInteraction(state, save, maps);
+  if (target?.id !== puzzle.id) return result;
+  if (target.kind === 'finale_objective') return interactFinale(state, save, structuredClone(save), target);
+  if (target.kind !== 'chest' || save.adventure.quest !== 'accepted') return result;
+
+  const updated = structuredClone(save);
+  const claimId = 'village_supply_chest_p0';
+  if (!updated.adventure.rewardClaims.includes(claimId)) {
+    const reward = ADVENTURE_PUZZLES.chest.reward;
+    updated.adventure.rewardClaims.push(claimId);
+    updated.player.gold += reward.gold;
+    updated.player.essence += reward.essence;
+    gameEvents.emit('chest_opened', { chest_id: claimId, ...reward }, { map_id: 'village' });
+  }
+  updated.adventure.chestOpened = true;
+  state.lastMessage = 'Rương đã mở. Đi qua Cổng Rừng Nguyên Liệu ở phía bắc.';
+  return { state, save: updated, changed: true };
 }
 
 function interactFinale(state, save, updated, target) {
@@ -488,7 +517,7 @@ export function stepAdventure(state, save, deltaSeconds, maps) {
     const tickDuration = 1 / ADVENTURE_TICK_RATE;
     while (state.battle.accumulator >= tickDuration && state.battle.phase === 'battle_running') {
       state.battle.accumulator -= tickDuration;
-      stepBattle(state);
+      stepBattle(state, save);
     }
   } else {
     const length = Math.hypot(state.input.x, state.input.y);
@@ -513,10 +542,21 @@ export function stepAdventure(state, save, deltaSeconds, maps) {
   state.tick += 1;
 }
 
-function stepBattle(state) {
+function stepBattle(state, save) {
   const battle = state.battle;
   battle.tick += 1;
   gameEvents.setTick(battle.tick);
+  if (save.settings?.autoAdventureUltimate && !battle.bossTelegraph?.retreating) {
+    const allies = battle.actors.filter(actor => actor.team === 'player' && actor.alive);
+    for (const actor of allies) {
+      if (actor.energy < 100 || actor.ultimateReadyTick > battle.tick || actor.action) continue;
+      const ability = balance.ultimates[actor.id];
+      if (ability.kind === 'heal' && !allies.some(ally => ally.hp < ally.maxHp * .76)) continue;
+      if (ability.kind === 'shield' && !battle.bossTelegraph && !battle.actors.some(enemy =>
+        enemy.action?.sourceKind === 'enemy_skill')) continue;
+      if (activateUltimate(state, save, actor.actor_id).ok) break;
+    }
+  }
   for (const actor of battle.actors) {
     if (!actor.alive) continue;
     actor.previousX = actor.x;
@@ -570,6 +610,11 @@ function stepActor(battle, actor) {
   }
   if (actor.action) {
     const action = actor.action;
+    if (action.sourceKind === 'enemy_skill' && !action.travel && battle.tick === action.launchTick) {
+      gameEvents.emit('enemy_skill_released', {
+        element: actor.element, clip_id: action.clip, aim: action.aim, radius: action.radius,
+      }, battleContext(battle, actor.actor_id, action.targetId));
+    }
     if (action.travel && battle.tick === action.launchTick) {
       const target = findBattleTarget(battle, action.targetId);
       if (target?.alive) {
@@ -601,10 +646,14 @@ function stepActor(battle, actor) {
     actor.y += dy * step / distance;
     actor.moving = true;
   } else if (actor.cooldown === 0) {
-    const sourceKind = actor.team === 'player' ? 'basic' : 'enemy_attack';
-    const clip = actor.attackCount++ % 2 === 0 ? 'attack_a' : 'attack_b';
+    const count = (actor.attackCount ?? 0) + 1;
+    actor.attackCount = count;
+    const enemy = actor.team === 'enemy';
+    const skill = enemy && count % 3 === 0 ? enemySkills[actor.id] : null;
+    const sourceKind = skill ? 'enemy_skill' : enemy ? 'enemy_attack' : 'basic';
+    const clip = skill ? 'skill_01' : count % 2 === 1 ? 'attack_a' : 'attack_b';
     const windup = actor.id === 'chr_bunbo_holinh' && clip === 'attack_b' ? 8 : profile.windup;
-    startAction(battle, actor, target, { ...profile, windup, clip }, sourceKind);
+    startAction(battle, actor, target, { ...profile, windup, travel: skill ? undefined : profile.travel, ...skill, clip }, sourceKind);
     actor.cooldown = (profile.interval ?? actor.interval) + (actor.slowUntil > battle.tick ? 14 : 0);
   }
 }
@@ -627,11 +676,12 @@ function startAction(battle, actor, target, profile, sourceKind) {
   actor.moving = false;
   actor.action = {
     ...profile, targetId: target.actor_id, sourceKind,
+    ...(profile.radius ? { aim: { x: target.x, y: target.y } } : {}),
     launchTick: battle.tick + profile.windup,
     hitTick: battle.tick + profile.windup + (profile.travel ?? 0),
   };
-  gameEvents.emit(sourceKind === 'ultimate' ? 'cast_started' : 'attack_started', {
-    ability_id: `${actor.id}_${sourceKind}`, name: profile.name, element: actor.element,
+  gameEvents.emit(sourceKind === 'ultimate' || sourceKind === 'enemy_skill' ? 'cast_started' : 'attack_started', {
+    ability_id: `${actor.id}_${sourceKind}`, name: profile.name, element: actor.element, source_kind: sourceKind,
     clip_id: profile.clip ?? 'ultimate_01', kind: profile.kind, windup_ticks: profile.windup, travel_ticks: profile.travel ?? 0,
   }, battleContext(battle, actor.actor_id, target.actor_id));
 }
@@ -659,7 +709,8 @@ function resolveAction(battle, actor, action) {
   const target = originalTarget?.alive ? originalTarget
     : action.sourceKind === 'ultimate' && !action.travel ? selectTarget(battle, actor, action.kind === 'execute') : null;
   const targets = action.kind === 'area'
-    ? [...battle.actors, ...battle.stoves].filter((item) => item.alive && item.team !== actor.team)
+    ? [...battle.actors, ...battle.stoves].filter(item => item.alive && item.team !== actor.team
+      && (!action.aim || Math.hypot(item.x - action.aim.x, item.y - action.aim.y) <= action.radius))
     : target ? [target] : [];
   const clipId = action.clip ?? (action.sourceKind === 'ultimate' ? 'ultimate_01' : 'attack_a');
   for (const victim of targets) {
@@ -709,9 +760,10 @@ function updateBoss(state) {
     || (counter === 'sequence' && counterStep === attackSpec.sequence.order.length);
   if (!interrupted && --battle.bossTelegraph.ticks > 0) return;
   const victims = bossTelegraphTargets(battle, boss);
+  const { safeX } = battle.bossTelegraph;
   clearBossTelegraph(battle);
   const cue = interrupted ? 'boss_cast_interrupted' : 'boss_cast_released';
-  gameEvents.emit(cue, { element: boss.element, attack, warded: Boolean(warded) }, battleContext(battle, boss.actor_id));
+  gameEvents.emit(cue, { element: boss.element, attack, safeX, warded: Boolean(warded) }, battleContext(battle, boss.actor_id));
   if (interrupted) {
     boss.cooldown = Math.max(boss.cooldown, 24);
     state.lastMessage = counter === 'sequence' ? 'Đã ngắt ' + attack + '!' : 'Đã phá cả hai bếp và ngắt Bếp Bùng Cháy!';
@@ -810,14 +862,15 @@ export function claimBattleResult(state, save) {
     return updated;
   }
   const finale = FINALE_CHAPTERS.find(chapter => chapter.boss && chapter.boss === encounter);
-  const claimId = encounter === 'seal' ? 'forest_empty_bowl_reward'
-    : encounter === 'tide' ? 'harbor_tidal_conch_reward' : finale ? adventureEncounters[encounter].claimId : `${battle.id}:forest_reward`;
+  const field = adventureEncounters[encounter]?.field;
+  const claimId = adventureEncounters[encounter]?.claimId ?? (encounter === 'seal' ? 'forest_empty_bowl_reward'
+    : encounter === 'tide' ? 'harbor_tidal_conch_reward' : `${battle.id}:forest_reward`);
   if (!updated.adventure.rewardClaims.includes(claimId)) {
     const { gold, essence } = adventureEncounters[battle.encounter ?? 'forest'].reward;
     updated.adventure.rewardClaims.push(claimId);
     updated.player.gold += gold;
     updated.player.essence += essence;
-    if (updated.meta?.profile && !updated.meta.serverOwned) updated.meta.wallet.ticket += 1;
+    if (!field && updated.meta?.profile && !updated.meta.serverOwned) updated.meta.wallet.ticket += 1;
     updated.completedBattles += 1;
     updated.roster = updated.roster.map(member => {
       const actor = battle.actors.find(item => item.actor_id === member.id);
@@ -826,7 +879,7 @@ export function claimBattleResult(state, save) {
     if (encounter === 'seal') updated.adventure.chapterTwo.stage = 'ready_to_claim';
     else if (encounter === 'tide') updated.adventure.chapterThree.stage = 'ready_to_claim';
     else if (finale) updated.adventure.finale[finale.number].stage = 'ready_to_claim';
-    else {
+    else if (!field) {
       updated.adventure.forestCleared = true;
       if (updated.meta?.profile) recruitSpirit(updated, STARTER_REWARDS.boss, true);
       updated.adventure.quest = 'ready_to_claim';
@@ -834,7 +887,8 @@ export function claimBattleResult(state, save) {
   }
   state.battle = null;
   state.result = null;
-  state.lastMessage = encounter === 'seal' ? 'Ấn Bát Rỗng đã vỡ. Hãy mang mảnh men về cho Lilia.'
+  state.lastMessage = field ? 'Đã dẹp bầy quái. Bạn có thể tiếp tục khám phá.'
+    : encounter === 'seal' ? 'Ấn Bát Rỗng đã vỡ. Hãy mang mảnh men về cho Lilia.'
     : encounter === 'tide' ? 'Thủy triều đã dịu. Hãy trở lại đầu bến báo tin cho Phở Lam Vũ.'
       : finale ? finale.steps[3] + '.' : 'Rừng đã yên tĩnh. Hãy trở về làng để báo tin cho Lilia.';
   return updated;

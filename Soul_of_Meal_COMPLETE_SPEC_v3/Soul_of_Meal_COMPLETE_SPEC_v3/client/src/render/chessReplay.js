@@ -1,7 +1,7 @@
 import { chessHexOffset } from '../modes/chessCombat.js';
 import { ClipPlayer } from './clipPlayer.js';
 import { actorArt, ELEMENT_ART, sceneArt } from './spriteAssets.js';
-import { drawElementEffect } from './elementEffects.js';
+import { drawCombatAccent, drawCombatTrail } from './combatVfx.js';
 import { rigMotion } from './spiritRig.js';
 import { canvasContext, canvasResolution } from './canvasSurface.js';
 
@@ -57,7 +57,8 @@ export class ChessReplay {
         target.player.play(target.hp ? 'hit' : 'defeat', { force: true });
         if (target.hp <= 0) target.fallUntil = this.elapsed + FALL_DURATION;
         this.impacts.push({ targetId: target.actorId, text: damage > absorbed ? '−' + (damage - absorbed) : 'Chặn',
-          element: source.element, end: this.elapsed + .38 });
+          element: source.element, kind: hp <= 0 ? 'defeat' : damage <= absorbed ? 'guard' : event.payload.skill ? 'cast' : 'hit',
+          start: this.elapsed, end: this.elapsed + .38 });
         onCue({ type: 'hit_resolved', payload: { element: source.element, absorbed, hp_damage: damage - absorbed } });
       } else if (event.type === 'ability') {
         const target = this.actors.get(event.target_id);
@@ -66,7 +67,8 @@ export class ChessReplay {
         target.hp = hp;
         target.shield = shield;
         source.player.play('skill_01', { force: true });
-        this.impacts.push({ targetId: target.actorId, text: amount ? '+' + amount : '', element: source.element, end: this.elapsed + .45 });
+        this.impacts.push({ targetId: target.actorId, text: amount ? '+' + amount : '', element: source.element,
+          kind: source.job === 'guardian' ? 'shield' : 'heal', start: this.elapsed, end: this.elapsed + .45 });
         onCue({ type: 'cast_started', payload: { element: source.element } });
       }
     }
@@ -84,7 +86,7 @@ export class ChessReplay {
     return this.elapsed >= this.duration + .42;
   }
 
-  draw(canvas) {
+  draw(canvas, effectsLimited = false) {
     const resolution = canvasResolution(canvas, REPLAY_WIDTH, REPLAY_HEIGHT, true);
     const context = canvasContext(canvas, resolution, REPLAY_WIDTH, REPLAY_HEIGHT);
     if (!context) return;
@@ -142,21 +144,20 @@ export class ChessReplay {
         }
       }
     }
-    if (!this.reducedMotion) this.drawApproachingAttacks(context);
+    if (!this.reducedMotion) this.drawApproachingAttacks(context, effectsLimited);
     for (const effect of this.impacts) {
       const target = this.actors.get(effect.targetId);
       const { x, y } = boardPoint(target.viewX, target.viewY, this.hex);
-      const progress = (effect.end - this.elapsed) / .38;
+      const progress = (this.elapsed - effect.start) / (effect.end - effect.start);
       context.save();
-      context.globalAlpha = Math.min(1, progress * 2);
-      drawElementEffect(context, this.renderer, effect.element, 'impact', {
-        x, y: y - 23, size: 59 - progress * 12, opacity: Math.min(1, progress * 2),
-      });
+      drawCombatAccent(context, this.renderer, { ...effect, x, y: y - 23,
+        size: ['cast', 'shield'].includes(effect.kind) ? 74 : 51, progress, reducedMotion: this.reducedMotion, effectsLimited });
+      context.globalAlpha = Math.min(1, (1 - progress) * 2);
       context.textAlign = 'center';
       context.font = '800 18px system-ui';
       context.strokeStyle = '#172321';
       context.lineWidth = 4;
-      const textY = y - 36 - (this.reducedMotion ? 0 : (1 - progress) * 16);
+      const textY = y - 36 - (this.reducedMotion ? 0 : progress * 16);
       context.strokeText(effect.text, x, textY);
       context.fillStyle = ELEMENT_ART[effect.element]?.color ?? '#fff5d7';
       context.fillText(effect.text, x, textY);
@@ -197,7 +198,7 @@ export class ChessReplay {
     }
   }
 
-  drawApproachingAttacks(context) {
+  drawApproachingAttacks(context, effectsLimited) {
     for (const { source, target, contact } of this.approaching) {
       const from = boardPoint(source.viewX, source.viewY, this.hex);
       const to = boardPoint(target.viewX, target.viewY, this.hex);
@@ -205,10 +206,17 @@ export class ChessReplay {
       const dy = to.y - from.y;
       const progress = Math.max(0, 1 - (contact - this.elapsed) / ATTACK_LEAD);
       const ranged = ['mage', 'ranged', 'support'].includes(source.job);
-      if (!ranged && progress < .6) continue;
-      drawElementEffect(context, this.renderer, source.element, 'trail', {
-        x: from.x + dx * progress, y: from.y + dy * progress - 21,
-        size: ranged ? 55 : 69, angle: Math.atan2(dy, dx), opacity: .86,
+      const skill = source.timing?.id === 'skill_01';
+      const point = { x: from.x, y: from.y - 21 };
+      if (progress < .42 && skill) drawCombatAccent(context, this.renderer, {
+        element: source.element, kind: 'charge', ...point, effectsLimited, size: 57, progress: progress / .42,
+      });
+      if (ranged) {
+        drawCombatTrail(context, this.renderer, { element: source.element, from: point, to: { x: to.x, y: to.y - 21 },
+          size: skill ? 67 : 48, progress, arc: skill ? 22 : 9 });
+      } else if (progress >= .56) drawCombatAccent(context, this.renderer, {
+        element: source.element, kind: 'slash', x: from.x + dx * progress, y: from.y + dy * progress - 21,
+        effectsLimited, size: skill ? 78 : 59, progress: (progress - .56) * 1.6, angle: Math.atan2(dy, dx),
       });
     }
   }

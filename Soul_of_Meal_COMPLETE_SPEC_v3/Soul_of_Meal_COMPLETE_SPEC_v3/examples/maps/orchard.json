@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "catalog_version": "client-p0-v1",
+  "map_id": "env_orchard",
+  "runtime_key": "orchard",
+  "display_name": "Vườn Nấm Sương",
+  "world": {"width": 960, "height": 540, "player_radius": 14, "spawn": {"x": 115, "y": 376}},
+  "collision": {
+    "obstacles": [
+      {"id": "orchard_cliff", "type": "polygon", "points": [[0, 0], [960, 0], [960, 159], [0, 164]]},
+      {"id": "orchard_moss_boulder", "type": "polygon", "points": [[602, 383], [612, 351], [658, 278], [747, 266], [789, 319], [820, 372], [738, 399]]},
+      {"id": "orchard_west_fungi", "type": "polygon", "points": [[0, 81], [130, 115], [101, 175], [0, 222]]},
+      {"id": "orchard_south_west", "type": "polygon", "points": [[0, 439], [126, 479], [223, 515], [230, 540], [0, 540]]},
+      {"id": "orchard_south_east", "type": "polygon", "points": [[754, 540], [839, 448], [960, 413], [960, 540]]}
+    ]
+  },
+  "layers": {
+    "occlusion": [
+      {"id": "orchard_boulder_front", "depth": 391, "points": [[552, 381], [608, 290], [700, 253], [743, 260], [817, 381], [728, 401], [605, 401]]},
+      {"id": "orchard_near_fungi", "depth": 534, "points": [[0, 413], [66, 443], [142, 515], [160, 540], [0, 540]]}
+    ]
+  },
+  "transitions": [
+    {"id": "orchard_to_forest", "type": "door", "to": "forest", "spawn": {"x": 221, "y": 318}},
+    {"id": "orchard_to_garden", "type": "door", "to": "spice_garden", "spawn": {"x": 123, "y": 385}}
+  ],
+  "interactables": [
+    {"id": "orchard_to_forest", "kind": "room_door", "action": "orchard_to_forest", "label": "Về Rừng Nguyên Liệu", "x": 80, "y": 382, "radius": 50},
+    {"id": "orchard_to_garden", "kind": "room_door", "action": "orchard_to_garden", "label": "Đến Vườn Gia Vị", "x": 897, "y": 410, "radius": 50},
+    {"id": "orchard_keeper", "kind": "resident", "action": "orchard_keeper", "label": "Người giữ vườn", "x": 256, "y": 345, "radius": 50, "note": "Lũ Ong Mật Lạc Vị đang khuấy động bãi nấm ở giữa vườn. Sau bãi đá là lối sang Vườn Gia Vị."},
+    {"id": "orchard_patrol", "kind": "field_encounter", "action": "orchard_patrol", "label": "Bầy Ong Mật", "x": 464, "y": 253, "radius": 50, "encounter": "orchard_patrol"}
+  ],
+  "visuals": [
+    {"id": "orchard_to_forest", "kind": "portal", "label": "Về Rừng Nguyên Liệu", "x": 80, "y": 382},
+    {"id": "orchard_to_garden", "kind": "portal", "label": "Đến Vườn Gia Vị", "x": 897, "y": 410},
+    {"id": "orchard_keeper", "kind": "resident", "x": 256, "y": 345, "actorId": "chr_som_002", "label": "Người giữ vườn"},
+    {"id": "orchard_patrol", "kind": "field_encounter", "label": "Bầy Ong Mật", "actorId": "mob_honeybee", "x": 464, "y": 253}
+  ]
+}

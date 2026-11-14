@@ -130,6 +130,23 @@ async function checkVillageDoors(page) {
   assert.ok(Number(await canvas.getAttribute('data-world-y')) >= 100, 'North wall stops the avatar');
 }
 
+async function checkSupplyPuzzle(page, width, height) {
+  await tap(page, '[data-guide-objective]');
+  await page.getByRole('button', { name: 'Rương nguyên liệu', exact: true }).tap();
+  const board = page.locator('.puzzle-board');
+  const cells = board.locator('[data-puzzle-cell]');
+  await cells.first().waitFor();
+  assert.equal(await cells.count(), 36);
+  const box = await board.boundingBox();
+  assert.ok(box.x >= 0 && box.y >= 0 && box.x + box.width <= width && box.y + box.height <= height);
+  for (const tile of await cells.all()) {
+    const { width: tileWidth, height: tileHeight } = await tile.boundingBox();
+    assert.ok(tileWidth >= 44 && tileHeight >= 44, `Puzzle touch target ${tileWidth}×${tileHeight} at ${width}×${height}`);
+  }
+  await tap(page, '[data-puzzle-back]');
+  await page.waitForSelector(screen('adventure'));
+}
+
 async function checkTcgTargets(page) {
   const { createTcgMatch, tcgTableDeck } = await import('../src/modes/tcg.js');
   const { TCG_TABLE_VERSION } = await import('../src/modes/tcgCards.js');
@@ -177,8 +194,10 @@ async function checkTcgTargets(page) {
   await tap(page, '[data-tcg-pass]');
   assert.ok((await read()).players[0].units[0].current_def > ally.current_def);
   await selectCard(trap);
-  await target('set');
+  await target('set:1');
   assert.equal((await read()).players[0].traps[0].faceDown, true);
+  assert.equal((await read()).players[0].traps[0].slot, 1);
+  assert.equal(await page.locator('[data-tcg-row="0"] > .tcg-unit, [data-tcg-row="0"] > .empty-slot').count(), 5);
   await selectCard(damage);
   assert.equal(await page.locator('[data-spell-target="commander"]').count(), 1);
   await target(enemy.instance_id);
@@ -256,12 +275,19 @@ async function check(page, width, height) {
     await page.waitForSelector('.quest-dialog', { state: 'detached' });
     await page.waitForSelector(screen('adventure'));
     await click(page, '[data-map-toggle]');
-    await page.waitForSelector('.world-map-expanded');
-    await close(page);
+    if (reference) {
+      await page.waitForSelector('.world-map-expanded');
+      await close(page);
+    } else {
+      await page.waitForSelector('#world-minimap[hidden]', { state: 'attached' });
+      await click(page, '[data-map-toggle]');
+      await page.waitForSelector('#world-minimap:visible');
+    }
     await click(page, '[data-guide-objective]');
     await click(page, '[data-interact]:visible');
     await page.waitForSelector('.story-dialog[open]');
     await page.keyboard.press('Escape');
+    if (!reference && (size === '844x390' || size === '390x844')) await checkSupplyPuzzle(page, width, height);
     if (width === 844 && !reference) await checkVillageDoors(page);
   }
   await lobby(page);
@@ -350,9 +376,16 @@ async function check(page, width, height) {
       await click(page, '[data-preview-spirit]');
       await click(page, '[data-open-roster]');
       await page.selectOption('[data-roster-filter]', 'all');
-      for (let index = 0; index < (width === 844 ? 10 : 1); index++) {
-        await page.locator('dialog[open] [data-spirit-choice]').nth(index).click();
-        assert.ok(await page.locator('.spirit-stage-art').isVisible());
+      const choices = page.locator('dialog[open] [data-spirit-choice]');
+      const count = width === 844 ? await choices.count() : 1;
+      for (let index = 0; index < count; index++) {
+        const choice = choices.nth(index);
+        const id = await choice.getAttribute('data-spirit-choice');
+        await choice.click();
+        const portrait = page.locator('.spirit-stage-art img');
+        await portrait.evaluate(image => image.decode());
+        assert.ok(await portrait.isVisible());
+        assert.ok((await portrait.getAttribute('src')).endsWith('/showcase/' + id + '.webp'));
         await click(page, '[data-open-roster]');
       }
       await close(page);
@@ -365,7 +398,9 @@ async function check(page, width, height) {
     await page.waitForSelector('dialog[open] .meta-odds');
     await close(page);
     await capture(page, 'gacha', size);
-    await click(page, '[data-gacha-draw="1"]');
+    const summon = page.locator('[data-gacha-draw="1"]');
+    await summon.scrollIntoViewIfNeeded();
+    await summon.click();
     await click(page, '[data-confirm-draw]');
     if (width === 1366) {
       await page.waitForSelector('dialog[open][data-cinematic] canvas');
@@ -379,9 +414,15 @@ async function check(page, width, height) {
     await visit(page, 'store');
     await page.waitForSelector('.store-shopkeeper');
     await capture(page, 'store', size);
-    await click(page, '[data-store-offer]:enabled');
-    await page.waitForSelector('dialog[open] [data-store-purchase]');
-    await close(page);
+    if (reference) {
+      await click(page, '[data-store-offer]:enabled');
+      await page.waitForSelector('dialog[open] [data-store-purchase]');
+      await close(page);
+    } else {
+      await click(page, '[data-store-offer="potion_small"] button');
+      await click(page, '[data-store-tab="bag"]');
+      await page.waitForSelector('.meta-inventory .store-item-summary img');
+    }
   }
   if (width === 844 && !baseline && !reference) await checkTcgTargets(page);
   assert.deepEqual(errors, []);
@@ -389,10 +430,12 @@ async function check(page, width, height) {
 }
 
 (async () => {
+  const only = process.env.SOM_UI_SIZES?.split(',') ?? [];
   const bundled = process.env.SOM_UI_CHROMIUM ? (await import(process.env.SOM_UI_CHROMIUM)).default : null;
   const executablePath = process.env.SOM_UI_CHROMIUM_PATH;
   if (output) await mkdir(output, { recursive: true });
   for (const [width, height] of viewports) {
+    if (only.length && !only.includes(`${width}x${height}`)) continue;
     if (process.env.SOM_UI_SIZE && process.env.SOM_UI_SIZE !== `${width}x${height}`) continue;
     const browser = await chromium.launch(bundled ? { executablePath: await bundled.executablePath(), args: bundled.args } : { executablePath });
     try {

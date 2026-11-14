@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { adventureCheckpoint, activateBossCounter, createAdventureState, interactAdventure, nearestInteraction, beginBattle, beginAdventureChallenge, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, leaveAdventureDefeat, activateUltimate, activateLanternWard, retreatFromTide, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
+import { adventureCheckpoint, activateBossCounter, createAdventureState, interactAdventure, claimAdventurePuzzle, nearestInteraction, beginBattle, beginAdventureChallenge, bossTelegraphTargets, focusBossStove, setAdventureInput, stepAdventure, claimBattleResult, leaveAdventureDefeat, activateUltimate, activateLanternWard, retreatFromTide, resolveMapSpawn, transitionMap, resolveCameraViewport } from '../src/modes/adventure.js';
 import { advanceChessRound, benchChessUnit, buyChessOffer, createChessRun, nextChessOpponent, placeChessUnit, startChessCombat, chessTraits } from '../src/modes/autoChess.js';
 import { createTcgMatch, passTcgPriority, runBotPriority, runTcgBot, attackTcg, endTcgTurn, playTcgCard, mulliganTcg, surrenderTcg } from '../src/modes/tcg.js';
 import { createDefaultSave, migrateSave, SAVE_VERSION } from '../src/core/save.js';
+import { createAdventurePuzzle, playAdventurePuzzle, puzzleMatchesAfterSwap } from '../src/modes/adventurePuzzle.js';
 import { adventureJournal } from '../src/modes/adventureJournal.js';
 import { adventureEncounters } from '../src/modes/adventureBalance.js';
 import { FOREST_CLUE_IDS } from '../src/modes/adventureStory.js';
@@ -108,22 +109,61 @@ test('Adventure restores clue IDs without resetting completed chapters or changi
   }
 });
 
-test('Adventure requires nearby interaction and persists quest/chest/route progression', () => {
+test('Adventure opens the supply chest only after a nearby completed puzzle and persists the reward once', () => {
   const save = createDefaultSave();
   const state = createAdventureState(save);
   assert.equal(nearestInteraction(state, save), null);
+  state.x = 680; state.y = 355;
+  assert.equal(interactAdventure(state, save).puzzle, undefined);
+  assert.equal(claimAdventurePuzzle(state, save, undefined, solveSupplyPuzzle()).changed, false);
   state.x = 235; state.y = 260;
   let result = interactAdventure(state, save);
   assert.equal(result.save.adventure.quest, 'accepted');
   result.state.x = 680; result.state.y = 355;
   result = interactAdventure(result.state, result.save);
+  assert.equal(result.puzzle, 'chest');
+  assert.equal(result.save.adventure.chestOpened, false);
+  assert.equal(result.save.player.gold, 120);
+  let lost = createAdventurePuzzle('chest');
+  for (const [from, to] of [[7, 13], [4, 10], [15, 16], [1, 7], [1, 7], [8, 9]]) {
+    lost = playAdventurePuzzle(lost, from, to);
+  }
+  assert.equal(lost.status, 'lost');
+  assert.equal(claimAdventurePuzzle(state, result.save, undefined, lost).changed, false);
+  const won = solveSupplyPuzzle();
+  const beforeReward = result.save;
+  result.state.x = 485; result.state.y = 110;
+  assert.equal(interactAdventure(state, beforeReward).changed, false);
+  assert.equal(claimAdventurePuzzle(state, beforeReward, undefined, won).changed, false);
+  result.state.x = 680; result.state.y = 355;
+  result = claimAdventurePuzzle(state, beforeReward, undefined, won);
   assert.equal(result.save.adventure.chestOpened, true);
   assert.equal(result.save.player.gold, 150);
+  assert.equal(result.save.player.essence, 29);
+  const reloaded = migrateSave(JSON.parse(JSON.stringify(result.save)));
+  assert.equal(claimAdventurePuzzle(state, reloaded, undefined, won).changed, false);
+  const oldSave = migrateSave({ version: 2, adventure: { quest: 'accepted', chestOpened: true } });
+  assert.equal(adventureJournal(oldSave).action, 'portal');
+  const oldState = createAdventureState(oldSave);
+  Object.assign(oldState, { x: 680, y: 355 });
+  assert.equal(interactAdventure(oldState, oldSave).puzzle, undefined);
+  Object.assign(oldState, { x: 485, y: 110 });
+  assert.equal(interactAdventure(oldState, oldSave).save.adventure.map, 'forest');
   result.state.x = 485; result.state.y = 110;
-  result = interactAdventure(result.state, result.save);
+  result = interactAdventure(result.state, reloaded);
   assert.equal(result.save.adventure.map, 'forest');
   assert.equal(result.state.map, 'forest');
 });
+
+function solveSupplyPuzzle() {
+  let puzzle = createAdventurePuzzle('chest');
+  assert.equal(playAdventurePuzzle(puzzle, 0, 35), puzzle);
+  for (const [from, to] of [[7, 8], [9, 10], [3, 9], [1, 2], [7, 13], [4, 10]]) {
+    puzzle = playAdventurePuzzle(puzzle, from, to);
+  }
+  assert.equal(puzzle.status, 'won');
+  return puzzle;
+}
 
 test('Adventure fixed-step battle advances simulation and emits an authoritative result', () => {
   const save = createDefaultSave();
@@ -210,9 +250,11 @@ function prepareBossCharge(encounter = 'forest') {
   const state = createAdventureState(save);
   beginBattle(state, save, encounter);
   const battle = state.battle;
-  for (const enemy of battle.actors.filter(actor => actor.team === 'enemy')) enemy.alive = false;
   const advance = () => stepAdventure(state, save, 1 / 30);
-  advance();
+  while (battle.wave < adventureEncounters[encounter].waves.length - 1) {
+    for (const enemy of battle.actors.filter(actor => actor.team === 'enemy')) enemy.alive = false;
+    advance();
+  }
   const boss = battle.actors.find(actor => actor.boss);
   boss.hp = Math.floor(boss.maxHp * .6);
   boss.cooldown = 900;
@@ -468,7 +510,8 @@ test('Adventure completes chapter one across a reload, with a gated boss and a s
   }
 
   assert.equal(interact('lilia').dialogue, 'opening');
-  interact('chest');
+  assert.equal(interact('chest').puzzle, 'chest');
+  save = claimAdventurePuzzle(state, save, maps, solveSupplyPuzzle()).save;
   interact('portal');
   assert.equal(interact('encounter').changed, false);
   assert.equal(state.battle, null);
@@ -893,14 +936,39 @@ test('the main campaign opens chapters four through six in order and persists th
   save = migrateSave(JSON.parse(JSON.stringify(save)));
   state = createAdventureState(save);
   assert.equal(adventureJournal(save).action, 'forge_valve');
-  assert.equal(interact('forge_valve').changed, true);
+  assert.equal(interact('forge_valve').puzzle, 'forge_valve');
+  let forgePuzzle = createAdventurePuzzle('forge_valve');
+  const invalid = playAdventurePuzzle(forgePuzzle, 0, 35);
+  assert.equal(invalid, forgePuzzle);
+  assert.equal(claimAdventurePuzzle(state, save, maps, forgePuzzle).changed, false);
+  while (forgePuzzle.status === 'playing') {
+    let best = [0, 0, 0];
+    for (let a = 0; a < 36; a++) {
+      for (const b of [a + 1, a + 6]) {
+        const score = puzzleMatchesAfterSwap(forgePuzzle.board, a, b);
+        if (score > best[2]) best = [a, b, score];
+      }
+    }
+    assert.ok(best[2] > 0);
+    forgePuzzle = playAdventurePuzzle(forgePuzzle, best[0], best[1]);
+  }
+  assert.equal(forgePuzzle.status, 'won');
+  const result = claimAdventurePuzzle(state, save, maps, forgePuzzle);
+  assert.equal(result.changed, true);
+  save = result.save;
+  assert.equal(claimAdventurePuzzle(state, save, maps, forgePuzzle).changed, false);
   interact('forge_encounter');
   defeatEncounter('forge');
   assert.equal(interact('forge_guide').dialogue, 'forgeEnding');
   assert.equal(interact('sanctum_route').save.adventure.map, 'sanctum');
   assert.equal(interact('feast_return').changed, false);
   assert.equal(interact('sanctum_guide').dialogue, 'feastOpening');
-  interact('sanctum_seal');
+  assert.equal(interact('sanctum_seal').puzzle, 'sanctum_seal');
+  let sliding = createAdventurePuzzle('sanctum_seal');
+  assert.equal(playAdventurePuzzle(sliding, 0, sliding.board.indexOf(0)), sliding);
+  for (const step of [7, 6, 3, 4, 1, 2, 5, 8]) sliding = playAdventurePuzzle(sliding, step, sliding.board.indexOf(0));
+  assert.equal(sliding.status, 'won');
+  save = claimAdventurePuzzle(state, save, maps, sliding).save;
   interact('sanctum_urn');
   interact('feast_encounter');
   defeatEncounter('feast');
@@ -1008,9 +1076,9 @@ test('boss challenges preserve story progress and reward each difficulty only on
   let state = createAdventureState(save);
   assert.equal(beginAdventureChallenge(state, save, 'forge', 'hard'), false);
   assert.equal(beginAdventureChallenge(state, save, 'forest', 'hard'), true);
-  assert.equal(state.battle.wave, 1);
+  assert.equal(state.battle.wave, adventureEncounters.forest.waves.length - 1);
   assert.equal(state.battle.actors[0].hp, save.roster[0].maxHp);
-  const boss = adventureEncounters.forest.waves[1].find(actor => actor.boss);
+  const boss = adventureEncounters.forest.waves.at(-1).find(actor => actor.boss);
   assert.equal(state.battle.actors.find(actor => actor.boss).maxHp, Math.round(boss.maxHp * 1.28));
   assert.equal(beginAdventureChallenge(state, save, 'forest', 'normal'), false);
   save.adventure.battle = adventureCheckpoint(state.battle);
@@ -1034,4 +1102,81 @@ test('boss challenges preserve story progress and reward each difficulty only on
   assert.deepEqual(save.roster, original.roster);
   assert.deepEqual({ ...save.adventure, challengeRecords: {} }, original.adventure);
   assert.equal(save.completedBattles, original.completedBattles);
+});
+
+test('the forest detour keeps locations, awards field battles once and leaves story flags intact', () => {
+  let save = createDefaultSave();
+  Object.assign(save.adventure, { map: 'forest', chestOpened: true, quest: 'accepted', x: 199, y: 350 });
+  const state = createAdventureState(save);
+  ({ save } = interactAdventure(state, save));
+  assert.equal(state.map, 'orchard');
+  assert.equal(migrateSave(save).adventure.map, 'orchard');
+  Object.assign(state, { x: 464, y: 253 });
+  ({ save } = interactAdventure(state, save));
+  const fight = state.battle;
+  assert.equal(fight.encounter, 'orchard_patrol');
+  assert.equal(fight.actors.some(actor => actor.boss), false);
+  assert.ok(fight.actors.some(actor => actor.id === 'mob_honeybee'));
+  save.adventure.battle = adventureCheckpoint(fight);
+  assert.equal(createAdventureState(migrateSave(save)).battle.encounter, 'orchard_patrol');
+  Object.assign(fight, { phase: 'battle_end', result: 'victory' });
+  const updated = claimBattleResult(state, save);
+  assert.ok(updated.player.gold > save.player.gold);
+  assert.equal(updated.adventure.quest, 'accepted');
+  assert.equal(updated.adventure.forestCleared, false);
+  assert.equal(interactAdventure(state, updated).state.battle, null);
+  Object.assign(state, { x: 897, y: 410 });
+  assert.equal(interactAdventure(state, updated).state.map, 'spice_garden');
+});
+
+test('enemy area skill warns before launch and only damages actors within the locked impact area', () => {
+  const save = createDefaultSave();
+  const state = createAdventureState(save);
+  beginBattle(state, save, 'orchard_patrol');
+  const battle = state.battle;
+  const [near, far] = battle.actors.filter(actor => actor.team === 'player');
+  for (const ally of battle.actors.filter(actor => actor.team === 'player')) {
+    Object.assign(ally, { cooldown: 999, speed: 0, x: 90, y: 270 });
+  }
+  near.role = 'guardian';
+  const mushroom = battle.actors.find(actor => actor.id === 'mob_mushroom_01');
+  const bee = battle.actors.find(actor => actor.id === 'mob_honeybee');
+  bee.cooldown = 999;
+  Object.assign(mushroom, { x: 270, y: 270, cooldown: 0, attackCount: 2 });
+  Object.assign(near, { x: 225, y: 270 });
+  Object.assign(far, { x: 90, y: 270 });
+  const before = [near.hp, far.hp];
+  const seen = [];
+  const listener = ({ detail }) => { if (detail.source_id === mushroom.actor_id) seen.push(detail); };
+  gameEvents.addEventListener('game-event', listener);
+  try {
+    stepAdventure(state, save, 1 / 30);
+    assert.equal(mushroom.action.sourceKind, 'enemy_skill');
+    assert.equal(seen[0].type, 'cast_started');
+    const due = mushroom.action.launchTick;
+    while (battle.tick < due - 1) stepAdventure(state, save, 1 / 30);
+    assert.deepEqual([near.hp, far.hp], before);
+    stepAdventure(state, save, 1 / 30);
+    assert.deepEqual(seen.slice(1).map(event => event.type), ['enemy_skill_released', 'hit_resolved']);
+    assert.ok(near.hp < before[0]);
+    assert.equal(far.hp, before[1]);
+  } finally {
+    gameEvents.removeEventListener('game-event', listener);
+  }
+});
+
+test('Adventure Auto Ultimate spends energy only when enabled and saves the setting', () => {
+  const save = createDefaultSave();
+  const state = createAdventureState(save);
+  beginBattle(state, save, 'orchard_patrol');
+  const hero = state.battle.actors.find(actor => actor.id === 'chr_bunbo_holinh');
+  hero.energy = 100;
+  hero.cooldown = 300;
+  stepAdventure(state, save, 1 / 30);
+  assert.equal(hero.energy, 100);
+  save.settings.autoAdventureUltimate = true;
+  assert.equal(migrateSave(save).settings.autoAdventureUltimate, true);
+  stepAdventure(state, save, 1 / 30);
+  assert.equal(hero.energy, 0);
+  assert.equal(hero.action.sourceKind, 'ultimate');
 });

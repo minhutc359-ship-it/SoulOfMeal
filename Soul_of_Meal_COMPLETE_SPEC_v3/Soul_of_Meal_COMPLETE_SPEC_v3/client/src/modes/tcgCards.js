@@ -1,10 +1,16 @@
 export const TCG_RULES_VERSION = 2;
-export const TCG_TABLE_VERSION = 3;
+export const TCG_COMPACT_TABLE_VERSION = 3;
+export const TCG_TABLE_VERSION = 4;
 export const TCG_TABLE_DECK_SIZE = 24;
-export const usesTcgTable = match => match?.rulesVersion === TCG_TABLE_VERSION;
+export const usesTcgTable = match => [TCG_COMPACT_TABLE_VERSION, TCG_TABLE_VERSION].includes(match?.rulesVersion);
 export const hasModernTcgRules = match => match.rulesVersion === TCG_RULES_VERSION || usesTcgTable(match);
-export const tcgBoardLimit = match => usesTcgTable(match) ? 4 : TCG_BOARD_LIMIT;
-export const tcgTrapLimit = match => usesTcgTable(match) ? 1 : TCG_TRAP_LIMIT;
+export const tcgBoardLimit = match => match?.rulesVersion === TCG_COMPACT_TABLE_VERSION ? 4 : TCG_BOARD_LIMIT;
+export const tcgTrapSlot = (trap, index) => trap.slot ?? index;
+export const tcgOpenTrapSlots = (match, player) => {
+  const used = new Set(match.players[player].traps.map(tcgTrapSlot));
+  return Array.from({ length: tcgTrapLimit(match) }, (_, slot) => slot).filter(slot => !used.has(slot));
+};
+export const tcgTrapLimit = match => match?.rulesVersion === TCG_COMPACT_TABLE_VERSION ? 1 : TCG_TRAP_LIMIT;
 export const tcgCommanderMax = (match, player) => match.players[player].maxHp ?? TCG_MAX_HP;
 export const TCG_MAX_HP = 8000;
 export const TCG_HAND_LIMIT = 9;
@@ -111,7 +117,8 @@ export function tcgSpellTargets(match, playerIndex, card) {
     case 'own_commander': return ally.hp < tcgCommanderMax(match, playerIndex) ? [commander(playerIndex)] : [];
     case 'own_deck': return ally.deck.length ? [{ id: 'deck', player: playerIndex, label: 'Bộ bài của bạn' }] : [];
     case 'any_trap':
-    case 'hidden_trap': return enemy.traps.flatMap((trap, slot) => {
+    case 'hidden_trap': return enemy.traps.flatMap((trap, index) => {
+      const slot = tcgTrapSlot(trap, index);
       if (target === 'hidden_trap' && !trap.faceDown) return [];
       const label = `Bẫy địch ô ${slot + 1}` + (trap.faceDown ? '' : ' · ' + trap.card.display_name);
       return [{ id: 'trap:' + (trap.token ?? slot), player: enemyIndex, slot, label }];

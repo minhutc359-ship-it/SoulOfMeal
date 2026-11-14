@@ -11,6 +11,8 @@ Mở [http://localhost:4173/client/](http://localhost:4173/client/) và chọn *
 
 Trên máy tính, dùng WASD hoặc phím mũi tên để di chuyển, E để tương tác và phím 1–5 để dùng tuyệt kỹ. Trên màn hình cảm ứng, chạm điểm đến, NPC, rương hoặc cổng. Có nút toàn màn hình ở thanh trên khi trình duyệt hỗ trợ. Nhạc và hiệu ứng bắt đầu sau thao tác đầu tiên.
 
+Trên điện thoại, thêm trang `/client/` vào màn hình chính từ menu trình duyệt. Khi mở bằng biểu tượng Soul of Meal, web app chọn fullscreen nếu trình duyệt hỗ trợ và dùng cửa sổ độc lập trên các trình duyệt còn lại. iOS có thể vẫn giữ thanh trạng thái. Game tải nội dung qua mạng.
+
 Để kiểm tra bản build, chạy `npm --prefix client run build` rồi `npm --prefix client run preview`, mở lại đường dẫn trên. Kết quả build nằm trong `client/dist/` với entry `client/index.html` và catalog tương đối trong `examples/`.
 
 Đây là bản chơi thử để đối chiếu gameplay và asset khi chuyển sang [Web Client–Server v3.2](../docs/03_engineering/ENGINE_ARCHITECTURE.md). Xem [đối chiếu concept](../docs/04_qa/PLAYTEST_CONCEPT_GAP.md) để phân biệt phần chạy được và hạng mục nghiệm thu.
@@ -36,11 +38,14 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 ## Lối chơi
 
 - **Adventure** · Chơi sáu chương bắt đầu với **Hương Vị Đầu Tiên**. Dùng **Dẫn đường** trên bản đồ hoặc trong **Nhật ký hành trình**. Nhật ký lưu manh mối đã tìm và cho đọc lại đối thoại đã mở. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
+- **Nhánh vườn** · Từ Rừng Nguyên Liệu, chạm cổng đến **Vườn Nấm Sương**, rồi đi tiếp sang **Vườn Gia Vị**. Hai vườn có NPC chỉ đường và trận quái nhận thưởng một lần. Trận boss cốt truyện có hai đợt quái trước boss. Chế độ tái đấu đặt đội vào đợt boss.
+- **Truyện hướng dẫn** · Mở **Hướng dẫn** bằng nút **?** ở sảnh hoặc qua menu trong trận. Có năm trang hướng dẫn từ tranh gốc của dự án.
 - **TCG** · Đấu bot với bộ 24 lá từ danh mục 60 lá. Chọn độ khó và bộ bài bot riêng. Trình sửa có bốn ô lưu bộ bài, biểu đồ mana, bộ lọc và bảy bộ mẫu gồm **Khởi đầu**, **Hộ Trận**, **Tiên Phong**, **Triều Sương**, **Mầm Sống**, **Dạ Yến** và **Triều Hỏa**.
 - **Auto Chess** · Xếp đội hình trên bàn lục giác, mua quân từ kho chung, hợp thể ba bản sao và mua XP. Ván mới có bảy bot đánh cùng lúc, các vòng quái thưởng linh kiện và kết thúc khi bị loại, về nhất hoặc đến giới hạn 37 vòng. Phát lại giao tranh dùng vị trí, đòn đánh, kỹ năng và HP do mô phỏng ghi lại. Ván lưu từ bản trước tiếp tục theo thể thức cũ.
 
 ## Bếp Trưởng Hỏa Diệm
 
+- Sau khi nói chuyện với Lilia, đến **Rương nguyên liệu** ở phía đông quảng trường. Đổi chỗ hai nguyên liệu kề nhau để ghép ít nhất 21 viên trong tối đa 6 lượt. Chọn **Nhận thưởng** để lấy 30 vàng, 5 tinh hoa và mở cổng phía bắc. Bản lưu đã mở rương có thể vào rừng ngay.
 - Ở 70% HP, boss tạo hộ thuẫn và nạp **Bếp Bùng Cháy** trong 6 giây mô phỏng. Bấm bếp trên sân, dùng nút bên cạnh thanh HP hoặc phím **6–7** để đội hình tập trung tấn công. Phá cả hai bếp trước hoặc đúng tick cuối để ngắt chiêu.
 - Ở 30% HP, **Vòng Lửa** đánh vào ba Vị Linh được đánh dấu khi hết 1,2 giây báo trước. Dùng tuyệt kỹ của Bánh Bao để tạo lá chắn cho đội.
 - Nút **Tạm dừng** hoặc phím **P** đóng băng trận. Bật **2×** để mô phỏng và hoạt ảnh cùng chạy nhanh gấp đôi.
@@ -86,7 +91,7 @@ Cấp 1–5, công thức và giá là cân bằng thử nghiệm. Nâng cấp v
 
 ## Giao tranh TCG
 
-- Đặt tối đa bốn Vị Linh và một bẫy. Mỗi Vị Linh sẵn sàng đánh một lần trong lượt. Kéo hoặc chạm quân rồi chọn mục tiêu để xem sát thương, phản đòn và Xuyên kích trước khi xác nhận.
+- Ván mới có năm ô Vị Linh và hai ô bẫy mỗi bên. Ván lưu theo luật v3 dùng bốn ô Vị Linh và một ô bẫy. Mỗi Vị Linh sẵn sàng đánh một lần trong lượt. Kéo hoặc chạm quân rồi chọn mục tiêu để xem sát thương, phản đòn và Xuyên kích trước khi xác nhận.
 - Khi đối thủ còn Hộ vệ, chọn một Hộ vệ làm mục tiêu đòn thường. Khi hết Hộ vệ, chọn Vị Linh địch hoặc chủ soái. Đổi tối đa ba lá mở màn và tăng tối đa đến bảy mana.
 - Năm combo theo hệ kích hoạt khi bạn nối triệu hồi với phép tương ứng trong cùng lượt. Mỗi combo dùng một lần mỗi lượt khi phép xử lý thành công.
 - **Diệp Mộc Hồi Phục** hồi DEF qua hàng chờ tốc chú. **Ấn Bạch Ngọc** là tức chú dùng ngay và giữ ưu tiên. **Khai Hỏa Tiên Phong** là chậm chú tăng ATK. Hộ thuẫn và ATK cộng thêm hết hiệu lực cuối lượt hiện tại.
@@ -101,7 +106,7 @@ Cấp 1–5, công thức và giá là cân bằng thử nghiệm. Nâng cấp v
 
 - Dùng **Do thám** để xem đúng đối thủ kế tiếp, nửa bàn và vị trí quân của họ. Số lãi dự kiến cập nhật theo vàng hiện có.
 - Kéo thả bằng chuột hoặc cảm ứng. Thả vào vị trí đã có quân để đổi chỗ, kể cả khi bàn đã đủ quân hoặc cả chín ghế đã đầy. Giữ quân để xem chỉ số và số bản sao. Thả vào **Kéo để bán** hoặc chọn quân rồi bấm **Bán quân**.
-- **Túi vật phẩm** cho gắn linh kiện lên quân. Gắn linh kiện thứ hai lên quân đang giữ một linh kiện để ghép thành món hoàn chỉnh. Bán quân trả vật phẩm về túi và trả bản sao về kho chung. Tỉ lệ cửa hàng, ngưỡng XP và các món là cân bằng thử nghiệm.
+- Kéo linh kiện từ băng ghế tới quân hoặc chạm linh kiện rồi chọn quân đang sáng. Gắn linh kiện thứ hai lên quân đang giữ một linh kiện để ghép thành món hoàn chỉnh. Bán quân trả vật phẩm về túi và trả bản sao về kho chung. Tỉ lệ cửa hàng, ngưỡng XP và các món là cân bằng thử nghiệm.
 
 ## Cài nhạc theo cảnh
 
@@ -114,7 +119,7 @@ Cấp 1–5, công thức và giá là cân bằng thử nghiệm. Nâng cấp v
 | `forest` | Khám phá Rừng Nguyên Liệu ngoài giao tranh |
 | `tcg` | Đấu thẻ và chỉnh bộ bài |
 | `chess` | Auto Chess, gồm chuẩn bị và xem giao tranh |
-| `adventure` | Nhật ký hành trình trong Phiêu lưu |
+| `adventure` | Nhật ký và các khu khám phá ngoài làng/rừng |
 | `adventure_battle` | Giao tranh đợt quái thường |
 | `epic_boss_battle` | Từ lúc boss xuất hiện tới khi đóng kết quả trận |
 
@@ -137,7 +142,7 @@ python3 -m unittest discover -s tests -v
 python3 scripts/validate_package.py .
 ```
 
-Battle Adventure và Auto Chess dùng Canvas 2D. Cả ba chế độ dùng bot. Tài khoản đồng bộ bản luyện tập lên PostgreSQL. Client xử lý luật chiến đấu. Các phần còn cần hoàn thiện trước phát hành gồm rig và hoạt ảnh đầy đủ, duyệt mỹ thuật và quyền sử dụng, voice, benchmark WebGL trên thiết bị thật và cân bằng dài hạn. Bản chơi thử lưu manh mối, mốc nhiệm vụ, phần thưởng, checkpoint Adventure, ván TCG và vòng Auto Chess. Khi tải lại Adventure giữa trận, game khôi phục mốc đã lưu và chờ người chơi bấm **Tiếp tục**.
+Battle Adventure và Auto Chess dùng Canvas 2D. Cả ba chế độ dùng bot. Tài khoản đồng bộ bản luyện tập lên PostgreSQL. Client xử lý luật chiến đấu. Các phần còn cần hoàn thiện trước phát hành gồm rig và hoạt ảnh đầy đủ, duyệt mỹ thuật và quyền sử dụng, lồng tiếng bằng diễn viên, benchmark WebGL trên thiết bị thật và cân bằng dài hạn. Bản chơi thử lưu manh mối, mốc nhiệm vụ, phần thưởng, checkpoint Adventure, ván TCG và vòng Auto Chess. Khi tải lại Adventure giữa trận, game khôi phục mốc đã lưu và chờ người chơi bấm **Tiếp tục**.
 
 ## Hồ sơ và Giao Ước Vị Linh v4
 
@@ -156,3 +161,9 @@ Chạy `npm --prefix client run dev` rồi mở `/client/`. Từ sảnh có th�
 Để chạy smoke test giao diện, cài Playwright tạm vào thư mục client bằng `npm --prefix client install --no-save --package-lock=false playwright`, chạy `client/node_modules/.bin/playwright install chromium`, rồi chạy `node client/scripts/smoke-web-client.cjs` khi dev server đang chạy. Dùng `SOM_UI_BASE` nếu đổi port. Đặt `SOM_UI_OUTPUT` để xuất ảnh, hoặc `SOM_UI_SIZE=844x390` để thử một viewport. Bản baseline có thể chụp với `SOM_UI_BASELINE=1` và cùng script trỏ tới bản cũ.
 
 Ma trận gồm 1920×1080, 1366×768, 844×390, 390×844, 360×740 và 1024×768. Script kiểm tra đường đi tới NPC và nhật ký, các thao tác TCG từ đổi bài tới kết quả, mua/xếp quân bằng kéo thả hoặc chạm, đủ chín ghế và giới hạn ảnh trong ghế, không có lưới khi giao tranh và lớp phủ kết quả, cùng đường dẫn Vị Linh, Gacha và Cửa hàng. Script thu lỗi JavaScript của trang và đo tràn ở GameShell, vùng chơi và nhóm nút. Safari iOS thật, kích thước vùng chạm đầy đủ trong bố cục ngang thấp và ngân sách hiệu năng trên thiết bị vẫn cần nghiệm thu.
+
+### Bản cập nhật giao tranh và hồ sơ
+
+- Bàn TCG v4 dùng 5 vị trí Vị Linh và 2 ô bẫy. Hai ô bẫy có địa chỉ riêng, kể cả sau khi một bẫy bị gỡ. Ván v3 tiếp tục dùng cấu hình cũ. Chọn **Ván mới** để chơi v4.
+- Hồ sơ có **Đặt ở sảnh** cho Vị Linh đã sở hữu và đối chiếu chỉ số trang bị cùng vị trí. Cài đặt có thanh âm lượng giọng đọc và tùy chọn giảm mật độ VFX mà vẫn giữ cảnh báo đòn đánh.
+- Giọng đọc tiếng Việt cho các đoạn truyện, NPC đường đi, sảnh, tuyệt kỹ và chủ tướng TCG được xuất sẵn. Mục [ghi công âm thanh](assets/audio/voice/CREDITS.md) nêu nguồn mô hình và cách xử lý tệp.

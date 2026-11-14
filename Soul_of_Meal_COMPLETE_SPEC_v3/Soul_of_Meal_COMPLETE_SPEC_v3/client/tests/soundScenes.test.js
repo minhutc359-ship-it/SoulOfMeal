@@ -88,6 +88,38 @@ test('battle cues distinguish the windup, release, impact, guard and elemental u
   await Promise.all(cues.map(cue => readFile(new URL(`../assets/audio/${cue}.ogg`, import.meta.url))));
 });
 
+test('backgrounding stops one-shot audio, and reopening resumes the scene loop', t => {
+  const originalAudio = globalThis.Audio;
+  const originalDocument = globalThis.document;
+  const tracks = [];
+  globalThis.document = { hidden: false };
+  globalThis.Audio = class extends EventTarget {
+    constructor() { super(); this.playCount = 0; this.pauseCount = 0; tracks.push(this); }
+    async play() { this.playCount++; }
+    pause() { this.pauseCount++; }
+  };
+  t.after(() => {
+    globalThis.Audio = originalAudio;
+    globalThis.document = originalDocument;
+  });
+  const audio = new GameAudio({ music: 75, sfx: 80 });
+  audio.setScene('login');
+  audio.unlock();
+  audio.play('sfx_ui_confirm');
+  const [music, sound] = tracks;
+  globalThis.document.hidden = true;
+  audio.syncVisibility(true);
+  audio.play('sfx_victory');
+  assert.equal(tracks.length, 2, 'hidden scenes do not start one-shot sounds');
+  assert.equal(music.pauseCount, 1);
+  assert.equal(sound.pauseCount, 1);
+  assert.equal(audio.active.size, 0);
+  globalThis.document.hidden = false;
+  audio.syncVisibility(false);
+  assert.equal(music.playCount, 2);
+  assert.equal(sound.playCount, 1);
+});
+
 test('footsteps require distance, alternate takes, and restart the cadence on a new surface', () => {
   const player = new GameAudio({});
   const cues = [];

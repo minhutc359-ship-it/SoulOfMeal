@@ -1,11 +1,42 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { drawCombatAccent } from '../src/render/combatVfx.js';
 import { BattleEffects } from '../src/render/battleEffects.js';
 import { validateAnimationManifest } from '../src/render/clipPlayer.js';
-import { actorArt, BOSS_ID, combatArt, cutinArt, ELEMENT_ART, effectArt, HERO_ID, HERO_NAMES, MONSTER_IDS, originalCardArt, preloadGameAssets, TRAVEL_HERO } from '../src/render/spriteAssets.js';
+import { actorArt, BOSS_ID, combatArt, cutinArt, ELEMENT_ART, effectArt, HERO_ID, HERO_NAMES, MONSTER_IDS, originalCardArt, preloadGameAssets, showcaseArt, TRAVEL_HERO } from '../src/render/spriteAssets.js';
+import { ADVENTURE_OFFERS } from '../src/modes/adventureStore.js';
+import { SPIRITS } from '../src/modes/metaProgress.js';
+import { portraitRigDefinition, portraitSoles, SpiritRig } from '../src/render/spiritRig.js';
+import { itemArt } from '../src/render/spriteAssets.js';
 
 const assetFile = (path) => new URL('../' + path.slice(2), import.meta.url);
+
+test('every playable Vị Linh has a dedicated profile illustration', async () => {
+  for (const id of Object.keys(SPIRITS)) {
+    const portrait = showcaseArt(id);
+    assert.ok(portrait.endsWith('/showcase/' + id + '.webp'));
+    assert.notEqual(portrait, actorArt(id));
+    const file = await readFile(assetFile(portrait));
+    assert.equal(file.toString('ascii', 8, 12), 'WEBP');
+  }
+  assert.equal(showcaseArt('npc_lilia'), null);
+});
+
+test('every additional Vị Linh uses a valid articulated rig and the seven offers have art', async () => {
+  for (const spirit of Object.values(SPIRITS).filter(item => !Object.hasOwn(HERO_NAMES, item.id))) {
+    await readFile(assetFile(actorArt(spirit.id)));
+    const rig = new SpiritRig(...portraitRigDefinition(spirit, 240, 330), { naturalWidth: 240, naturalHeight: 330 });
+    assert.equal(Object.keys(rig.clips).length, 10);
+    assert.ok(rig.bones.some(bone => bone.name === 'hand'));
+    assert.equal(rig.feet.length, 2);
+    const clip = rig.clips.walk;
+    assert.notEqual(clip.tracks.leg_far.rotate[1].value, clip.tracks.leg_near.rotate[1].value);
+    assert.notDeepEqual(rig.pose(rig.clips.attack_a, 0), rig.pose(rig.clips.attack_a, .5));
+    assert.ok(rig.effectPoint('ultimate_01', 0, 0, 'E', 1));
+  }
+  for (const id of Object.keys(ADVENTURE_OFFERS)) assert.ok((await readFile(assetFile(itemArt(id)))).length > 1000);
+});
 
 test('the playtest preloads original art for the entire roster and all directions of travel', async () => {
   const paths = new Set();
@@ -39,7 +70,7 @@ test('the playtest preloads original art for the entire roster and all direction
     const manifest = manifests[id];
     assert.equal(Object.keys(manifest.frames).length, 8);
     assert.equal(manifest.mirror_east_west, true);
-    for (const action of ['idle', 'walk', 'attack_a', 'hit', 'defeat']) {
+    for (const action of ['idle', 'walk', 'attack_a', 'skill_01', 'hit', 'defeat']) {
       assert.ok(manifest.clips[action].directions.W.frames.length > 0);
     }
   }
@@ -135,4 +166,41 @@ test('a missing or invalid monster atlas keeps its portrait available in all mod
     assert.equal(sheets.has(id), false);
     assert.ok(await readFile(assetFile(actorArt(id))));
   }
+});
+
+
+test('elemental cast particles are bounded and removed in reduced motion', () => {
+  const positions = [];
+  const context = new Proxy({}, { get(_target, key) {
+    return key === 'translate' ? (...point) => positions.push(point) : () => {};
+  } });
+  const renderer = { images: new Map() };
+  const effect = { kind: 'cast', x: 100, y: 120, size: 90, progress: .40 };
+  drawCombatAccent(context, renderer, { ...effect, element: 'fire' });
+  const fire = positions.splice(0);
+  drawCombatAccent(context, renderer, { ...effect, element: 'water' });
+  const water = positions.splice(0);
+  drawCombatAccent(context, renderer, { ...effect, element: 'fire', reducedMotion: true });
+  assert.equal(fire.length, 11);
+  assert.equal(water.length, 9);
+  assert.deepEqual(positions, [[100, 120]]);
+});
+
+
+test('portrait rigs plant measured opaque soles and keep their head above the hip during attack', () => {
+  const width = 100, height = 100;
+  const pixels = new Uint8Array(width * height * 4);
+  for (let x = 21; x < 28; x++) pixels[(91 * width + x) * 4 + 3] = 255;
+  for (let x = 69; x < 76; x++) pixels[(94 * width + x) * 4 + 3] = 255;
+  pixels[(99 * width + 22) * 4 + 3] = 255;
+  const soles = portraitSoles(pixels, width, height);
+  assert.deepEqual(soles, [{ x: 24, y: 91 }, { x: 72, y: 94 }]);
+  const [definition, regions] = portraitRigDefinition(SPIRITS.chr_som_023, width, height, soles);
+  const rig = new SpiritRig(definition, regions, { naturalWidth: width, naturalHeight: height });
+  assert.ok(Math.abs(rig.floor) < .001);
+  const walking = rig.groundedPose(rig.clips.walk, { id: 'walk', phase: .25 });
+  assert.ok(Math.abs(rig.lowestFoot(walking)) < .001);
+  const attack = rig.pose(rig.clips.attack_a, .5);
+  assert.ok(attack[rig.bones.findIndex(bone => bone.name === 'head')].y >
+    attack[rig.bones.findIndex(bone => bone.name === 'body')].y);
 });

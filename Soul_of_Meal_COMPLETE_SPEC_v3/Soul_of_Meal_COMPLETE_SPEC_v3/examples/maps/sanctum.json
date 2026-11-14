@@ -4,38 +4,43 @@
   "map_id": "env_hollow_sanctum",
   "runtime_key": "sanctum",
   "display_name": "Điện Hội Vô Vị",
-  "world": {
-    "width": 960,
-    "height": 540,
-    "player_radius": 14,
-    "spawn": { "x": 100, "y": 327 }
-  },
+  "world": {"width": 960, "height": 540, "player_radius": 14, "spawn": {"x": 100, "y": 327}},
   "collision": {
     "obstacles": [
-      { "id": "sanctum_rear", "type": "rect", "x": 0, "y": 0, "width": 960, "height": 146 },
-      { "id": "sanctum_left", "type": "rect", "x": 0, "y": 146, "width": 41, "height": 394 },
-      { "id": "sanctum_right", "type": "rect", "x": 919, "y": 146, "width": 41, "height": 394 },
-      { "id": "sanctum_south", "type": "rect", "x": 0, "y": 491, "width": 960, "height": 49 }
+      {"id": "sanctum_rear", "type": "rect", "x": 0, "y": 0, "width": 960, "height": 146},
+      {"id": "sanctum_left_columns", "type": "polygon", "points": [[0, 124], [74, 147], [58, 338], [36, 417], [0, 466]]},
+      {"id": "sanctum_right_columns", "type": "polygon", "points": [[889, 147], [960, 124], [960, 462], [917, 408], [900, 333]]},
+      {"id": "sanctum_south_west", "type": "polygon", "points": [[0, 427], [104, 450], [145, 517], [106, 540], [0, 540]]},
+      {"id": "sanctum_south_east", "type": "polygon", "points": [[798, 540], [866, 464], [960, 431], [960, 540]]},
+      {"id": "sanctum_foreground", "type": "rect", "x": 0, "y": 518, "width": 960, "height": 22}
+    ]
+  },
+  "layers": {
+    "occlusion": [
+      {"id": "sanctum_west_lantern", "depth": 532, "points": [[0, 429], [33, 438], [82, 503], [93, 540], [0, 540]]},
+      {"id": "sanctum_east_lantern", "depth": 532, "points": [[831, 540], [879, 477], [960, 451], [960, 540]]}
     ]
   },
   "transitions": [
-    { "id": "sanctum_return", "type": "door", "from": "sanctum", "to": "caldera", "spawn": { "x": 832, "y": 221 }, "label": "Về núi lửa" },
-    { "id": "feast_return", "type": "door", "from": "sanctum", "to": "village", "spawn": { "x": 462, "y": 400 }, "label": "Về quảng trường" }
+    {"id": "sanctum_return", "type": "door", "from": "sanctum", "to": "caldera", "spawn": {"x": 832, "y": 221}, "label": "Về núi lửa"},
+    {"id": "feast_return", "type": "door", "from": "sanctum", "to": "village", "spawn": {"x": 462, "y": 400}, "label": "Về quảng trường"}
   ],
   "interactables": [
-    { "id": "sanctum_return", "kind": "portal", "action": "sanctum_return", "label": "Quay lại núi lửa", "x": 82, "y": 252, "radius": 50 },
-    { "id": "sanctum_guide", "kind": "finale_guide", "action": "sanctum_guide", "label": "Cà Phê Dạ Vũ", "x": 210, "y": 319, "radius": 50 },
-    { "id": "sanctum_urn", "kind": "finale_objective", "action": "sanctum_urn", "label": "Xem hũ giữ ký ức", "x": 385, "y": 250, "radius": 50 },
-    { "id": "sanctum_seal", "kind": "finale_objective", "action": "sanctum_seal", "label": "Đọc bản khắc ngũ vị", "x": 552, "y": 406, "radius": 50 },
-    { "id": "feast_encounter", "kind": "finale_encounter", "action": "feast_encounter", "label": "Vạc Vô Vị", "x": 766, "y": 320, "radius": 62 },
-    { "id": "feast_return", "kind": "portal", "action": "feast_return", "label": "Mang ký ức về làng", "x": 867, "y": 405, "radius": 50 }
+    {"id": "sanctum_return", "kind": "portal", "action": "sanctum_return", "label": "Quay lại núi lửa", "x": 82, "y": 252, "radius": 50},
+    {"id": "sanctum_guide", "kind": "finale_guide", "action": "sanctum_guide", "label": "Cà Phê Dạ Vũ", "x": 210, "y": 319, "radius": 50},
+    {"id": "sanctum_urn", "kind": "finale_objective", "action": "sanctum_urn", "label": "Xem hũ giữ ký ức", "x": 385, "y": 250, "radius": 50},
+    {"id": "sanctum_seal", "kind": "finale_objective", "action": "sanctum_seal", "label": "Đọc bản khắc ngũ vị", "x": 552, "y": 406, "radius": 50},
+    {"id": "feast_encounter", "kind": "finale_encounter", "action": "feast_encounter", "label": "Vạc Vô Vị", "x": 766, "y": 320, "radius": 62},
+    {"id": "feast_return", "kind": "portal", "action": "feast_return", "label": "Mang ký ức về làng", "x": 867, "y": 405, "radius": 50},
+    {"id": "sanctum_keeper", "kind": "resident", "action": "sanctum_keeper", "label": "Người giữ ấn", "x": 663, "y": 217, "radius": 50, "note": "Các ấn ngũ vị nằm quanh sân. Chọn đúng thứ tự khi Vạc Vô Vị tụ sức."}
   ],
   "visuals": [
-    { "id": "sanctum_return", "kind": "portal", "x": 82, "y": 252, "label": "VỀ NÚI LỬA" },
-    { "id": "sanctum_guide", "kind": "guide", "x": 210, "y": 319, "label": "CÀ PHÊ DẠ VŨ", "actorId": "chr_caphe_davu" },
-    { "id": "sanctum_urn", "kind": "clue", "x": 385, "y": 250, "label": "HŨ KÝ ỨC", "element": "shadow" },
-    { "id": "sanctum_seal", "kind": "clue", "x": 552, "y": 406, "label": "BẢN KHẮC NGŨ VỊ", "element": "light" },
-    { "id": "feast_encounter", "kind": "seal", "x": 766, "y": 320, "label": "VẠC VÔ VỊ", "artId": "hollow_cauldron" },
-    { "id": "feast_return", "kind": "portal", "x": 867, "y": 405, "label": "VỀ LÀNG" }
+    {"id": "sanctum_return", "kind": "portal", "x": 82, "y": 252, "label": "VỀ NÚI LỬA"},
+    {"id": "sanctum_guide", "kind": "guide", "x": 210, "y": 319, "label": "CÀ PHÊ DẠ VŨ", "actorId": "chr_caphe_davu"},
+    {"id": "sanctum_urn", "kind": "clue", "x": 385, "y": 250, "label": "HŨ KÝ ỨC", "element": "shadow"},
+    {"id": "sanctum_seal", "kind": "clue", "x": 552, "y": 406, "label": "BẢN KHẮC NGŨ VỊ", "element": "light"},
+    {"id": "feast_encounter", "kind": "seal", "x": 766, "y": 320, "label": "VẠC VÔ VỊ", "artId": "hollow_cauldron"},
+    {"id": "feast_return", "kind": "portal", "x": 867, "y": 405, "label": "VỀ LÀNG"},
+    {"id": "sanctum_keeper", "kind": "resident", "x": 663, "y": 217, "actorId": "chr_som_020", "label": "Người giữ ấn"}
   ]
 }

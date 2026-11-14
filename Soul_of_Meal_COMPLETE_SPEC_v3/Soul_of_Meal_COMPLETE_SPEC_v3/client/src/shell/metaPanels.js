@@ -1,6 +1,6 @@
 import { ADVENTURE_OFFERS, GEAR_MAX_LEVEL, GEAR_SLOTS, STORE_UPGRADE_GOLD, STORE_UPGRADE_STONES, itemBonus } from '../modes/adventureStore.js';
 import { BANNERS, META, SPIRITS, bannerOdds, starterSpirits } from '../modes/metaProgress.js';
-import { actorArt, cutinArt, HERO_NAMES } from '../render/spriteAssets.js';
+import { actorArt, cutinArt, HERO_NAMES, itemArt, showcaseArt } from '../render/spriteAssets.js';
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>"']/g, character =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
@@ -9,9 +9,14 @@ const ELEMENTS = { fire: 'Hỏa', water: 'Thủy', wood: 'Mộc', light: 'Quang'
 const signs = { fire: '✹', water: '◈', wood: '✿', light: '✦', shadow: '☾' };
 const statNames = { atk: 'ATK', def: 'DEF', maxHp: 'HP', speed: 'tốc độ/giây' };
 
-export function spiritImage(id, large = false) {
+export function spiritImage(id, large = false, { showcase = false } = {}) {
   const art = actorArt(id);
-  if (art) return `<img class="spirit-art" src="${escapeHtml(large && Object.hasOwn(HERO_NAMES, id) ? cutinArt(id) : art)}" alt="">`;
+  if (art) {
+    const fallback = large && Object.hasOwn(HERO_NAMES, id) ? cutinArt(id) : art;
+    const portrait = showcase && showcaseArt(id);
+    return `<img class="spirit-art" src="${escapeHtml(portrait || fallback)}" alt=""
+      ${portrait ? `data-fallback-art="${escapeHtml(fallback)}" decoding="async"` : ''}>`;
+  }
   const spirit = Object.hasOwn(SPIRITS, id) ? SPIRITS[id] : null;
   return `<span aria-hidden="true" class="spirit-emblem element-${spirit?.element ?? 'light'}">${signs[spirit?.element] ?? '✦'}</span>`;
 }
@@ -175,7 +180,7 @@ export function inventoryRows(save, member, options = {}) {
   const { stacks, gear } = save.adventure.inventory;
   const rows = options.equipmentOnly ? [] : Object.entries(stacks).filter(([, count]) => count > 0).map(([id, count]) => {
     const offer = ADVENTURE_OFFERS[id];
-    return `<li><div><strong>${offer.name} ×${count}</strong><small>${storeDetail(offer)}</small></div>
+    return `<li><div class="store-item-summary"><img src="${itemArt(id)}" alt=""><div><strong>${offer.name} ×${count}</strong><small>${storeDetail(offer)}</small></div></div>
       <div class="action-row">${offer.heal ? `<button class="button light" data-store-action="use" data-item="${id}" ${member.hp >= member.maxHp ? 'disabled' : ''}>Dùng</button>` : ''}
       <button class="button light" data-store-action="sell" data-item="${id}">Bán · ${Math.floor(offer.price / 2)} ◈</button></div></li>`;
   });
@@ -183,8 +188,14 @@ export function inventoryRows(save, member, options = {}) {
     const offer = ADVENTURE_OFFERS[entry.item];
     const owner = SPIRITS[entry.owner]?.name;
     const belongs = entry.owner === member.id;
-    rows.push(`<li><div><strong>${offer.name} · Cấp ${entry.level}</strong>
-      <small>${storeDetail(offer, entry.level)}${owner ? ' · ' + escapeHtml(owner) : ''}</small></div><div class="action-row">
+    const equipped = options.compare && !entry.owner && Object.values(gear).find(current =>
+      current.owner === member.id && ADVENTURE_OFFERS[current.item].slot === offer.slot);
+    const current = equipped && itemBonus(ADVENTURE_OFFERS[equipped.item], equipped.level);
+    const candidate = equipped && itemBonus(offer, entry.level);
+    const diff = equipped && (offer.stat === 'speed' ? Math.round((candidate - current) * 30) : candidate - current);
+    const comparison = equipped ? `<small>So với ${ADVENTURE_OFFERS[equipped.item].name} · ${diff > 0 ? '+' : ''}${diff} ${offer.stat === 'speed' ? 'px/s' : statNames[offer.stat]}</small>` : '';
+    rows.push(`<li><div class="store-item-summary"><img src="${itemArt(entry.item)}" alt=""><div><strong>${offer.name} · Cấp ${entry.level}</strong>
+      <small>${storeDetail(offer, entry.level)}${owner ? ' · ' + escapeHtml(owner) : ''}</small>${comparison}</div></div><div class="action-row">
       ${belongs || !entry.owner ? `<button class="button light" data-store-action="${belongs ? 'unequip' : 'equip'}" data-item="${id}">${belongs ? 'Tháo' : 'Trang bị'}</button>` : ''}
       ${entry.level < GEAR_MAX_LEVEL ? `<button class="button light" data-store-action="upgrade" data-item="${id}" ${(stacks.upgrade_stone ?? 0) < STORE_UPGRADE_STONES || save.player.gold < STORE_UPGRADE_GOLD * entry.level ? 'disabled' : ''}>Tinh luyện · ${STORE_UPGRADE_GOLD * entry.level} ◈ + 1 đá</button>` : ''}
       <button class="button light" data-store-action="lock" data-item="${id}">${entry.locked ? 'Mở khóa' : 'Khóa'}</button>

@@ -27,6 +27,7 @@ export class GameAudio {
     this.soundtracks = {};
     this.lastPlayed = new Map();
     this.unlocked = false;
+    this.voicePlaying = false;
     this.compatibilityBank = createCompatibilityBank(AUDIO_PATH);
   }
 
@@ -62,6 +63,16 @@ export class GameAudio {
     this.updateLoop('ambience', wind, wind);
   }
 
+  syncVisibility(hidden) {
+    if (hidden) {
+      for (const audio of this.active.keys()) audio.pause();
+      this.active.clear();
+    } else if (this.unlocked) {
+      this.compatibilityBank?.unlock();
+    }
+    this.updateLoops();
+  }
+
   updateLoop(channel, preferred, fallback) {
     let track = this.loops[channel];
     if (track?.preferred !== preferred || track?.fallback !== fallback) {
@@ -71,9 +82,10 @@ export class GameAudio {
       track = this.startLoop(channel, preferred, fallback, preferred);
     }
     if (!track || track.failed) return;
+    const hidden = globalThis.document?.hidden;
 
     track.audio.volume = this.volume(channel);
-    if (!track.audio.volume) {
+    if (!track.audio.volume || hidden) {
       track.audio.pause();
       track.requested = false;
       track.attempt += 1;
@@ -104,6 +116,12 @@ export class GameAudio {
     if (!track.fallback || track.path === track.fallback) return;
     this.startLoop(channel, track.preferred, track.fallback, track.fallback);
     this.updateLoops();
+  }
+
+  setVoicePlaying(playing) {
+    if (playing === this.voicePlaying) return;
+    this.voicePlaying = playing;
+    this.setSettings(this.settings);
   }
 
   setSettings(settings) {
@@ -141,16 +159,18 @@ export class GameAudio {
     } else if (type === 'projectile_spawned' || type === 'spell_launched') {
       this.play(elementalCue(payload.element, 'cast', 'sfx_cast_fire'), { gain: .61 });
     } else if (type === 'cast_started') {
-      this.play(elementalCue(payload.element, 'ultimate', 'sfx_ultimate_fire'), { gain: 1.14, priority: true });
+      const enemy = payload.source_kind === 'enemy_skill';
+      this.play(elementalCue(payload.element, enemy ? 'cast' : 'ultimate', 'sfx_ultimate_fire'),
+        { gain: enemy ? .77 : 1.14, priority: !enemy });
     } else if (type === 'boss_phase_changed' || type === 'boss_cast_interrupted') {
       this.play(CUES[type], { gain: 1.12, priority: true });
-    } else if (type === 'boss_cast_released' && ['shadow', 'water'].includes(payload.element)) this.play(elementalCue(payload.element, 'impact'));
+    } else if (['boss_cast_released', 'enemy_skill_released'].includes(type)) this.play(elementalCue(payload.element, 'impact'));
     else if (type === 'battle_finished' && (payload.winner_team === 'player' || payload.winner === 'player' || payload.winner === 0)) this.play('sfx_victory', { priority: true });
     else if (CUES[type]) this.play(CUES[type]);
   }
 
   play(id, { gain = 1, priority = false } = {}) {
-    if (!this.unlocked || !this.volume('sfx') || this.active.size >= (priority ? 12 : 10)) return;
+    if (!this.unlocked || globalThis.document?.hidden || !this.volume('sfx') || this.active.size >= (priority ? 12 : 10)) return;
     const now = performance.now();
     if (now - (this.lastPlayed.get(id) ?? -Infinity) < 110) return;
     this.lastPlayed.set(id, now);
@@ -168,6 +188,8 @@ export class GameAudio {
   }
 
   volume(channel) {
-    return Math.min(1, Math.max(0, (this.settings[channel] ?? 0) / 100)) * (channel === 'sfx' ? .44 : .65);
+    const level = Math.min(1, Math.max(0, (this.settings[channel] ?? 0) / 100));
+    if (channel === 'sfx') return level * (this.voicePlaying ? .31 : .44);
+    return level * (this.voicePlaying ? .36 : .65);
   }
 }

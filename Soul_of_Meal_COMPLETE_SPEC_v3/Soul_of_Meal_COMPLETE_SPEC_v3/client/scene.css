@@ -86,7 +86,6 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
 .main .adventure-layout .battle-target .controls-hint { margin: 3px 0; }
 .main .adventure-layout .battle-controls { margin: 3px 0; }
 .main .adventure-layout .battle-controls .button { min-height: 34px; padding: 4px 7px; }
-.world-map-expanded { width: 100%; aspect-ratio: 16 / 9; border-radius: 7px; }
 .quest-dialog { width: min(760px, calc(100vw - 24px)); }
 .quest-dialog .panel { box-shadow: none; }
 
@@ -313,6 +312,17 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
   background: var(--scene-panel); border: 1px solid var(--scene-edge); border-radius: 7px; }
 .store-workspace { display: flex; flex-direction: column; gap: 6px; min-height: 0; padding: clamp(7px, 1.6vw, 19px); background: #faeed9f5; border: 1px solid var(--scene-edge); border-radius: 9px; }
 .store-workspace .meta-shop-body { min-height: 0; overflow: auto; max-height: min(57dvh, 560px); overscroll-behavior: contain; }
+.store-item-summary { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.store-item-summary img { width: clamp(44px, 8vw, 66px); aspect-ratio: 1; object-fit: contain; border-radius: 6px; flex: none; }
+.store-buy-row { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+.store-quantity { font-size: 12px; white-space: nowrap; }
+.store-quantity input { width: 3.1em; min-height: 36px; font: inherit; }
+.store-exchange { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px; font-size: 13px; }
+.guide-reader { width: min(100%, 950px); margin-inline: auto; padding: 0 8px 24px; }
+.guide-reader nav { position: sticky; top: 0; z-index: 1; padding: 6px 0; background: #12211f; }
+.guide-comic { display: block; width: 100%; height: auto; }
+.adventure-result-inline { position: absolute; z-index: 5; inset: auto var(--scene-right) calc(var(--scene-bottom) + 50px) auto; width: min(360px, 88%); }
+.adventure-result-inline .result-box { margin: 0; background: #13241ff5; color: #fff1d6; border: 1px solid #b9965b; box-shadow: 0 4px 24px #122019a8; }
 @media (orientation: portrait) and (max-width: 760px) {
   .lobby-companion { inset: auto 6% 45% auto; width: 110px; }
   .shell[data-screen="gacha"] .meta-gacha-hero { height: min(26dvh, 270px); }
@@ -390,3 +400,130 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
 .lobby-world .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .tcg-target-line { position: absolute; z-index: 5; height: 2px; transform-origin: left center; pointer-events: none; background: #ffdd8b; box-shadow: 0 0 6px #ffad4d; }
 .tcg-target-line::after { content: ''; position: absolute; right: 0; top: -4px; border-left: 8px solid #ffdd8b; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+
+.adventure-puzzle {
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(175px, 300px) auto;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 5vw, 64px);
+  padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+    max(10px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  background: radial-gradient(ellipse at 68% 50%, #423a36, #162124 67%);
+  color: #fff0cf;
+}
+.adventure-puzzle h1 { margin: 0; font-size: clamp(25px, 4vw, 46px); }
+.puzzle-copy > p { margin: 9px 0; }
+.puzzle-note { min-height: 2em; color: #ffd89b; }
+.puzzle-score { font-weight: 700; }
+.puzzle-board {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  width: min(80dvh, 48vw, 490px);
+  aspect-ratio: 1;
+}
+.puzzle-board.sliding-board { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.puzzle-tile {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid #c89f63;
+  border-radius: 7px;
+  background: radial-gradient(circle at 50% 35%, var(--element-color, #6c4f3e), #28212a 74%);
+  color: #fff1cf;
+  touch-action: manipulation;
+}
+.puzzle-tile img { position: absolute; inset: 4% 4% 14%; width: 92%; height: 82%; object-fit: contain; }
+.puzzle-tile small {
+  position: absolute;
+  bottom: 2px;
+  inset-inline: 1px;
+  line-height: 1.1;
+  font-size: clamp(7px, 1.5dvh, 12px);
+  font-weight: 700;
+  text-shadow: 0 1px 3px #170c19;
+}
+.puzzle-tile[aria-pressed="true"] { outline: 2px solid #fff4bb; outline-offset: -2px; }
+.sliding-board .puzzle-tile { font: 800 clamp(24px, 6dvh, 52px) system-ui; }
+.sliding-board .puzzle-tile:empty { background: #151d25; opacity: .5; }
+
+@media (orientation: portrait) {
+  .adventure-puzzle { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; align-content: center; justify-items: center; }
+  .puzzle-copy { text-align: center; }
+  .puzzle-copy .action-row { justify-content: center; }
+  .puzzle-board { width: min(88vw, 49dvh, 490px); }
+}
+
+.puzzle-tile.element-fire, .chess-item-chip[data-item-kind="ember"] { --effect-tint: #9e5637; }
+.puzzle-tile.element-water { --effect-tint: #3a7394; }
+.puzzle-tile.element-wood, .chess-item-chip[data-item-kind="weave"] { --effect-tint: #42785d; }
+.puzzle-tile.element-light, .chess-item-chip[data-item-kind="bronze"] { --effect-tint: #96723a; }
+.puzzle-tile.element-shadow { --effect-tint: #73578d; }
+.puzzle-tile { --element-color: var(--effect-tint, #6c4f3e); }
+[data-auto-ultimate][aria-pressed="true"] { color: #efffd9; border-color: #a8d994; background: #245440; }
+.tcg-piles { display: flex; gap: 3px; flex: none; margin-inline-start: auto; }
+.tcg-piles .tcg-deck-target { display: grid; place-items: center; white-space: nowrap; padding: 2px 5px; min-height: 24px; }
+.tcg-match .tcg-stack-controls { min-width: 0; max-width: 100%; overflow-x: auto; scrollbar-width: thin; }
+.tcg-stack-controls .tcg-stack-button { flex: none; max-width: 125px; }
+.tcg-stack-controls .tcg-stack-button b { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chess-item-belt { max-width: 65%; display: flex; gap: 3px; overflow-x: auto; scrollbar-width: thin; }
+.chess-item-chip {
+  flex: 0 0 auto; min-width: 32px; min-height: 29px; color: #fff4cd;
+  background: linear-gradient(var(--effect-tint, #554560), #272b2b);
+  border: 1px solid #c9a775; border-radius: 5px; touch-action: none;
+}
+.chess-item-chip[aria-pressed="true"] { outline: 2px solid #fff3b3; outline-offset: -3px; }
+.chess-item-empty { color: #d7d6bd; font-size: 10px; text-align: end; }
+.chess-odds { display: inline-flex; gap: 3px; align-items: center; }
+.chess-odds b { border-radius: 3px; padding: 1px 4px; background: #24352f; white-space: nowrap; color: #fff1d3; }
+.chess-odds [data-shop-tier="2"] { background: #365b39; }
+.chess-odds [data-shop-tier="3"] { background: #315570; }
+.chess-odds [data-shop-tier="4"] { background: #593e6f; }
+.chess-odds [data-shop-tier="5"] { background: #7a502d; }
+@media (max-width: 525px) {
+  .tcg-piles .tcg-deck-target { padding-inline: 3px; font-size: 10px; }
+  .tcg-stack-controls .tcg-stack-button { max-width: 84px; }
+  .chess-odds { gap: 2px; }
+  .chess-odds b { padding-inline: 2px; }
+}
+.tcg-stack-controls .tcg-stack-button { width: auto; }
+.tcg-grave-card {
+  flex: 0 0 clamp(72px, 15vw, 128px);
+  display: grid; grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 62px; max-height: clamp(75px, 18dvh, 126px);
+  padding: 3px; border: 1px solid #b8966a; border-radius: 5px; background: #28322c; color: #fff2cb;
+  font: 700 11px system-ui;
+}
+.tcg-grave-card img { width: 100%; height: 100%; min-height: 0; object-fit: contain; }
+.tcg-grave-card span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.main .chess-bench .bench-unit.place-target { outline: 2px dashed #b4e6a7; outline-offset: -3px; }
+.effect-gallery { margin-top: 10px; display: grid; gap: 8px; }
+.effect-gallery canvas {
+  width: 100%; max-height: 48dvh; object-fit: contain; border: 1px solid #c09c69; border-radius: 8px;
+  background: radial-gradient(ellipse at 50% 70%, #43504a, #201e2a 73%);
+}
+.effect-preview-controls { align-items: end; }
+.effect-preview-controls label { display: grid; gap: 4px; color: inherit; font-size: 12px; font-weight: 700; }
+.effect-preview-controls select {
+  min-height: 40px; font: inherit; padding: 4px 8px; border: 1px solid #ae8759; border-radius: 5px;
+  color: #34271d; background: #fff1ce;
+}
+
+/* Keep the stat and action areas readable in the short landscape viewport. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .shell[data-screen="roster"] .spirit-profile { grid-template-rows: minmax(0, 1fr) auto; gap: 3px 12px; }
+  .shell[data-screen="roster"] .spirit-browse .button { min-height: 32px; }
+  .shell[data-screen="roster"] .spirit-tabs .button { min-height: 36px; padding: 2px 4px; }
+  .shell[data-screen="roster"] .spirit-stats { margin-block: 3px; }
+  .shell[data-screen="roster"] .spirit-stats > div { padding-block: 2px; }
+  .shell[data-screen="roster"] .spirit-tab-body { padding: 5px 8px; }
+  .main .chess-match :is(.bench-slot, .bench-unit) { height: 37px; }
+  .main .chess-match .chess-shop-actions .button { min-height: 38px; }
+  .tcg-match .tcg-cutin { width: min(62%, 500px); min-height: 54px; }
+  .tcg-match .tcg-cutin img { height: clamp(54px, 16dvh, 92px); }
+  .tcg-match .tcg-cutin .tcg-cutin-card { height: clamp(41px, 13dvh, 74px); }
+}

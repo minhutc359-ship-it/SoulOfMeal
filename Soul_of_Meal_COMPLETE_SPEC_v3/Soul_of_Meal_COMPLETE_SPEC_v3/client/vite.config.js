@@ -26,8 +26,13 @@ export default defineConfig({
   },
   plugins: [{
     name: 'soul-of-meal-runtime-data',
+    transformIndexHtml: {
+      order: 'post',
+      handler: () => [{ tag: 'link', attrs: { rel: 'manifest', href: './app.webmanifest' }, injectTo: 'head' }],
+    },
     writeBundle() {
       cpSync(resolve(client, 'assets'), resolve(output, 'client/assets'), { recursive: true });
+      cpSync(resolve(client, 'app.webmanifest'), resolve(output, 'client/app.webmanifest'));
       mkdirSync(resolve(output, 'examples'), { recursive: true });
       for (const directory of ['cards', 'auto_chess', 'maps']) {
         cpSync(resolve(project, 'examples', directory), resolve(output, 'examples', directory), { recursive: true });
