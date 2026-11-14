@@ -11,6 +11,8 @@ Mở [http://localhost:4173/client/](http://localhost:4173/client/) và chọn *
 
 Trên máy tính, dùng WASD hoặc phím mũi tên để di chuyển, E để tương tác và phím 1–5 để dùng tuyệt kỹ. Trên màn hình cảm ứng, chạm điểm đến, NPC, rương hoặc cổng. Có nút toàn màn hình ở thanh trên khi trình duyệt hỗ trợ. Nhạc và hiệu ứng bắt đầu sau thao tác đầu tiên.
 
+Trên điện thoại, thêm trang `/client/` vào màn hình chính từ menu trình duyệt. Khi mở bằng biểu tượng Soul of Meal, web app chọn fullscreen nếu trình duyệt hỗ trợ và dùng cửa sổ độc lập trên các trình duyệt còn lại. iOS có thể vẫn giữ thanh trạng thái. Game tải nội dung qua mạng.
+
 Để kiểm tra bản build, chạy `npm --prefix client run build` rồi `npm --prefix client run preview`, mở lại đường dẫn trên. Kết quả build nằm trong `client/dist/` với entry `client/index.html` và catalog tương đối trong `examples/`.
 
 Đây là bản chơi thử để đối chiếu gameplay và asset khi chuyển sang [Web Client–Server v3.2](../docs/03_engineering/ENGINE_ARCHITECTURE.md). Xem [đối chiếu concept](../docs/04_qa/PLAYTEST_CONCEPT_GAP.md) để phân biệt phần chạy được và hạng mục nghiệm thu.
@@ -36,6 +38,8 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 ## Lối chơi
 
 - **Adventure** · Chơi sáu chương bắt đầu với **Hương Vị Đầu Tiên**. Dùng **Dẫn đường** trên bản đồ hoặc trong **Nhật ký hành trình**. Nhật ký lưu manh mối đã tìm và cho đọc lại đối thoại đã mở. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
+- **Nhánh vườn** · Từ Rừng Nguyên Liệu, chạm cổng đến **Vườn Nấm Sương**, rồi đi tiếp sang **Vườn Gia Vị**. Hai vườn có NPC chỉ đường và trận quái nhận thưởng một lần. Trận boss cốt truyện có hai đợt quái trước boss. Chế độ tái đấu đặt đội vào đợt boss.
+- **Truyện hướng dẫn** · Mở **Hướng dẫn** bằng nút **?** ở sảnh hoặc qua menu trong trận. Có năm trang hướng dẫn từ tranh gốc của dự án.
 - **TCG** · Đấu bot với bộ 24 lá từ danh mục 60 lá. Chọn độ khó và bộ bài bot riêng. Trình sửa có bốn ô lưu bộ bài, biểu đồ mana, bộ lọc và bảy bộ mẫu gồm **Khởi đầu**, **Hộ Trận**, **Tiên Phong**, **Triều Sương**, **Mầm Sống**, **Dạ Yến** và **Triều Hỏa**.
 - **Auto Chess** · Xếp đội hình trên bàn lục giác, mua quân từ kho chung, hợp thể ba bản sao và mua XP. Ván mới có bảy bot đánh cùng lúc, các vòng quái thưởng linh kiện và kết thúc khi bị loại, về nhất hoặc đến giới hạn 37 vòng. Phát lại giao tranh dùng vị trí, đòn đánh, kỹ năng và HP do mô phỏng ghi lại. Ván lưu từ bản trước tiếp tục theo thể thức cũ.
 

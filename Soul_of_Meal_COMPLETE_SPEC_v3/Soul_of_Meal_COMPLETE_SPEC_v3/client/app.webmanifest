@@ -1,0 +1,18 @@
+{
+  "id": "./",
+  "name": "Soul of Meal · Hành Trình Vị Linh",
+  "short_name": "Soul of Meal",
+  "description": "Phiêu lưu và chiến đấu cùng Vị Linh.",
+  "lang": "vi",
+  "start_url": "./",
+  "scope": "./",
+  "display_override": ["fullscreen", "standalone"],
+  "display": "standalone",
+  "background_color": "#12211f",
+  "theme_color": "#12211f",
+  "icons": [
+    { "src": "assets/original/app/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/original/app/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/original/app/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

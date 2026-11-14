@@ -4,8 +4,23 @@ import test from 'node:test';
 import { BattleEffects } from '../src/render/battleEffects.js';
 import { validateAnimationManifest } from '../src/render/clipPlayer.js';
 import { actorArt, BOSS_ID, combatArt, cutinArt, ELEMENT_ART, effectArt, HERO_ID, HERO_NAMES, MONSTER_IDS, originalCardArt, preloadGameAssets, TRAVEL_HERO } from '../src/render/spriteAssets.js';
+import { ADVENTURE_OFFERS } from '../src/modes/adventureStore.js';
+import { SPIRITS } from '../src/modes/metaProgress.js';
+import { portraitRigDefinition, SpiritRig } from '../src/render/spiritRig.js';
+import { itemArt } from '../src/render/spriteAssets.js';
 
 const assetFile = (path) => new URL('../' + path.slice(2), import.meta.url);
+
+test('every additional Vị Linh uses a valid articulated rig and the seven offers have art', async () => {
+  for (const spirit of Object.values(SPIRITS).filter(item => !Object.hasOwn(HERO_NAMES, item.id))) {
+    await readFile(assetFile(actorArt(spirit.id)));
+    const rig = new SpiritRig(...portraitRigDefinition(spirit, 240, 330), { naturalWidth: 240, naturalHeight: 330 });
+    assert.equal(Object.keys(rig.clips).length, 10);
+    assert.notDeepEqual(rig.pose(rig.clips.attack_a, 0), rig.pose(rig.clips.attack_a, .5));
+    assert.ok(rig.effectPoint('ultimate_01', 0, 0, 'E', 1));
+  }
+  for (const id of Object.keys(ADVENTURE_OFFERS)) assert.ok((await readFile(assetFile(itemArt(id)))).length > 1000);
+});
 
 test('the playtest preloads original art for the entire roster and all directions of travel', async () => {
   const paths = new Set();

@@ -769,13 +769,13 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 22429,
-      "sha256": "d477ab516e57053da0f7c5f5bc85277835fc75670bd5c032279b53ab4680b016"
+      "bytes": 23307,
+      "sha256": "f58cd217b530de8bf91f126004e9635356004b00dcf8ead407c6a92b5dcfa888"
     },
     {
       "path": "client/index.html",
-      "bytes": 810,
-      "sha256": "c56e864d705150f7c2727b36e9509d262b7e5f76cbff5b9658a6bf1edb7fc42f"
+      "bytes": 1188,
+      "sha256": "5eb1b31b6269e80cab9823f6fd0fc20388b755efbdbd60b3e95a0ddb99972382"
     },
     {
       "path": "client/package.json",
@@ -789,18 +789,18 @@
     },
     {
       "path": "client/src/core/save.js",
-      "bytes": 4910,
-      "sha256": "4509348264375f32dacc049f8c80154a8357f2684f09b4010ae2b0af59d0b25c"
+      "bytes": 5005,
+      "sha256": "7d064bedd25e4a136c6033bf6b7344fa1414c162872077cd6fc74d476a28f52c"
     },
     {
       "path": "client/src/main.js",
-      "bytes": 209297,
-      "sha256": "13eb86e9565264556db54567b78d7039d9f22d4b06d46fbce77cb486238061bf"
+      "bytes": 208977,
+      "sha256": "7669970e496f9f218e63dbf5960a3d52c87c50859fce766c6f8c85d6a3fed072"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 45117,
-      "sha256": "8180343f7d4859710b841d4f71c7fd8056f31e9bff5bef107c8386909303308f"
+      "bytes": 45772,
+      "sha256": "5fcfeabdcace25a7e53a9031bf878bc396a212b0aac10e5f4a48342f774b5c69"
     },
     {
       "path": "client/src/modes/autoChess.js",
@@ -819,8 +819,8 @@
     },
     {
       "path": "client/tests/runtime.test.js",
-      "bytes": 52248,
-      "sha256": "f93d28eb4ceba856438cd79fceeb89b39759e6eb7685f8fbaae4c890d081b88c"
+      "bytes": 53739,
+      "sha256": "99f23639ee2d1ed20bcccdac5e372ff23f2f59d699bb1996cacf6614039c2335"
     },
     {
       "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
@@ -1249,8 +1249,8 @@
     },
     {
       "path": "client/src/modes/mapCatalog.js",
-      "bytes": 11552,
-      "sha256": "3244a12718621f236b22e76300fdb9327b6a1e196fd11036d924f4242c1d32a5"
+      "bytes": 8194,
+      "sha256": "d8f39a50b4282e30663a4959c95509e4231a22aed69cc2f4f8a30313bcb74bbe"
     },
     {
       "path": "client/src/render/animationManifest.js",
@@ -1259,8 +1259,8 @@
     },
     {
       "path": "client/src/render/spriteAssets.js",
-      "bytes": 4144,
-      "sha256": "57d44b259516136c8ba428e46186ab3092e10e63de0370388c42d74d2de458e6"
+      "bytes": 4372,
+      "sha256": "2d148c5b86a895ada9432ce2c08c62deb7be14bdcbd3c391de8bdaaa82dea8b3"
     },
     {
       "path": "client/src/render/spriteRenderer.js",
@@ -1269,13 +1269,13 @@
     },
     {
       "path": "examples/maps/forest.json",
-      "bytes": 4833,
-      "sha256": "76bf2cd48e2f8a042680e4658c1425391d703c8b7e1df280a611c6274c89bbfd"
+      "bytes": 4239,
+      "sha256": "17431d8ebe70cdb5b32010329d7ecb4cb6a6df90a9cdc94d9a69d0d31a36d4f7"
     },
     {
       "path": "examples/maps/village.json",
-      "bytes": 6091,
-      "sha256": "832cdfb02d575f4e42b264b524d6dc7329ea4b15cc45e9845c7a7d7ef77c7b0c"
+      "bytes": 6762,
+      "sha256": "199138035eb918ad1b6119c72a938f718a78d96da80e071302302ffca6fae797"
     },
     {
       "path": "client/assets/avatars/avatar_lilia.png",
@@ -1479,8 +1479,8 @@
     },
     {
       "path": "client/src/modes/adventureBalance.js",
-      "bytes": 7734,
-      "sha256": "71a924027faab9cc579125fc955482fe4fde177f98c7cf2f538c70379cf693f1"
+      "bytes": 8871,
+      "sha256": "aa8aa9be2902e31e8235fef89ead762787c80cd025ec8e60f46e346498b4e036"
     },
     {
       "path": "client/src/render/battleEffects.js",
@@ -2174,8 +2174,8 @@
     },
     {
       "path": "client/tests/originalArt.test.js",
-      "bytes": 6090,
-      "sha256": "c358eb73b95269e94732bac7ccef3893e63e5198177f80f313a9a75faa420c73"
+      "bytes": 7060,
+      "sha256": "a038ef8d1a87519182bf94eb1d79036c187c1ee64db4b23b13b0880db73cb3cb"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_PLAYTEST.md",
@@ -2244,8 +2244,8 @@
     },
     {
       "path": "client/vite.config.js",
-      "bytes": 1289,
-      "sha256": "fd450506d94e1b7945706cd670fc642f919867a7b3ca32c743807fec11519ccc"
+      "bytes": 1549,
+      "sha256": "81266ca669e6aba5078e9812c17d9211b249527bb90f8230a52cc0c059af2f40"
     },
     {
       "path": "client/src/core/accountApi.js",
@@ -2404,8 +2404,8 @@
     },
     {
       "path": "client/src/modes/adventureJournal.js",
-      "bytes": 5098,
-      "sha256": "e2fadc287603cba2f02058ac19bc16b3ed755b49a89a78371b5fca64a3aa78eb"
+      "bytes": 5355,
+      "sha256": "af57959cf6ca6a4fc21671415316124dd9777aa24b0b8422df077a923c929fb6"
     },
     {
       "path": "client/tests/soundScenes.test.js",
@@ -2434,8 +2434,8 @@
     },
     {
       "path": "client/src/shell/storyDialog.js",
-      "bytes": 3097,
-      "sha256": "7a40486d438fe0a3f153fff75a079beea4ba6fdc725b21e072034985517107d7"
+      "bytes": 2940,
+      "sha256": "0472055f85c0e793da4057c8a3f112ffe5c195f391f455be9a79451db9674425"
     },
     {
       "path": "client/assets/original/props/empty_bowl_seal.webp",
@@ -2459,8 +2459,8 @@
     },
     {
       "path": "examples/maps/harbor.json",
-      "bytes": 2776,
-      "sha256": "2040398417b22d9f4d9abc73ec884b0a536f26796db218a668446d7c33890593"
+      "bytes": 3155,
+      "sha256": "f9069de4499de5793da68c5de6f10f96f86bbb27947b038958d533819db8aea8"
     },
     {
       "path": "client/assets/original/props/hollow_cauldron.webp",
@@ -2484,13 +2484,13 @@
     },
     {
       "path": "examples/maps/caldera.json",
-      "bytes": 2643,
-      "sha256": "9988c31206e19ac5934aa7c9456186deed189e7dd6f7930d3b11630c055eb1c4"
+      "bytes": 2999,
+      "sha256": "1aa4f9cc0df2d7af1621067e1cdf72643e1e1c4b3d9fc5c56943b70fe2f1398a"
     },
     {
       "path": "examples/maps/sanctum.json",
-      "bytes": 2641,
-      "sha256": "fdf82aa7c66f36d2ae1433ada6d92221b17564947c5d03bdf739421ee586315d"
+      "bytes": 3264,
+      "sha256": "205355ae68b4d499c9a1f6afa340224b0b6c6251a7f0853e82eb5d2bcd1880f4"
     },
     {
       "path": "client/assets/original/chronicle/chapter-1.webp",
@@ -2669,8 +2669,8 @@
     },
     {
       "path": "client/src/render/boardSprites.js",
-      "bytes": 3074,
-      "sha256": "46d6059a8e2f98fe5caa0595a93162eafc54ed821dcbe30cff8c0962b163f0b2"
+      "bytes": 3228,
+      "sha256": "4f32197ef3ee99f44a561c334db63e9bcc33ae776cdd60ff18e836bc94259733"
     },
     {
       "path": "client/tests/boardSprites.test.js",
@@ -2844,18 +2844,18 @@
     },
     {
       "path": "examples/maps/village_guild.json",
-      "bytes": 1493,
-      "sha256": "3b19c5aabf4cfe1e38e84818d84ae5fd0c20cd0e0e3556abf2a9acda3ba5b35a"
+      "bytes": 1686,
+      "sha256": "0f07f6861a97d0e2b40a3b97a27c6a65ba06d3b6f4704f858387c5120ee0e2f1"
     },
     {
       "path": "examples/maps/village_kitchen.json",
-      "bytes": 1497,
-      "sha256": "c975b36877a69b9dc89170040fae53460f1c5c3d117a492fb10355955b23d2f0"
+      "bytes": 1700,
+      "sha256": "581cf7d382a4ac4126e7ac2a382cbbebfdc14fb09c541c8183029c40ef22fdc5"
     },
     {
       "path": "examples/maps/village_merchant.json",
-      "bytes": 1598,
-      "sha256": "df6ef33de85bdef0b86c8e7ceebd206415e02ad9e72017c4b7872249786a8872"
+      "bytes": 1776,
+      "sha256": "b62761534802e3edf3c57f356f1e8d979a605a58e223c2d3675da028c5bd05f8"
     },
     {
       "path": "scripts/publish_web_release.py",
@@ -2929,8 +2929,8 @@
     },
     {
       "path": "client/src/render/spiritRig.js",
-      "bytes": 11449,
-      "sha256": "f81860bf16d3de215c51e965ffc5ae2f93dee20b4e721b6a3ccfe58e514a28d5"
+      "bytes": 15576,
+      "sha256": "841c07c3514447126f05b277e0706ed47b2687322e1d4029331a7a8b8722c5a9"
     },
     {
       "path": "client/tests/spiritRig.test.js",
@@ -3179,8 +3179,8 @@
     },
     {
       "path": "client/src/shell/metaPanels.js",
-      "bytes": 12339,
-      "sha256": "150193739a9cfea214f771dee2fd5a29f9c8529a79c3d7c4614f531d254028d6"
+      "bytes": 12498,
+      "sha256": "5dbd33ce6e265dd1d531badc421fe2bf18b45e801f7bd13087c760ba568e2bd5"
     },
     {
       "path": "client/tests/metaProgress.test.js",
@@ -3204,13 +3204,13 @@
     },
     {
       "path": "client/scene.css",
-      "bytes": 28334,
-      "sha256": "c728557f3e4bdccf8a322a930882640bd85cc77813831840a5f52974e5be3ed0"
+      "bytes": 29380,
+      "sha256": "fa43c4e991fb5c5598479b8df10d59654d8e5c8e006c85210724b4446faa3aa3"
     },
     {
       "path": "client/scripts/smoke-web-client.cjs",
-      "bytes": 20952,
-      "sha256": "67f661afe99133a23a1f18cf8a214a7e4c2df61b1fb5c471b4078ab6eec3c453"
+      "bytes": 21428,
+      "sha256": "1eb634956f88d95498bb3416d10cc9de6a313e4e9f81ede22371e623b9800a7f"
     },
     {
       "path": "client/src/shell/sceneNavigation.js",
@@ -3249,8 +3249,8 @@
     },
     {
       "path": "client/tests/worldInteraction.test.js",
-      "bytes": 2865,
-      "sha256": "8c0fb0096cc3a611817ae5306149bfdb7b519dfa4cb661712770c04773599e25"
+      "bytes": 3658,
+      "sha256": "5354478cfd73cfcd8b13dcd85f4ecb64dd3b136a2d3d34d831ec39ed9cf9a4d4"
     },
     {
       "path": "docs/05_production/WORLD_INTERACTION_V2_QA.md",
@@ -3261,6 +3261,136 @@
       "path": "client/assets/original/cutins/tcg_commander.webp",
       "bytes": 75358,
       "sha256": "203a7e3bbf1814fd5e025c7bc6d461021870e7325da7ed316c6d3d40dd225504"
+    },
+    {
+      "path": "client/app.webmanifest",
+      "bytes": 719,
+      "sha256": "d5a132ee670e31e607b6f14c90b7688173a616e0555e623be96f1d52f8c29d32"
+    },
+    {
+      "path": "client/assets/original/actors/mob_honeybee.webp",
+      "bytes": 59704,
+      "sha256": "bb84cd595d94b410db7a43faab1393303647b66f77e033ae315e620d51b6e66f"
+    },
+    {
+      "path": "client/assets/original/actors/mob_lotus_crab.webp",
+      "bytes": 56670,
+      "sha256": "7ce96609ef50aba384083c51b529909072d2c6c3365fe1662e188cfc62c727b5"
+    },
+    {
+      "path": "client/assets/original/actors/mob_sesame_boar.webp",
+      "bytes": 54098,
+      "sha256": "aeb98486087bdc9ee15ce66ee30ef0c1f66e59693f6982a04c940f95cd4b22b4"
+    },
+    {
+      "path": "client/assets/original/actors/mob_smoke_wisp.webp",
+      "bytes": 43838,
+      "sha256": "04a3a43d8bba9a5a50c4a7209f8fcba6b1e2f67f5e7002efa7804f9f363fa523"
+    },
+    {
+      "path": "client/assets/original/app/apple-touch-icon.png",
+      "bytes": 19941,
+      "sha256": "8d873542276f4804279eabc8acdcfd7c59c86d6d627a84e33f8b7ce5ef926371"
+    },
+    {
+      "path": "client/assets/original/app/icon-192.png",
+      "bytes": 22424,
+      "sha256": "24a718548f664abe65223ffcecd86c12fe473122e3ec5f5002901da378505a25"
+    },
+    {
+      "path": "client/assets/original/app/icon-512.png",
+      "bytes": 112398,
+      "sha256": "8949927a6b82239371b095659c9795b276936099fa67a3a298a5fa82f2af9081"
+    },
+    {
+      "path": "client/assets/original/app/maskable-512.png",
+      "bytes": 93389,
+      "sha256": "7a211b4d75c5bea8dea0e4e257e78c79ebd444e1185afbae7a17e58b3d30aadc"
+    },
+    {
+      "path": "client/assets/original/guides/adventure.webp",
+      "bytes": 503796,
+      "sha256": "64431582d0d1d6671cfd394df51b178b38a0953054cafc5a54cd988a41f82be6"
+    },
+    {
+      "path": "client/assets/original/guides/autochess.webp",
+      "bytes": 483976,
+      "sha256": "7b4be8affb7b2be8107519de3e473ac9778594ec81933b7362738ca6b4cbbe42"
+    },
+    {
+      "path": "client/assets/original/guides/tcg.webp",
+      "bytes": 514046,
+      "sha256": "6460c5a2c8ed3565a1a8acfbe1fb0541b92dba3df613230f4679c413547eae42"
+    },
+    {
+      "path": "client/assets/original/guides/update.webp",
+      "bytes": 400454,
+      "sha256": "b958a61aa01312ac7aaddb3b53eb507d27724565325661ecc3afe9402e31b814"
+    },
+    {
+      "path": "client/assets/original/guides/world.webp",
+      "bytes": 534546,
+      "sha256": "3ccc85b12c863e020e0aed381c889ad4fe483dd27b92ca244303ce726cf4b230"
+    },
+    {
+      "path": "client/assets/original/items/basic_robe.webp",
+      "bytes": 5242,
+      "sha256": "18a99793b25d5f70875b879db4a841d37bfd1d99b3eb3c5b45ed94c5e073eb00"
+    },
+    {
+      "path": "client/assets/original/items/basic_sword.webp",
+      "bytes": 4414,
+      "sha256": "9ed068aeb64a5b51cc29ffcc9a4d4237974ff1a4fb612d6c7c35178a6bec3741"
+    },
+    {
+      "path": "client/assets/original/items/flavor_seal.webp",
+      "bytes": 6762,
+      "sha256": "fc1a722a330ea551f17a0e7ad81df4d5f8d7c6967e6aa68cb58866ecc5eb2acb"
+    },
+    {
+      "path": "client/assets/original/items/lantern_ring.webp",
+      "bytes": 5226,
+      "sha256": "37b534d54a08e80b1c2c69f3f7640fa409c9273a852e605a6d312cdb9a1cb679"
+    },
+    {
+      "path": "client/assets/original/items/potion_medium.webp",
+      "bytes": 6930,
+      "sha256": "684af222513f7b05fc6f881c792685dc1bfdf8b7178c53d58960c942a675bd03"
+    },
+    {
+      "path": "client/assets/original/items/potion_small.webp",
+      "bytes": 2616,
+      "sha256": "15fdac9cd3c18f01485bff63782c678511b547ae59217165804ee6f3439cf046"
+    },
+    {
+      "path": "client/assets/original/items/upgrade_stone.webp",
+      "bytes": 4102,
+      "sha256": "51c80186a7b1720300253d06b7a823eb95f2ddabef0f7bb6e60a3213db7ace65"
+    },
+    {
+      "path": "client/assets/original/scenes/orchard.webp",
+      "bytes": 312796,
+      "sha256": "80cdcf80f3433200b065a1e328b9c8065dce31516823bd7848dda0f89d48421f"
+    },
+    {
+      "path": "client/assets/original/scenes/spice_garden.webp",
+      "bytes": 393218,
+      "sha256": "890aa7f9a9ddfdfb4a67cf2e5a12375db26b065ec8ffdd35120d9a708c41f922"
+    },
+    {
+      "path": "docs/05_production/ADVENTURE_EXPANSION_QA.md",
+      "bytes": 1669,
+      "sha256": "5c6f7b5979057e5867b2baa41ce1616282854fe6e2a94990584c63f914914f78"
+    },
+    {
+      "path": "examples/maps/orchard.json",
+      "bytes": 2421,
+      "sha256": "4d3a62d3de049227f13866e63e7eabfe68e7146eb220b2a3df4b81ed39a59ec6"
+    },
+    {
+      "path": "examples/maps/spice_garden.json",
+      "bytes": 2183,
+      "sha256": "05240e2dc3062c02a711e21720965d7f194d12c5b4ac4eb03fa87628dedf50e0"
     }
   ]
 }

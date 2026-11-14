@@ -1,4 +1,5 @@
-import { HERO_ID, HERO_NAMES } from './spriteAssets.js';
+import { actorArt, FIELD_MONSTER_IDS, HERO_ID, HERO_NAMES } from './spriteAssets.js';
+import { SPIRITS } from '../modes/metaProgress.js';
 
 const ASSETS = './assets/original/rigs/';
 const RAD = Math.PI / 180;
@@ -181,7 +182,13 @@ export class BattleRigClock {
         ? 1 : clamp((tick - this.defeat.tick) / this.tickRate / this.rig.clips.defeat.duration);
       return { id: 'defeat', phase };
     }
-    const fallback = { id: animation?.requestedClipId ?? (actor.alive ? 'idle' : 'defeat'), phase: animation?.motionPhase ?? 0 };
+    const id = animation?.requestedClipId ?? 'idle';
+    const fallbackClip = this.rig.clips[id];
+    const rawPhase = animation?.motionPhase ?? 0;
+    const phase = animation?.missingClip && fallbackClip
+      ? (['idle', 'walk', 'run'].includes(id) ? (rawPhase / fallbackClip.duration) % 1 : clamp(rawPhase / fallbackClip.duration))
+      : rawPhase;
+    const fallback = { id, phase };
     if (animation?.motionPhase == null) return fallback;
     const { action } = actor;
     if (actor.alive && battle.phase === 'battle_running' && action) {
@@ -247,6 +254,74 @@ async function loadSpiritRig(renderer, id, signal) {
 }
 
 export async function loadSpiritRigs(renderer, signal) {
-  const entries = await Promise.all(Object.keys(HERO_NAMES).map(async id => [id, await loadSpiritRig(renderer, id, signal)]));
+  const actors = [...Object.values(SPIRITS), ...FIELD_MONSTER_IDS.map(id => ({ id, role: 'fighter' }))];
+  const entries = await Promise.all(actors.map(async spirit => {
+    const id = spirit.id;
+    const rig = Object.hasOwn(HERO_NAMES, id) && await loadSpiritRig(renderer, id, signal);
+    return [id, rig || await loadPortraitRig(renderer, spirit)];
+  }));
   return new Map(entries.filter(([, rig]) => rig));
+}
+
+// Segment the original portrait at its neck and hip. The vertical strips overlap
+// at the joints and share the source image so the rest pose keeps its proportions.
+const neckAndHip = {
+  '002': [.54, .79], '003': [.57, .80], '004': [.48, .75], '005': [.51, .74],
+  '006': [.44, .78], '007': [.46, .75], '008': [.50, .75], '009': [.48, .76],
+  '010': [.49, .78], '011': [.49, .75], '012': [.50, .77], '013': [.53, .79],
+  '016': [.50, .77], '017': [.51, .76], '019': [.49, .76], '020': [.51, .77],
+  '022': [.48, .79], '023': [.44, .74], '024': [.46, .75],
+};
+
+async function loadPortraitRig(renderer, spirit) {
+  const image = await renderer.loadImage(actorArt(spirit.id));
+  if (!image) return null;
+  return new SpiritRig(...portraitRigDefinition(spirit, image.naturalWidth, image.naturalHeight), image);
+}
+
+export function portraitRigDefinition(spirit, width, height) {
+  const [neck, hip] = neckAndHip[spirit.id.slice(-3)] ?? [.49, .75];
+  const size = Math.min(89 / height, 106 / width);
+  const neckY = Math.round(neck * height), hipY = Math.round(hip * height);
+  const overlap = Math.max(2, Math.round(height * .022));
+  const strips = [
+    ['feet', hipY - overlap, height, height],
+    ['head', 0, neckY + overlap, neckY],
+    ['body', neckY - overlap, hipY + overlap, hipY],
+  ];
+  const regions = {}, attachments = {};
+  const slots = strips.map(([name, top, bottom, pivot]) => {
+    regions[name] = [0, top, width, bottom - top];
+    attachments[name] = { [name]: { x: 0, y: (pivot - (top + bottom) / 2) * size, width: width * size, height: (bottom - top) * size } };
+    return { name, bone: name, attachment: name };
+  });
+  const bones = [{ name: 'feet' }, { name: 'body', parent: 'feet', y: (height - hipY) * size },
+    { name: 'head', parent: 'body', y: (hipY - neckY) * size },
+    { name: 'effect_tip', parent: 'body', x: Math.min(36, width * size * .4), y: height * size * .28 }];
+  const melee = ['guardian', 'fighter', 'assassin'].includes(spirit.role);
+  const track = (duration, pivot, middle) => [{ time: 0, ...pivot }, { time: duration / 2, ...middle }, { time: duration, ...pivot }];
+  const motion = (duration, x, y, turn, contact, end = {}) => ({
+    bones: {
+      feet: { translate: [{ time: 0, x: 0, y: 0 }, { time: contact ?? duration / 2, x, y }, { time: duration, x: end.x ?? 0, y: 0 }] },
+      body: { rotate: [{ time: 0, value: 0 }, { time: contact ?? duration / 2, value: turn }, { time: duration, value: end.turn ?? 0 }] },
+      head: { rotate: track(duration, { value: 0 }, { value: -turn * .65 }) },
+    },
+    ...(contact ? { events: [{ time: contact, name: 'effect_contact' }] } : {}),
+  });
+  const gait = (duration, lift, lean) => {
+    const clip = motion(duration, 0, lift, -lean);
+    clip.bones.feet.translate = [0, .25, .5, .75, 1].map((beat, i) => ({
+      time: duration * beat, x: [0, 1.5, 0, -1.5, 0][i], y: i % 2 ? lift : 0,
+    }));
+    clip.bones.body.rotate = track(duration, { value: -lean }, { value: -lean * .4 });
+    return clip;
+  };
+  const animations = {
+    idle: motion(1.8, 0, .75, 1), walk: gait(.58, 1.7, 2.5), run: gait(.40, 2.25, 4),
+    attack_a: motion(.54, melee ? 8 : 2, 1, melee ? -12 : -4, .28),
+    attack_b: motion(.56, melee ? 6 : 2, 2, melee ? -9 : 4, .29),
+    skill_01: motion(.72, 3, 3, -6, .39), ultimate_01: motion(.93, 6, 5, -9, .50),
+    hit: motion(.30, -4, 0, 8), victory: motion(1.0, 0, 6, -3), defeat: motion(.59, -4, 0, 14, null, { x: -6, turn: 34 }),
+  };
+  return [{ bones, slots, skins: [{ name: 'default', attachments }], animations }, regions];
 }

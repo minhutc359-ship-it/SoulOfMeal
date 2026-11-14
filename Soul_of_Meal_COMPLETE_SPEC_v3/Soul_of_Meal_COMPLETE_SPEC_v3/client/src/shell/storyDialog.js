@@ -1,5 +1,5 @@
 import { CHAPTER_DIALOGUES, FIRST_CHAPTER, chapterForScene } from '../modes/adventureStory.js';
-import { actorArt, chapterArt } from '../render/spriteAssets.js';
+import { actorArt } from '../render/spriteAssets.js';
 
 export function openStoryDialog(host, scene) {
   const { chapter = FIRST_CHAPTER, title, lines } = CHAPTER_DIALOGUES[scene];
@@ -13,7 +13,6 @@ export function openStoryDialog(host, scene) {
       <div><small data-story-chapter></small><h2 id="story-title"></h2></div>
       <button class="button light compact" type="button" data-story-close aria-label="Đóng đối thoại">×</button>
     </header>
-    ${chapterNumber ? `<div class="story-manga"><img src="${chapterArt(chapterNumber)}" alt="Minh họa chương ${chapterNumber}"></div>` : ''}
     <div class="story-line">
       <img data-story-portrait alt="">
       <div aria-live="polite"><strong data-story-speaker></strong><p data-story-text></p></div>

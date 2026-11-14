@@ -43,6 +43,8 @@ export function migrateSave(input) {
   const mapAllowed = {
     village: true,
     forest: true,
+    orchard: adventure.chestOpened === true,
+    spice_garden: adventure.chestOpened === true,
     harbor: adventure.chapterTwo.stage === 'completed',
     caldera: adventure.chapterThree.stage === 'completed',
     sanctum: adventure.finale[4].stage === 'completed',

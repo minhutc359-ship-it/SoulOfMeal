@@ -45,7 +45,9 @@ export class BoardSprites {
       const frame = actor.clip.advance(delta * 1000);
       const rig = this.renderer.rigs?.get(id);
       const clip = rig?.clips[frame.requestedClipId];
-      const phase = clip ? rigMotion(clip, frame.motionPhase, actor.timing, now) : 0;
+      const progress = clip && frame.missingClip && frame.motionPhase != null && frame.loop
+        ? (frame.motionPhase / clip.duration) % 1 : frame.motionPhase;
+      const phase = clip ? rigMotion(clip, progress, actor.timing, now) : 0;
       const signature = clip ? `${frame.requestedClipId}:${direction}:${Math.floor(phase * 24)}`
         : `${frame.frameId}:${frame.flipX}:${rigSample(id, frame)}`;
       const { width, height, x, baseline, scale } = BOARD_SPRITE;

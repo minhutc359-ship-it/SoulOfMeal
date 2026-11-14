@@ -31,17 +31,18 @@ function restoreBattle(save) {
   if (battle?.checkpointVersion !== CHECKPOINT_VERSION || !Object.hasOwn(adventureEncounters, battle.encounter)) return null;
   const encounter = adventureEncounters[battle.encounter];
   const allowedMap = encounter.scene ?? 'forest';
+  const wave = battle.actors?.some?.(actor => actor?.boss) ? encounter.waves.length - 1 : battle.wave;
   const validLocation = battle.challengeTier == null ? save.adventure.map === allowedMap
-    : Boolean(adventureChallenge(save, battle.encounter, battle.challengeTier)) && battle.wave === encounter.waves.length - 1;
+    : Boolean(adventureChallenge(save, battle.encounter, battle.challengeTier)) && wave === encounter.waves.length - 1;
   if (!validLocation || !Number.isInteger(battle.tick) || battle.tick < 0
-      || !Number.isInteger(battle.wave) || !encounter.waves[battle.wave] || typeof battle.id !== 'string'
+      || !Number.isInteger(wave) || !encounter.waves[wave] || typeof battle.id !== 'string'
       || !['battle_running', 'battle_end'].includes(battle.phase)
       || !Array.isArray(battle.actors) || !Array.isArray(battle.stoves)
       || !adventureParty(save).every(member => battle.actors.some(actor => actor?.actor_id === member.id && actor.team === 'player'))) return null;
   if (battle.phase === 'battle_end' && !['victory', 'defeat'].includes(battle.result)) return null;
   const tell = battle.bossTelegraph;
   if (tell && (!encounter.phases[tell.phase] || !Number.isFinite(tell.ticks))) return null;
-  return { ...structuredClone(battle), events: [], paused: battle.phase === 'battle_running' };
+  return { ...structuredClone(battle), wave, events: [], paused: battle.phase === 'battle_running' };
 }
 
 export function createAdventureState(save, maps) {
@@ -119,8 +120,7 @@ export function nearestInteraction(state, save, maps) {
   const radius = getAdventureMap(maps, state.map)?.world.player_radius;
   return availableAdventureInteractions(state.map, save, maps)
     .map((item) => ({ ...item, id: item.action, distance: Math.hypot(item.x - state.x, item.y - state.y) }))
-    .filter((item) => item.distance <= item.radius && (!['portal', 'room_door'].includes(item.kind)
-      || hasClearLine(state.map, state, item, radius, maps)))
+    .filter(item => item.distance <= item.radius && hasClearLine(state.map, state, item, radius, maps))
     .sort((a, b) => a.distance - b.distance)[0] ?? null;
 }
 
@@ -130,7 +130,9 @@ export function availableAdventureInteractions(mapId, save, maps) {
   const items = map?.interactables ?? [];
   const investigating = quest === 'completed' && chapterTwo.stage === 'accepted';
   const chapter = FINALE_CHAPTERS.find(item => item.map === mapId);
-  return items.filter(({ action, kind }) => {
+  return items.filter(({ action, kind, encounter }) => {
+    if (kind === 'field_encounter') return Boolean(adventureEncounters[encounter]?.field)
+      && !save.adventure.rewardClaims.includes(adventureEncounters[encounter].claimId);
     if (kind === 'room_door') {
       const destination = map.transitions?.find(door => door.id === action)?.to;
       return Boolean(getAdventureMap(maps, destination));
@@ -176,6 +178,14 @@ export function interactAdventure(state, save, maps) {
   if (!target) {
     state.lastMessage = 'Không có điểm tương tác nào trong tầm với.';
     return { state, save, changed: false };
+  }
+  if (target.kind === 'resident') {
+    state.lastMessage = target.label + ' · ' + target.note;
+    return { state, save, changed: false };
+  }
+  if (target.kind === 'field_encounter') {
+    beginBattle(state, save, target.encounter);
+    return { state, save, changed: true };
   }
   if (target.kind === 'room_door') {
     const map = getAdventureMap(maps, state.map).transitions.find(door => door.id === target.id).to;
@@ -810,14 +820,15 @@ export function claimBattleResult(state, save) {
     return updated;
   }
   const finale = FINALE_CHAPTERS.find(chapter => chapter.boss && chapter.boss === encounter);
-  const claimId = encounter === 'seal' ? 'forest_empty_bowl_reward'
-    : encounter === 'tide' ? 'harbor_tidal_conch_reward' : finale ? adventureEncounters[encounter].claimId : `${battle.id}:forest_reward`;
+  const field = adventureEncounters[encounter]?.field;
+  const claimId = adventureEncounters[encounter]?.claimId ?? (encounter === 'seal' ? 'forest_empty_bowl_reward'
+    : encounter === 'tide' ? 'harbor_tidal_conch_reward' : `${battle.id}:forest_reward`);
   if (!updated.adventure.rewardClaims.includes(claimId)) {
     const { gold, essence } = adventureEncounters[battle.encounter ?? 'forest'].reward;
     updated.adventure.rewardClaims.push(claimId);
     updated.player.gold += gold;
     updated.player.essence += essence;
-    if (updated.meta?.profile && !updated.meta.serverOwned) updated.meta.wallet.ticket += 1;
+    if (!field && updated.meta?.profile && !updated.meta.serverOwned) updated.meta.wallet.ticket += 1;
     updated.completedBattles += 1;
     updated.roster = updated.roster.map(member => {
       const actor = battle.actors.find(item => item.actor_id === member.id);
@@ -826,7 +837,7 @@ export function claimBattleResult(state, save) {
     if (encounter === 'seal') updated.adventure.chapterTwo.stage = 'ready_to_claim';
     else if (encounter === 'tide') updated.adventure.chapterThree.stage = 'ready_to_claim';
     else if (finale) updated.adventure.finale[finale.number].stage = 'ready_to_claim';
-    else {
+    else if (!field) {
       updated.adventure.forestCleared = true;
       if (updated.meta?.profile) recruitSpirit(updated, STARTER_REWARDS.boss, true);
       updated.adventure.quest = 'ready_to_claim';
@@ -834,7 +845,8 @@ export function claimBattleResult(state, save) {
   }
   state.battle = null;
   state.result = null;
-  state.lastMessage = encounter === 'seal' ? 'Ấn Bát Rỗng đã vỡ. Hãy mang mảnh men về cho Lilia.'
+  state.lastMessage = field ? 'Đã dẹp bầy quái. Bạn có thể tiếp tục khám phá.'
+    : encounter === 'seal' ? 'Ấn Bát Rỗng đã vỡ. Hãy mang mảnh men về cho Lilia.'
     : encounter === 'tide' ? 'Thủy triều đã dịu. Hãy trở lại đầu bến báo tin cho Phở Lam Vũ.'
       : finale ? finale.steps[3] + '.' : 'Rừng đã yên tĩnh. Hãy trở về làng để báo tin cho Lilia.';
   return updated;

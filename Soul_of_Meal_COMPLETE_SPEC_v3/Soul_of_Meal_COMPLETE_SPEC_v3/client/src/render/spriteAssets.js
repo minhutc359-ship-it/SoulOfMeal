@@ -8,9 +8,10 @@ export const HERO_ID = 'chr_bunbo_holinh';
 export const TRAVEL_HERO = HERO_ID + '_travel';
 export const MONSTER_IDS = ['mob_mushroom_01', 'mob_pepper_01'];
 export const BOSS_ID = 'boss_bep_truong';
-const ADVENTURE_SCENES = ['village', 'forest', 'arena', 'harbor', 'caldera', 'sanctum', ...VILLAGE_ROOMS];
+const ADVENTURE_SCENES = ['village', 'forest', 'arena', 'harbor', 'caldera', 'sanctum', 'orchard', 'spice_garden', ...VILLAGE_ROOMS];
 const ENCOUNTER_PROPS = ['boss_stove', 'empty_bowl_seal', 'tidal_conch', 'hollow_cauldron'];
 const COMBAT_EFFECTS = ['boss_warning', 'boss_cleave', 'shield_bubble', 'shield_break'];
+export const FIELD_MONSTER_IDS = ['mob_honeybee', 'mob_lotus_crab', 'mob_sesame_boar', 'mob_smoke_wisp'];
 
 export const HERO_NAMES = Object.freeze({
   [HERO_ID]: 'Bún Bò Hỏa Linh',
@@ -20,7 +21,8 @@ export const HERO_NAMES = Object.freeze({
   chr_caphe_davu: 'Cà Phê Dạ Vũ',
 });
 
-const ACTORS = [...META.characters.map(spirit => spirit.id), 'npc_lilia', ...MONSTER_IDS, BOSS_ID];
+const ACTORS = [...META.characters.map(spirit => spirit.id), 'npc_lilia', ...MONSTER_IDS, BOSS_ID,
+  ...FIELD_MONSTER_IDS];
 const CARD_IDS = new Set([7, 10, 11, 12, 13, 14, 15, 16, 17, 18].map((id) => 'card_demo_' + String(id).padStart(2, '0')));
 const PROPS = ['house_kitchen', 'house_guild', 'house_merchant', 'tree', 'chest_closed', 'chest_open', 'portal', 'table', ...ENCOUNTER_PROPS];
 
@@ -33,6 +35,7 @@ export const ELEMENT_ART = Object.freeze({
 });
 
 export function sceneArt(id) { return `${ORIGINAL}/scenes/${id}.webp`; }
+export function itemArt(id) { return `${ORIGINAL}/items/${id}.webp`; }
 export function chapterArt(number) { return `${ORIGINAL}/chronicle/chapter-${number}.webp`; }
 export function actorArt(id) { return ACTORS.includes(id) ? `${ORIGINAL}/actors/${id}.webp` : null; }
 export function propArt(id) { return `${ORIGINAL}/props/${id}.webp`; }

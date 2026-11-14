@@ -210,9 +210,11 @@ function prepareBossCharge(encounter = 'forest') {
   const state = createAdventureState(save);
   beginBattle(state, save, encounter);
   const battle = state.battle;
-  for (const enemy of battle.actors.filter(actor => actor.team === 'enemy')) enemy.alive = false;
   const advance = () => stepAdventure(state, save, 1 / 30);
-  advance();
+  while (battle.wave < adventureEncounters[encounter].waves.length - 1) {
+    for (const enemy of battle.actors.filter(actor => actor.team === 'enemy')) enemy.alive = false;
+    advance();
+  }
   const boss = battle.actors.find(actor => actor.boss);
   boss.hp = Math.floor(boss.maxHp * .6);
   boss.cooldown = 900;
@@ -1008,9 +1010,9 @@ test('boss challenges preserve story progress and reward each difficulty only on
   let state = createAdventureState(save);
   assert.equal(beginAdventureChallenge(state, save, 'forge', 'hard'), false);
   assert.equal(beginAdventureChallenge(state, save, 'forest', 'hard'), true);
-  assert.equal(state.battle.wave, 1);
+  assert.equal(state.battle.wave, adventureEncounters.forest.waves.length - 1);
   assert.equal(state.battle.actors[0].hp, save.roster[0].maxHp);
-  const boss = adventureEncounters.forest.waves[1].find(actor => actor.boss);
+  const boss = adventureEncounters.forest.waves.at(-1).find(actor => actor.boss);
   assert.equal(state.battle.actors.find(actor => actor.boss).maxHp, Math.round(boss.maxHp * 1.28));
   assert.equal(beginAdventureChallenge(state, save, 'forest', 'normal'), false);
   save.adventure.battle = adventureCheckpoint(state.battle);
@@ -1034,4 +1036,29 @@ test('boss challenges preserve story progress and reward each difficulty only on
   assert.deepEqual(save.roster, original.roster);
   assert.deepEqual({ ...save.adventure, challengeRecords: {} }, original.adventure);
   assert.equal(save.completedBattles, original.completedBattles);
+});
+
+test('the forest detour keeps locations, awards field battles once and leaves story flags intact', () => {
+  let save = createDefaultSave();
+  Object.assign(save.adventure, { map: 'forest', chestOpened: true, quest: 'accepted', x: 199, y: 350 });
+  const state = createAdventureState(save);
+  ({ save } = interactAdventure(state, save));
+  assert.equal(state.map, 'orchard');
+  assert.equal(migrateSave(save).adventure.map, 'orchard');
+  Object.assign(state, { x: 464, y: 253 });
+  ({ save } = interactAdventure(state, save));
+  const fight = state.battle;
+  assert.equal(fight.encounter, 'orchard_patrol');
+  assert.equal(fight.actors.some(actor => actor.boss), false);
+  assert.ok(fight.actors.some(actor => actor.id === 'mob_honeybee'));
+  save.adventure.battle = adventureCheckpoint(fight);
+  assert.equal(createAdventureState(migrateSave(save)).battle.encounter, 'orchard_patrol');
+  Object.assign(fight, { phase: 'battle_end', result: 'victory' });
+  const updated = claimBattleResult(state, save);
+  assert.ok(updated.player.gold > save.player.gold);
+  assert.equal(updated.adventure.quest, 'accepted');
+  assert.equal(updated.adventure.forestCleared, false);
+  assert.equal(interactAdventure(state, updated).state.battle, null);
+  Object.assign(state, { x: 897, y: 410 });
+  assert.equal(interactAdventure(state, updated).state.map, 'spice_garden');
 });

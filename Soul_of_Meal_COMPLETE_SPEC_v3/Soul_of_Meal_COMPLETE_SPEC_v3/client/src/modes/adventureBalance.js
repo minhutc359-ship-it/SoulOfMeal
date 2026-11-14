@@ -15,7 +15,7 @@ export const adventureBalance = {
   },
   formations: {
     player: [[280, 338], [170, 280], [162, 385], [326, 295], [244, 396]],
-    enemy: [[690, 320], [780, 398]],
+    enemy: [[690, 320], [780, 398], [795, 267]],
     boss: [742, 346],
   },
   roles: {
@@ -38,6 +38,10 @@ export const adventureBalance = {
   enemyRoles: {
     mob_mushroom_01: { range: 72, windup: 11 },
     mob_pepper_01: { range: 205, windup: 8, travel: 10 },
+    mob_honeybee: { range: 150, windup: 8, travel: 8 },
+    mob_lotus_crab: { range: 75, windup: 10 },
+    mob_sesame_boar: { range: 91, windup: 14 },
+    mob_smoke_wisp: { range: 213, windup: 11, travel: 12 },
     boss_bep_truong: { range: 120, windup: 13 },
     empty_bowl_seal: { range: 335, windup: 13, travel: 14 },
     tidal_conch: { range: 340, windup: 13, travel: 12 },
@@ -63,13 +67,21 @@ for (const spirit of Object.values(SPIRITS)) {
 
 const mushroom = { id: 'mob_mushroom_01', name: 'Nấm Lạc Vị', hp: 980, maxHp: 980, atk: 90, def: 20, interval: 54, element: 'wood' };
 const pepper = { id: 'mob_pepper_01', name: 'Tiêu Tinh', hp: 1250, maxHp: 1250, atk: 110, def: 25, interval: 48, element: 'fire' };
+const bee = { id: 'mob_honeybee', name: 'Ong Mật Lạc Vị', hp: 820, maxHp: 820, atk: 81, def: 14, interval: 39, element: 'light' };
+const crab = { id: 'mob_lotus_crab', name: 'Cua Sen', hp: 1550, maxHp: 1550, atk: 120, def: 44, interval: 56, element: 'water' };
+const boar = { id: 'mob_sesame_boar', name: 'Thú Mè', hp: 1480, maxHp: 1480, atk: 137, def: 33, interval: 49, element: 'wood' };
+const wisp = { id: 'mob_smoke_wisp', name: 'Linh Khói', hp: 980, maxHp: 980, atk: 116, def: 20, interval: 46, element: 'shadow' };
 
 const valves = { steam: 'Van Hơi', coal: 'Van Than' };
 const seals = { fire: 'Hỏa', water: 'Thủy', wood: 'Mộc', light: 'Quang', shadow: 'Âm' };
 
 export const adventureEncounters = {
+  orchard_patrol: { scene: 'orchard', battleScene: 'arena', waves: [[bee, mushroom], [crab, bee]], phases: {},
+    claimId: 'orchard_patrol_reward', field: true, reward: { gold: 35, essence: 5 } },
+  garden_patrol: { scene: 'spice_garden', battleScene: 'arena', waves: [[boar, bee], [wisp, pepper]], phases: {},
+    claimId: 'garden_patrol_reward', field: true, reward: { gold: 45, essence: 6 } },
   forest: {
-    waves: [[mushroom, pepper], [
+    waves: [[mushroom, pepper], [bee, crab], [
       { id: 'boss_bep_truong', name: 'Bếp Trưởng Hỏa Diệm', hp: 5200, maxHp: 5200, atk: 190, def: 85, interval: 75, element: 'fire', boss: true },
     ]],
     phases: {
@@ -79,7 +91,7 @@ export const adventureEncounters = {
     reward: { gold: 60, essence: 10 },
   },
   seal: {
-    waves: [[{ ...mushroom, hp: 1660, maxHp: 1660 }, { ...pepper, hp: 1850, maxHp: 1850 }], [
+    waves: [[{ ...mushroom, hp: 1660, maxHp: 1660 }, { ...pepper, hp: 1850, maxHp: 1850 }], [wisp, boar], [
       { id: 'empty_bowl_seal', name: 'Ấn Bát Rỗng', hp: 8700, maxHp: 8700, atk: 275, def: 90, interval: 61, element: 'shadow', boss: true, stationary: true },
     ]],
     phases: {
@@ -90,7 +102,7 @@ export const adventureEncounters = {
     wardReductionBp: 6000,
   },
   tide: {
-    waves: [[{ ...mushroom, hp: 1800, maxHp: 1800 }, { ...pepper, hp: 1950, maxHp: 1950 }], [
+    waves: [[crab, bee], [crab, wisp, boar], [
       { id: 'tidal_conch', name: 'Tù Và Hải Triều', hp: 9900, maxHp: 9900, atk: 290, def: 98, interval: 67, element: 'water', boss: true, stationary: true },
     ]],
     phases: {
@@ -102,7 +114,7 @@ export const adventureEncounters = {
     reward: { gold: 125, essence: 20 },
   },
   forge: {
-    waves: [[{ ...pepper, hp: 2350, maxHp: 2350 }, { ...mushroom, hp: 2000, maxHp: 2000 }], [
+    waves: [[{ ...pepper, hp: 2350, maxHp: 2350 }, boar], [wisp, crab, boar], [
       { id: 'spice_forge', artId: 'boss_stove', name: 'Lò Than Mất Vị', hp: 12300, maxHp: 12300, atk: 310, def: 102, interval: 68, element: 'fire', boss: true, stationary: true },
     ]],
     phases: {
@@ -116,7 +128,7 @@ export const adventureEncounters = {
     reward: { gold: 160, essence: 25 },
   },
   feast: {
-    waves: [[{ ...mushroom, hp: 2600, maxHp: 2600 }, { ...pepper, hp: 2880, maxHp: 2880 }], [
+    waves: [[{ ...mushroom, hp: 2600, maxHp: 2600 }, { ...pepper, hp: 2880, maxHp: 2880 }], [wisp, boar, crab], [
       { id: 'hollow_cauldron', name: 'Vạc Vô Vị', hp: 14800, maxHp: 14800, atk: 365, def: 112, interval: 59, element: 'shadow', boss: true, stationary: true },
     ]],
     phases: {

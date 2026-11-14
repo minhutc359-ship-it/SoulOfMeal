@@ -9,9 +9,9 @@ import { gameEvents } from './core/events.js';
 import { loadSave, migrateSave, persistSave, SAVE_KEY } from './core/save.js';
 import { AnimationAdapter } from './render/animationAdapter.js';
 import { findAdventurePath, safeAdventurePosition } from './modes/adventureNavigation.js';
-import { createAdventureMapRegistry, getAdventureMap } from './modes/mapCatalog.js';
+import { ADVENTURE_MAP_KEYS, createAdventureMapRegistry, getAdventureMap } from './modes/mapCatalog.js';
 import { spriteRenderer } from './render/spriteRenderer.js';
-import { actorArt, chapterArt, combatArt, cutinArt, effectArt, ELEMENT_ART, HERO_ID, HERO_NAMES as characterNames, originalCardArt, preloadGameAssets, propArt, sceneArt, TCG_COMMANDER_ART, TRAVEL_HERO } from './render/spriteAssets.js';
+import { actorArt, chapterArt, combatArt, cutinArt, effectArt, ELEMENT_ART, HERO_ID, HERO_NAMES as characterNames, itemArt, originalCardArt, preloadGameAssets, propArt, sceneArt, TCG_COMMANDER_ART, TRAVEL_HERO } from './render/spriteAssets.js';
 import { drawEffectTexture, drawElementEffect } from './render/elementEffects.js';
 import { ADVENTURE_TICK_RATE, adventureBalance, adventureEncounters } from './modes/adventureBalance.js';
 import { adventureSpiritStats, canAffordSpiritCost, changeSpiritProgress, MAX_SPIRIT_RANK, SPIRIT_AWAKENING, SPIRIT_BONDS, SPIRIT_GEAR, SPIRIT_GIFTS, SPIRIT_MEMORIES, SPIRIT_RANKS, spiritProfile } from './modes/spiritProgress.js';
@@ -204,8 +204,7 @@ const elementColors = { fire: '#dd684a', water: '#428eac', wood: '#548d56', ligh
 const contentFiles = [
   'cards/cards.catalog.json', 'cards/starter_deck.json',
   'auto_chess/units.json', 'auto_chess/shop_odds.json',
-  'maps/village.json', 'maps/forest.json', 'maps/harbor.json', 'maps/caldera.json', 'maps/sanctum.json',
-  ...VILLAGE_ROOMS.map(key => 'maps/' + key + '.json'),
+  ...ADVENTURE_MAP_KEYS.map(key => 'maps/' + key + '.json'),
 ];
 
 async function loadContent(report) {
@@ -601,6 +600,7 @@ function shell(content) {
           <span title="Tinh hoa" aria-label="${essence} tinh hoa"><i aria-hidden="true">✦</i> ${essence}</span>
         </div>
         ${runtime.cloud ? '<button class="cloud-badge" data-page="settings" title="Trạng thái lưu trên máy chủ"></button>' : ''}
+        ${lobby ? '<button class="shell-icon" data-page="guide" aria-label="Hướng dẫn">?</button>' : ''}
         ${document.fullscreenEnabled ? '<button class="shell-icon" type="button" data-fullscreen>⛶</button>' : ''}
       </header>`}
       <main class="main">${content}</main>
@@ -753,7 +753,7 @@ function renderAdventure() {
     const actor = battle?.actors.find((candidate) => candidate.actor_id === member.id) ?? adventureSpiritStats(member, spiritProfile(save, member.id), undefined, save);
     const skill = adventureBalance.ultimates[actor.id];
     return `<div class="combatant skill-card" data-actor="${actor.id}" data-primed="${actor.energy >= 100}">
-      <button type="button" class="party-avatar" data-profile-id="${escapeAttr(actor.id)}" aria-label="Hồ sơ ${escapeAttr(SPIRITS[actor.id]?.name)}">${spiritImage(actor.id)}</button>
+      <span class="party-avatar">${spiritImage(actor.id)}</span>
       <div class="skill-info"><strong>${escapeHtml(SPIRITS[actor.id]?.name)}</strong>
         <div class="meter" aria-label="Sinh lực"><i data-hp style="width:${actor.hp / actor.maxHp * 100}%"></i></div>
         <div class="meter energy" aria-label="Năng lượng"><i data-energy style="width:${actor.energy}%"></i></div>
@@ -795,7 +795,7 @@ function renderAdventure() {
         ${sceneMenu()}
       </header>
       ${battle ? '' : `<div class="minimap-widget">
-        <button class="map-toggle" type="button" data-map-toggle aria-haspopup="dialog">Bản đồ</button>
+        <button class="map-toggle" type="button" data-map-toggle aria-pressed="${runtime.showMinimap}">Bản đồ</button>
         <canvas id="world-minimap" width="180" height="102" aria-hidden="true" ${runtime.showMinimap ? '' : 'hidden'}></canvas>
       </div><div class="world-stick" data-world-stick aria-hidden="true"><i></i></div>
       <button class="button adventure-interact" type="button" data-interact ${target ? '' : 'hidden'}>${escapeHtml(actionLabel)}</button>
@@ -822,18 +822,12 @@ function renderAdventure() {
           ${inRoom ? '<button class="button light" data-leave-room>Ra quảng trường</button>'
             : guideAction ? '<button class="button light" data-guide-objective>Dẫn đường</button>' : ''}
         </section>`}
-      </aside>${battle ? party : ''}
+      </aside>${battle ? party : ''}${resultPanel ? `<section class="adventure-result-inline" aria-label="Kết quả phiêu lưu">${resultPanel}</section>` : ''}
     </div>
   `);
   app.querySelector('[data-interact]')?.addEventListener('click', doAdventureInteract);
   app.querySelector('[data-open-journal]')?.addEventListener('click', () => renderAdventureJournal(true));
   app.querySelector('[data-explore-party]')?.addEventListener('click', () => navigate('roster'));
-  app.querySelectorAll('[data-profile-id]').forEach(button => button.addEventListener('click', () => {
-    runtime.rosterId = button.dataset.profileId;
-    runtime.rosterFilter = 'owned';
-    runtime.rosterTab = 'info';
-    navigate('roster');
-  }));
   app.querySelector('[data-guide-objective]')?.addEventListener('click', () => guideToObjective(guideAction));
   app.querySelector('[data-leave-room]')?.addEventListener('click', () => {
     const exit = availableAdventureInteractions(adventure.map, save, runtime.maps).find(item => item.action === ROOM_EXIT);
@@ -859,27 +853,16 @@ function renderAdventure() {
     battle.speed = battle.speed === 2 ? 1 : 2;
     updateBattleHud(battle);
   });
-  if (resultPanel) showBattleResult('Kết quả phiêu lưu', resultPanel);
   app.querySelector('[data-battle-result]')?.addEventListener('click', claimAdventureBattle, { once: true });
   app.querySelector('[data-adventure-prepare]')?.addEventListener('click', () => {
     if (leaveAdventureDefeat(adventure)) navigate('roster');
   });
   const canvas = app.querySelector('#adventure-canvas');
   canvas?.addEventListener('pointerdown', onWorldPointer);
-  app.querySelector('[data-map-toggle]')?.addEventListener('click', () => {
-    const map = getAdventureMap(runtime.maps, adventure.map);
-    if (!map) return;
-    const points = availableAdventureInteractions(adventure.map, save, runtime.maps);
-    const dialog = openInfoDialog(mapTitle, `<canvas class="world-map-expanded" width="720" height="405" aria-label="Bản đồ khu vực"></canvas>
-      <div class="action-row"><button class="button light" data-minimap-visibility>${runtime.showMinimap ? 'Ẩn bản đồ nhỏ' : 'Hiện bản đồ nhỏ'}</button>
-      ${guideAction ? '<button class="button" data-map-guide>Dẫn đường</button>' : ''}</div>`);
-    drawWorldMinimap(dialog.querySelector('canvas'), map, adventure, points, guideAction);
-    dialog.querySelector('[data-minimap-visibility]').addEventListener('click', event => {
-      runtime.showMinimap = !runtime.showMinimap;
-      app.querySelector('#world-minimap').hidden = !runtime.showMinimap;
-      event.currentTarget.textContent = runtime.showMinimap ? 'Ẩn bản đồ nhỏ' : 'Hiện bản đồ nhỏ';
-    });
-    dialog.querySelector('[data-map-guide]')?.addEventListener('click', () => { dialog.close(); guideToObjective(guideAction); });
+  app.querySelector('[data-map-toggle]')?.addEventListener('click', event => {
+    runtime.showMinimap = !runtime.showMinimap;
+    event.currentTarget.setAttribute('aria-pressed', String(runtime.showMinimap));
+    app.querySelector('#world-minimap').hidden = !runtime.showMinimap;
   });
   runtime.minimapObjective = guideAction;
   const stick = app.querySelector('[data-world-stick]');
@@ -912,17 +895,18 @@ function renderAdventureJournal(asOverlay = false) {
       <div class="action-row">
         ${guideAction && !adventure.battle ? `<button class="button" data-guide-objective>${guideAction === ROOM_EXIT ? 'Dẫn đến lối ra' : 'Dẫn đường'}</button>` : ''}
         ${!adventure.battle && adventureChallenges(save).some(item => item.unlocked) ? '<button type="button" class="button light" data-adventure-challenges>Khiêu chiến</button>' : ''}
+        ${asOverlay ? '<button class="button light" data-open-chronicle>Manga hành trình</button>' : ''}
         ${asOverlay ? '' : '<button class="button light" data-scene-back>Về bản đồ</button>'}
       </div>
     </section>
-    <section class="panel chronicle-panel" aria-label="Manga Hành Trình Vị Linh">
+    ${asOverlay ? '' : `<section class="panel chronicle-panel" aria-label="Manga Hành Trình Vị Linh">
       <h2>Manga Hành Trình Vị Linh</h2>
       <div class="chronicle-grid">${chronicle.map(chapter => `<article class="chronicle-entry ${chapter.scenes.length ? '' : 'locked'}">
         ${chapter.scenes.length ? `<img loading="lazy" src="${chapterArt(chapter.number)}" alt="">` : ''}
         <div class="chronicle-copy"><span>Chương ${chapter.number}${chapter.scenes.length ? '' : ' · Chưa mở'}</span><h3>${chapter.title}</h3>
           ${chapter.scenes.map(scene => `<button class="button light compact" data-story-replay="${scene}">${CHAPTER_DIALOGUES[scene].title}</button>`).join('')}
         </div></article>`).join('')}</div>
-    </section>`;
+    </section>`}`;
   let dialog;
   if (asOverlay) {
     dialog = openInfoDialog('Nhật ký hành trình', journalContent);
@@ -931,9 +915,31 @@ function renderAdventureJournal(asOverlay = false) {
   const host = dialog ?? app;
   host.querySelector('[data-guide-objective]')?.addEventListener('click', () => { dialog?.close(); guideToObjective(guideAction); });
   host.querySelector('[data-adventure-challenges]')?.addEventListener('click', () => { dialog?.close(); openAdventureChallenges(); });
+  host.querySelector('[data-open-chronicle]')?.addEventListener('click', () => {
+    dialog.close();
+    navigate('journey');
+    app.querySelector('.chronicle-panel')?.scrollIntoView({ block: 'start' });
+  });
   host.querySelectorAll('[data-story-replay]').forEach(button => {
     button.addEventListener('click', () => openStoryDialog(app, button.dataset.storyReplay));
   });
+}
+
+const GUIDE_PAGES = { world: 'Thế giới', adventure: 'Phiêu lưu', tcg: 'Thẻ chiến thuật', autochess: 'Auto Chess', update: 'Cập nhật game' };
+
+function renderGuide() {
+  const guide = runtime.guidePage ?? 'adventure';
+  shell(pageHeader('Hướng dẫn', 'Đọc truyện tranh hướng dẫn', '') + `
+    <div class="guide-reader">
+      <nav class="meta-banner-tabs" aria-label="Mục hướng dẫn">${Object.entries(GUIDE_PAGES).map(([id, label]) =>
+        `<button class="button light" data-guide-page="${id}" aria-pressed="${guide === id}">${label}</button>`).join('')}</nav>
+      <img class="guide-comic" src="./assets/original/guides/${guide}.webp" alt="Truyện tranh hướng dẫn · ${GUIDE_PAGES[guide]}">
+    </div>`);
+  app.querySelectorAll('[data-guide-page]').forEach(button => button.addEventListener('click', () => {
+    runtime.guidePage = button.dataset.guidePage;
+    renderGuide();
+    app.querySelector('[data-guide-page][aria-pressed="true"]')?.focus({ preventScroll: true });
+  }));
 }
 
 function openAdventureChallenges() {
@@ -1097,7 +1103,7 @@ function doAdventureInteract() {
   if (result.changed) saveNow();
   if (result.service) return openVillageService(result.service, result.offer);
   render();
-  if (result.dialogue) openStoryDialog(app, result.dialogue);
+  if (result.dialogue && !runtime.adventure.battle) openStoryDialog(app, result.dialogue);
 }
 
 function openVillageService(service, offer) {
@@ -1107,26 +1113,8 @@ function openVillageService(service, offer) {
   }
   if (service === 'journal') return renderAdventureJournal(true);
   if (service !== 'supplies' || !offer) return;
-  const affordable = runtime.save.player.gold >= offer.gold;
-  const dialog = openInfoDialog('Tiệm Nguyên Liệu', `
-    <p>Đổi vàng lấy tinh hoa dùng để nâng cấp, chế tác và tặng quà Vị Linh.</p>
-    <p><b>${escapeHtml(offer.essence)} tinh hoa</b> · ${escapeHtml(offer.gold)} vàng</p>
-    <div class="action-row"><button class="button light" data-open-store>Cửa hàng</button><button type="button" class="button" data-buy-supplies ${affordable ? '' : 'disabled'}>${affordable ? 'Đổi nguyên liệu' : 'Chưa đủ vàng'}</button></div>`);
-  dialog.querySelector('[data-open-store]').addEventListener('click', () => { dialog.close(); navigate('store'); });
-  dialog.querySelector('[data-buy-supplies]').addEventListener('click', () => {
-    const purchase = purchaseAdventureSupplies(runtime.adventure, runtime.save, runtime.maps);
-    if (purchase.purchased) {
-      runtime.save = purchase.save;
-      runtime.adventure.lastMessage = `Đã đổi ${offer.gold} vàng lấy ${offer.essence} tinh hoa.`;
-      saveNow();
-      runtime.audio.play('sfx_ui_confirm');
-    } else {
-      runtime.adventure.lastMessage = 'Không thể đổi nguyên liệu. Kiểm tra số vàng và vị trí.';
-    }
-    dialog.close();
-    renderAdventure();
-    app.querySelector('[data-interact]')?.focus({ preventScroll: true });
-  }, { once: true });
+  runtime.storeTab = 'all';
+  navigate('store');
 }
 
 function useUltimate(actorId) {
@@ -1375,7 +1363,8 @@ function drawMapVisuals(context, map, save, feetY, drawHero) {
       const { quest, chapterTwo } = save.adventure;
       const questStage = quest === 'completed' ? chapterTwo.stage : quest;
       if (['not_started', 'ready_to_claim'].includes(questStage)) drawMapLabel(context, '!', x, y - 60);
-    } else if (visual.kind === 'guide') {
+    } else if (['guide', 'resident', 'field_encounter'].includes(visual.kind)
+        && (visual.kind !== 'field_encounter' || activeIds.has(visual.id))) {
       drawFitted(context, actorArt(visual.actorId), x, y + 11, 65, 70);
       drawMapLabel(context, visual.label, x, y + 24);
     } else if (visual.kind === 'feast_guest' && save.adventure.finale[6].stage === 'completed') {
@@ -1434,9 +1423,10 @@ function drawFitted(context, path, x, baseline, width, height) {
 }
 
 function drawBattleScene(context, battle, view) {
+  const encounter = adventureEncounters[battle.encounter ?? 'forest'];
   context.fillStyle = '#283f33';
   context.fillRect(0, 0, 960, 540);
-  spriteRenderer.drawImage(context, sceneArt(adventureEncounters[battle.encounter ?? 'forest'].scene ?? 'arena'), 0, 0, 960, 540);
+  spriteRenderer.drawImage(context, sceneArt(encounter.battleScene ?? encounter.scene ?? 'arena'), 0, 0, 960, 540);
   if (battle.encounter === 'seal') {
     context.fillStyle = '#2f154852';
     context.fillRect(0, 0, 960, 540);
@@ -1650,6 +1640,7 @@ function matchHeader(title, controls) {
 
 function sceneMenu(controls = '') {
   return `<details class="match-menu"><summary aria-label="Menu game">☰</summary><div>${controls}
+    <button type="button" data-page="guide">Hướng dẫn</button>
     <button type="button" data-scene-settings>Cài đặt</button>
     ${document.fullscreenEnabled ? '<button type="button" data-fullscreen>Toàn màn hình</button>' : ''}
     <button type="button" data-page="home">Về sảnh</button>
@@ -1719,7 +1710,7 @@ function showTcgGraveyard(cards) {
 }
 
 function boardChibi(id, key, direction, fallback) {
-  if (!id || !spriteRenderer.sheets.get(id)?.loaded) return fallback;
+  if (!id || (!spriteRenderer.rigs.has(id) && !spriteRenderer.sheets.get(id)?.loaded)) return fallback;
   return `<canvas class="board-chibi" width="${BOARD_SPRITE.width}" height="${BOARD_SPRITE.height}" aria-hidden="true" data-chibi-id="${escapeAttr(id)}"
     data-chibi-key="${escapeAttr(key)}" data-chibi-facing="${direction}"></canvas>`;
 }
@@ -3034,49 +3025,55 @@ function renderStore() {
   const member = save.roster.find(spirit => spirit.id === runtime.storeMember) ?? adventureParty(save)[0];
   const tabs = { all: 'Tất cả', consumable: 'Hồi phục', gear: 'Trang bị', material: 'Vật liệu', bag: 'Túi đồ' };
   const inBattle = Boolean(runtime.adventure.battle);
+  const counter = nearestInteraction(runtime.adventure, save, runtime.maps);
+  const supplies = runtime.adventure.map === 'village_merchant' && counter?.id === 'supplies' ? counter.offer : null;
   shell(`${pageHeader('Làng Ẩm Thực', 'Cửa hàng Adventure', '')}
     <section class="meta-store"><div class="store-shopkeeper" aria-label="Tiệm Nguyên Liệu">
       <img src="${actorArt('npc_lilia')}" alt=""><div><small>Tiệm Nguyên Liệu</small><strong>Lilia</strong></div>
     </div><div class="store-workspace"><div class="meta-banner-tabs" role="group" aria-label="Mục cửa hàng">
     ${Object.entries(tabs).map(([id, label]) => `<button class="button light" data-store-tab="${id}" aria-pressed="${id === storeTab}">${label}</button>`).join('')}</div>
-    <label>Vị Linh <select data-store-member>${save.roster.map(spirit => `<option value="${escapeAttr(spirit.id)}"
-      ${spirit.id === member.id ? 'selected' : ''}>${escapeHtml(SPIRITS[spirit.id]?.name)}</option>`).join('')}</select></label>
+    ${storeTab === 'bag' ? `<label>Vị Linh <select data-store-member>${save.roster.map(spirit => `<option value="${escapeAttr(spirit.id)}"
+      ${spirit.id === member.id ? 'selected' : ''}>${escapeHtml(SPIRITS[spirit.id]?.name)}</option>`).join('')}</select></label>` : ''}
     ${inBattle ? '<p class="notice">Kết thúc trận Adventure để mua, dùng hoặc đổi trang bị.</p>' : ''}
     <fieldset class="meta-shop-body" ${inBattle ? 'disabled' : ''}><legend class="sr-only">Vật phẩm</legend>
+    ${supplies && storeTab === 'all' ? `<div class="store-exchange"><span>Đổi ${supplies.gold} vàng lấy ${supplies.essence} tinh hoa</span>
+      <button class="button light" type="button" data-buy-supplies ${save.player.gold < supplies.gold ? 'disabled' : ''}>Đổi tinh hoa</button></div>` : ''}
     ${storeTab === 'bag' ? inventoryRows(save, member) : `<div class="meta-offers">${Object.entries(ADVENTURE_OFFERS)
       .filter(([, offer]) => storeTab === 'all' || offer.category === storeTab).map(([id, offer]) =>
-        `<article><h2>${offer.name}</h2><p>${storeDetail(offer)}</p><button class="button" data-store-offer="${id}"
-          ${save.player.gold < offer.price ? 'disabled' : ''}>Mua · ${offer.price} ◈</button></article>`).join('')}</div>`}</fieldset>
+        `<article><div class="store-item-summary"><img src="${itemArt(id)}" alt=""><div><h2>${offer.name}</h2><p>${storeDetail(offer)}</p></div></div>
+          <form class="store-buy-row" data-store-offer="${id}"><label class="store-quantity">SL <input name="quantity" type="number" aria-label="Số lượng ${offer.name}" min="1" max="${Math.max(1, Math.min(10, Math.floor(save.player.gold / offer.price)))}" value="1" required></label>
+          <button class="button" type="submit" ${save.player.gold < offer.price ? 'disabled' : ''}>Mua · ${offer.price} ◈</button></form></article>`).join('')}</div>`}</fieldset>
     ${runtime.notice ? `<p class="notice" role="status">${escapeHtml(runtime.notice)}</p>` : ''}</div></section>`);
   app.querySelectorAll('[data-store-tab]').forEach(button => button.addEventListener('click', () => {
     runtime.storeTab = button.dataset.storeTab;
     runtime.notice = '';
     renderStore();
   }));
-  app.querySelector('[data-store-member]').addEventListener('change', event => {
+  app.querySelector('[data-store-member]')?.addEventListener('change', event => {
     runtime.storeMember = event.target.value;
     renderStore();
     app.querySelector('[data-store-member]').focus();
   });
-  app.querySelectorAll('[data-store-offer]').forEach(button => button.addEventListener('click', () => {
-    const id = button.dataset.storeOffer;
+  app.querySelector('[data-buy-supplies]')?.addEventListener('click', () => {
+    const purchase = purchaseAdventureSupplies(runtime.adventure, runtime.save, runtime.maps);
+    if (!purchase.purchased) return;
+    runtime.save = purchase.save;
+    runtime.notice = `Đã nhận ${supplies.essence} tinh hoa.`;
+    runtime.audio.play('sfx_ui_confirm');
+    saveNow();
+    renderStore();
+  });
+  app.querySelectorAll('[data-store-offer]').forEach(form => {
+    const id = form.dataset.storeOffer;
     const offer = ADVENTURE_OFFERS[id];
-    const comparison = adventureGearFor(save, member.id).find(([, item]) => ADVENTURE_OFFERS[item.item].slot === offer.slot)?.[1];
-    const cap = Math.min(10, Math.floor(save.player.gold / offer.price));
-    const dialog = openInfoDialog(offer.name, `<p>${storeDetail(offer)}</p>
-      ${comparison ? `<p>Đang dùng ${ADVENTURE_OFFERS[comparison.item].name} · ${storeDetail(ADVENTURE_OFFERS[comparison.item], comparison.level)}</p>` : ''}
-      <form data-store-purchase><label>Số lượng <input name="quantity" type="number" required min="1" max="${cap}" value="1"></label>
-      <button class="button" type="submit">Mua · ${offer.price} ◈</button></form>`);
-    const form = dialog.querySelector('form');
     form.elements.quantity.addEventListener('input', () => {
       form.querySelector('button').textContent = 'Mua · ' + (offer.price * (form.elements.quantity.valueAsNumber || 0)) + ' ◈';
     });
     form.addEventListener('submit', event => {
       event.preventDefault();
-      dialog.close();
       handleInventoryAction({ type: 'buy', id, quantity: form.elements.quantity.valueAsNumber }, member, renderStore);
-    }, { once: true });
-  }));
+    });
+  });
   bindInventoryActions(member, renderStore);
 }
 
@@ -3336,6 +3333,7 @@ function render() {
   if (runtime.page === 'home') return renderHome();
   if (runtime.page === 'adventure') return renderAdventure();
   if (runtime.page === 'journey') return renderAdventureJournal();
+  if (runtime.page === 'guide') return renderGuide();
   if (runtime.page === 'tcg') return renderTcg();
   if (runtime.page === 'chess') return renderChess();
   if (runtime.page === 'roster') return renderRoster();

@@ -86,7 +86,6 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
 .main .adventure-layout .battle-target .controls-hint { margin: 3px 0; }
 .main .adventure-layout .battle-controls { margin: 3px 0; }
 .main .adventure-layout .battle-controls .button { min-height: 34px; padding: 4px 7px; }
-.world-map-expanded { width: 100%; aspect-ratio: 16 / 9; border-radius: 7px; }
 .quest-dialog { width: min(760px, calc(100vw - 24px)); }
 .quest-dialog .panel { box-shadow: none; }
 
@@ -313,6 +312,17 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
   background: var(--scene-panel); border: 1px solid var(--scene-edge); border-radius: 7px; }
 .store-workspace { display: flex; flex-direction: column; gap: 6px; min-height: 0; padding: clamp(7px, 1.6vw, 19px); background: #faeed9f5; border: 1px solid var(--scene-edge); border-radius: 9px; }
 .store-workspace .meta-shop-body { min-height: 0; overflow: auto; max-height: min(57dvh, 560px); overscroll-behavior: contain; }
+.store-item-summary { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.store-item-summary img { width: clamp(44px, 8vw, 66px); aspect-ratio: 1; object-fit: contain; border-radius: 6px; flex: none; }
+.store-buy-row { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+.store-quantity { font-size: 12px; white-space: nowrap; }
+.store-quantity input { width: 3.1em; min-height: 36px; font: inherit; }
+.store-exchange { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px; font-size: 13px; }
+.guide-reader { width: min(100%, 950px); margin-inline: auto; padding: 0 8px 24px; }
+.guide-reader nav { position: sticky; top: 0; z-index: 1; padding: 6px 0; background: #12211f; }
+.guide-comic { display: block; width: 100%; height: auto; }
+.adventure-result-inline { position: absolute; z-index: 5; inset: auto var(--scene-right) calc(var(--scene-bottom) + 50px) auto; width: min(360px, 88%); }
+.adventure-result-inline .result-box { margin: 0; background: #13241ff5; color: #fff1d6; border: 1px solid #b9965b; box-shadow: 0 4px 24px #122019a8; }
 @media (orientation: portrait) and (max-width: 760px) {
   .lobby-companion { inset: auto 6% 45% auto; width: 110px; }
   .shell[data-screen="gacha"] .meta-gacha-hero { height: min(26dvh, 270px); }

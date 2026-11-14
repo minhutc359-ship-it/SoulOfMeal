@@ -256,8 +256,14 @@ async function check(page, width, height) {
     await page.waitForSelector('.quest-dialog', { state: 'detached' });
     await page.waitForSelector(screen('adventure'));
     await click(page, '[data-map-toggle]');
-    await page.waitForSelector('.world-map-expanded');
-    await close(page);
+    if (reference) {
+      await page.waitForSelector('.world-map-expanded');
+      await close(page);
+    } else {
+      await page.waitForSelector('#world-minimap[hidden]', { state: 'attached' });
+      await click(page, '[data-map-toggle]');
+      await page.waitForSelector('#world-minimap:visible');
+    }
     await click(page, '[data-guide-objective]');
     await click(page, '[data-interact]:visible');
     await page.waitForSelector('.story-dialog[open]');
@@ -379,9 +385,15 @@ async function check(page, width, height) {
     await visit(page, 'store');
     await page.waitForSelector('.store-shopkeeper');
     await capture(page, 'store', size);
-    await click(page, '[data-store-offer]:enabled');
-    await page.waitForSelector('dialog[open] [data-store-purchase]');
-    await close(page);
+    if (reference) {
+      await click(page, '[data-store-offer]:enabled');
+      await page.waitForSelector('dialog[open] [data-store-purchase]');
+      await close(page);
+    } else {
+      await click(page, '[data-store-offer="potion_small"] button');
+      await click(page, '[data-store-tab="bag"]');
+      await page.waitForSelector('.meta-inventory .store-item-summary img');
+    }
   }
   if (width === 844 && !baseline && !reference) await checkTcgTargets(page);
   assert.deepEqual(errors, []);
