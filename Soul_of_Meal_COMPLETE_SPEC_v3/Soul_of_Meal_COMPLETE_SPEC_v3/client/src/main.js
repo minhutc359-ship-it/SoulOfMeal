@@ -6,7 +6,8 @@ import { TCG_TRAP_LABELS, tcgAttackLanes, tcgTrapArmed, tcgTrapOptions, tcgTrapR
 import { advanceChessRound, chooseChessLoot, arrangeChessUnit, benchChessUnit, buyChessOffer, chessBenchSlots, chessDropState, createChessRun, nextChessOpponent, refreshChessShop, sellChessUnit, startChessCombat, toggleChessLock, buyChessExperience, canBuyChessOffer, chessRoundInfo, chessStandings, chessXpNeeded, equipChessItem, chessTraits, CHESS_PREPARATION_SECONDS, CHESS_TRAITS } from './modes/autoChess.js';
 import { CHESS_ITEMS, chessItemPlacement } from './modes/chessItems.js';
 import { gameEvents } from './core/events.js';
-import { loadSave, migrateSave, persistSave, SAVE_KEY } from './core/save.js';
+import { exportGuestSave, loadSave, migrateSave, persistSave, SAVE_KEY } from './core/save.js';
+import { enableOfflinePractice, inspectOfflinePractice } from './core/offlinePractice.js';
 import { AnimationAdapter } from './render/animationAdapter.js';
 import { findAdventurePath, hasClearLine, safeAdventurePosition } from './modes/adventureNavigation.js';
 import { ADVENTURE_MAP_KEYS, createAdventureMapRegistry, getAdventureMap } from './modes/mapCatalog.js';
@@ -51,6 +52,7 @@ const systemMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const compactBattle = window.matchMedia('(max-height: 620px) and (orientation: landscape)');
 const portraitBattle = window.matchMedia('(max-width: 760px) and (orientation: portrait)');
 let webStage;
+let offlineDownload;
 const pinnedRelease = pinnedContentRelease(new URL(location.href));
 const accountApi = import.meta.env?.SOM_ACCOUNTS ? createAccountApi() : null;
 const runtime = {
@@ -257,8 +259,37 @@ function saveNow() {
   runtime.save.adventure.battle = adventureCheckpoint(runtime.adventure.battle);
   runtime.save.modes.tcg = runtime.tcg;
   runtime.save.modes.chess = runtime.chess;
+  let saved = true;
   if (runtime.cloud) runtime.cloud.stage(runtime.save);
-  else persistSave(runtime.save);
+  else saved = persistSave(runtime.save);
+  runtime.localSaveFailed = !saved;
+  syncGuestSaveWarning();
+  return saved;
+}
+
+function downloadGuestBackup() {
+  if (runtime.cloud) return;
+  saveNow();
+  const url = URL.createObjectURL(new Blob([exportGuestSave(runtime.save)], { type: 'application/json' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'soul-of-meal-save-' + new Date().toISOString().slice(0, 10) + '.json';
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function syncGuestSaveWarning() {
+  const previous = document.querySelector('#guest-save-warning');
+  if (!runtime.localSaveFailed || runtime.cloud) { previous?.remove(); return; }
+  if (previous) return;
+  const warning = document.createElement('aside');
+  warning.id = 'guest-save-warning';
+  warning.className = 'guest-save-warning';
+  warning.setAttribute('role', 'alert');
+  warning.innerHTML = '<p>Chưa lưu được trên thiết bị. Hãy tải bản sao trước khi đóng game.</p><div class="action-row"><button type="button" class="button light" data-save-retry>Thử lưu lại</button><button type="button" class="button light" data-save-export>Tải bản sao</button></div>';
+  warning.querySelector('[data-save-retry]').onclick = saveNow;
+  warning.querySelector('[data-save-export]').onclick = downloadGuestBackup;
+  document.body.append(warning);
 }
 
 function syncStage() {
@@ -728,9 +759,10 @@ async function applyContentUpdate(panel, button) {
       panel.hidden = true;
       return;
     }
-    saveNow();
-    if (runtime.cloud && !await runtime.cloud.flush()) {
-      status.textContent = 'Tiến trình chưa được lưu. Kiểm tra tài khoản trong Cài đặt rồi thử lại.';
+    const localSaved = saveNow();
+    if (!localSaved || (runtime.cloud && !await runtime.cloud.flush())) {
+      status.textContent = runtime.cloud ? 'Tiến trình chưa được lưu. Kiểm tra tài khoản trong Cài đặt rồi thử lại.'
+        : 'Chưa lưu được trên thiết bị. Thử lưu lại hoặc tải bản sao trước khi cập nhật.';
       return;
     }
     if (panel.isConnected && runtime.page === 'home' && !openMatches().length) location.replace(next.entry);
@@ -2816,10 +2848,11 @@ function renderChess() {
       <strong>${run.result.won ? 'Chiến thắng' : run.result.draw ? 'Hòa' : 'Thất bại'}</strong>
       <p>${run.result.won ? opponent?.neutral ? 'Đã vượt vòng quái.' : `Đối thủ mất ${run.result.enemyDamage ?? 12} HP.`
         : run.result.draw ? 'Hai chỉ huy giữ nguyên HP.' : `Mất ${run.result.damage} HP.`} · +${run.result.income} vàng${run.result.payout ? ` (${run.result.payout.base} cơ bản · ${run.result.payout.win} thắng · ${run.result.payout.interest} lãi · ${run.result.payout.streak} chuỗi)` : ''}</p>
+      ${run.result.overtimeDamage ? `<p>Hiệp phụ: người thua nhận thêm ${run.result.overtimeDamage} sát thương.${run.result.tiebreak ? ' Giao tranh hòa được phân thắng bại theo luật hiệp phụ.' : ''}</p>` : ''}
       ${run.result.lootChoices ? `<div class="chess-loot-options" role="group" aria-label="Chọn một linh kiện">${run.result.lootChoices.map(id =>
         `<button type="button" class="button light" data-chess-loot="${id}">${escapeHtml(CHESS_ITEMS[id].name)}</button>`).join('')}</div>` : ''}
       ${run.result.rewardItem ? `<p>Nhặt được <b>${CHESS_ITEMS[run.result.rewardItem].name}</b>. Trang bị từ băng ghế ở vòng sau.</p>` : ''}
-      <div class="action-row"><button class="button" data-chess-next>${run.hp <= 0 || !remaining || run.round >= (run.lobby?.max_rounds ?? 10) ? 'Xem kết quả' : 'Sang vòng tiếp'}</button>${run.combat?.startActors ? '<button class="button light" data-chess-replay>Xem lại</button>' : ''}</div></div>` : '';
+      <div class="action-row"><button class="button" data-chess-next>${run.hp <= 0 || !remaining || (run.lobby?.finish_condition !== 'last_survivor' && run.round >= (run.lobby?.max_rounds ?? 10)) ? 'Xem kết quả' : 'Sang vòng tiếp'}</button>${run.combat?.startActors ? '<button class="button light" data-chess-replay>Xem lại</button>' : ''}</div></div>` : '';
   const hasSelection = runtime.selectedBench !== null || runtime.selectedBoard !== null;
   shell(`
     ${matchHeader('Đấu trường linh thú', `
@@ -3054,7 +3087,9 @@ function chessEquipmentMarker(unit) {
 }
 
 function showChessStandings(run) {
-  const dialog = openInfoDialog('Bảng xếp hạng', `<ol class="chess-standings">${chessStandings(run).map(player =>
+  const rule = run.lobby?.finish_condition === 'last_survivor'
+    ? `<p>Đấu đến khi còn một người sống. Từ vòng ${run.lobby.overtime?.start_round ?? 37}, người thua nhận thêm sát thương tăng dần; giao tranh hòa được phân định theo luật hiệp phụ.</p>` : '';
+  const dialog = openInfoDialog('Bảng xếp hạng', `${rule}<ol class="chess-standings">${chessStandings(run).map(player =>
     `<li class="${player.id === 0 ? 'own' : ''}"><strong>${player.id === 0 ? 'Bạn' : 'Bot ' + player.id}</strong>
       <span>${player.hp > 0 ? player.hp + ' HP' : 'Đã bị loại'}${player.level ? ' · Cấp ' + player.level : ''}</span>
       ${player.id > 0 && player.hp > 0 ? `<button type="button" class="button light compact" data-scout-standing="${player.id}">Do thám</button>` : ''}</li>`).join('')}</ol>`);
@@ -3575,10 +3610,12 @@ function renderSettings(asOverlay = false) {
   const settings = runtime.save.settings;
   const guestActions = runtime.cloud ? '' : '<div class="action-row"><button class="button light" data-page="title">Về màn hình bắt đầu</button><button class="button danger" data-reset-save>Khởi tạo lại tiến trình</button></div>';
   const cloudPanel = runtime.cloud ? `<section class="settings-list panel cloud-panel"><h2>Tài khoản ${escapeHtml(runtime.account.username)}</h2><p>Tiến trình luyện tập lưu trên máy chủ.</p><p role="status" data-cloud-status></p><div class="action-row"><button class="button light" data-cloud-action="retry" hidden>Thử lưu lại</button><button class="button light" data-cloud-action="reload" hidden>Tải bản trên máy chủ</button><button class="button light" data-cloud-action="reauth" hidden>Đăng nhập lại</button><button class="button danger" data-cloud-action="logout">Lưu và đăng xuất</button></div></section>` : '';
+  const guestPanel = runtime.cloud ? '' : `<section class="settings-list panel"><h2>Lưu trên thiết bị</h2><p>Hồ sơ khách lưu trong trình duyệt này. Tải bản sao để giữ tiến trình khi đổi máy hoặc dọn dữ liệu trình duyệt.</p><div class="action-row"><button type="button" class="button light" data-save-export>Tải bản sao tiến trình</button></div></section>
+    <section class="settings-list panel offline-practice"><h2>Chơi ngoại tuyến</h2><p>Tải hình ảnh, dữ liệu ba chế độ và nhạc của phiên bản này để luyện tập bằng hồ sơ khách khi mất mạng.</p><p role="status" data-offline-status>Đang kiểm tra gói ngoại tuyến…</p><div class="action-row"><button type="button" class="button light" data-offline-enable disabled>Tải gói ngoại tuyến</button></div><small>Tài khoản, đồng bộ máy chủ và tải phiên bản mới cần kết nối mạng.</small></section>`;
   const content = `<section class="settings-list panel">${[['music', 'Nhạc'], ['sfx', 'Hiệu ứng'], ['ambience', 'Môi trường']].map(([key, label]) => `<label class="setting-row"><span>${label}</span><input type="range" min="0" max="100" value="${settings[key]}" data-setting="${key}"><b>${settings[key]}%</b></label>`).join('')}<label class="setting-row"><span>Giảm chuyển động</span><input type="checkbox" data-setting-motion ${settings.reducedMotion ? 'checked' : ''}><b>${settings.reducedMotion ? 'Bật' : 'Tắt'}</b></label>
     <label class="setting-row"><span>Giảm mật độ hiệu ứng</span><input type="checkbox" data-setting-effects ${settings.effectsLimited ? 'checked' : ''}>
     <b>${settings.effectsLimited ? 'Bật' : 'Tắt'}</b></label>
-    ${asOverlay ? '' : guestActions}</section>${asOverlay ? '' : cloudPanel}`;
+    ${asOverlay ? '' : guestActions}</section>${asOverlay ? '' : cloudPanel}${guestPanel}`;
   const host = asOverlay ? openInfoDialog('Cài đặt', content) : app;
   if (!asOverlay) shell(pageHeader(runtime.cloud ? 'Tài khoản' : 'Thiết bị này', 'Cài đặt', '') + content);
   host.querySelectorAll('[data-setting]').forEach((input) => input.addEventListener('input', () => { runtime.save.settings[input.dataset.setting] = Number(input.value); input.nextElementSibling.textContent = `${input.value}%`; runtime.audio.setSettings(runtime.save.settings); saveNow(); }));
@@ -3596,6 +3633,47 @@ function renderSettings(asOverlay = false) {
   });
   host.querySelectorAll('[data-cloud-action]').forEach(button =>
     button.addEventListener('click', () => runCloudAction(button.dataset.cloudAction)));
+  host.querySelector('[data-save-export]')?.addEventListener('click', downloadGuestBackup);
+  void bindOfflineSettings(host);
+}
+
+async function bindOfflineSettings(host) {
+  const status = host.querySelector('[data-offline-status]');
+  const button = host.querySelector('[data-offline-enable]');
+  if (!status || !button) return;
+  const state = await inspectOfflinePractice();
+  if (!status.isConnected) return;
+  const size = state.bytes ? ` (${(state.bytes / 1024 / 1024).toFixed(1)} MB)` : '';
+  if (offlineDownload) {
+    button.disabled = true;
+    status.textContent = 'Đang tải gói ngoại tuyến' + size + '…';
+    await offlineDownload.catch(() => {});
+    if (status.isConnected) void bindOfflineSettings(host);
+    return;
+  }
+  status.textContent = state.ready ? 'Gói đã sẵn sàng' + size + '. Có thể mở lại phiên bản này khi mất mạng.'
+    : state.supported ? 'Gói tải một lần' + size + '. Hãy giữ kết nối trong lúc tải.'
+    : 'Gói ngoại tuyến có trên bản phát hành HTTPS sau khi build.';
+  button.hidden = state.ready === true;
+  button.disabled = !state.supported;
+  button.onclick = async () => {
+    if (offlineDownload || runtime.cloud) return;
+    button.disabled = true;
+    status.textContent = 'Đang tải gói ngoại tuyến' + size + '…';
+    offlineDownload = enableOfflinePractice();
+    try {
+      const installed = await offlineDownload;
+      status.textContent = installed?.waiting ? 'Đã tải gói mới. Đóng các tab game rồi mở lại để dùng gói mới.'
+        : 'Đã tải đủ gói. Có thể mở lại phiên bản này khi mất mạng.';
+      button.hidden = true;
+    } catch (error) {
+      status.textContent = error.message;
+      button.disabled = false;
+      button.textContent = 'Thử tải lại';
+    } finally {
+      offlineDownload = null;
+    }
+  };
 }
 
 

@@ -818,10 +818,12 @@ test('Auto Chess shop drop buys directly into a valid empty tile once', async ()
   assert.throws(() => buyChessOffer({ ...run, board: placed.board }, 0, cell), /ô trống/);
 });
 
-test('Auto Chess run reaches a terminal result at the round cap', async () => {
+test('legacy Auto Chess saves keep their terminal round cap', async () => {
   const unitsData = await readJson('examples/auto_chess/units.json');
   const shop = await readJson('examples/auto_chess/shop_odds.json');
   shop.lobby.max_rounds = 4;
+  delete shop.lobby.finish_condition;
+  delete shop.lobby.overtime;
   let run = createChessRun(unitsData.units, shop, 44);
   for (let cycle = 0; cycle < 20 && run.phase !== 'finished'; cycle += 1) {
     if (run.phase === 'prepare') run = startChessCombat(run);

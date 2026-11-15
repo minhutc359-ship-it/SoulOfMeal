@@ -94,8 +94,9 @@ export function migrateSave(input) {
   return fresh;
 }
 
-export function loadSave(storage = globalThis.localStorage) {
+export function loadSave(storage) {
   try {
+    if (storage === undefined) storage = globalThis.localStorage;
     const raw = storage?.getItem(SAVE_KEY) ?? storage?.getItem('soul-of-meal.save.v1');
     return migrateSave(raw ? JSON.parse(raw) : null);
   } catch (error) {
@@ -104,8 +105,19 @@ export function loadSave(storage = globalThis.localStorage) {
   }
 }
 
-export function persistSave(save, storage = globalThis.localStorage) {
-  if (!storage) return false;
-  storage.setItem(SAVE_KEY, JSON.stringify({ ...save, version: SAVE_VERSION }));
-  return true;
+export function persistSave(save, storage) {
+  try {
+    if (storage === undefined) storage = globalThis.localStorage;
+    if (!storage) return false;
+    storage.setItem(SAVE_KEY, JSON.stringify({ ...save, version: SAVE_VERSION }));
+    return true;
+  } catch {
+    // Quota/security failures must leave the running match and last good save intact.
+    return false;
+  }
+}
+
+export function exportGuestSave(save) {
+  return JSON.stringify({ format: 'soul-of-meal.guest-save', version: 1, savedAt: new Date().toISOString(),
+    save: { ...save, version: SAVE_VERSION } }, null, 2);
 }

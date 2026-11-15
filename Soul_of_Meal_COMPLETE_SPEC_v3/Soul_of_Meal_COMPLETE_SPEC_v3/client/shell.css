@@ -462,3 +462,14 @@ button.tcg-unit { cursor: pointer; color: var(--ink); font: inherit; font-size: 
 @media (pointer: coarse) {
   .boss-counter .button { min-height: 44px; }
 }
+/* A failed device write stays visible across scene changes without ending a match. */
+.guest-save-warning {
+  position: fixed; z-index: 1100; left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom));
+  width: min(520px, calc(100% - 24px)); margin-inline: auto; padding: 12px 16px;
+  background: #fff0ce; color: #422b19; border: 2px solid #b87820; border-radius: 16px;
+  box-shadow: 0 6px 32px #0008;
+}
+.guest-save-warning p { margin: 0 0 8px; }
+.guest-save-warning .button { min-height: 44px; }
+.offline-practice small { line-height: 1.5; }

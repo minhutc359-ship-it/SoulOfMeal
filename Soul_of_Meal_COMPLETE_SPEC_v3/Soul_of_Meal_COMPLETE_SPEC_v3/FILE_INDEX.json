@@ -289,8 +289,8 @@
     },
     {
       "path": "docs/01_gameplay/AUTO_CHESS_RULEBOOK.md",
-      "bytes": 6372,
-      "sha256": "8ba3e24dff7ad73db72177e745b27d1911ebb3933ee14b7662abc0fbca176f69"
+      "bytes": 7089,
+      "sha256": "48eed43ad0ac1217b7f0646320bee54670f5c8afddc76d57952f376e7aa6d0b6"
     },
     {
       "path": "docs/01_gameplay/TCG_RULEBOOK.md",
@@ -339,8 +339,8 @@
     },
     {
       "path": "examples/auto_chess/shop_odds.json",
-      "bytes": 1371,
-      "sha256": "d3f2952455c48b584de3f913376940ad3eb2ab124a63d9a3fc55e2360c32c7a0"
+      "bytes": 1496,
+      "sha256": "e4cefc6d2046a4652bd203fe7fc536ead02cf12352372b0d78a9e00b2534627d"
     },
     {
       "path": "examples/auto_chess/units.json",
@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 26151,
-      "sha256": "8741ba043d1630ba068ce92787c03c3bc072ea0c59750b05536e07de6bca24ce"
+      "bytes": 27830,
+      "sha256": "207c0d5f481974c29aef57fec5641658a26d97c9b0d5704ce13adf04850314dc"
     },
     {
       "path": "client/index.html",
@@ -789,13 +789,13 @@
     },
     {
       "path": "client/src/core/save.js",
-      "bytes": 5079,
-      "sha256": "7380db2456a88b7aa060c1766d7cd09f2368eba3d45c7cf580c1c0f05081cb39"
+      "bytes": 5503,
+      "sha256": "ba98261a27a569a88524210ec8da5b27cb5012861402b15017474f332dc56a41"
     },
     {
       "path": "client/src/main.js",
-      "bytes": 228167,
-      "sha256": "6841d080d84dd5b744e20173dba90893951e0cfde213b49f71930cf3c90f055b"
+      "bytes": 233328,
+      "sha256": "d6fa5ce30e59f57c7e2384214abd2581d6edebeb972c2dd69b06ec3b50fd26fa"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -804,8 +804,8 @@
     },
     {
       "path": "client/src/modes/autoChess.js",
-      "bytes": 26840,
-      "sha256": "0000facdcce36aabdf8b1da8f60eb545bac94afa9deae8825edcf9e236da93a9"
+      "bytes": 28518,
+      "sha256": "ec080194b36d4e19e425ff362a2d5dd0ff63e3bd05a67d7cf2818d9bbd5959ec"
     },
     {
       "path": "client/src/modes/tcg.js",
@@ -819,8 +819,8 @@
     },
     {
       "path": "client/tests/runtime.test.js",
-      "bytes": 60250,
-      "sha256": "39ca44a3f076287fc86c4a10e5407adfdac9072d8e92d9528be52ed6a965b63a"
+      "bytes": 60314,
+      "sha256": "93c681746e24b6d17a0f317a6b2f07f851c67bb4e642b74ff5c00ea0c49e6e75"
     },
     {
       "path": "docs/02_art/ANIMATION_INTEGRATION_SPEC.md",
@@ -2224,8 +2224,8 @@
     },
     {
       "path": "client/shell.css",
-      "bytes": 22106,
-      "sha256": "28dde1c4baffd3df23e720afe17241526066aeac55ab8b80619fb2e854b1a11e"
+      "bytes": 22730,
+      "sha256": "df12e63e52e8426917a0ff8fd3769c8ff20375670101ce2babcda5681ec80bc3"
     },
     {
       "path": "client/src/shell/entry.js",
@@ -2244,8 +2244,8 @@
     },
     {
       "path": "client/vite.config.js",
-      "bytes": 1549,
-      "sha256": "81266ca669e6aba5078e9812c17d9211b249527bb90f8230a52cc0c059af2f40"
+      "bytes": 1687,
+      "sha256": "27e7b13230e801d7691cfcf2e5ee0517c959137fc20f649d348d233641b982ab"
     },
     {
       "path": "client/src/core/accountApi.js",
@@ -2969,8 +2969,8 @@
     },
     {
       "path": "client/tests/chessLobby.test.js",
-      "bytes": 7042,
-      "sha256": "c08c35b792757d7c8192dd053637827f7a720aa79673413c355278be6b0d8107"
+      "bytes": 9885,
+      "sha256": "80d63b4c6422607c060cffa6860ebc3a91955a0744fa637b7700b97c2135042f"
     },
     {
       "path": "client/src/modes/tcgCards.js",
@@ -4061,6 +4061,41 @@
       "path": "client/assets/original/showcase/chr_som_024.webp",
       "bytes": 86320,
       "sha256": "6d49b2a2e114d1e7444544ff30fa8339cc43212e0f8709f81f9558e68d9e1e27"
+    },
+    {
+      "path": "client/build/offlinePackage.js",
+      "bytes": 2623,
+      "sha256": "52029504f234425b83c560579de0ffedd4e4a92ee5ed518ab14da827cab6ca29"
+    },
+    {
+      "path": "client/offline-worker.js",
+      "bytes": 3403,
+      "sha256": "eec4575043915069dd73a1229d2c3db33301c59b84bfaeb5b7a8c2bbafe881be"
+    },
+    {
+      "path": "client/src/core/offlinePractice.js",
+      "bytes": 3182,
+      "sha256": "94a22cce822603c491231f4762ac99d8c2cc248ed838d1d1c9fce5f82ab543a2"
+    },
+    {
+      "path": "client/tests/deviceSave.test.js",
+      "bytes": 2505,
+      "sha256": "0c18ba40ca01cdf0304f10b7dacff71539c4b4a1f4703aae3f3f40536f79e69d"
+    },
+    {
+      "path": "client/tests/offlinePractice.test.js",
+      "bytes": 9095,
+      "sha256": "22be3e06caed753906471a789ea538a33f2518dc6eb8ae8e82771210d4d3e6fb"
+    },
+    {
+      "path": "docs/05_production/MOBILE_SPEC_RECONCILIATION.md",
+      "bytes": 7159,
+      "sha256": "00b604710aeb9e876d2e6730e3f8f62b8fad1ec5c7760d88a811bf0d95272c7b"
+    },
+    {
+      "path": "docs/05_production/images/mobile-offline.jpg",
+      "bytes": 156000,
+      "sha256": "d8125d11aacefbb4c7e1fcac9bc0a16ff0c6b9540de97f2c8e4ec9536af7425f"
     }
   ]
 }

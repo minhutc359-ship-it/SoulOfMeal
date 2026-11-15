@@ -11,7 +11,7 @@ Mở [http://localhost:4173/client/](http://localhost:4173/client/) và chọn *
 
 Trên máy tính, dùng WASD hoặc phím mũi tên để di chuyển, E để tương tác và phím 1–5 để dùng tuyệt kỹ. Trên màn hình cảm ứng, chạm điểm đến, NPC, rương hoặc cổng. Có nút toàn màn hình ở thanh trên khi trình duyệt hỗ trợ. Nhạc và hiệu ứng bắt đầu sau thao tác đầu tiên.
 
-Trên điện thoại, thêm trang `/client/` vào màn hình chính từ menu trình duyệt. Khi mở bằng biểu tượng Soul of Meal, web app chọn fullscreen nếu trình duyệt hỗ trợ và dùng cửa sổ độc lập trên các trình duyệt còn lại. iOS có thể vẫn giữ thanh trạng thái. Game tải nội dung qua mạng.
+Trên điện thoại, thêm trang `/client/` vào màn hình chính từ menu trình duyệt. Khi mở bằng biểu tượng Soul of Meal, web app chọn fullscreen nếu trình duyệt hỗ trợ và dùng cửa sổ độc lập trên các trình duyệt còn lại. iOS có thể vẫn giữ thanh trạng thái. Lần mở đầu cần mạng; hồ sơ khách có thể tải gói ngoại tuyến trong Cài đặt để chơi lại khi mất mạng.
 
 Để kiểm tra bản build, chạy `npm --prefix client run build` rồi `npm --prefix client run preview`, mở lại đường dẫn trên. Kết quả build nằm trong `client/dist/` với entry `client/index.html` và catalog tương đối trong `examples/`.
 
@@ -41,7 +41,7 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 - **Nhánh vườn** · Từ Rừng Nguyên Liệu, chạm cổng đến **Vườn Nấm Sương**, rồi đi tiếp sang **Vườn Gia Vị**. Hai vườn có NPC chỉ đường và trận quái có thể đánh lại để farm vàng và tinh hoa với thưởng theo lượt. Trận boss cốt truyện có hai đợt quái trước boss. Chế độ tái đấu đặt đội vào đợt boss.
 - **Truyện hướng dẫn** · Mở **Hướng dẫn** bằng nút **?** ở sảnh hoặc qua menu trong trận. Có năm trang hướng dẫn từ tranh gốc của dự án.
 - **TCG** · Đấu bot với bộ 24 lá từ danh mục 60 lá. Chọn độ khó và bộ bài bot riêng. Trình sửa có bốn ô lưu bộ bài, biểu đồ mana, bộ lọc và bảy bộ mẫu gồm **Khởi đầu**, **Hộ Trận**, **Tiên Phong**, **Triều Sương**, **Mầm Sống**, **Dạ Yến** và **Triều Hỏa**.
-- **Auto Chess** · Xếp đội hình trên bàn lục giác, mua quân từ kho chung, hợp thể ba bản sao và mua XP. Ván mới có bảy bot đánh cùng lúc, các vòng quái thưởng linh kiện và kết thúc khi bị loại, về nhất hoặc đến giới hạn 37 vòng. Phát lại giao tranh dùng vị trí, đòn đánh, kỹ năng và HP do mô phỏng ghi lại. Ván lưu từ bản trước tiếp tục theo thể thức cũ.
+- **Auto Chess** · Xếp đội hình trên bàn lục giác, mua quân từ kho chung, hợp thể ba bản sao và mua XP. Ván mới có bảy bot đánh cùng lúc, các vòng quái thưởng linh kiện và kết thúc khi bị loại hoặc còn một người sống. Từ vòng 37 áp dụng hiệp phụ tăng sát thương và phân định hòa, cùng luật cho người chơi và bot (cân bằng PROPOSED). Phát lại giao tranh dùng vị trí, đòn đánh, kỹ năng và HP do mô phỏng ghi lại. Ván lưu từ bản trước tiếp tục theo thể thức cũ.
 
 ## Bếp Trưởng Hỏa Diệm
 
@@ -70,6 +70,10 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 - **Tiếp tục giao tranh.** Trận được ghi khi vào trận, sang đợt, mở hoặc kết thúc báo đòn, tạm dừng và có kết quả. Khi tải lại, trận đang diễn ra trở về mốc đã ghi và chờ **Tiếp tục**. Kết quả chưa nhận thưởng vẫn xuất hiện. Tài khoản đồng bộ các mốc lên máy chủ khi báo **Đã lưu**.
 
 ## Thao tác trong game
+
+**Ngoại tuyến và bản sao tiến trình.** Trên bản build HTTPS, vào **Cài đặt → Chơi ngoại tuyến → Tải gói ngoại tuyến**. Gói bao gồm dữ liệu ba chế độ, hình ảnh, mô-đun Phaser, hiệu ứng và nhạc thực tế (kể cả nhạc boss); dung lượng hiển thị trước khi tải. Chỉ báo sẵn sàng sau khi mọi tệp đã tải đủ và kiểm tra toàn vẹn. Dùng hồ sơ khách để mở lại đúng địa chỉ phiên bản khi mất mạng. Tài khoản, Gacha trên máy chủ, đồng bộ và tải bản phát hành mới vẫn cần mạng. API, cookie và dữ liệu tài khoản không được cache. Mỗi bản phát hành bất biến có gói riêng, nên không trộn asset giữa hai phiên bản. Bản chạy `vite dev` không có gói này; dùng `npm --prefix client run build` rồi `npm --prefix client run preview` để kiểm tra.
+
+**Lưu trên thiết bị.** Giữ khóa `soul-of-meal.save.v2`, toàn bộ kho đồ, đội hình và snapshot các ván đang chơi. Nếu trình duyệt chặn ghi hoặc hết dung lượng, trận tiếp tục và hiện **Thử lưu lại / Tải bản sao**; cập nhật phiên bản sẽ chờ lưu thành công. Có thể tải bản sao JSON trong Cài đặt ngay cả khi bộ nhớ thiết bị không ghi được. Không xóa dữ liệu trình duyệt trước khi giữ bản sao cần thiết.
 
 - **Giao tranh Adventure.** Năm tuyệt kỹ nằm dưới sân đấu. Mỗi ô hiển thị năng lượng, trạng thái sẵn sàng, thời gian hồi và trạng thái gục. Cột đối thủ chứa HP boss, báo chiêu và nút đối phó. Khi dẫn đường, bản đồ nhỏ vẽ tuyến còn lại và sân đánh dấu điểm đến.
 - **Adventure.** Bản đồ nhỏ đánh dấu vị trí người chơi, lối đi và mục tiêu nhiệm vụ hiện tại. Trên màn hình cảm ứng, dùng cần điều khiển hoặc chạm đích để đi. Mở **Nhật ký hành trình** để đọc lại các cảnh đã mở kèm minh họa sáu chương.

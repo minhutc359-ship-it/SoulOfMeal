@@ -11,6 +11,7 @@ npm --prefix client run dev
 Mở [http://localhost:4173/client/](http://localhost:4173/client/).
 
 - [Điều khiển, lối chơi và kiểm thử](Soul_of_Meal_COMPLETE_SPEC_v3/Soul_of_Meal_COMPLETE_SPEC_v3/client/README.md)
+- [Tích hợp spec trên nền mobile-navigation-combat](Soul_of_Meal_COMPLETE_SPEC_v3/Soul_of_Meal_COMPLETE_SPEC_v3/docs/05_production/MOBILE_SPEC_RECONCILIATION.md)
 - [Đặc tả game, mỹ thuật và kiến trúc](Soul_of_Meal_COMPLETE_SPEC_v3/Soul_of_Meal_COMPLETE_SPEC_v3/README.md)
 
 - [SPEC v3.2 Web Client–Server](Soul_of_Meal_COMPLETE_SPEC_v3/Soul_of_Meal_COMPLETE_SPEC_v3/docs/03_engineering/ENGINE_ARCHITECTURE.md)

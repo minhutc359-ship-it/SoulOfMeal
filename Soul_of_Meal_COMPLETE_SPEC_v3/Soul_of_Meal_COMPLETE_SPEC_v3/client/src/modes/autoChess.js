@@ -292,7 +292,7 @@ export function startChessCombat(run) {
   const opponentName = opponent.neutral ? opponent.name : 'đối thủ ' + opponent.id;
   record(updated, `Vòng ${chessRoundInfo(updated).label}: giao tranh với ${opponentName}.`);
   gameEvents.emit('chess_combat_started', { round: updated.round, opponent_id: opponent.id });
-  const outcome = chessBattleOutcome(combat, updated.stage);
+  const outcome = lobbyBattleOutcome(combat, updated, 0, opponent.id, opponent.neutral);
   if (outcome.won) updated.wins++;
   else if (!outcome.draw) updated.losses++;
   updated.hp = Math.max(0, updated.hp - outcome.damage);
@@ -319,6 +319,7 @@ export function startChessCombat(run) {
   updated.result = { ...outcome, enemyDamage: hex ? outcome.enemyDamage : outcome.won ? 12 : 0,
     income, payout, ticks: combat.tick, opponentId: opponent.id, boss: opponent.boss === true, rewardItem, ...(lootChoices ? { lootChoices } : {}) };
   record(updated, outcome.won ? `Chiến thắng · +${income} vàng.` : outcome.draw ? `Hòa · +${income} vàng.` : `Thất bại · -${outcome.damage} HP, +${income} vàng.`);
+  if (outcome.overtimeDamage) record(updated, `Hiệp phụ: +${outcome.overtimeDamage} sát thương lên người thua${outcome.tiebreak ? ' · hòa giao tranh được phân định bằng hạt giống trận' : ''}.`);
   if (rewardItem) record(updated, 'Nhặt được ' + CHESS_ITEMS[rewardItem].name + '.');
   gameEvents.emit('chess_combat_finished', { won: outcome.won, draw: outcome.draw, damage: outcome.damage, income, ticks: combat.tick });
   return updated;
@@ -350,6 +351,32 @@ function roundLoot(run, playerId) {
   return CHESS_COMPONENTS[((run.seed + 13 * run.round + 17 * playerId) >>> 0) % CHESS_COMPONENTS.length];
 }
 
+export function chessOvertimeDamage(run) {
+  const policy = run.lobby?.overtime;
+  if (run.lobby?.finish_condition !== 'last_survivor' || !policy || run.round < policy.start_round) return 0;
+  return Math.min(100, (run.round - policy.start_round + 1) * policy.damage_per_round);
+}
+
+function lobbyBattleOutcome(combat, run, firstId, secondId, neutral = false) {
+  const outcome = chessBattleOutcome(combat, run.stage);
+  const extra = neutral ? 0 : chessOvertimeDamage(run);
+  if (!extra) return outcome;
+  // The same seeded rule applies to human, paired bots and ghost matches. It never
+  // changes unit stats or the replay; a tied combat is decided by the lobby rule.
+  if (outcome.draw) {
+    const low = Math.min(firstId, secondId), high = Math.max(firstId, secondId);
+    let hash = (run.seed ^ Math.imul(run.round, 0x9e3779b1) ^ Math.imul(low + 1, 0x85ebca6b) ^ Math.imul(high + 1, 0xc2b2ae35)) >>> 0;
+    hash = Math.imul(hash ^ (hash >>> 16), 0x7feb352d) >>> 0;
+    outcome.won = firstId === ((hash & 1) ? low : high);
+    outcome.draw = false;
+    outcome.tiebreak = true;
+  }
+  outcome.overtimeDamage = extra;
+  outcome.damage = outcome.won ? 0 : Math.min(100, outcome.damage + extra);
+  outcome.enemyDamage = outcome.won ? Math.min(100, outcome.enemyDamage + extra) : 0;
+  return outcome;
+}
+
 function playBotMatches(run, alive, opponent) {
   if (opponent.neutral) {
     for (const bot of alive) {
@@ -365,7 +392,7 @@ function playBotMatches(run, alive, opponent) {
   for (let i = 0; i < ordered.length; i += 2) {
     const first = ordered[i];
     const second = ordered[i + 1];
-    const outcome = chessBattleOutcome(simulateChessCombat(first.units, (second ?? opponent).units, { hex: true, replay: false }), run.stage);
+    const outcome = lobbyBattleOutcome(simulateChessCombat(first.units, (second ?? opponent).units, { hex: true, replay: false }), run, first.id, (second ?? opponent).id);
     settleBot(first, outcome.damage, outcome.won, outcome.draw, run);
     if (second) settleBot(second, outcome.enemyDamage, !outcome.won && !outcome.draw, outcome.draw, run);
   }
@@ -387,10 +414,11 @@ export function advanceChessRound(run, units, shopConfig) {
   if (run.phase !== 'result') throw new Error('Trận đấu chưa có kết quả.');
   const updated = run.result.lootChoices ? chooseChessLoot(run, run.result.lootChoices[0]) : structuredClone(run);
   const rivals = livingOpponents(updated);
-  if (updated.hp <= 0 || updated.round >= (updated.lobby?.max_rounds ?? 10) || !rivals.length) {
+  const capped = updated.lobby?.finish_condition !== 'last_survivor' && updated.round >= (updated.lobby?.max_rounds ?? 10);
+  if (updated.hp <= 0 || capped || !rivals.length) {
     updated.phase = 'finished';
     if (updated.lobby) {
-      updated.placement = updated.hp === 0 ? rivals.length + 1 : chessStandings(updated).findIndex(entry => entry.id === 0) + 1;
+      updated.placement = updated.hp === 0 ? Math.max(2, rivals.length + 1) : chessStandings(updated).findIndex(entry => entry.id === 0) + 1;
       updated.result = updated.placement === 1 ? 'victory' : 'complete';
     } else updated.result = updated.hp > 0 && (!rivals.length || updated.wins > updated.losses) ? 'victory' : 'complete';
     return updated;

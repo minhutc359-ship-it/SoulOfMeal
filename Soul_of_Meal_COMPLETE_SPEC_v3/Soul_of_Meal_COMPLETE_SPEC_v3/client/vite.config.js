@@ -2,6 +2,7 @@ import { cpSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
+import { writeOfflinePackage } from './build/offlinePackage.js';
 
 const client = fileURLToPath(new URL('.', import.meta.url));
 const project = resolve(client, '..');
@@ -37,6 +38,7 @@ export default defineConfig({
       for (const directory of ['cards', 'auto_chess', 'maps']) {
         cpSync(resolve(project, 'examples', directory), resolve(output, 'examples', directory), { recursive: true });
       }
+      writeOfflinePackage(output, resolve(client, 'offline-worker.js'));
     },
   }],
 });
