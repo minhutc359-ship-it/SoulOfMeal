@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import {
   advanceChessRound, arrangeChessUnit, chessBenchSlots, chessDropState, buyChessExperience, buyChessOffer, chessPoolCounts, chessRoundInfo, chessStandings,
-  createChessRun, equipChessItem, nextChessOpponent, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat,
+  createChessRun, chooseChessLoot, chessOvertimeDamage, equipChessItem, nextChessOpponent, placeChessUnit, refreshChessShop, sellChessUnit, startChessCombat,
 } from '../src/modes/autoChess.js';
 import { chessHexDistance, chessPathStep } from '../src/modes/chessCombat.js';
 import { CHESS_COMPONENTS } from '../src/modes/chessItems.js';
@@ -12,11 +12,77 @@ import { createDefaultSave, migrateSave } from '../src/core/save.js';
 const readJson = async file => JSON.parse(await readFile(new URL('../../examples/auto_chess/' + file, import.meta.url)));
 const [{ units }, config] = await Promise.all([readJson('units.json'), readJson('shop_odds.json')]);
 
+test('a new lobby continues beyond round 37 and only a living last survivor earns first place', () => {
+  let run = createChessRun(units, config, 59);
+  run.round = 37;
+  run.phase = 'result';
+  run.result = { won: true };
+  run = advanceChessRound(run, units, config);
+  assert.equal(run.round, 38);
+  assert.equal(run.phase, 'prepare');
+  assert.equal(run.opponents.filter(bot => bot.hp > 0).length, 7);
+  run.opponents.forEach(bot => { bot.hp = 0; });
+  run.phase = 'result';
+  run.result = { won: true };
+  const winner = advanceChessRound(run, units, config);
+  assert.equal(winner.result, 'victory');
+  assert.equal(winner.placement, 1);
+  run.hp = 0;
+  const eliminated = advanceChessRound(run, units, config);
+  assert.equal(eliminated.result, 'complete');
+  assert.notEqual(eliminated.placement, 1);
+});
+
+test('overtime decides tied human and bot pairs consistently and survives save/reload', () => {
+  const run = createChessRun(units, config, 2077);
+  run.round = 38;
+  run.stage = chessRoundInfo(run).stage;
+  delete run.neutral;
+  run.board = [];
+  run.opponents.forEach(bot => { bot.units = []; bot.hp = 100; });
+  assert.equal(chessOvertimeDamage(run), 10);
+  const save = createDefaultSave();
+  save.modes.chess = run;
+  const result = startChessCombat(run);
+  assert.deepEqual(result, startChessCombat(migrateSave(JSON.parse(JSON.stringify(save))).modes.chess));
+  assert.equal(result.result.draw, false);
+  assert.equal(result.result.tiebreak, true);
+  const health = [result.hp, ...result.opponents.map(bot => bot.hp)];
+  assert.equal(health.filter(hp => hp === 90).length, 4);
+  assert.equal(health.filter(hp => hp === 100).length, 4);
+  const legacy = structuredClone(run);
+  delete legacy.lobby.finish_condition;
+  assert.equal(chessOvertimeDamage(legacy), 0);
+  assert.equal(startChessCombat(legacy).result.draw, true);
+  assert.equal(chessOvertimeDamage({ ...run, round: 36 }), 0);
+});
+
+test('repeated tied bot boards cannot stall a surviving player forever', () => {
+  let run = createChessRun(units, config, 19);
+  run = placeChessUnit(buyChessOffer(run, 0), 0, 3, 3);
+  run.round = 38;
+  run.stage = chessRoundInfo(run).stage;
+  delete run.neutral;
+  for (let turn = 0; turn < 45 && run.phase !== 'finished'; turn++) {
+    // This fixture isolates lobby attrition: actual simulations see an empty
+    // rival board, including tied bot-vs-bot and ghost combat.
+    delete run.neutral;
+    run.opponents.forEach(bot => { bot.units = []; });
+    run = startChessCombat(run);
+    const rivals = run.opponents.filter(bot => bot.hp > 0).length;
+    run = advanceChessRound(run, units, config);
+    if (rivals) assert.equal(run.phase, 'prepare');
+  }
+  assert.equal(run.phase, 'finished');
+  assert.equal(run.result, 'victory');
+  assert.equal(run.opponents.filter(bot => bot.hp > 0).length, 0);
+});
+
 test('the shared pool reserves shop copies, returns sales and excludes eliminated bots', () => {
   const scarce = structuredClone(config);
   scarce.lobby.pool_by_tier[1] = 1;
   let run = createChessRun(units, scarce);
-  assert.equal(run.shop.filter(Boolean).length, units.filter(unit => unit.cost === 1).length);
+  assert.equal(run.shop.filter(Boolean).length, Math.min(5, units.filter(unit => unit.cost === 1).length));
   const offer = run.shop[0];
   assert.equal(chessPoolCounts(run).get(offer.id), 0);
   run = buyChessOffer(run, 0);
@@ -118,4 +184,19 @@ test('bench slots persist and permit swaps with a full bench and a capped board'
   profile.modes.chess = run;
   const restored = migrateSave(JSON.parse(JSON.stringify(profile))).modes.chess;
   assert.equal(restored.bench[chessBenchSlots(restored)[3]].uid, 'bench-8');
+});
+
+test('elite loot is a persisted choice and may only be taken once', () => {
+  const run = createChessRun(units, config);
+  run.phase = 'result';
+  run.result = { boss: true, lootChoices: [...CHESS_COMPONENTS.slice(0, 3)] };
+  const save = createDefaultSave();
+  save.modes.chess = run;
+  const restored = migrateSave(JSON.parse(JSON.stringify(save))).modes.chess;
+  const pick = restored.result.lootChoices[2];
+  const chosen = chooseChessLoot(restored, pick);
+  assert.equal(chosen.result.rewardItem, pick);
+  assert.deepEqual(chosen.items, [pick]);
+  assert.throws(() => chooseChessLoot(chosen, pick), /không còn khả dụng/);
+  assert.deepEqual(advanceChessRound(restored, units, config).items, [restored.result.lootChoices[0]]);
 });

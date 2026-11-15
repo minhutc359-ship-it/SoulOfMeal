@@ -11,7 +11,7 @@ Soul of Meal chạy qua một đường dẫn HTTPS trên Chrome, Edge và các 
 | Client | Phaser 4, TypeScript và WebGL. Một instance Phaser sở hữu map, camera, scene, combat HUD, animation và VFX. |
 | React | Login, đăng ký, khôi phục tài khoản, cài đặt và overlay cần form, focus hoặc công nghệ hỗ trợ. Dùng chung viewport và session với Phaser. |
 | Animation | `@esotericsoftware/spine-phaser-v4` cho rig được duyệt, sprite atlas cho asset dạng frame, cùng một hợp đồng clip và socket. |
-| Audio | Web Audio qua một mixer chung cho Music, SFX, Voice, Ambience. Chọn Phaser Sound Manager hoặc Howler ở bước thử tích hợp dựa trên nhu cầu của canvas và overlay. |
+| Audio | Web Audio qua một mixer chung cho Music, SFX, Ambience (voice/TTS đã bỏ theo D-019). Chọn Phaser Sound Manager hoặc Howler ở bước thử tích hợp dựa trên nhu cầu của canvas và overlay. |
 | Server | ASP.NET Core trên .NET 10 LTS, REST cho account/progression và lệnh theo lượt, SignalR qua WebSocket cho kênh realtime. Bắt đầu với một ứng dụng có các module rõ ràng. |
 | Dữ liệu | PostgreSQL cho account, profile, inventory, mốc quest, deck, sổ cái phần thưởng và dữ liệu phục hồi trận. Redis cho cache, presence, phiên trận nóng và phối hợp giữa các instance. |
 | Nội dung | Object Storage + CDN cho manifest, gói scene, atlas, rig, VFX và audio. Dữ liệu gameplay có catalog version. |

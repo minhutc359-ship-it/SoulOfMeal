@@ -3,6 +3,7 @@ const { mkdir, writeFile } = require('node:fs/promises');
 const { join } = require('node:path');
 const { chromium } = require('playwright');
 const catalog = require('../../examples/cards/cards.catalog.json');
+const splashCatalog = require('../src/render/splashCatalog.json');
 
 const base = process.env.SOM_UI_BASE ?? 'http://127.0.0.1:4173';
 const output = process.env.SOM_UI_OUTPUT;
@@ -201,17 +202,21 @@ async function checkTcgTargets(page) {
   await selectCard(damage);
   assert.equal(await page.locator('[data-spell-target="commander"]').count(), 1);
   await target(enemy.instance_id);
+  await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).modes.tcg.stack.length === 0, saveKey);
   state = await read();
   assert.equal(state.stack.length, 0);
   assert.ok(!state.players[1].units.length || state.players[1].units[0].current_def < enemy.current_def);
   await tap(page, `[data-tcg-attacker="${ally.instance_id}"]`);
   await tap(page, '[data-tcg-strike-target="commander"]');
+  await page.waitForFunction(({ key, hp }) => JSON.parse(localStorage.getItem(key)).modes.tcg.players[1].hp < hp,
+    { key: saveKey, hp: match.players[1].hp });
   state = await read();
   assert.equal(state.players[0].units[0].ready, false);
   assert.ok(state.players[1].hp < match.players[1].hp);
   await page.waitForSelector('.tcg-cutin[data-invocation="attack"][data-owner="0"]', { state: 'attached' });
   await tap(page, '[data-tcg-end]');
   await tap(page, '[data-tcg-trap-option]');
+  await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).modes.tcg.log.some(item => item.type === 'stack_item_countered'), saveKey);
   state = await read();
   assert.ok(state.players[1].graveyard.some(item => item.instance_id === enemySpell.instance_id));
   assert.ok(state.log.some(item => item.type === 'stack_item_countered'));
@@ -385,7 +390,7 @@ async function check(page, width, height) {
         const portrait = page.locator('.spirit-stage-art img');
         await portrait.evaluate(image => image.decode());
         assert.ok(await portrait.isVisible());
-        assert.ok((await portrait.getAttribute('src')).endsWith('/showcase/' + id + '.webp'));
+        assert.equal(await portrait.getAttribute('src'), splashCatalog.characters[id]?.preview ?? `./assets/original/showcase/${id}.webp`);
         await click(page, '[data-open-roster]');
       }
       await close(page);

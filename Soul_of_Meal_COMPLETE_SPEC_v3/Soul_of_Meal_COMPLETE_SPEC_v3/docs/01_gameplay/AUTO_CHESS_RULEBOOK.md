@@ -4,7 +4,9 @@
 ## 1. Match and board
 8 competitors (bots permitted), each starts 100 commander HP. Board is 7 columns ×8 rows overall; each player controls their half of 7×4 before battle. Bench capacity 9. Shop has 5 offers, refresh costs 2 gold; locking keeps offers across next round; buying costs tier (1–5) in gold. Unit cap on own board equals player level (levels 2–9 in prototype). Controlled placement only during preparation; combat is autonomous. Use visual labels for bench/full board/cannot afford/locked shop.
 
-The browser practice lobby uses a hex grid with one player and seven bots. It opens with two neutral rounds, then stages of four rival rounds and one neutral round. Neutral wins grant a component. Two components on a unit combine into a recipe, and each unit can hold up to three items. The lobby ends when the player is eliminated, all rivals are eliminated, or round 37 resolves. Existing browser runs keep their original format.
+The browser practice lobby uses a hex grid with one player and seven bots. It opens with two neutral rounds, then stages of four rival rounds and one neutral round. Neutral wins grant a component. Two components on a unit combine into a recipe, and each unit can hold up to three items. New lobbies use `finish_condition: last_survivor`: the player's session ends on elimination or when no rival remains. Round 37 no longer awards a premature first place. Saved lobbies without this field retain their original round cap and rules.
+
+**PROPOSED overtime balance:** from configured round 37, each rival-combat loser takes an additional `5 × (round - 37 + 1)` commander damage, with total damage capped at 100. Neutral rounds retain their normal outcome. A tied rival combat is decided by a reproducible seed/round/pair tiebreak, applied identically to human, bot pair and ghost matches; it does not change unit stats, trajectories or combat events. The result explicitly labels this lobby decision. Overtime prevents endlessly tied boards from stalling the lobby. Values and the tiebreak remain a playtest proposal, not approved competitive balance.
 
 The formation UI shows tiles. The battle replay draws the arena art and actors over those same coordinates with the grid hidden.
 
@@ -52,3 +54,8 @@ Right-hand synergy status `active / close / unavailable`; shop card shows name, 
 - On fixed input seed, same round result, shop and event hash repeat identically.
 - Bot extreme has no unfair bonus to odds/stats.
 - At lower visual FPS, target behavior, hit counts and final HP are unchanged.
+
+
+## Shared roster update — 15 November 2026
+
+The browser catalog now has 27 units, covering all 24 shared spirits plus Pepper, Mushroom and Lilia. Character identity and element are common across modes; `baseStats` and tier cost are independent Chess values marked **PROPOSED**. New lobbies retain a complete `catalogSnapshot` for shop, bot preparation, neutral encounters and merges. Older saves without a snapshot retain their original eight-unit catalog, tier costs and stat formula. Updates do not import Adventure levels or equipment.

@@ -20,7 +20,7 @@ test('the MP3 pack contains all shipped Ogg loops and cues', () => {
   assert.equal(end, pack.length);
 });
 
-test('a browser without Ogg resumes Web Audio, cancels stale loops and plays a decoded SFX', async t => {
+test('a browser without Ogg resumes Web Audio, crossfades decoded loops and plays a decoded SFX', async t => {
   const starts = [];
   const resumes = [];
   let releasePack;
@@ -44,7 +44,10 @@ test('a browser without Ogg resumes Web Audio, cancels stale loops and plays a d
     await delivery;
     return new Response(pack);
   };
-  const player = new GameAudio({ music: 80, sfx: 70, ambience: 0 });
+  let time = 0, advanceFade;
+  const player = new GameAudio({ music: 80, sfx: 70, ambience: 0 }, {
+    now: () => time, schedule: tick => (advanceFade = tick, 1), cancel() {},
+  });
   player.setScene('login');
   player.unlock();
   player.setScene('chess');
@@ -52,9 +55,16 @@ test('a browser without Ogg resumes Web Audio, cancels stale loops and plays a d
   releasePack();
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(resumes.length, 1);
-  assert.equal(starts.filter(source => source.loop).length, 1);
+  assert.equal(starts.filter(source => source.loop && !source.stopped).length, 1);
   assert.equal(starts.filter(source => !source.loop).length, 1);
   assert.ok(starts.every(source => source.buffer.bytes > 0));
+  time = 400;
+  advanceFade();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(starts.filter(source => source.loop && !source.stopped).length, 2);
+  time = 800;
+  advanceFade();
+  assert.equal(starts.filter(source => source.loop && !source.stopped).length, 1);
   player.setSettings({ music: 0, sfx: 0, ambience: 0 });
-  assert.equal(starts.find(source => source.loop).stopped, true);
+  assert.ok(starts.filter(source => source.loop).every(source => source.stopped));
 });

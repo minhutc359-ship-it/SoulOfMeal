@@ -527,3 +527,65 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
   .tcg-match .tcg-cutin img { height: clamp(54px, 16dvh, 92px); }
   .tcg-match .tcg-cutin .tcg-cutin-card { height: clamp(41px, 13dvh, 74px); }
 }
+
+.shell[data-screen="roster"] .main { background: #142c25; }
+.shell[data-screen="roster"] .spirit-profile {
+  background: linear-gradient(95deg, #101d24a8, #10211fec 67%), var(--spirit-backdrop) center / cover;
+}
+.shell[data-screen="roster"] .spirit-portrait { contain: paint; }
+.spirit-stage-art > img { display: block; max-height: 100%; object-position: center bottom; }
+.spirit-detail > .action-row { gap: 5px; }
+.spirit-detail > .action-row > small { align-self: center; white-space: nowrap; }
+.shell[data-screen="roster"] .spirit-browse .button { min-height: 44px; }
+.shell[data-screen="roster"] .spirit-tabs .button { min-height: 44px; }
+
+.meta-reveal-card .meta-card-front {
+  background: linear-gradient(0deg, #101b23f5 7%, #21242d20 76%), var(--card-backdrop) center / cover;
+  text-shadow: 0 1px 4px #0b101a;
+}
+.meta-card-front .spirit-art { filter: drop-shadow(0 3px 4px #0c1522c0); }
+.main .tcg-match .tcg-hand-dock .card-thumb.card-illustration,
+.tcg-match .duel-field .tcg-unit-avatar.card-illustration,
+.inspect-tcg .card-illustration, .deck-card[data-deck-entry] > img {
+  background: linear-gradient(0deg, #13212e60, transparent), var(--card-backdrop) center / cover;
+}
+.inspect-tcg .card-illustration { display: grid; place-items: center; border-radius: 8px; overflow: hidden; }
+.inspect-tcg .card-illustration img { display: block; max-width: 100%; object-fit: contain; }
+
+@media (max-width: 760px) and (orientation: portrait) {
+  .shell[data-screen="roster"] .spirit-profile {
+    grid-template-rows: minmax(0, .85fr) minmax(0, 1.15fr) auto;
+    background-image: linear-gradient(180deg, #1020253b, #10211ff0 55%), var(--spirit-backdrop);
+  }
+  .shell[data-screen="roster"] .spirit-detail > .action-row > small { font-size: 11px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .shell[data-screen="roster"] .spirit-profile { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); }
+  .shell[data-screen="roster"] .spirit-tabs .button { font-size: 11px; }
+  .shell[data-screen="roster"] .spirit-detail > .action-row .button { min-height: 36px; padding: 3px 7px; }
+}
+
+.tcg-match .tcg-unit[data-frontline] {
+  outline: 2px solid #f2c97e;
+  outline-offset: -2px;
+}
+.tcg-match .tcg-frontline-label {
+  position: absolute;
+  inset: 3px auto auto 4px;
+  z-index: 1;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: #fff4d5;
+  background: #573c25e8;
+  font-size: 9px;
+  pointer-events: none;
+}
+
+.chess-loot-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.chess-loot-options .button { min-height: 44px; padding-inline: 4px; }
+
+.farm-stage-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.farm-stage-list .farm-stage { padding: 0; overflow: hidden; text-align: left; min-width: 0; }
+.farm-stage img { display: block; width: 100%; height: clamp(64px, 21dvh, 150px); object-fit: cover; }
+.farm-stage span { display: grid; gap: 3px; padding: 7px; }
+.farm-stage small { line-height: 1.35; }

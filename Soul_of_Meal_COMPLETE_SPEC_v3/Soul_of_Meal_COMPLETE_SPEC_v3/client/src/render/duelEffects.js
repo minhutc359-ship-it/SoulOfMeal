@@ -1,5 +1,8 @@
 import { drawCombatAccent, drawCombatTrail } from './combatVfx.js';
 import { canvasContext, canvasResolution } from './canvasSurface.js';
+import { COMBAT_PLAYBACK_RATE } from '../modes/adventureBalance.js';
+
+const IMPACT_DURATION = 330 / COMBAT_PLAYBACK_RATE;
 
 function position(field, id, bounds) {
   if (!id || !bounds.width || !bounds.height) return null;
@@ -27,8 +30,8 @@ export class DuelEffects {
       ?? position(field, `lane:p${target_player}:${target_lane}`, bounds));
     const from = bounds && (position(field, event.source_id, bounds) ?? position(field, source, bounds) ?? to);
     const animated = !reducedMotion && Boolean(from && to);
-    const windup = ultimate ? 130 : support ? 55 : 60;
-    const flight = ultimate ? 200 : support ? 112 : effect_kind ? 175 : 123;
+    const windup = (ultimate ? 130 : support ? 55 : 60) / COMBAT_PLAYBACK_RATE;
+    const flight = (ultimate ? 200 : support ? 112 : effect_kind ? 175 : 123) / COMBAT_PLAYBACK_RATE;
     const contact = now + (animated ? windup + flight : 0);
     this.attacks.push({ from, to, now, contact, launch: now + windup, event });
     return contact;
@@ -45,7 +48,7 @@ export class DuelEffects {
       else active.push(attack);
     }
     this.attacks = active;
-    this.impacts = this.impacts.filter(impact => impact.event.battle_id === matchId && now - impact.start < 330);
+    this.impacts = this.impacts.filter(impact => impact.event.battle_id === matchId && now - impact.start < IMPACT_DURATION);
     const visible = active.length || this.impacts.length;
     if (!canvas || (!visible && canvas.hidden)) return;
     canvas.hidden = !visible;
@@ -79,7 +82,7 @@ export class DuelEffects {
       const kind = event.type === 'tcg_support_resolved' ? support : absorbed > 0 && !hp_damage ? 'guard'
         : effect_kind === 'trap' ? 'trap' : ultimate ? 'cast' : 'hit';
       drawCombatAccent(context, this.renderer, { element, kind, x: to.x * width, y: to.y * height,
-        size: ultimate ? 92 : 57, progress: (now - start) / 330, reducedMotion, effectsLimited });
+        size: ultimate ? 92 : 57, progress: (now - start) / IMPACT_DURATION, reducedMotion, effectsLimited });
     }
   }
 

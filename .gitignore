@@ -4,3 +4,5 @@ __pycache__/
 **/client/dist/
 **/server/bin/
 **/server/obj/
+Soul_of_Meal_COMPLETE_SPEC_v3/Soul_of_Meal_COMPLETE_SPEC_v3/client/assets/splash/**/*.webp
+Soul_of_Meal_COMPLETE_SPEC_v3/Soul_of_Meal_COMPLETE_SPEC_v3/client/assets/splash/*.webp

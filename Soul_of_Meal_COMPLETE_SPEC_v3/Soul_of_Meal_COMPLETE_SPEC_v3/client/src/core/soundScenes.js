@@ -11,9 +11,13 @@ export const DEFAULT_SOUNDTRACKS = Object.freeze({
   epic_boss_battle: 'battle_theme.ogg',
 });
 
-export function resolveSoundScene(page, adventure) {
+export function resolveSoundScene(page, adventure, tcg, chess) {
   if (page === 'title') return 'login';
+  if (page === 'tcg' && tcg?.challengeId && tcg.mulliganDone) return 'epic_boss_battle';
   if (page === 'tcg' || page === 'deck') return 'tcg';
+  if (page === 'chess' && chess?.phase === 'result' && (chess.result?.boss || chess.result?.opponentId === 0 && chess.stage >= 2)) {
+    return 'epic_boss_battle';
+  }
   if (page === 'chess') return 'chess';
   if (page === 'journey') return 'adventure';
   if (page === 'adventure' || page === 'puzzle') {

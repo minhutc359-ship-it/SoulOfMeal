@@ -375,7 +375,8 @@ export function portraitRigDefinition(spirit, width, height, soles = null) {
     bones: {
       feet: { translate: [{ time: 0, x: 0, y: 0 }, { time: contact ?? duration / 2, x, y }, { time: duration, x: end.x ?? 0, y: 0 }] },
       body: { rotate: [{ time: 0, value: 0 }, { time: contact ?? duration / 2, value: turn }, { time: duration, value: end.turn ?? 0 }] },
-      head: { rotate: track(duration, { value: 0 }, { value: -turn * .82 }) },
+      // A single portrait has no independent neck artwork. Keep the cut at the joint aligned.
+      head: { rotate: track(duration, { value: 0 }, { value: Math.max(-3, Math.min(3, -turn * .25)) }) },
       ...(hand == null ? {} : { hand: { rotate: [
         { time: 0, value: 0 }, { time: (contact ?? duration / 2) * .48, value: contact ? 5 : 0 },
         { time: contact ?? duration / 2, value: contact ? -9 + turn * .3 : -turn }, { time: duration, value: 0 },

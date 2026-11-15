@@ -1,0 +1,11 @@
+{
+  "status": "PROPOSED",
+  "version": 1,
+  "flavor_explosion": {
+    "name": "Hương Vị Bùng Nổ",
+    "elements": ["fire", "water", "wood"],
+    "unit_damage": 350,
+    "commander_damage": 200,
+    "rule": "Trong lượt của mình, thi triển thành công phép của cả Hỏa, Thủy và Mộc; đồng thời có Vị Linh còn sống thuộc đủ ba hệ trên sân. Kích hoạt tối đa một lần mỗi lượt. Phép bị hóa giải hoặc mất mục tiêu không được tính."
+  }
+}

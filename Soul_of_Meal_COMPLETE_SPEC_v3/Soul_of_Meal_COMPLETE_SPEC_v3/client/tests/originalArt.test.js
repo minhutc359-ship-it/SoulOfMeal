@@ -15,7 +15,7 @@ const assetFile = (path) => new URL('../' + path.slice(2), import.meta.url);
 test('every playable Vị Linh has a dedicated profile illustration', async () => {
   for (const id of Object.keys(SPIRITS)) {
     const portrait = showcaseArt(id);
-    assert.ok(portrait.endsWith('/showcase/' + id + '.webp'));
+    assert.ok(portrait.startsWith('./assets/splash/previews/') || portrait.endsWith('/showcase/' + id + '.webp'));
     assert.notEqual(portrait, actorArt(id));
     const file = await readFile(assetFile(portrait));
     assert.equal(file.toString('ascii', 8, 12), 'WEBP');
@@ -41,7 +41,7 @@ test('every additional Vị Linh uses a valid articulated rig and the seven offe
 test('the playtest preloads original art for the entire roster and all directions of travel', async () => {
   const paths = new Set();
   async function readAsset(path) {
-    assert.ok(path.startsWith('./assets/original/'), path);
+    assert.ok(/^\.\/assets\/(original|splash)\//.test(path), path);
     paths.add(path);
     return readFile(assetFile(path));
   }

@@ -1,0 +1,909 @@
+{
+  "schema": 1,
+  "packs": [
+    {
+      "file": "splash-001.json.gz",
+      "bytes": 3994370,
+      "sha256": "9b95f03da38aa771790099158a451163a8f63349c65fc5c83b973ad7e262a29c",
+      "entries": 6
+    },
+    {
+      "file": "splash-002.json.gz",
+      "bytes": 4020661,
+      "sha256": "3100061cd067bd48c1372df04ad9277e3d5af7d4c6dc3edd47ffa3eb33ae8919",
+      "entries": 6
+    },
+    {
+      "file": "splash-003.json.gz",
+      "bytes": 3334357,
+      "sha256": "38f1d15753123ebcb20204ce823dd81208e85bcad0bc70408913adf063f1fb55",
+      "entries": 5
+    },
+    {
+      "file": "splash-004.json.gz",
+      "bytes": 3614380,
+      "sha256": "89c6357b0820f6f43a0dd470870dad504acaafaf76407bf2511f46b1b556acb4",
+      "entries": 5
+    },
+    {
+      "file": "splash-005.json.gz",
+      "bytes": 3811299,
+      "sha256": "094a0763bb14482aaf1822d4b3afcb733174cadfde61600d792f937a2ebdb8f7",
+      "entries": 6
+    },
+    {
+      "file": "splash-006.json.gz",
+      "bytes": 3944494,
+      "sha256": "50e8ad9982aa72779a412e9c9e487d8a370a7867537f668421cf0cdf24b314fb",
+      "entries": 6
+    },
+    {
+      "file": "splash-007.json.gz",
+      "bytes": 3641662,
+      "sha256": "e96a3ea25cf38de66a38f83745dd45718522b78fc0a951f6e25bf25374020e23",
+      "entries": 6
+    },
+    {
+      "file": "splash-008.json.gz",
+      "bytes": 3603639,
+      "sha256": "05930cb5b057784b77d6998b8c9cff17127c148931c3f0632225ae76ab42444a",
+      "entries": 6
+    },
+    {
+      "file": "splash-009.json.gz",
+      "bytes": 3993128,
+      "sha256": "06f8c964e8da2293fd216971d263ed2c3db4dd5ddb8a200c76930e056290039f",
+      "entries": 6
+    },
+    {
+      "file": "splash-010.json.gz",
+      "bytes": 3803160,
+      "sha256": "14d6e3e8b236ede7cc206abc2ed8104ede62ad8dbfa5a92b46490901281cff7b",
+      "entries": 6
+    },
+    {
+      "file": "splash-011.json.gz",
+      "bytes": 3659796,
+      "sha256": "b2779ccf999465eb79879961003d63ef50509b7ab397cd20a42a5ebcb121b9a9",
+      "entries": 6
+    },
+    {
+      "file": "splash-012.json.gz",
+      "bytes": 3592099,
+      "sha256": "8dda085d3f0055d4d36d331e81b8d741cb46e7bb89095480f653cb224d5566bc",
+      "entries": 6
+    },
+    {
+      "file": "splash-013.json.gz",
+      "bytes": 3940350,
+      "sha256": "126c4925b65597fec8ce6b5c94c54ebc24890a5ce1e3eb797b6c18baec081a20",
+      "entries": 6
+    },
+    {
+      "file": "splash-014.json.gz",
+      "bytes": 3913621,
+      "sha256": "4a6f47eb7fa15313038f4ee05e6b001a3a957c81f28f9da132f3d4d9ffda0070",
+      "entries": 12
+    },
+    {
+      "file": "splash-015.json.gz",
+      "bytes": 4009277,
+      "sha256": "48c2e075d997fb7a415c97d1bc3fb0f8c759f748dcfb017ba29509fd39a9e4bf",
+      "entries": 31
+    },
+    {
+      "file": "splash-016.json.gz",
+      "bytes": 3908950,
+      "sha256": "12efa836de8207378782a7f4132ef38e16460bdbde6784a2e1df54def5d5778e",
+      "entries": 33
+    },
+    {
+      "file": "splash-017.json.gz",
+      "bytes": 1106626,
+      "sha256": "9a3a53eba4ab0cc9ba607d9d30409b1602692c8201f17d6fba3c7a823a6c0253",
+      "entries": 8
+    }
+  ],
+  "files": [
+    {
+      "path": "card-back.webp",
+      "bytes": 735490,
+      "sha256": "eab9fa5a306585cc7a5b8fcdefd07a8717fecd449813d4bc56db3a0b668227be"
+    },
+    {
+      "path": "cards/card_chr_som_002.webp",
+      "bytes": 617354,
+      "sha256": "3fc5c644afe9f3afd78592170713e94bbfa1bbc7d13c0fa854218d87a6639066"
+    },
+    {
+      "path": "cards/card_chr_som_003.webp",
+      "bytes": 551474,
+      "sha256": "f0e90b128d542271266d83677b4485a1d56eb8f016a4e943a4dd858b6704d877"
+    },
+    {
+      "path": "cards/card_chr_som_004.webp",
+      "bytes": 659390,
+      "sha256": "2773144def35f159c4b091824ef4c589f9c4c0877287fbee7fa69778faec1175"
+    },
+    {
+      "path": "cards/card_chr_som_005.webp",
+      "bytes": 674120,
+      "sha256": "34bc1fe50446148b6328013085d2ba789ebe77a13a16d1320a7bbabe839b490a"
+    },
+    {
+      "path": "cards/card_chr_som_006.webp",
+      "bytes": 716854,
+      "sha256": "16ad82fe2718f874d97b5081de2e78a041a836d38e4c637e43244083a4cae027"
+    },
+    {
+      "path": "cards/card_chr_som_007.webp",
+      "bytes": 638272,
+      "sha256": "ed971627d744878266dbae33fd184416b8483b9f9801a4ece6c304f997da475d"
+    },
+    {
+      "path": "cards/card_chr_som_008.webp",
+      "bytes": 641854,
+      "sha256": "eac661a199945270377d3e3274fab25184d550249d49ea2f5b75939dbedf633e"
+    },
+    {
+      "path": "cards/card_chr_som_009.webp",
+      "bytes": 695984,
+      "sha256": "37630e397380ffb198881e888ee690e6030aa949a3eb05e858785d0b9a97b114"
+    },
+    {
+      "path": "cards/card_chr_som_010.webp",
+      "bytes": 665320,
+      "sha256": "3b45d9060618cc2598525a63aae679a2ba6ffa90b1e3a66c89ffb35102e25608"
+    },
+    {
+      "path": "cards/card_chr_som_011.webp",
+      "bytes": 643838,
+      "sha256": "a7bdc7275a062d1edc1c0269c310847ec10e6b09db1c4fe3ef91dac719a90379"
+    },
+    {
+      "path": "cards/card_chr_som_012.webp",
+      "bytes": 695564,
+      "sha256": "997d769cffc37f61a02921b1cf2c076e34afa63c59e2eed41c123b556d00fdfc"
+    },
+    {
+      "path": "cards/card_chr_som_013.webp",
+      "bytes": 644730,
+      "sha256": "2048cb8609c6011f5ae0be9ef829f9e1efb75f604ab86c6e2ba7d0c8c47bc28e"
+    },
+    {
+      "path": "cards/card_chr_som_016.webp",
+      "bytes": 644818,
+      "sha256": "7cb2ae5d42788f6273a0cf567199b807480d6c39dc0a2b51581d174191da813a"
+    },
+    {
+      "path": "cards/card_chr_som_017.webp",
+      "bytes": 699898,
+      "sha256": "6a5204c4aff64406af2bdebd1eb18e4df033df3df8fb814c6573fc738bea0f5f"
+    },
+    {
+      "path": "cards/card_chr_som_019.webp",
+      "bytes": 636832,
+      "sha256": "7aa12d5456515fa15d5f50f3fb9ae235ebd82db0f3153049bdefd6d538c8d5b2"
+    },
+    {
+      "path": "cards/card_chr_som_020.webp",
+      "bytes": 674950,
+      "sha256": "2173981be605e4ce9b30d28a2b85956af317d1599dcdde7be99a750e91dd2fd2"
+    },
+    {
+      "path": "cards/card_chr_som_022.webp",
+      "bytes": 706502,
+      "sha256": "da4442697eda2edcf8adebd98c46d66deac54af8a3adbcda7a3916971c77fccf"
+    },
+    {
+      "path": "cards/card_chr_som_023.webp",
+      "bytes": 770798,
+      "sha256": "f20376e480903ee26d1441d450c64cbff5101077217c3999674092d2e3df90b9"
+    },
+    {
+      "path": "cards/card_chr_som_024.webp",
+      "bytes": 704668,
+      "sha256": "bb2c1281bd348737674e94e67c4d530736f6d27cf5ca3c82f2052ed65c40d071"
+    },
+    {
+      "path": "cards/card_demo_01.webp",
+      "bytes": 697402,
+      "sha256": "2c4c9380b75f076ebed6abf272fffd03733ce37e13a5f22c8a9657fb6c5a3784"
+    },
+    {
+      "path": "cards/card_demo_02.webp",
+      "bytes": 699104,
+      "sha256": "450975c11e12153f8d8d777b741d22aeeb4e0b153aa966b1681f7e9ac16c2f27"
+    },
+    {
+      "path": "cards/card_demo_03.webp",
+      "bytes": 742600,
+      "sha256": "11d5ef11822174c79353e6843a90fe768b7d6529ba995649ccaef65e5bf4f408"
+    },
+    {
+      "path": "cards/card_demo_04.webp",
+      "bytes": 587386,
+      "sha256": "a38d141372a18ac437e89ae7b770fbd7565798e8aff67a26fc58bad5c5cb6901"
+    },
+    {
+      "path": "cards/card_demo_05.webp",
+      "bytes": 598484,
+      "sha256": "2923c2976991cc9448d313512d9a3e3c69348bfc97eda9e260ecdc202cf82eb7"
+    },
+    {
+      "path": "cards/card_demo_06.webp",
+      "bytes": 605930,
+      "sha256": "4a0fd542e513dd39e2dea5eea54f734b6ff0ea8b45c9811146b7068acb30d999"
+    },
+    {
+      "path": "cards/card_demo_07.webp",
+      "bytes": 561236,
+      "sha256": "3cd7d4ad5963e7aedb61adf18d6481de05b1516dcb3647870570c39fdb0d68d3"
+    },
+    {
+      "path": "cards/card_demo_08.webp",
+      "bytes": 677746,
+      "sha256": "f53eb6e5c1b19e320130ed1848a61e3cc93efcce3ff529bd773ad43d778bd7b6"
+    },
+    {
+      "path": "cards/card_demo_09.webp",
+      "bytes": 744242,
+      "sha256": "30ae082558a228478f3eadd238821c2864649bd76b4b29bcad8119bad0f55b2c"
+    },
+    {
+      "path": "cards/card_demo_10.webp",
+      "bytes": 649484,
+      "sha256": "528c86e8c4337d71db31689e8b5316f7491e9daa0eff85146ca5b7aae98cf8bb"
+    },
+    {
+      "path": "cards/card_demo_11.webp",
+      "bytes": 682138,
+      "sha256": "ad6bba3c0cd26248b2e35ceacbb3cb846ab51c475635a648a541d57fe54022dc"
+    },
+    {
+      "path": "cards/card_demo_12.webp",
+      "bytes": 651490,
+      "sha256": "e38b06435fa10aa3e32d0c786c7616cfe93f352131f6f9f111313009e7a1d4ba"
+    },
+    {
+      "path": "cards/card_demo_13.webp",
+      "bytes": 571586,
+      "sha256": "31a5e6045d8ff09480f172ff9d3ea5e8384f184bf4ce77385124c37a04960298"
+    },
+    {
+      "path": "cards/card_demo_14.webp",
+      "bytes": 606400,
+      "sha256": "1cb9652182f68041e46956440f1b9258080dc47cb8855731fe0f7d438b33415e"
+    },
+    {
+      "path": "cards/card_demo_15.webp",
+      "bytes": 559006,
+      "sha256": "4269c93e7e5ba240f5df33401c43f699140c262ce252917347eaa6ab725b1ccc"
+    },
+    {
+      "path": "cards/card_demo_16.webp",
+      "bytes": 587486,
+      "sha256": "8c096a7c40741b4def35785b3f915c51bbb876e7f09f2a844ea0013254ee93c3"
+    },
+    {
+      "path": "cards/card_demo_17.webp",
+      "bytes": 554996,
+      "sha256": "c6e5bb8cb3a99ae33539afd16cf2200c0739c78b7a974707fcf2e235eafccd46"
+    },
+    {
+      "path": "cards/card_demo_18.webp",
+      "bytes": 663536,
+      "sha256": "bb92d5cb7e3f475ddee97e9f32bb6f4ba7844f027ecb9d7e7ba96c882e7b3f1d"
+    },
+    {
+      "path": "cards/card_ember_break.webp",
+      "bytes": 660760,
+      "sha256": "a75a5f4a3f14a3067cfe3a1b062a678bf3dc8de8c1936a2d110f3409dc399cb3"
+    },
+    {
+      "path": "cards/card_ember_runner.webp",
+      "bytes": 579732,
+      "sha256": "ec3c7356298ad11cee7dc48ff30290e3207f67bf793256527948644aa889322b"
+    },
+    {
+      "path": "cards/card_fire_guard.webp",
+      "bytes": 697150,
+      "sha256": "3b317ae9363117db48df15c116d439e679e2b538628586eddf43ac084202d034"
+    },
+    {
+      "path": "cards/card_hearth_pepper.webp",
+      "bytes": 494860,
+      "sha256": "3f9bcff5ee43c76dceef9d1a79c6aae79417c592476a4c488f153bb69d4cf993"
+    },
+    {
+      "path": "cards/card_jade_encore.webp",
+      "bytes": 547518,
+      "sha256": "dfa224115db5ca56f4a37c9c29b47ea7734dbd342d2292dad1bd49342231d4c8"
+    },
+    {
+      "path": "cards/card_jade_mushroom.webp",
+      "bytes": 662496,
+      "sha256": "9ec28aa76c1dea41bcd2916a31177a658c2ab44567b95410b02ff1be5fcc9e1d"
+    },
+    {
+      "path": "cards/card_jade_watch.webp",
+      "bytes": 526010,
+      "sha256": "f4a030786732368ffa47331c4a451f711b4fc38f97d9cdd01ff4dd6daeef6e6e"
+    },
+    {
+      "path": "cards/card_lantern_guard.webp",
+      "bytes": 639784,
+      "sha256": "a0cdce702b22b205bde671ee77a5725368e6d65415feff0f8af78ce7c3992553"
+    },
+    {
+      "path": "cards/card_leaf_reclaim.webp",
+      "bytes": 743946,
+      "sha256": "12c5ddb17259db479fb1f995fbed2d046dea15e28153338c2abc4b931ff0de95"
+    },
+    {
+      "path": "cards/card_mist_dampen.webp",
+      "bytes": 556714,
+      "sha256": "4ee218cb181b410e62be952523a3d8be05c90a4c9217184525db45a357204697"
+    },
+    {
+      "path": "cards/card_mist_keeper.webp",
+      "bytes": 641956,
+      "sha256": "0e8807f11d6622ae3b5ba040b590769b1d4a1dc9f9c4e323a607c58f3e42fea1"
+    },
+    {
+      "path": "cards/card_mist_recall.webp",
+      "bytes": 731750,
+      "sha256": "033096589e3a06b43c140f596ddb5f723867dfdda0f706cb86a851f529e1b806"
+    },
+    {
+      "path": "cards/card_night_feast.webp",
+      "bytes": 630104,
+      "sha256": "686be949a047a0d1b074aef4a10395ae12d986a74d5b5c0ab9d9f907d8725dd8"
+    },
+    {
+      "path": "cards/card_night_reaper.webp",
+      "bytes": 649010,
+      "sha256": "b9bb53cfbfdac3b3736c7747321883ac4299218b02e65ac246d39cf7b46b6154"
+    },
+    {
+      "path": "cards/card_rain_keeper.webp",
+      "bytes": 742082,
+      "sha256": "1685b87349875a58d99fee0f14a2f241c48c857bd3cdd51bebf472fcf6c0dafc"
+    },
+    {
+      "path": "cards/card_shadow_duelist.webp",
+      "bytes": 588654,
+      "sha256": "bf1fcaf5ffea453fc0fc58358c44ed366fc86ab8cc33f7ff94c6e216dde367a6"
+    },
+    {
+      "path": "cards/card_shadow_hunter.webp",
+      "bytes": 551474,
+      "sha256": "e72949ea58cf4aeb58329d4303b18b9ab6e326e1636da86aa15f4aae277ed8e2"
+    },
+    {
+      "path": "cards/card_spirit_rally.webp",
+      "bytes": 656612,
+      "sha256": "b4d7260676f5d92fbf08a379641a36b301bf9bd80a38d4ca14be14791f30d537"
+    },
+    {
+      "path": "cards/card_spirit_renewal.webp",
+      "bytes": 659304,
+      "sha256": "e0784a6653346262a14329b4a007195063a5a39b3e18f135e4b4ae6068beda8b"
+    },
+    {
+      "path": "cards/card_spirit_ward.webp",
+      "bytes": 567342,
+      "sha256": "d53627f4fba67d301cdd6053c08d4156152f34aa99c3342b745e17b99740d1aa"
+    },
+    {
+      "path": "cards/card_sprout_guard.webp",
+      "bytes": 624802,
+      "sha256": "e9fca92c9f7bc15a427474b94d48825f535ab0bef8cb2c6085ca057ada10b4f1"
+    },
+    {
+      "path": "cards/card_tcg_disarm.webp",
+      "bytes": 615136,
+      "sha256": "b5984ee79f3fb492ed5b3dddd8d4b74161ba3e78e92f05498a728f42e8832260"
+    },
+    {
+      "path": "cards/card_tcg_refute.webp",
+      "bytes": 522876,
+      "sha256": "05f7808522a163b78d0ac71f805bc61ddddea3d0ed6a39b092c31e0aec0161b2"
+    },
+    {
+      "path": "cards/card_tcg_resupply.webp",
+      "bytes": 686926,
+      "sha256": "bc4a41d64053738012ad4421f460f7f826484c301e5d0494c9ff2c590324a2a4"
+    },
+    {
+      "path": "cards/card_tcg_scout.webp",
+      "bytes": 623750,
+      "sha256": "2d6c47a4884c19ccbc3a776052c54e51a1a434ee06b5e6af55b1a6ab118dbf8d"
+    },
+    {
+      "path": "cards/card_tcg_tonic.webp",
+      "bytes": 549926,
+      "sha256": "6dedf818c3f7c9793e47a36b1c712d84d51bd2490610af3ec34c3cad29a914b5"
+    },
+    {
+      "path": "cards/card_tide_mage.webp",
+      "bytes": 695918,
+      "sha256": "de5c221b1020b8bf9bcce2ab2bf54f25efcc094fa219b3bef6563f0c599e3f1b"
+    },
+    {
+      "path": "cards/card_trap_embers.webp",
+      "bytes": 651838,
+      "sha256": "2c7fee3d1959343d36155c3673621bc70bdd4a677c5505cf0b524f155d9710d1"
+    },
+    {
+      "path": "cards/card_trap_jade.webp",
+      "bytes": 602958,
+      "sha256": "0b42d9982534d5213e1ad5072271b5e9f97cecd42e945767f3176b6ca96aa8a4"
+    },
+    {
+      "path": "cards/card_trap_mirror.webp",
+      "bytes": 519352,
+      "sha256": "e606b13ee4e61cd5a1b2a3ba055beddb663f953439c707058c33d6eff652c622"
+    },
+    {
+      "path": "cards/card_trap_mist.webp",
+      "bytes": 577272,
+      "sha256": "048bfee31074bd6e1a8908e2fd53cd4c0782e75af197f37563bdc157ef0221a2"
+    },
+    {
+      "path": "cards/card_trap_night.webp",
+      "bytes": 509096,
+      "sha256": "d8b56a16b9e2eafd380b2e163e43a6706f946e03fe36a01db1639c51c7d2b796"
+    },
+    {
+      "path": "cards/card_trap_rally.webp",
+      "bytes": 526946,
+      "sha256": "7c35ba5dd75a13178380115daef3021827aeb6829d30be3f549d0baa4e0a9f97"
+    },
+    {
+      "path": "cards/card_trap_recall.webp",
+      "bytes": 633156,
+      "sha256": "fb09bdccbac7f2f2f04ec78763c89b25cc692c719cc65992c6ae4a4039f79e18"
+    },
+    {
+      "path": "cards/card_trap_reserve.webp",
+      "bytes": 711384,
+      "sha256": "4b08710a17df19106c1af87caa52e0528c0c32e21a56f0f6dd7199e8eff33f23"
+    },
+    {
+      "path": "cards/card_trap_roots.webp",
+      "bytes": 749248,
+      "sha256": "08b82443a25331ddeb44e00d98a6f48bed4cd8896afcd1e562607650b1e27026"
+    },
+    {
+      "path": "cards/card_ultimate_fire.webp",
+      "bytes": 706520,
+      "sha256": "556955229ffab1dc87a3faf29ffa2a35e1f92b9081f9e81fcb8b10b90b2c35c7"
+    },
+    {
+      "path": "cards/card_ultimate_light.webp",
+      "bytes": 573920,
+      "sha256": "03aeff80e8e84c49857d01e978af9d664c160043dc9b91a566f43fcfa78c35ef"
+    },
+    {
+      "path": "cards/card_ultimate_shadow.webp",
+      "bytes": 658426,
+      "sha256": "208ff003b035fa8a8e622ab9dfbb9f090f13b28c1567bab5746aa459327bd81c"
+    },
+    {
+      "path": "cards/card_ultimate_water.webp",
+      "bytes": 781210,
+      "sha256": "f078a712d449a3c826c57c9defef8eedd6bcfb124c37347c8de7301e97cf1a07"
+    },
+    {
+      "path": "cards/card_ultimate_wood.webp",
+      "bytes": 686330,
+      "sha256": "b4d35cf2aeead3aba1f8463dc0f9dcd2d1444ca28f77f0dee40ba803097cc32f"
+    },
+    {
+      "path": "cards/card_wood_scout.webp",
+      "bytes": 735892,
+      "sha256": "6ba7e23e394eb0037d36ebf82ec6b268b21e388ed0fd4258d99cbbfd431412da"
+    },
+    {
+      "path": "previews/card_chr_som_002.webp",
+      "bytes": 121868,
+      "sha256": "59df1453df33075c466218cabcc5886df01f133a2944556921f7120ee1be0ef6"
+    },
+    {
+      "path": "previews/card_chr_som_003.webp",
+      "bytes": 110696,
+      "sha256": "a38de96b8142f9d653888b5659c6f41006c7d44c6f95c1aa27397f8ef28374c2"
+    },
+    {
+      "path": "previews/card_chr_som_004.webp",
+      "bytes": 131708,
+      "sha256": "32b49e972f11fda752bbc89fc4d4dbded984fc463aa5d8a334635f299be6f1bf"
+    },
+    {
+      "path": "previews/card_chr_som_005.webp",
+      "bytes": 127082,
+      "sha256": "f70f04fab6ca1650dfceb063e967c3643628e8bcda2e8ecc5766e6318baaf710"
+    },
+    {
+      "path": "previews/card_chr_som_006.webp",
+      "bytes": 135356,
+      "sha256": "d1afe38829426a5551e16794512d0f713ed334c8761058e29ff0048069b3825a"
+    },
+    {
+      "path": "previews/card_chr_som_007.webp",
+      "bytes": 137236,
+      "sha256": "ae6d4563c0018d6511cdf068ad95527f0f5dff0925bb9ef38471c12c1b5608e8"
+    },
+    {
+      "path": "previews/card_chr_som_008.webp",
+      "bytes": 127640,
+      "sha256": "3d56a1450bbe28146f85061fb4128589eee16cda9f8006b6bbd50bd55a141028"
+    },
+    {
+      "path": "previews/card_chr_som_009.webp",
+      "bytes": 120866,
+      "sha256": "5a542c6d722c216cc971965c83ed5a786439baecbb4418ad3104e4d207f59886"
+    },
+    {
+      "path": "previews/card_chr_som_010.webp",
+      "bytes": 130126,
+      "sha256": "5cbdf272bdf79fb84abc86b97ea679764270115284a74d2021f6d4572358483a"
+    },
+    {
+      "path": "previews/card_chr_som_011.webp",
+      "bytes": 130666,
+      "sha256": "50e68a66d21a54f56f60f8df4311c7dade4d51ebbebe2d17b66267e6a16739aa"
+    },
+    {
+      "path": "previews/card_chr_som_012.webp",
+      "bytes": 142140,
+      "sha256": "90cbd8da9c4de88df2e5cc83eeb8447a097f638b2e3838ecfe6699abb82dcf6c"
+    },
+    {
+      "path": "previews/card_chr_som_013.webp",
+      "bytes": 126420,
+      "sha256": "e6dec43f790f53e3c04a461edfd8ab7ef529663a27053778696913dcce060364"
+    },
+    {
+      "path": "previews/card_chr_som_016.webp",
+      "bytes": 124626,
+      "sha256": "79d4e10b7bdb8a60fa39b2d6aa282b4fd37eec26c75f4e89efe9856329349723"
+    },
+    {
+      "path": "previews/card_chr_som_017.webp",
+      "bytes": 134690,
+      "sha256": "b8a03030067756c6aa7680ede73ed5813675134dcbd43c66fcc60d782a2b5ad1"
+    },
+    {
+      "path": "previews/card_chr_som_019.webp",
+      "bytes": 134226,
+      "sha256": "ef13cf6727a4fa582cd279d60890a2ccf9824b72a4065f1679cf8e95ed82bdb0"
+    },
+    {
+      "path": "previews/card_chr_som_020.webp",
+      "bytes": 139658,
+      "sha256": "bb4ac759eb5182bb81069d110e2dfed91182e4336085e7be967f7db4cb2e41f1"
+    },
+    {
+      "path": "previews/card_chr_som_022.webp",
+      "bytes": 137178,
+      "sha256": "0d43f3ce3143abcc9e33928722bb3a0a5a6e95ab553518ae59cb01757a76536a"
+    },
+    {
+      "path": "previews/card_chr_som_023.webp",
+      "bytes": 157596,
+      "sha256": "550927792a91dd44ce9ef7af332029edc44aa986efa3bd404433a581f717c5de"
+    },
+    {
+      "path": "previews/card_chr_som_024.webp",
+      "bytes": 132836,
+      "sha256": "4babf0379578f090d3cfc7bd1f42f2fbaf960015a2e2ea09979a071471cf614b"
+    },
+    {
+      "path": "previews/card_demo_01.webp",
+      "bytes": 125388,
+      "sha256": "f304484d56a1d2a2c639659fbe1d4ac98d28acc49076168a369d1e43cbb98a5e"
+    },
+    {
+      "path": "previews/card_demo_02.webp",
+      "bytes": 143150,
+      "sha256": "5debfcc8e014672a58e128c8f683d5e8b06ae6b1d405932177d20364eafcd3f4"
+    },
+    {
+      "path": "previews/card_demo_03.webp",
+      "bytes": 149238,
+      "sha256": "6400e6aaf7bf2a2dae0a6764d26a9af9081b64290132db09609cb2fdb3d13f70"
+    },
+    {
+      "path": "previews/card_demo_04.webp",
+      "bytes": 110828,
+      "sha256": "5d7e5026ebdf21ebe407906075abd5eb4d2dfcfc9dfb5a020f72bb2b3c41a194"
+    },
+    {
+      "path": "previews/card_demo_05.webp",
+      "bytes": 114792,
+      "sha256": "a49cf8b05f96d9217650c69e001babc456a3c00faec994f0b8b5e7001e2b01e4"
+    },
+    {
+      "path": "previews/card_demo_06.webp",
+      "bytes": 124078,
+      "sha256": "770c993ee2e4796f968ea3c113edf1a8aba1e1d2a5d78944651cc429aadf1f33"
+    },
+    {
+      "path": "previews/card_demo_07.webp",
+      "bytes": 115306,
+      "sha256": "7984f00f7355c32d5ac9cb711b04574fb54713c79c49ce478e83a1082cd01ca8"
+    },
+    {
+      "path": "previews/card_demo_08.webp",
+      "bytes": 132452,
+      "sha256": "ed45f779ca5cccb586e2cbc7d38c9591084f73c567972b3df4b85e169aa5d95e"
+    },
+    {
+      "path": "previews/card_demo_09.webp",
+      "bytes": 140546,
+      "sha256": "afd8cafe298829f70c3c5f92adff5377629dbab5fab8697859777fae24d82c9d"
+    },
+    {
+      "path": "previews/card_demo_10.webp",
+      "bytes": 128584,
+      "sha256": "3d7e60bad6b826cc177ed2a3a9acfcc41af99066aae8aa8f99343d9513bcf511"
+    },
+    {
+      "path": "previews/card_demo_11.webp",
+      "bytes": 133110,
+      "sha256": "d641ef04abda359493d205c34e8ee736b864382b065fe036bce837f010cd77b1"
+    },
+    {
+      "path": "previews/card_demo_12.webp",
+      "bytes": 130398,
+      "sha256": "058aab32e15ba3e8941e0e1ae93c8dc654902eeee99936aa44272c39fc1212fb"
+    },
+    {
+      "path": "previews/card_demo_13.webp",
+      "bytes": 117360,
+      "sha256": "5fe921a2adf9b5c817baec9d9b3b12d9f7fecc6a121f86947d06ad8322ef9b9b"
+    },
+    {
+      "path": "previews/card_demo_14.webp",
+      "bytes": 118172,
+      "sha256": "07745658a845db7e73cd048b762cb0914d97b27bec316d52139c7d92f5aa7c77"
+    },
+    {
+      "path": "previews/card_demo_15.webp",
+      "bytes": 114664,
+      "sha256": "c191e879d3d6b7ed744b5f98fc979c1b2b4fda450fc6e64726da06a9af283913"
+    },
+    {
+      "path": "previews/card_demo_16.webp",
+      "bytes": 96416,
+      "sha256": "2bed65740b5f2d9d46c48c62384a74d609a979da91bc8611a1981af74deac907"
+    },
+    {
+      "path": "previews/card_demo_17.webp",
+      "bytes": 115694,
+      "sha256": "f9e44dd52b08d5f55684ab7cd58dc8f87572f0aaf615c1f001869742da55ad6c"
+    },
+    {
+      "path": "previews/card_demo_18.webp",
+      "bytes": 127006,
+      "sha256": "daa6e03bae1dd0181ea0219f590bb5b76fdd33d29e2beeb63f8da812b0f5bb48"
+    },
+    {
+      "path": "previews/card_ember_break.webp",
+      "bytes": 128178,
+      "sha256": "2a92cf6086745b042a3b7d3c516e67f63bbd9701ae88188ed0cfa23470b358d2"
+    },
+    {
+      "path": "previews/card_ember_runner.webp",
+      "bytes": 112494,
+      "sha256": "60eb110b876fda872b98ea018c0becf1e52523d1087db900eeb99568503cc352"
+    },
+    {
+      "path": "previews/card_fire_guard.webp",
+      "bytes": 133386,
+      "sha256": "2d197314e22606e45c7e664e9166cdd152761350d34c240c4b30f3810404c467"
+    },
+    {
+      "path": "previews/card_hearth_pepper.webp",
+      "bytes": 94984,
+      "sha256": "745dc2fd90a3e5065ac0010ad6a68c4c33398b9252ad74bf208bd32dbd58b6a3"
+    },
+    {
+      "path": "previews/card_jade_encore.webp",
+      "bytes": 109646,
+      "sha256": "7db000bb7a0204a474d3a5db359ce174a47108240b3e3f3872ff38da661538eb"
+    },
+    {
+      "path": "previews/card_jade_mushroom.webp",
+      "bytes": 126680,
+      "sha256": "70bd2e673840bdecf2d7d75da1f169f5fac965f126d730104a1d7569f96d87ec"
+    },
+    {
+      "path": "previews/card_jade_watch.webp",
+      "bytes": 101052,
+      "sha256": "2c2226a09f7f1adef4bf4b61d660b593a53d50f2cce566e867a88f8b67619e26"
+    },
+    {
+      "path": "previews/card_lantern_guard.webp",
+      "bytes": 128708,
+      "sha256": "e3b76dbdfd6426f6f87d72e96e05df06e136fee4cccbb823a0ece2a083bce19f"
+    },
+    {
+      "path": "previews/card_leaf_reclaim.webp",
+      "bytes": 140874,
+      "sha256": "d693d3b7b56b5177b899bdb0edc3f31ef956c2dcd779b5044660353e1285f196"
+    },
+    {
+      "path": "previews/card_mist_dampen.webp",
+      "bytes": 97222,
+      "sha256": "e10195e291405f10307476cbf6bfb48d60b70d02d7c56249374fbf75f9ab2526"
+    },
+    {
+      "path": "previews/card_mist_keeper.webp",
+      "bytes": 121444,
+      "sha256": "fb70b1339f7abc736978d3617dd6c7fb647962bb529a5f48f64ea513cc5dfee3"
+    },
+    {
+      "path": "previews/card_mist_recall.webp",
+      "bytes": 138562,
+      "sha256": "9f73027fdb6edf275d382aca42008d0ecf7f124fd52386fb1abf4964cfd07718"
+    },
+    {
+      "path": "previews/card_night_feast.webp",
+      "bytes": 122888,
+      "sha256": "66aa2d9c285697a344685c583530230ab51e67596209b2c241304e8e7c54c7ac"
+    },
+    {
+      "path": "previews/card_night_reaper.webp",
+      "bytes": 120500,
+      "sha256": "c7638a69b582e70357e6b2256a016258bce8ad808ee59e696547cadb6ce805e1"
+    },
+    {
+      "path": "previews/card_rain_keeper.webp",
+      "bytes": 147062,
+      "sha256": "00a8c2d1658ce4aeb5b9b87a89356598b6634036c0f72874e9eb66a4f9b68c13"
+    },
+    {
+      "path": "previews/card_shadow_duelist.webp",
+      "bytes": 109414,
+      "sha256": "9d47d37174919f4f580a56ce37b2da91d80d7d504760c7b3ee5d05d8a5f0b5e1"
+    },
+    {
+      "path": "previews/card_shadow_hunter.webp",
+      "bytes": 104760,
+      "sha256": "aeb3c76e8c3eb1bec1bf464f4ac6f52b8cb3d5853e25a2dafe05ab7c4b7c4142"
+    },
+    {
+      "path": "previews/card_spirit_rally.webp",
+      "bytes": 114546,
+      "sha256": "c1c05cc181c91b02a4168321682612d465db4ca93da3626013d369e80e83ce1c"
+    },
+    {
+      "path": "previews/card_spirit_renewal.webp",
+      "bytes": 130618,
+      "sha256": "c01705f90d1e247b5b7fa8cbceb8132d3372e0bb7b54afb4c7fc810c023d2dfb"
+    },
+    {
+      "path": "previews/card_spirit_ward.webp",
+      "bytes": 100542,
+      "sha256": "2a93fba56e278ceec71227678d2cc4223ff0f054d6831d6025c6a07f82d7ad71"
+    },
+    {
+      "path": "previews/card_sprout_guard.webp",
+      "bytes": 124912,
+      "sha256": "bd38733c7ac2db4656fc6d1eb1fb5e503ebb1ed592219a247afaa58d2e1657e2"
+    },
+    {
+      "path": "previews/card_tcg_disarm.webp",
+      "bytes": 118628,
+      "sha256": "34e85c8045ece53f65007f4f60b9e7a4be83eba0908f42ff849489518171856e"
+    },
+    {
+      "path": "previews/card_tcg_refute.webp",
+      "bytes": 108102,
+      "sha256": "f3db1b2938d2bda63f4c4d5150584ec620d89ecb3b36c97c895bebfd9e06f2e2"
+    },
+    {
+      "path": "previews/card_tcg_resupply.webp",
+      "bytes": 133098,
+      "sha256": "a495bb98343e63a142e1c98c3b75f3a630d22a7068d48bf8f74de13e400fcf85"
+    },
+    {
+      "path": "previews/card_tcg_scout.webp",
+      "bytes": 117452,
+      "sha256": "3ee9a1938a447a94066d412888440149c7f49d93738b790a232a83cc6504824e"
+    },
+    {
+      "path": "previews/card_tcg_tonic.webp",
+      "bytes": 100852,
+      "sha256": "64e549e08e16a5c5742bd41a7a5ce7532af80780ae73b8419de31fa45151ac4d"
+    },
+    {
+      "path": "previews/card_tide_mage.webp",
+      "bytes": 136234,
+      "sha256": "0c04405bea919ef4d688e1e50e98f2650661b6a9824b8b7fc8aca126b0067ed6"
+    },
+    {
+      "path": "previews/card_trap_embers.webp",
+      "bytes": 113594,
+      "sha256": "7388d103936c852e542a8f27450906e738f0b47dfb26534e36e863d87cdcec12"
+    },
+    {
+      "path": "previews/card_trap_jade.webp",
+      "bytes": 110910,
+      "sha256": "ca8d5c1747e7c5255dac0b66f1b451f691390e6bd57308c45fbd5df4d7fb4c83"
+    },
+    {
+      "path": "previews/card_trap_mirror.webp",
+      "bytes": 111106,
+      "sha256": "48640f6caba0910582451028adbdb4298d02e486402a1f5727db597f63fea71d"
+    },
+    {
+      "path": "previews/card_trap_mist.webp",
+      "bytes": 93294,
+      "sha256": "e97e1f262b8a2b388bf3dd8eb9dfab4c69b3c7ebf04bcdb1029928b83acdc299"
+    },
+    {
+      "path": "previews/card_trap_night.webp",
+      "bytes": 99508,
+      "sha256": "8058d2985528233be05f470605b26234341b79989dadd3876e2c09282a637a9a"
+    },
+    {
+      "path": "previews/card_trap_rally.webp",
+      "bytes": 105988,
+      "sha256": "e15b1252a29c29774e6ab7ffaa08ad4a490225484405060db48bb6a7c2d52346"
+    },
+    {
+      "path": "previews/card_trap_recall.webp",
+      "bytes": 113738,
+      "sha256": "02ca6aa1628cfbebd8317af640ed8b90a7494c13da15d5710b2f5733ef898915"
+    },
+    {
+      "path": "previews/card_trap_reserve.webp",
+      "bytes": 138190,
+      "sha256": "04551e82d33f5940faf8ea3869675fdd37f47c6d1df6938eedcebe5dc8ddaf5f"
+    },
+    {
+      "path": "previews/card_trap_roots.webp",
+      "bytes": 144970,
+      "sha256": "be1f3b37f79c276c0b66be92a30f9aa04ff1cf823388d7a36045ba0c76e5c492"
+    },
+    {
+      "path": "previews/card_ultimate_fire.webp",
+      "bytes": 136546,
+      "sha256": "475ccd7239de58ecc479acc859cee2b945bed4a4bb94f1d42510dae9c066ddc2"
+    },
+    {
+      "path": "previews/card_ultimate_light.webp",
+      "bytes": 110530,
+      "sha256": "e4e231596004a3c905671941b8328f78d7c273baf20c3e6ade44d5c7a9b9cdf0"
+    },
+    {
+      "path": "previews/card_ultimate_shadow.webp",
+      "bytes": 125228,
+      "sha256": "e74b2cb9edacf1f2c7f3bb5bbb87c8df20a82a1b8a1c6acd713be6a97fa4cdcd"
+    },
+    {
+      "path": "previews/card_ultimate_water.webp",
+      "bytes": 155064,
+      "sha256": "0ca1298e0a1db1f62b2c248808258a2582c9036850898ac8ba31b8fe708ee7a8"
+    },
+    {
+      "path": "previews/card_ultimate_wood.webp",
+      "bytes": 136302,
+      "sha256": "3bae21e1716cccc7487b71a48a90c461eb30cec15c17f105593fe9639249b68a"
+    },
+    {
+      "path": "previews/card_wood_scout.webp",
+      "bytes": 146216,
+      "sha256": "090f884cbbf5c77c64ed157fff9ce69724a692bbf86750d3e10608ec7b9efe45"
+    },
+    {
+      "path": "previews/soul_of_meal_back.webp",
+      "bytes": 140326,
+      "sha256": "9719115c568b620cd48d01162aca67d0caa4cf8c7aa8d732f231670f1317bd73"
+    }
+  ]
+}

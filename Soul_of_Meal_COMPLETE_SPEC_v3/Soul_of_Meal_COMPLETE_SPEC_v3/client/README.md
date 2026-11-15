@@ -11,7 +11,7 @@ Mở [http://localhost:4173/client/](http://localhost:4173/client/) và chọn *
 
 Trên máy tính, dùng WASD hoặc phím mũi tên để di chuyển, E để tương tác và phím 1–5 để dùng tuyệt kỹ. Trên màn hình cảm ứng, chạm điểm đến, NPC, rương hoặc cổng. Có nút toàn màn hình ở thanh trên khi trình duyệt hỗ trợ. Nhạc và hiệu ứng bắt đầu sau thao tác đầu tiên.
 
-Trên điện thoại, thêm trang `/client/` vào màn hình chính từ menu trình duyệt. Khi mở bằng biểu tượng Soul of Meal, web app chọn fullscreen nếu trình duyệt hỗ trợ và dùng cửa sổ độc lập trên các trình duyệt còn lại. iOS có thể vẫn giữ thanh trạng thái. Game tải nội dung qua mạng.
+Trên điện thoại, thêm trang `/client/` vào màn hình chính từ menu trình duyệt. Khi mở bằng biểu tượng Soul of Meal, web app chọn fullscreen nếu trình duyệt hỗ trợ và dùng cửa sổ độc lập trên các trình duyệt còn lại. iOS có thể vẫn giữ thanh trạng thái. Lần mở đầu cần mạng; hồ sơ khách có thể tải gói ngoại tuyến trong Cài đặt để chơi lại khi mất mạng.
 
 Để kiểm tra bản build, chạy `npm --prefix client run build` rồi `npm --prefix client run preview`, mở lại đường dẫn trên. Kết quả build nằm trong `client/dist/` với entry `client/index.html` và catalog tương đối trong `examples/`.
 
@@ -38,10 +38,10 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 ## Lối chơi
 
 - **Adventure** · Chơi sáu chương bắt đầu với **Hương Vị Đầu Tiên**. Dùng **Dẫn đường** trên bản đồ hoặc trong **Nhật ký hành trình**. Nhật ký lưu manh mối đã tìm và cho đọc lại đối thoại đã mở. Đội năm Vị Linh tự di chuyển theo tầm đánh. Bún Bò chém diện rộng, Phở bắn đạn làm chậm, Gỏi Cuốn hồi máu, Bánh Bao tạo lá chắn và Cà Phê kết liễu mục tiêu yếu máu.
-- **Nhánh vườn** · Từ Rừng Nguyên Liệu, chạm cổng đến **Vườn Nấm Sương**, rồi đi tiếp sang **Vườn Gia Vị**. Hai vườn có NPC chỉ đường và trận quái nhận thưởng một lần. Trận boss cốt truyện có hai đợt quái trước boss. Chế độ tái đấu đặt đội vào đợt boss.
+- **Nhánh vườn** · Từ Rừng Nguyên Liệu, chạm cổng đến **Vườn Nấm Sương**, rồi đi tiếp sang **Vườn Gia Vị**. Hai vườn có NPC chỉ đường và trận quái có thể đánh lại để farm vàng và tinh hoa với thưởng theo lượt. Trận boss cốt truyện có hai đợt quái trước boss. Chế độ tái đấu đặt đội vào đợt boss.
 - **Truyện hướng dẫn** · Mở **Hướng dẫn** bằng nút **?** ở sảnh hoặc qua menu trong trận. Có năm trang hướng dẫn từ tranh gốc của dự án.
-- **TCG** · Đấu bot với bộ 24 lá từ danh mục 60 lá. Chọn độ khó và bộ bài bot riêng. Trình sửa có bốn ô lưu bộ bài, biểu đồ mana, bộ lọc và bảy bộ mẫu gồm **Khởi đầu**, **Hộ Trận**, **Tiên Phong**, **Triều Sương**, **Mầm Sống**, **Dạ Yến** và **Triều Hỏa**.
-- **Auto Chess** · Xếp đội hình trên bàn lục giác, mua quân từ kho chung, hợp thể ba bản sao và mua XP. Ván mới có bảy bot đánh cùng lúc, các vòng quái thưởng linh kiện và kết thúc khi bị loại, về nhất hoặc đến giới hạn 37 vòng. Phát lại giao tranh dùng vị trí, đòn đánh, kỹ năng và HP do mô phỏng ghi lại. Ván lưu từ bản trước tiếp tục theo thể thức cũ.
+- **TCG** · Đấu bot với bộ 24 lá từ danh mục 79 lá. Chọn độ khó và bộ bài bot riêng. Trình sửa có bốn ô lưu bộ bài, biểu đồ mana, bộ lọc và bảy bộ mẫu gồm **Khởi đầu**, **Hộ Trận**, **Tiên Phong**, **Triều Sương**, **Mầm Sống**, **Dạ Yến** và **Triều Hỏa**.
+- **Auto Chess** · Xếp đội hình trên bàn lục giác, mua quân từ kho chung, hợp thể ba bản sao và mua XP. Ván mới có bảy bot đánh cùng lúc, các vòng quái thưởng linh kiện và kết thúc khi bị loại hoặc còn một người sống. Từ vòng 37 áp dụng hiệp phụ tăng sát thương và phân định hòa, cùng luật cho người chơi và bot (cân bằng PROPOSED). Phát lại giao tranh dùng vị trí, đòn đánh, kỹ năng và HP do mô phỏng ghi lại. Ván lưu từ bản trước tiếp tục theo thể thức cũ.
 
 ## Bếp Trưởng Hỏa Diệm
 
@@ -70,6 +70,10 @@ Game đang mở lấy toàn bộ nội dung từ đường dẫn build của phi
 - **Tiếp tục giao tranh.** Trận được ghi khi vào trận, sang đợt, mở hoặc kết thúc báo đòn, tạm dừng và có kết quả. Khi tải lại, trận đang diễn ra trở về mốc đã ghi và chờ **Tiếp tục**. Kết quả chưa nhận thưởng vẫn xuất hiện. Tài khoản đồng bộ các mốc lên máy chủ khi báo **Đã lưu**.
 
 ## Thao tác trong game
+
+**Ngoại tuyến và bản sao tiến trình.** Trên bản build HTTPS, vào **Cài đặt → Chơi ngoại tuyến → Tải gói ngoại tuyến**. Gói bao gồm dữ liệu ba chế độ, hình ảnh, mô-đun Phaser, hiệu ứng và nhạc thực tế (kể cả nhạc boss); dung lượng hiển thị trước khi tải. Chỉ báo sẵn sàng sau khi mọi tệp đã tải đủ và kiểm tra toàn vẹn. Dùng hồ sơ khách để mở lại đúng địa chỉ phiên bản khi mất mạng. Tài khoản, Gacha trên máy chủ, đồng bộ và tải bản phát hành mới vẫn cần mạng. API, cookie và dữ liệu tài khoản không được cache. Mỗi bản phát hành bất biến có gói riêng, nên không trộn asset giữa hai phiên bản. Bản chạy `vite dev` không có gói này; dùng `npm --prefix client run build` rồi `npm --prefix client run preview` để kiểm tra.
+
+**Lưu trên thiết bị.** Giữ khóa `soul-of-meal.save.v2`, toàn bộ kho đồ, đội hình và snapshot các ván đang chơi. Nếu trình duyệt chặn ghi hoặc hết dung lượng, trận tiếp tục và hiện **Thử lưu lại / Tải bản sao**; cập nhật phiên bản sẽ chờ lưu thành công. Có thể tải bản sao JSON trong Cài đặt ngay cả khi bộ nhớ thiết bị không ghi được. Không xóa dữ liệu trình duyệt trước khi giữ bản sao cần thiết.
 
 - **Giao tranh Adventure.** Năm tuyệt kỹ nằm dưới sân đấu. Mỗi ô hiển thị năng lượng, trạng thái sẵn sàng, thời gian hồi và trạng thái gục. Cột đối thủ chứa HP boss, báo chiêu và nút đối phó. Khi dẫn đường, bản đồ nhỏ vẽ tuyến còn lại và sân đánh dấu điểm đến.
 - **Adventure.** Bản đồ nhỏ đánh dấu vị trí người chơi, lối đi và mục tiêu nhiệm vụ hiện tại. Trên màn hình cảm ứng, dùng cần điều khiển hoặc chạm đích để đi. Mở **Nhật ký hành trình** để đọc lại các cảnh đã mở kèm minh họa sáu chương.
@@ -127,9 +131,11 @@ Mỗi slot để `null` dùng nhạc mẫu. Nếu file tự chọn thiếu hoặ
 
 ## Tích hợp và tài nguyên
 
+Minh họa thẻ được lưu trong `source-art/splash/` thành 17 gói nguồn có SHA-256. `npm ci` và Vite tự khôi phục đúng 160 ảnh WebP HD/preview vào `assets/splash/`; ảnh sinh ra không cần commit riêng. Khi chạy trực tiếp bằng Python HTTP server, khôi phục trước bằng `node client/build/materializeSplashAssets.js` từ thư mục gốc của gói v3. Xem [gói nguồn minh họa](source-art/README.md).
+
 Adventure chạy mô phỏng ở 30 Hz. Chuỗi `attack_started` / `cast_started` → `projectile_spawned` (nếu có) → `hit_resolved` đồng bộ clip, hiệu ứng và âm thanh. Các sự kiện `heal_resolved` và `shield_applied` dùng cùng đồng hồ mô phỏng. Dữ liệu thử nghiệm nằm trong `src/modes/adventureBalance.js` và `examples/`. Renderer và playback chỉ đọc sự kiện.
 
-- Cả năm Vị Linh dùng sprite anime chibi mới, với chân dung và cut-in riêng. Bún Bò Hỏa Linh có bộ sprite đi bản đồ bốn hướng. Boss Hỏa Diệm có bộ sprite hướng tây, pháp ấn báo mục tiêu và hiệu ứng chém riêng. Adventure, TCG và Auto Chess dùng chung nhận diện nhân vật.
+- Năm Vị Linh gốc có sprite anime chibi, chân dung và cut-in riêng. Bún Bò Hỏa Linh có bộ sprite đi bản đồ bốn hướng. Boss Hỏa Diệm có bộ sprite hướng tây, pháp ấn báo mục tiêu và hiệu ứng chém riêng. Danh mục chung gồm 24 Vị Linh; tranh minh họa không thay thế sprite hay rig di chuyển của từng nhân vật.
 - Tranh làng, rừng, sân đấu, đạo cụ, quái và thẻ phép/bẫy được vẽ riêng cho bản chơi thử. Xem [danh mục, nguồn art và cách tái tạo](../docs/02_art/ORIGINAL_ART_PLAYTEST.md).
 - Rig biến dạng 2D đọc clip và atlas hiện có. Năm Vị Linh, hai quái và bộ di chuyển Bún Bò dùng các mốc chân, hông, thân và đầu để bổ sung chuyển động giữa các pose. Nghiệm thu Spine và chuyển động độc lập từng chi vẫn còn mở.
 - Nhạc và âm thanh môi trường có thể tái tạo bằng `python3 scripts/build_music.py`. Dùng `python3 scripts/build_element_sfx.py` để tái tạo đòn năm hệ và `python3 scripts/build_combat_audio.py` cho bộ tuyệt kỹ, bước chân và tín hiệu giao tranh. Các lệnh xuất OGG cần FFmpeg.
@@ -142,7 +148,7 @@ python3 -m unittest discover -s tests -v
 python3 scripts/validate_package.py .
 ```
 
-Battle Adventure và Auto Chess dùng Canvas 2D. Cả ba chế độ dùng bot. Tài khoản đồng bộ bản luyện tập lên PostgreSQL. Client xử lý luật chiến đấu. Các phần còn cần hoàn thiện trước phát hành gồm rig và hoạt ảnh đầy đủ, duyệt mỹ thuật và quyền sử dụng, lồng tiếng bằng diễn viên, benchmark WebGL trên thiết bị thật và cân bằng dài hạn. Bản chơi thử lưu manh mối, mốc nhiệm vụ, phần thưởng, checkpoint Adventure, ván TCG và vòng Auto Chess. Khi tải lại Adventure giữa trận, game khôi phục mốc đã lưu và chờ người chơi bấm **Tiếp tục**.
+Battle Adventure và Auto Chess dùng Canvas 2D. Cả ba chế độ dùng bot. Tài khoản đồng bộ bản luyện tập lên PostgreSQL. Client xử lý luật chiến đấu. Các phần còn cần hoàn thiện trước phát hành gồm rig và hoạt ảnh đầy đủ, duyệt mỹ thuật và quyền sử dụng, benchmark WebGL trên thiết bị thật và cân bằng dài hạn. Bản chơi thử lưu manh mối, mốc nhiệm vụ, phần thưởng, checkpoint Adventure, ván TCG và vòng Auto Chess. Khi tải lại Adventure giữa trận, game khôi phục mốc đã lưu và chờ người chơi bấm **Tiếp tục**.
 
 ## Hồ sơ và Giao Ước Vị Linh v4
 
@@ -165,5 +171,24 @@ Ma trận gồm 1920×1080, 1366×768, 844×390, 390×844, 360×740 và 1024×76
 ### Bản cập nhật giao tranh và hồ sơ
 
 - Bàn TCG v4 dùng 5 vị trí Vị Linh và 2 ô bẫy. Hai ô bẫy có địa chỉ riêng, kể cả sau khi một bẫy bị gỡ. Ván v3 tiếp tục dùng cấu hình cũ. Chọn **Ván mới** để chơi v4.
-- Hồ sơ có **Đặt ở sảnh** cho Vị Linh đã sở hữu và đối chiếu chỉ số trang bị cùng vị trí. Cài đặt có thanh âm lượng giọng đọc và tùy chọn giảm mật độ VFX mà vẫn giữ cảnh báo đòn đánh.
-- Giọng đọc tiếng Việt cho các đoạn truyện, NPC đường đi, sảnh, tuyệt kỹ và chủ tướng TCG được xuất sẵn. Mục [ghi công âm thanh](assets/audio/voice/CREDITS.md) nêu nguồn mô hình và cách xử lý tệp.
+- Hồ sơ có **Đặt ở sảnh** cho Vị Linh đã sở hữu và đối chiếu chỉ số trang bị cùng vị trí. Cài đặt có âm lượng nhạc, hiệu ứng, môi trường và tùy chọn giảm mật độ VFX mà vẫn giữ cảnh báo đòn đánh.
+- Hội thoại hiển thị bằng chữ. Nhạc và hiệu ứng chiến đấu vẫn phát.
+- Bếp Trưởng và các boss Adventure, chế độ thử thách TCG và vòng tinh anh Auto Chess dùng chung `epic_boss_battle`.
+- Ở tốc độ thường, giao tranh Adventure và bản phát lại Auto Chess chạy ở 70% nhịp cũ. TCG làm chậm hiệu ứng ra đòn ở cùng tỷ lệ và diễn từng hành động của bot trước khi chuyển sang hành động tiếp theo.
+- Nếu đường bị kẹt, menu Adventure có **Về điểm vào bản đồ**. Lệnh này giữ bản đồ và tiến trình hiện tại.
+
+### Nâng cấp trải nghiệm mobile
+
+- Adventure mở **Khu thu thập** trong menu sau khi giải khóa rương. Vườn Nấm Sương và Vườn Gia Vị có phần thưởng lần đầu và phần thưởng tái đấu. Vườn Nấm rơi Canh Bổ Dưỡng Nhỏ, Vườn Gia Vị rơi Đá Hương Tinh. Đội vào ải thu thập với đầy HP, và kết quả ải không đổi HP của đội trong cốt truyện.
+- TCG có kiểu chơi **Chủ chiến và dự bị** trong màn tạo ván. Quân chủ chiến đỡ đòn thường và có quyền tấn công. Đổi quân tốn 1 mana, tối đa một lần mỗi lượt. Luật của các ván đấu tự do và dữ liệu ván cũ vẫn dùng phiên bản đã lưu.
+- Auto Chess có vòng tinh anh sau giai đoạn mở đầu. Chiến thắng cho chọn một trong ba linh kiện. Nếu chuyển vòng ngay, trò chơi nhận linh kiện đầu tiên.
+- Các thẻ Vị Linh dùng tranh môi trường gốc theo hệ. Hồ sơ dùng khung riêng cho minh họa và mô hình, với bố cục theo hướng màn hình.
+
+
+## Minh họa và danh mục chung — 15/11/2026
+
+Từ sảnh hoặc trình sửa bộ bài, mở **Bộ sưu tập minh họa** để xem 79 ảnh thẻ và 24 Vị Linh, tìm theo tên và lọc hệ. Chi tiết thẻ hiển thị chỉ số TCG thật; nút **Xem minh họa HD** mở ảnh 1024×1536. Gói ngoại tuyến cơ bản có preview; sau khi tải gói cơ bản, Cài đặt cho tải thêm toàn bộ HD. Tải HD không thành công vẫn giữ gói chơi.
+
+Ván TCG mới có **Hương Vị Bùng Nổ**: thi triển thành công phép của Hỏa, Thủy, Mộc trong cùng lượt, có quân sống đủ ba hệ, tối đa một lần mỗi lượt. Cân bằng thử nghiệm: 350 sát thương lên từng quân địch và 200 HP chủ soái. Ván cũ giữ luật đã lưu. Auto Chess có 27 quân, phủ đủ 24 Vị Linh; ván mới lưu snapshot catalog và ván cũ giữ giá/chỉ số trước đây.
+
+Nhạc boss dùng chung `epic_boss_battle`, chuyển cảnh bằng crossfade 800 ms. Client không còn voice/TTS; đối thoại chữ tiếp tục hoạt động. Xem [kết quả kiểm tra và các bước nghiệm thu còn lại](../docs/05_production/SHARED_ROSTER_SPLASH_QA.md).

@@ -1,4 +1,5 @@
 import { validateAnimationManifest } from './clipPlayer.js';
+import { cardIllustration, spiritIllustration } from './cardArtwork.js';
 import { META, SPIRITS } from '../modes/metaProgress.js';
 import { VILLAGE_ROOMS } from '../modes/villageRooms.js';
 
@@ -40,13 +41,15 @@ export const ELEMENT_ART = Object.freeze({
 });
 
 export function sceneArt(id) { return `${ORIGINAL}/scenes/${id}.webp`; }
+const CARD_SCENES = { fire: 'caldera', water: 'harbor', wood: 'forest', light: 'orchard', shadow: 'sanctum' };
+export function cardBackdrop(element) { return sceneArt(CARD_SCENES[element] ?? CARD_SCENES.light); }
 export function itemArt(id) { return `${ORIGINAL}/items/${id}.webp`; }
 export function chapterArt(number) { return `${ORIGINAL}/chronicle/chapter-${number}.webp`; }
 export function actorArt(id) { return ACTORS.includes(id) ? `${ORIGINAL}/actors/${id}.webp` : null; }
 export function propArt(id) { return `${ORIGINAL}/props/${id}.webp`; }
-export function originalCardArt(id) { return CARD_IDS.has(id) ? `${ORIGINAL}/cards/${id}.webp` : null; }
+export function originalCardArt(id) { return cardIllustration(id)?.preview ?? (CARD_IDS.has(id) ? `${ORIGINAL}/cards/${id}.webp` : null); }
 export function showcaseArt(id) {
-  return Object.hasOwn(SPIRITS, id) ? `${ORIGINAL}/showcase/${id}.webp` : null;
+  return spiritIllustration(id)?.preview ?? (Object.hasOwn(SPIRITS, id) ? `${ORIGINAL}/showcase/${id}.webp` : null);
 }
 export function cutinArt(id) { return `${ORIGINAL}/cutins/${id}.webp`; }
 export function combatArt(id) { return `${ORIGINAL}/effects/${id}.webp`; }

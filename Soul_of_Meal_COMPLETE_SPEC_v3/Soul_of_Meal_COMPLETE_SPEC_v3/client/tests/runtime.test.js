@@ -818,10 +818,12 @@ test('Auto Chess shop drop buys directly into a valid empty tile once', async ()
   assert.throws(() => buyChessOffer({ ...run, board: placed.board }, 0, cell), /ô trống/);
 });
 
-test('Auto Chess run reaches a terminal result at the round cap', async () => {
+test('legacy Auto Chess saves keep their terminal round cap', async () => {
   const unitsData = await readJson('examples/auto_chess/units.json');
   const shop = await readJson('examples/auto_chess/shop_odds.json');
   shop.lobby.max_rounds = 4;
+  delete shop.lobby.finish_condition;
+  delete shop.lobby.overtime;
   let run = createChessRun(unitsData.units, shop, 44);
   for (let cycle = 0; cycle < 20 && run.phase !== 'finished'; cycle += 1) {
     if (run.phase === 'prepare') run = startChessCombat(run);
@@ -1104,7 +1106,7 @@ test('boss challenges preserve story progress and reward each difficulty only on
   assert.equal(save.completedBattles, original.completedBattles);
 });
 
-test('the forest detour keeps locations, awards field battles once and leaves story flags intact', () => {
+test('the forest detour keeps locations, awards repeatable field battles without changing story flags or party health', () => {
   let save = createDefaultSave();
   Object.assign(save.adventure, { map: 'forest', chestOpened: true, quest: 'accepted', x: 199, y: 350 });
   const state = createAdventureState(save);
@@ -1124,9 +1126,17 @@ test('the forest detour keeps locations, awards field battles once and leaves st
   assert.ok(updated.player.gold > save.player.gold);
   assert.equal(updated.adventure.quest, 'accepted');
   assert.equal(updated.adventure.forestCleared, false);
-  assert.equal(interactAdventure(state, updated).state.battle, null);
+  assert.deepEqual(updated.roster, save.roster);
+  assert.equal(claimBattleResult(state, updated), updated);
+  assert.equal(interactAdventure(state, updated).state.battle.encounter, 'orchard_patrol');
+  Object.assign(state.battle, { phase: 'battle_end', result: 'victory' });
+  const replayed = claimBattleResult(state, updated);
+  assert.equal(replayed.player.gold - updated.player.gold, 12);
+  assert.equal(replayed.player.essence - updated.player.essence, 2);
+  assert.equal(replayed.adventure.inventory.stacks.potion_small, 2);
+  assert.deepEqual(replayed.adventure.rewardClaims, updated.adventure.rewardClaims);
   Object.assign(state, { x: 897, y: 410 });
-  assert.equal(interactAdventure(state, updated).state.map, 'spice_garden');
+  assert.equal(interactAdventure(state, replayed).state.map, 'spice_garden');
 });
 
 test('enemy area skill warns before launch and only damages actors within the locked impact area', () => {
