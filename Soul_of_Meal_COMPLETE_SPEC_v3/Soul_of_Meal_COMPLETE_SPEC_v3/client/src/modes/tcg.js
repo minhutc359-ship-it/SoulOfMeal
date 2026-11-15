@@ -1,4 +1,5 @@
 import { gameEvents } from '../core/events.js';
+import elementalCombos from './tcgCombos.proposed.json' with { type: 'json' };
 import { planTcgAttacks, planTcgBlocks, tcgCanAttack, tcgCanBlock, tcgPierce, tcgUnitAttack, tcgUnitDurability } from './tcgStrategy.js';
 import { tcgHandLimit, TCG_MAX_HP, TCG_REACTIONS, TCG_RULES_VERSION, TCG_SPELL_TYPES, TCG_TABLE_VERSION, TCG_TABLE_DECK_SIZE,
   hasModernTcgRules, tcgBoardLimit, tcgCommanderMax, tcgTrapLimit, tcgTrapSlot, tcgOpenTrapSlots, tcgCardCost, tcgCaster, tcgEffectText, tcgRecipeFor, TCG_RECIPES, tcgSpellTargets, tcgTurnSerial, usesTcgTable } from './tcgCards.js';
@@ -63,6 +64,7 @@ export function createTcgMatch(catalog, deck, seed = 41, botDeck = deck, difficu
   return {
     seed, battleId: `battle_tcg_${seed}`, rulesVersion, botDeckId: botDeck.deck_id,
     ...(frontline && table ? { frontline: true } : {}),
+    ...(rulesVersion === TCG_TABLE_VERSION ? { elementalComboVersion: elementalCombos.version } : {}),
     round: 1, maxRounds: MAX_ROUNDS, phase: 'action', activePlayer: 0, priority: 0,
     passes: 0, stack: [], mulliganDone: false, nextStackId: 1, nextTrapId: 1, pendingAttack: null, winner: null, result: null,
     difficulty: Object.hasOwn(TCG_DIFFICULTIES, difficulty) ? difficulty : 'normal', players, eventSeq: 0, log: [{ type: 'match_started', text: 'Trận đấu bắt đầu. Người chơi đi trước không rút bài ở lượt đầu.' }],
@@ -809,6 +811,24 @@ function resolveSpell(match, card, ownerIndex, targetId, caster, recipe) {
     case 'counter_reaction': cancelTcgStackItem(match, card, item.id); break;
   }
   if (recipe && !match.result) resolveTcgRecipe(match, ownerIndex, card, caster, recipe);
+  if (!match.result) resolveFlavorCombo(match, ownerIndex, card, caster);
+}
+
+function resolveFlavorCombo(match, owner, card, caster) {
+  if (match.elementalComboVersion !== 1 || match.activePlayer !== owner || !usesTcgTable(match)) return;
+  const player = match.players[owner], combo = elementalCombos.flavor_explosion;
+  if (!combo.elements.includes(card.element) || player.flavorComboUsed) return;
+  player.flavorElements = [...new Set([...(player.flavorElements ?? []), card.element])];
+  const units = combo.elements.map(element => player.units.find(unit => unit.current_def > 0 && unit.element === element));
+  if (!units.every(Boolean) || !combo.elements.every(element => player.flavorElements.includes(element))) return;
+  player.flavorComboUsed = true;
+  const recipeCard = { ...card, display_name: combo.name, requires_character: undefined };
+  logEvent(match, 'flavor_combo_resolved', `Combo · ${combo.name}.`);
+  gameEvents.emit('tcg_recipe_resolved', { name: combo.name, element: card.element, elements: combo.elements,
+    card_ids: units.map(unit => unit.card_id), player_index: owner }, tcgContext(match, caster, `commander:p${owner}`));
+  const enemy = 1 - owner;
+  damageTcgTargets(match, { card: recipeCard, owner, caster, kind: 'recipe' }, enemy, [...match.players[enemy].units], combo.unit_damage);
+  if (!match.result) damageTcgTargets(match, { card: recipeCard, owner, caster, kind: 'recipe' }, enemy, [null], combo.commander_damage);
 }
 
 function showTcgUnitChange(match, card, owner, unit, kind, label, amount = 0) {
@@ -1064,6 +1084,8 @@ function advanceTurn(match, playerIndex) {
     delete player.resonanceUsed;
     delete player.recipeAnchor;
     delete player.recipesUsed;
+    delete player.flavorElements;
+    delete player.flavorComboUsed;
     for (const unit of player.units) {
       delete unit.shield;
       delete unit.attackBuff;

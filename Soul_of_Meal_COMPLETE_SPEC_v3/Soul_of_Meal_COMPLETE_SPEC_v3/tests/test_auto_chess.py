@@ -79,7 +79,7 @@ class AutoChessRulesTests(unittest.TestCase):
     def test_buy_spends_tier_cost_and_moves_offer_to_bench(self):
         state = self.make_shop_state()
         updated = buy_shop_offer(state, 1)
-        self.assertEqual(updated["gold"], 8)
+        self.assertEqual(updated["gold"], 10 - self.units[1]["cost"])
         self.assertEqual(updated["bench"], [self.units[1]])
         self.assertIsNone(updated["shop_offers"][1])
         self.assertEqual(state["gold"], 10)

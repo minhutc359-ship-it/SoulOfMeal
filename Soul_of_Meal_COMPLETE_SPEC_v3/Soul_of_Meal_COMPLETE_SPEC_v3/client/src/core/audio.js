@@ -1,5 +1,6 @@
 import { customSoundtrack, DEFAULT_SOUNDTRACKS } from './soundScenes.js';
 import { createCompatibilityBank } from './mp3AudioBank.js';
+import { MusicCrossfade } from './musicCrossfade.js';
 
 const AUDIO_PATH = './assets/audio/';
 const CUES = {
@@ -20,7 +21,7 @@ function elementalCue(element, phase, fallback) {
 }
 
 export class GameAudio {
-  constructor(settings) {
+  constructor(settings, fadeOptions) {
     this.settings = settings;
     this.active = new Map();
     this.loops = {};
@@ -28,6 +29,7 @@ export class GameAudio {
     this.lastPlayed = new Map();
     this.unlocked = false;
     this.compatibilityBank = createCompatibilityBank(AUDIO_PATH);
+    this.crossfade = new MusicCrossfade(fadeOptions);
   }
 
   unlock() {
@@ -64,6 +66,7 @@ export class GameAudio {
 
   syncVisibility(hidden) {
     if (hidden) {
+      this.crossfade.finish();
       for (const audio of this.active.keys()) audio.pause();
       this.active.clear();
     } else if (this.unlocked) {
@@ -75,15 +78,27 @@ export class GameAudio {
   updateLoop(channel, preferred, fallback) {
     let track = this.loops[channel];
     if (track?.preferred !== preferred || track?.fallback !== fallback) {
-      track?.audio.pause();
+      const previous = track;
       delete this.loops[channel];
-      if (!preferred) return;
+      if (!preferred) {
+        previous?.audio.pause();
+        if (channel === 'music') this.crossfade.finish();
+        return;
+      }
       track = this.startLoop(channel, preferred, fallback, preferred);
+      if (channel === 'music' && previous && !previous.failed && !globalThis.document?.hidden && this.volume('music') > 0) {
+        this.crossfade.start(previous, track, () => this.volume('music'), () => this.updateLoops());
+      } else {
+        previous?.audio.pause();
+        if (channel === 'music') this.crossfade.finish();
+      }
     }
     if (!track || track.failed) return;
     const hidden = globalThis.document?.hidden;
 
-    track.audio.volume = this.volume(channel);
+    const volume = this.volume(channel);
+    if (channel === 'music' && (!volume || hidden)) this.crossfade.finish();
+    track.audio.volume = volume * (track.fadeGain ?? 1);
     if (!track.audio.volume || hidden) {
       track.audio.pause();
       track.requested = false;
@@ -112,6 +127,7 @@ export class GameAudio {
     if (this.loops[channel] !== track || track.failed) return;
     track.failed = true;
     track.audio.pause();
+    if (channel === 'music') this.crossfade.finish();
     if (!track.fallback || track.path === track.fallback) return;
     this.startLoop(channel, track.preferred, track.fallback, track.fallback);
     this.updateLoops();

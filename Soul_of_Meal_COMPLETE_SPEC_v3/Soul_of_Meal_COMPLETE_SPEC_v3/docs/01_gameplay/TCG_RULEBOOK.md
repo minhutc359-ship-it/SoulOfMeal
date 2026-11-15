@@ -77,3 +77,10 @@ Always display commander HP, mana, active player, priority holder, current phase
 - sample 1200/1000 vs 700/1500 simultaneous exchange results 300/300.
 - 1200 unblocked reduces commander from 8000 to 6800.
 - LIFO stack and double-pass priority deterministic; same seed and command list produce identical replay hash.
+
+
+## Browser v4 catalog update — 15 November 2026
+
+The active mobile playtest uses its existing 24-card table deck, 3000 commander HP and seven-mana cap; the 36-card/8000-HP reference above is not a migration target for saved v4 tables. The catalog now contains 79 cards covering all 24 shared spirits with fixed mode-specific stats. New entries and the following combo are **PROPOSED**.
+
+New v4 matches opt into `elementalComboVersion: 1`. Successfully resolve spells of Fire, Water and Wood during your own turn, with live units of all three elements present when the final qualifying spell resolves, to trigger **Hương Vị Bùng Nổ** once per turn: 350 damage to each enemy unit and 200 commander damage. Countered or fizzled spells do not qualify. Turn transition clears progress; JSON saves preserve progress within the turn. Existing matches without the version flag retain their original recipes. Balance lives in `client/src/modes/tcgCombos.proposed.json`; only presentation uses the three-card flash.

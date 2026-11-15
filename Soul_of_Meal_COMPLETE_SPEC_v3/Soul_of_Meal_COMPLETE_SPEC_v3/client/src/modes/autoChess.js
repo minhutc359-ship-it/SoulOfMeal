@@ -80,6 +80,7 @@ export function createChessRun(units, shopConfig, seed = 2077) {
     phase: 'prepare', preparationSeconds: CHESS_PREPARATION_SECONDS, round: 1, stage: 1, hp: 100, gold: 10, level: 2, experience: 0,
     bench: [], board: [], shopLocked: false, shop: [], seed, wins: 0, losses: 0,
     streak: 0, log: ['Vòng đầu: chuẩn bị đội hình.'], combat: null, result: null,
+    catalogSnapshot: structuredClone(units),
     opponents: Array.from({ length: 7 }, (_, index) => ({
       id: index + 1, hp: 100, ...(lobby ? { units: [], bench: [], gold: 10, level: 2, experience: 0, streak: 0, items: [] }
         : { units: botRoster(units, index + seed) }),
@@ -127,7 +128,7 @@ export function buyChessOffer(run, slot, destination) {
 }
 
 function newChessUnit(offer, placementOrder) {
-  return { ...offer, ...chessStats(offer.id, 1), star: 1, placementOrder };
+  return { ...offer, ...chessStats(offer.id, 1, offer.baseStats), star: 1, placementOrder };
 }
 
 export function chessBenchSlots(run) {
@@ -292,7 +293,7 @@ export function startChessCombat(run) {
   const opponentName = opponent.neutral ? opponent.name : 'đối thủ ' + opponent.id;
   record(updated, `Vòng ${chessRoundInfo(updated).label}: giao tranh với ${opponentName}.`);
   gameEvents.emit('chess_combat_started', { round: updated.round, opponent_id: opponent.id });
-  const outcome = chessBattleOutcome(combat, updated.stage);
+  const outcome = lobbyBattleOutcome(combat, updated, 0, opponent.id, opponent.neutral);
   if (outcome.won) updated.wins++;
   else if (!outcome.draw) updated.losses++;
   updated.hp = Math.max(0, updated.hp - outcome.damage);
@@ -319,6 +320,7 @@ export function startChessCombat(run) {
   updated.result = { ...outcome, enemyDamage: hex ? outcome.enemyDamage : outcome.won ? 12 : 0,
     income, payout, ticks: combat.tick, opponentId: opponent.id, boss: opponent.boss === true, rewardItem, ...(lootChoices ? { lootChoices } : {}) };
   record(updated, outcome.won ? `Chiến thắng · +${income} vàng.` : outcome.draw ? `Hòa · +${income} vàng.` : `Thất bại · -${outcome.damage} HP, +${income} vàng.`);
+  if (outcome.overtimeDamage) record(updated, `Hiệp phụ: +${outcome.overtimeDamage} sát thương lên người thua${outcome.tiebreak ? ' · hòa giao tranh được phân định bằng hạt giống trận' : ''}.`);
   if (rewardItem) record(updated, 'Nhặt được ' + CHESS_ITEMS[rewardItem].name + '.');
   gameEvents.emit('chess_combat_finished', { won: outcome.won, draw: outcome.draw, damage: outcome.damage, income, ticks: combat.tick });
   return updated;
@@ -350,6 +352,32 @@ function roundLoot(run, playerId) {
   return CHESS_COMPONENTS[((run.seed + 13 * run.round + 17 * playerId) >>> 0) % CHESS_COMPONENTS.length];
 }
 
+export function chessOvertimeDamage(run) {
+  const policy = run.lobby?.overtime;
+  if (run.lobby?.finish_condition !== 'last_survivor' || !policy || run.round < policy.start_round) return 0;
+  return Math.min(100, (run.round - policy.start_round + 1) * policy.damage_per_round);
+}
+
+function lobbyBattleOutcome(combat, run, firstId, secondId, neutral = false) {
+  const outcome = chessBattleOutcome(combat, run.stage);
+  const extra = neutral ? 0 : chessOvertimeDamage(run);
+  if (!extra) return outcome;
+  // The same seeded rule applies to human, paired bots and ghost matches. It never
+  // changes unit stats or the replay; a tied combat is decided by the lobby rule.
+  if (outcome.draw) {
+    const low = Math.min(firstId, secondId), high = Math.max(firstId, secondId);
+    let hash = (run.seed ^ Math.imul(run.round, 0x9e3779b1) ^ Math.imul(low + 1, 0x85ebca6b) ^ Math.imul(high + 1, 0xc2b2ae35)) >>> 0;
+    hash = Math.imul(hash ^ (hash >>> 16), 0x7feb352d) >>> 0;
+    outcome.won = firstId === ((hash & 1) ? low : high);
+    outcome.draw = false;
+    outcome.tiebreak = true;
+  }
+  outcome.overtimeDamage = extra;
+  outcome.damage = outcome.won ? 0 : Math.min(100, outcome.damage + extra);
+  outcome.enemyDamage = outcome.won ? Math.min(100, outcome.enemyDamage + extra) : 0;
+  return outcome;
+}
+
 function playBotMatches(run, alive, opponent) {
   if (opponent.neutral) {
     for (const bot of alive) {
@@ -365,7 +393,7 @@ function playBotMatches(run, alive, opponent) {
   for (let i = 0; i < ordered.length; i += 2) {
     const first = ordered[i];
     const second = ordered[i + 1];
-    const outcome = chessBattleOutcome(simulateChessCombat(first.units, (second ?? opponent).units, { hex: true, replay: false }), run.stage);
+    const outcome = lobbyBattleOutcome(simulateChessCombat(first.units, (second ?? opponent).units, { hex: true, replay: false }), run, first.id, (second ?? opponent).id);
     settleBot(first, outcome.damage, outcome.won, outcome.draw, run);
     if (second) settleBot(second, outcome.enemyDamage, !outcome.won && !outcome.draw, outcome.draw, run);
   }
@@ -387,10 +415,11 @@ export function advanceChessRound(run, units, shopConfig) {
   if (run.phase !== 'result') throw new Error('Trận đấu chưa có kết quả.');
   const updated = run.result.lootChoices ? chooseChessLoot(run, run.result.lootChoices[0]) : structuredClone(run);
   const rivals = livingOpponents(updated);
-  if (updated.hp <= 0 || updated.round >= (updated.lobby?.max_rounds ?? 10) || !rivals.length) {
+  const capped = updated.lobby?.finish_condition !== 'last_survivor' && updated.round >= (updated.lobby?.max_rounds ?? 10);
+  if (updated.hp <= 0 || capped || !rivals.length) {
     updated.phase = 'finished';
     if (updated.lobby) {
-      updated.placement = updated.hp === 0 ? rivals.length + 1 : chessStandings(updated).findIndex(entry => entry.id === 0) + 1;
+      updated.placement = updated.hp === 0 ? Math.max(2, rivals.length + 1) : chessStandings(updated).findIndex(entry => entry.id === 0) + 1;
       updated.result = updated.placement === 1 ? 'victory' : 'complete';
     } else updated.result = updated.hp > 0 && (!rivals.length || updated.wins > updated.losses) ? 'victory' : 'complete';
     return updated;
@@ -433,6 +462,7 @@ export function buyChessExperience(run, units, shopConfig) {
 }
 
 function prepareLobby(run, units, config) {
+  units = chessCatalog(run, units);
   const { neutral, stage } = chessRoundInfo(run);
   run.neutral = neutral ? neutralRoster(units, stage, run.round) : null;
   for (const bot of livingOpponents(run)) {
@@ -510,7 +540,7 @@ function mergeChessCopies(run, announce = true) {
       }
     }
     survivor.star++;
-    Object.assign(survivor, chessStats(survivor.id, survivor.star));
+    Object.assign(survivor, chessStats(survivor.id, survivor.star, survivor.baseStats));
     for (const item of consumed.flatMap(unit => unit.items ?? [])) {
       const placement = chessItemPlacement(survivor, item);
       if (placement) (survivor.items ??= [])[placement.slot] = placement.id;
@@ -528,6 +558,7 @@ function mergeChessCopies(run, announce = true) {
 }
 
 function rollChessShop(run, units, config, bot = null) {
+  units = chessCatalog(run, units);
   const odds = config.probabilities_percent[String(bot?.level ?? run.level)];
   let seed = (run.seed + (run.lobby ? 131 * run.round + 701 * (bot?.id ?? 0) : 0)) >>> 0;
   const pool = chessPoolCounts(run, Boolean(bot));
@@ -558,12 +589,22 @@ function botRoster(units, seed) {
   return Array.from({ length: count }, (_, index) => {
     value = (value * 1664525 + 1013904223) >>> 0;
     const unit = structuredClone(units[value % units.length]);
-    return { ...unit, ...chessStats(unit.id, 1), star: 1, team: 'enemy', actorId: `op:${seed}:${index}`, x: index % 7, y: 1 + Math.floor(index / 7) };
+    return { ...unit, ...chessStats(unit.id, 1, unit.baseStats), star: 1, team: 'enemy', actorId: `op:${seed}:${index}`, x: index % 7, y: 1 + Math.floor(index / 7) };
   });
 }
 
-function chessStats(id, star) {
-  const base = {
+function chessCatalog(run, units) {
+  if (run.catalogSnapshot) return run.catalogSnapshot;
+  const legacy = { chr_bunbo_holinh: 1, chr_pho_lamvu: 2, chr_goicuon_diepnhi: 3,
+    chr_banhbao_bachngoc: 4, chr_caphe_davu: 5, mob_pepper_01: 1, mob_mushroom_01: 2, npc_lilia: 3 };
+  return units.filter(unit => Object.hasOwn(legacy, unit.id)).map(unit => {
+    const { baseStats, ...prior } = unit;
+    return { ...prior, cost: legacy[unit.id] };
+  });
+}
+
+function chessStats(id, star, configured) {
+  const base = configured ?? {
     chr_bunbo_holinh: [690, 68, 34], chr_pho_lamvu: [510, 86, 24],
     chr_goicuon_diepnhi: [590, 52, 31], chr_banhbao_bachngoc: [820, 42, 52],
     chr_caphe_davu: [470, 94, 20], mob_pepper_01: [490, 75, 24],

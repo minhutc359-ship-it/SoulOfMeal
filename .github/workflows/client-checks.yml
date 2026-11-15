@@ -1,0 +1,26 @@
+name: Soul of Meal checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Soul_of_Meal_COMPLETE_SPEC_v3/Soul_of_Meal_COMPLETE_SPEC_v3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: Soul_of_Meal_COMPLETE_SPEC_v3/Soul_of_Meal_COMPLETE_SPEC_v3/client/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: npm --prefix client ci
+      - run: node --test client/tests/*.test.js
+      - run: python -m unittest discover -s tests -v
+      - run: npm --prefix client run typecheck
+      - run: npm --prefix client run build
+      - run: python scripts/validate_package.py .

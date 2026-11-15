@@ -667,218 +667,554 @@
       },
       "art_card": "card_demo_13"
     },
-  {
-    "card_id": "card_ember_runner",
-    "display_name": "Tiêu Tinh · Bếp Lửa",
-    "type": "unit",
-    "element": "fire",
-    "cost": 2,
-    "rarity": "SR",
-    "version": "0.6-proposed",
-    "atk": 460,
-    "max_def": 420,
-    "character_id": "mob_pepper_01",
-    "keywords": [
-      "haste"
-    ]
-  },
-  {
-    "card_id": "card_mist_keeper",
-    "display_name": "Phở Lam Vũ · Bến Sương",
-    "type": "unit",
-    "element": "water",
-    "cost": 3,
-    "rarity": "SR",
-    "version": "0.6-proposed",
-    "atk": 500,
-    "max_def": 700,
-    "character_id": "chr_pho_lamvu",
-    "on_play": {
-      "kind": "draw",
-      "value": 1
+    {
+      "card_id": "card_ember_runner",
+      "display_name": "Tiêu Tinh · Bếp Lửa",
+      "type": "unit",
+      "element": "fire",
+      "cost": 2,
+      "rarity": "SR",
+      "version": "0.6-proposed",
+      "atk": 460,
+      "max_def": 420,
+      "character_id": "mob_pepper_01",
+      "keywords": [
+        "haste"
+      ]
+    },
+    {
+      "card_id": "card_mist_keeper",
+      "display_name": "Phở Lam Vũ · Bến Sương",
+      "type": "unit",
+      "element": "water",
+      "cost": 3,
+      "rarity": "SR",
+      "version": "0.6-proposed",
+      "atk": 500,
+      "max_def": 700,
+      "character_id": "chr_pho_lamvu",
+      "on_play": {
+        "kind": "draw",
+        "value": 1
+      }
+    },
+    {
+      "card_id": "card_sprout_guard",
+      "display_name": "Diệp Nhi · Chồi Ngọc",
+      "type": "unit",
+      "element": "wood",
+      "cost": 2,
+      "rarity": "SR",
+      "version": "0.6-proposed",
+      "atk": 300,
+      "max_def": 630,
+      "character_id": "chr_goicuon_diepnhi",
+      "on_play": {
+        "kind": "shield",
+        "value": 140
+      }
+    },
+    {
+      "card_id": "card_jade_watch",
+      "display_name": "Bạch Ngọc · Trấn Bếp",
+      "type": "unit",
+      "element": "light",
+      "cost": 3,
+      "rarity": "SR",
+      "version": "0.6-proposed",
+      "atk": 470,
+      "max_def": 880,
+      "character_id": "chr_banhbao_bachngoc",
+      "keywords": [
+        "guard"
+      ]
+    },
+    {
+      "card_id": "card_night_reaper",
+      "display_name": "Dạ Vũ · Thu Hương",
+      "type": "unit",
+      "element": "shadow",
+      "cost": 3,
+      "rarity": "SR",
+      "version": "0.6-proposed",
+      "atk": 690,
+      "max_def": 540,
+      "character_id": "chr_caphe_davu",
+      "keywords": [
+        "lifesteal"
+      ]
+    },
+    {
+      "card_id": "card_ember_break",
+      "display_name": "Lửa Rạn Khiên",
+      "type": "fast_spell",
+      "element": "fire",
+      "cost": 2,
+      "rarity": "SR",
+      "version": "0.6-proposed",
+      "effect": {
+        "kind": "shatter_shield",
+        "value": 280
+      },
+      "art_effect": "shield_break"
+    },
+    {
+      "card_id": "card_mist_recall",
+      "display_name": "Triều Rút Về",
+      "type": "slow_spell",
+      "element": "water",
+      "cost": 3,
+      "rarity": "SR",
+      "version": "0.6-proposed",
+      "effect": {
+        "kind": "recall_enemy",
+        "value": 0
+      },
+      "art_effect": "water_impact"
+    },
+    {
+      "card_id": "card_mist_dampen",
+      "display_name": "Sương Hạ Nhiệt",
+      "type": "fast_spell",
+      "element": "water",
+      "cost": 1,
+      "rarity": "SR",
+      "version": "0.6-proposed",
+      "effect": {
+        "kind": "weaken_enemy",
+        "value": 300
+      },
+      "art_effect": "water_trail"
+    },
+    {
+      "card_id": "card_leaf_reclaim",
+      "display_name": "Mầm Về Đất",
+      "type": "slow_spell",
+      "element": "wood",
+      "cost": 4,
+      "rarity": "SR",
+      "version": "0.6-proposed",
+      "effect": {
+        "kind": "raise_ally",
+        "value": 550
+      },
+      "art_effect": "wood_impact"
+    },
+    {
+      "card_id": "card_jade_encore",
+      "display_name": "Ngọc Tái Chiến",
+      "type": "burst_spell",
+      "element": "light",
+      "cost": 3,
+      "rarity": "SR",
+      "version": "0.6-proposed",
+      "effect": {
+        "kind": "rally_unit",
+        "value": 0
+      },
+      "art_effect": "light_trail"
+    },
+    {
+      "card_id": "card_night_feast",
+      "display_name": "Dạ Yến",
+      "type": "slow_spell",
+      "element": "shadow",
+      "cost": 4,
+      "rarity": "SR",
+      "version": "0.6-proposed",
+      "effect": {
+        "kind": "drain_unit",
+        "value": 520
+      },
+      "art_effect": "shadow_impact"
+    },
+    {
+      "card_id": "card_trap_mist",
+      "display_name": "Sương Phủ Lối",
+      "type": "trap",
+      "element": "water",
+      "cost": 2,
+      "rarity": "SR",
+      "version": "0.6-proposed",
+      "trigger": {
+        "when": "attack_declared"
+      },
+      "effect": {
+        "kind": "weaken_attackers",
+        "value": 400
+      },
+      "art_effect": "water_impact"
+    },
+    {
+      "card_id": "card_trap_jade",
+      "display_name": "Ấn Ngọc Giữ Nhà",
+      "type": "trap",
+      "element": "light",
+      "cost": 2,
+      "rarity": "SR",
+      "version": "0.6-proposed",
+      "trigger": {
+        "when": "unit_summoned"
+      },
+      "effect": {
+        "kind": "ward_after_summon",
+        "value": 250
+      },
+      "art_effect": "light_impact"
+    },
+    {
+      "card_id": "card_trap_night",
+      "display_name": "Dạ Hương Dư Âm",
+      "type": "trap",
+      "element": "shadow",
+      "cost": 2,
+      "rarity": "SR",
+      "version": "0.6-proposed",
+      "trigger": {
+        "when": "ally_fallen"
+      },
+      "effect": {
+        "kind": "draw_after_loss",
+        "value": 2
+      },
+      "art_effect": "shadow_impact"
+    },
+    {
+      "card_id": "card_chr_som_002",
+      "display_name": "Súp Nấm Lục Vệ",
+      "type": "unit",
+      "element": "wood",
+      "cost": 1,
+      "rarity": "R",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 200,
+      "max_def": 700,
+      "character_id": "chr_som_002",
+      "job": "guardian",
+      "skill_name": "Rừng Nấm Kiên Cường",
+      "keywords": [
+        "guard"
+      ]
+    },
+    {
+      "card_id": "card_chr_som_003",
+      "display_name": "Cơm Nắm Tròn Trịa",
+      "type": "unit",
+      "element": "light",
+      "cost": 1,
+      "rarity": "R",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 200,
+      "max_def": 600,
+      "character_id": "chr_som_003",
+      "job": "support",
+      "skill_name": "Nắm Cơm Tiếp Sức",
+      "keywords": [],
+      "on_play": {
+        "kind": "shield",
+        "value": 100
+      }
+    },
+    {
+      "card_id": "card_chr_som_004",
+      "display_name": "Trứng Cuộn Vàng Ươm",
+      "type": "unit",
+      "element": "fire",
+      "cost": 1,
+      "rarity": "R",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 400,
+      "max_def": 400,
+      "character_id": "chr_som_004",
+      "job": "fighter",
+      "skill_name": "Lăn Tròn Nhiệt Huyết",
+      "keywords": []
+    },
+    {
+      "card_id": "card_chr_som_005",
+      "display_name": "Khoai Lang Mầm",
+      "type": "unit",
+      "element": "wood",
+      "cost": 1,
+      "rarity": "R",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 200,
+      "max_def": 600,
+      "character_id": "chr_som_005",
+      "job": "support",
+      "skill_name": "Mầm Non Chữa Lành",
+      "keywords": [],
+      "on_play": {
+        "kind": "shield",
+        "value": 100
+      }
+    },
+    {
+      "card_id": "card_chr_som_006",
+      "display_name": "Đậu Hũ Mềm Mại",
+      "type": "unit",
+      "element": "water",
+      "cost": 1,
+      "rarity": "R",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 150,
+      "max_def": 650,
+      "character_id": "chr_som_006",
+      "job": "healer",
+      "skill_name": "Tịnh Thủy Mềm Mại",
+      "keywords": [],
+      "on_play": {
+        "kind": "shield",
+        "value": 100
+      }
+    },
+    {
+      "card_id": "card_chr_som_007",
+      "display_name": "Bánh Mì Phong Tốc",
+      "type": "unit",
+      "element": "light",
+      "cost": 2,
+      "rarity": "R",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 400,
+      "max_def": 400,
+      "character_id": "chr_som_007",
+      "job": "ranged",
+      "skill_name": "Giòn Tan Liên Kích",
+      "keywords": []
+    },
+    {
+      "card_id": "card_chr_som_008",
+      "display_name": "Trà Sữa Đào Đào",
+      "type": "unit",
+      "element": "water",
+      "cost": 2,
+      "rarity": "R",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 200,
+      "max_def": 600,
+      "character_id": "chr_som_008",
+      "job": "support",
+      "skill_name": "Trân Châu Hồi Phục",
+      "keywords": [],
+      "on_play": {
+        "kind": "shield",
+        "value": 100
+      }
+    },
+    {
+      "card_id": "card_chr_som_009",
+      "display_name": "Bò Bít Tết Thiết Vệ",
+      "type": "unit",
+      "element": "fire",
+      "cost": 2,
+      "rarity": "R",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 200,
+      "max_def": 700,
+      "character_id": "chr_som_009",
+      "job": "guardian",
+      "skill_name": "Thiết Bàn Bất Phá",
+      "keywords": [
+        "guard"
+      ]
+    },
+    {
+      "card_id": "card_chr_som_010",
+      "display_name": "Bánh Flan Nhật Nguyệt",
+      "type": "unit",
+      "element": "shadow",
+      "cost": 2,
+      "rarity": "R",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 300,
+      "max_def": 500,
+      "character_id": "chr_som_010",
+      "job": "controller",
+      "skill_name": "Nguyệt Ảnh Ngọt Ngào",
+      "keywords": []
+    },
+    {
+      "card_id": "card_chr_som_011",
+      "display_name": "Mì Xào Phong Hành",
+      "type": "unit",
+      "element": "fire",
+      "cost": 2,
+      "rarity": "R",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 400,
+      "max_def": 400,
+      "character_id": "chr_som_011",
+      "job": "fighter",
+      "skill_name": "Chảo Lửa Liên Hoàn",
+      "keywords": []
+    },
+    {
+      "card_id": "card_chr_som_012",
+      "display_name": "Cơm Chiên Kim Sa",
+      "type": "unit",
+      "element": "light",
+      "cost": 2,
+      "rarity": "R",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 450,
+      "max_def": 350,
+      "character_id": "chr_som_012",
+      "job": "mage",
+      "skill_name": "Tinh Sa Bùng Nổ",
+      "keywords": []
+    },
+    {
+      "card_id": "card_chr_som_013",
+      "display_name": "Bánh Xèo Lôi Vũ",
+      "type": "unit",
+      "element": "fire",
+      "cost": 2,
+      "rarity": "R",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 500,
+      "max_def": 250,
+      "character_id": "chr_som_013",
+      "job": "assassin",
+      "skill_name": "Bánh Xèo Chớp Nhoáng",
+      "keywords": [
+        "haste"
+      ]
+    },
+    {
+      "card_id": "card_chr_som_016",
+      "display_name": "Chè Hoa Sen",
+      "type": "unit",
+      "element": "wood",
+      "cost": 3,
+      "rarity": "SR",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 250,
+      "max_def": 750,
+      "character_id": "chr_som_016",
+      "job": "healer",
+      "skill_name": "Liên Hoa Tái Sinh",
+      "keywords": [],
+      "on_play": {
+        "kind": "shield",
+        "value": 100
+      }
+    },
+    {
+      "card_id": "card_chr_som_017",
+      "display_name": "Mì Ramen Lôi Tiên",
+      "type": "unit",
+      "element": "fire",
+      "cost": 3,
+      "rarity": "SR",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 550,
+      "max_def": 450,
+      "character_id": "chr_som_017",
+      "job": "mage",
+      "skill_name": "Thiên Võng Mì Lửa",
+      "keywords": []
+    },
+    {
+      "card_id": "card_chr_som_019",
+      "display_name": "Xôi Gấc Hồng Tâm",
+      "type": "unit",
+      "element": "light",
+      "cost": 3,
+      "rarity": "SR",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 300,
+      "max_def": 700,
+      "character_id": "chr_som_019",
+      "job": "support",
+      "skill_name": "Hồng Phúc Đoàn Viên",
+      "keywords": [],
+      "on_play": {
+        "kind": "shield",
+        "value": 100
+      }
+    },
+    {
+      "card_id": "card_chr_som_020",
+      "display_name": "Lẩu Nấm Tinh Tú",
+      "type": "unit",
+      "element": "wood",
+      "cost": 3,
+      "rarity": "SR",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 550,
+      "max_def": 450,
+      "character_id": "chr_som_020",
+      "job": "mage",
+      "skill_name": "Tinh Tú Sôi Trào",
+      "keywords": []
+    },
+    {
+      "card_id": "card_chr_som_022",
+      "display_name": "Kem Trăng Tuyết",
+      "type": "unit",
+      "element": "water",
+      "cost": 5,
+      "rarity": "SSR",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 600,
+      "max_def": 800,
+      "character_id": "chr_som_022",
+      "job": "controller",
+      "skill_name": "Bạch Nguyệt Tuyết Vũ",
+      "keywords": []
+    },
+    {
+      "card_id": "card_chr_som_023",
+      "display_name": "Sushi Long Triều",
+      "type": "unit",
+      "element": "water",
+      "cost": 5,
+      "rarity": "SSR",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 700,
+      "max_def": 700,
+      "character_id": "chr_som_023",
+      "job": "ranged",
+      "skill_name": "Long Triều Vạn Tiễn",
+      "keywords": []
+    },
+    {
+      "card_id": "card_chr_som_024",
+      "display_name": "Bánh Chưng Thanh Long",
+      "type": "unit",
+      "element": "wood",
+      "cost": 5,
+      "rarity": "SSR",
+      "version": "shared-roster-v1-proposed",
+      "balance_status": "PROPOSED",
+      "atk": 500,
+      "max_def": 1000,
+      "character_id": "chr_som_024",
+      "job": "guardian",
+      "skill_name": "Tứ Phương Hộ Thế",
+      "keywords": [
+        "guard"
+      ]
     }
-  },
-  {
-    "card_id": "card_sprout_guard",
-    "display_name": "Diệp Nhi · Chồi Ngọc",
-    "type": "unit",
-    "element": "wood",
-    "cost": 2,
-    "rarity": "SR",
-    "version": "0.6-proposed",
-    "atk": 300,
-    "max_def": 630,
-    "character_id": "chr_goicuon_diepnhi",
-    "on_play": {
-      "kind": "shield",
-      "value": 140
-    }
-  },
-  {
-    "card_id": "card_jade_watch",
-    "display_name": "Bạch Ngọc · Trấn Bếp",
-    "type": "unit",
-    "element": "light",
-    "cost": 3,
-    "rarity": "SR",
-    "version": "0.6-proposed",
-    "atk": 470,
-    "max_def": 880,
-    "character_id": "chr_banhbao_bachngoc",
-    "keywords": [
-      "guard"
-    ]
-  },
-  {
-    "card_id": "card_night_reaper",
-    "display_name": "Dạ Vũ · Thu Hương",
-    "type": "unit",
-    "element": "shadow",
-    "cost": 3,
-    "rarity": "SR",
-    "version": "0.6-proposed",
-    "atk": 690,
-    "max_def": 540,
-    "character_id": "chr_caphe_davu",
-    "keywords": [
-      "lifesteal"
-    ]
-  },
-  {
-    "card_id": "card_ember_break",
-    "display_name": "Lửa Rạn Khiên",
-    "type": "fast_spell",
-    "element": "fire",
-    "cost": 2,
-    "rarity": "SR",
-    "version": "0.6-proposed",
-    "effect": {
-      "kind": "shatter_shield",
-      "value": 280
-    },
-    "art_effect": "shield_break"
-  },
-  {
-    "card_id": "card_mist_recall",
-    "display_name": "Triều Rút Về",
-    "type": "slow_spell",
-    "element": "water",
-    "cost": 3,
-    "rarity": "SR",
-    "version": "0.6-proposed",
-    "effect": {
-      "kind": "recall_enemy",
-      "value": 0
-    },
-    "art_effect": "water_impact"
-  },
-  {
-    "card_id": "card_mist_dampen",
-    "display_name": "Sương Hạ Nhiệt",
-    "type": "fast_spell",
-    "element": "water",
-    "cost": 1,
-    "rarity": "SR",
-    "version": "0.6-proposed",
-    "effect": {
-      "kind": "weaken_enemy",
-      "value": 300
-    },
-    "art_effect": "water_trail"
-  },
-  {
-    "card_id": "card_leaf_reclaim",
-    "display_name": "Mầm Về Đất",
-    "type": "slow_spell",
-    "element": "wood",
-    "cost": 4,
-    "rarity": "SR",
-    "version": "0.6-proposed",
-    "effect": {
-      "kind": "raise_ally",
-      "value": 550
-    },
-    "art_effect": "wood_impact"
-  },
-  {
-    "card_id": "card_jade_encore",
-    "display_name": "Ngọc Tái Chiến",
-    "type": "burst_spell",
-    "element": "light",
-    "cost": 3,
-    "rarity": "SR",
-    "version": "0.6-proposed",
-    "effect": {
-      "kind": "rally_unit",
-      "value": 0
-    },
-    "art_effect": "light_trail"
-  },
-  {
-    "card_id": "card_night_feast",
-    "display_name": "Dạ Yến",
-    "type": "slow_spell",
-    "element": "shadow",
-    "cost": 4,
-    "rarity": "SR",
-    "version": "0.6-proposed",
-    "effect": {
-      "kind": "drain_unit",
-      "value": 520
-    },
-    "art_effect": "shadow_impact"
-  },
-  {
-    "card_id": "card_trap_mist",
-    "display_name": "Sương Phủ Lối",
-    "type": "trap",
-    "element": "water",
-    "cost": 2,
-    "rarity": "SR",
-    "version": "0.6-proposed",
-    "trigger": {
-      "when": "attack_declared"
-    },
-    "effect": {
-      "kind": "weaken_attackers",
-      "value": 400
-    },
-    "art_effect": "water_impact"
-  },
-  {
-    "card_id": "card_trap_jade",
-    "display_name": "Ấn Ngọc Giữ Nhà",
-    "type": "trap",
-    "element": "light",
-    "cost": 2,
-    "rarity": "SR",
-    "version": "0.6-proposed",
-    "trigger": {
-      "when": "unit_summoned"
-    },
-    "effect": {
-      "kind": "ward_after_summon",
-      "value": 250
-    },
-    "art_effect": "light_impact"
-  },
-  {
-    "card_id": "card_trap_night",
-    "display_name": "Dạ Hương Dư Âm",
-    "type": "trap",
-    "element": "shadow",
-    "cost": 2,
-    "rarity": "SR",
-    "version": "0.6-proposed",
-    "trigger": {
-      "when": "ally_fallen"
-    },
-    "effect": {
-      "kind": "draw_after_loss",
-      "value": 2
-    },
-    "art_effect": "shadow_impact"
-  }
   ],
   "presets": [
     {
@@ -1089,5 +1425,6 @@
       "opening_unit": "card_night_reaper",
       "description": "Dạ Vũ mở màn với Hút vị. Giữ Hộ vệ hoặc dùng Trói để hạn chế các đòn đánh hồi HP."
     }
-  ]
+  ],
+  "shared_roster_version": "shared-roster-v1-proposed"
 }

@@ -1,0 +1,717 @@
+{
+  "schema": 1,
+  "cards": {
+    "card_demo_01": {
+      "preview": "./assets/splash/previews/card_demo_01.webp",
+      "hd": "./assets/splash/cards/card_demo_01.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_02": {
+      "preview": "./assets/splash/previews/card_demo_02.webp",
+      "hd": "./assets/splash/cards/card_demo_02.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_03": {
+      "preview": "./assets/splash/previews/card_demo_03.webp",
+      "hd": "./assets/splash/cards/card_demo_03.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_04": {
+      "preview": "./assets/splash/previews/card_demo_04.webp",
+      "hd": "./assets/splash/cards/card_demo_04.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_05": {
+      "preview": "./assets/splash/previews/card_demo_05.webp",
+      "hd": "./assets/splash/cards/card_demo_05.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_06": {
+      "preview": "./assets/splash/previews/card_demo_06.webp",
+      "hd": "./assets/splash/cards/card_demo_06.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_07": {
+      "preview": "./assets/splash/previews/card_demo_07.webp",
+      "hd": "./assets/splash/cards/card_demo_07.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_08": {
+      "preview": "./assets/splash/previews/card_demo_08.webp",
+      "hd": "./assets/splash/cards/card_demo_08.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_09": {
+      "preview": "./assets/splash/previews/card_demo_09.webp",
+      "hd": "./assets/splash/cards/card_demo_09.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_10": {
+      "preview": "./assets/splash/previews/card_demo_10.webp",
+      "hd": "./assets/splash/cards/card_demo_10.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_11": {
+      "preview": "./assets/splash/previews/card_demo_11.webp",
+      "hd": "./assets/splash/cards/card_demo_11.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_12": {
+      "preview": "./assets/splash/previews/card_demo_12.webp",
+      "hd": "./assets/splash/cards/card_demo_12.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_13": {
+      "preview": "./assets/splash/previews/card_demo_13.webp",
+      "hd": "./assets/splash/cards/card_demo_13.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_14": {
+      "preview": "./assets/splash/previews/card_demo_14.webp",
+      "hd": "./assets/splash/cards/card_demo_14.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_15": {
+      "preview": "./assets/splash/previews/card_demo_15.webp",
+      "hd": "./assets/splash/cards/card_demo_15.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_16": {
+      "preview": "./assets/splash/previews/card_demo_16.webp",
+      "hd": "./assets/splash/cards/card_demo_16.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_17": {
+      "preview": "./assets/splash/previews/card_demo_17.webp",
+      "hd": "./assets/splash/cards/card_demo_17.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_demo_18": {
+      "preview": "./assets/splash/previews/card_demo_18.webp",
+      "hd": "./assets/splash/cards/card_demo_18.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_fire_guard": {
+      "preview": "./assets/splash/previews/card_fire_guard.webp",
+      "hd": "./assets/splash/cards/card_fire_guard.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_tide_mage": {
+      "preview": "./assets/splash/previews/card_tide_mage.webp",
+      "hd": "./assets/splash/cards/card_tide_mage.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_wood_scout": {
+      "preview": "./assets/splash/previews/card_wood_scout.webp",
+      "hd": "./assets/splash/cards/card_wood_scout.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_shadow_duelist": {
+      "preview": "./assets/splash/previews/card_shadow_duelist.webp",
+      "hd": "./assets/splash/cards/card_shadow_duelist.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_spirit_renewal": {
+      "preview": "./assets/splash/previews/card_spirit_renewal.webp",
+      "hd": "./assets/splash/cards/card_spirit_renewal.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_spirit_ward": {
+      "preview": "./assets/splash/previews/card_spirit_ward.webp",
+      "hd": "./assets/splash/cards/card_spirit_ward.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_spirit_rally": {
+      "preview": "./assets/splash/previews/card_spirit_rally.webp",
+      "hd": "./assets/splash/cards/card_spirit_rally.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_hearth_pepper": {
+      "preview": "./assets/splash/previews/card_hearth_pepper.webp",
+      "hd": "./assets/splash/cards/card_hearth_pepper.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_jade_mushroom": {
+      "preview": "./assets/splash/previews/card_jade_mushroom.webp",
+      "hd": "./assets/splash/cards/card_jade_mushroom.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_rain_keeper": {
+      "preview": "./assets/splash/previews/card_rain_keeper.webp",
+      "hd": "./assets/splash/cards/card_rain_keeper.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_lantern_guard": {
+      "preview": "./assets/splash/previews/card_lantern_guard.webp",
+      "hd": "./assets/splash/cards/card_lantern_guard.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_shadow_hunter": {
+      "preview": "./assets/splash/previews/card_shadow_hunter.webp",
+      "hd": "./assets/splash/cards/card_shadow_hunter.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_trap_mirror": {
+      "preview": "./assets/splash/previews/card_trap_mirror.webp",
+      "hd": "./assets/splash/cards/card_trap_mirror.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_trap_roots": {
+      "preview": "./assets/splash/previews/card_trap_roots.webp",
+      "hd": "./assets/splash/cards/card_trap_roots.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_trap_embers": {
+      "preview": "./assets/splash/previews/card_trap_embers.webp",
+      "hd": "./assets/splash/cards/card_trap_embers.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_trap_rally": {
+      "preview": "./assets/splash/previews/card_trap_rally.webp",
+      "hd": "./assets/splash/cards/card_trap_rally.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_trap_recall": {
+      "preview": "./assets/splash/previews/card_trap_recall.webp",
+      "hd": "./assets/splash/cards/card_trap_recall.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_trap_reserve": {
+      "preview": "./assets/splash/previews/card_trap_reserve.webp",
+      "hd": "./assets/splash/cards/card_trap_reserve.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_ultimate_fire": {
+      "preview": "./assets/splash/previews/card_ultimate_fire.webp",
+      "hd": "./assets/splash/cards/card_ultimate_fire.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_ultimate_water": {
+      "preview": "./assets/splash/previews/card_ultimate_water.webp",
+      "hd": "./assets/splash/cards/card_ultimate_water.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_ultimate_wood": {
+      "preview": "./assets/splash/previews/card_ultimate_wood.webp",
+      "hd": "./assets/splash/cards/card_ultimate_wood.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_ultimate_light": {
+      "preview": "./assets/splash/previews/card_ultimate_light.webp",
+      "hd": "./assets/splash/cards/card_ultimate_light.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_ultimate_shadow": {
+      "preview": "./assets/splash/previews/card_ultimate_shadow.webp",
+      "hd": "./assets/splash/cards/card_ultimate_shadow.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_tcg_disarm": {
+      "preview": "./assets/splash/previews/card_tcg_disarm.webp",
+      "hd": "./assets/splash/cards/card_tcg_disarm.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_tcg_scout": {
+      "preview": "./assets/splash/previews/card_tcg_scout.webp",
+      "hd": "./assets/splash/cards/card_tcg_scout.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_tcg_refute": {
+      "preview": "./assets/splash/previews/card_tcg_refute.webp",
+      "hd": "./assets/splash/cards/card_tcg_refute.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_tcg_resupply": {
+      "preview": "./assets/splash/previews/card_tcg_resupply.webp",
+      "hd": "./assets/splash/cards/card_tcg_resupply.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_tcg_tonic": {
+      "preview": "./assets/splash/previews/card_tcg_tonic.webp",
+      "hd": "./assets/splash/cards/card_tcg_tonic.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_ember_runner": {
+      "preview": "./assets/splash/previews/card_ember_runner.webp",
+      "hd": "./assets/splash/cards/card_ember_runner.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_mist_keeper": {
+      "preview": "./assets/splash/previews/card_mist_keeper.webp",
+      "hd": "./assets/splash/cards/card_mist_keeper.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_sprout_guard": {
+      "preview": "./assets/splash/previews/card_sprout_guard.webp",
+      "hd": "./assets/splash/cards/card_sprout_guard.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_jade_watch": {
+      "preview": "./assets/splash/previews/card_jade_watch.webp",
+      "hd": "./assets/splash/cards/card_jade_watch.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_night_reaper": {
+      "preview": "./assets/splash/previews/card_night_reaper.webp",
+      "hd": "./assets/splash/cards/card_night_reaper.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_ember_break": {
+      "preview": "./assets/splash/previews/card_ember_break.webp",
+      "hd": "./assets/splash/cards/card_ember_break.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_mist_recall": {
+      "preview": "./assets/splash/previews/card_mist_recall.webp",
+      "hd": "./assets/splash/cards/card_mist_recall.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_mist_dampen": {
+      "preview": "./assets/splash/previews/card_mist_dampen.webp",
+      "hd": "./assets/splash/cards/card_mist_dampen.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_leaf_reclaim": {
+      "preview": "./assets/splash/previews/card_leaf_reclaim.webp",
+      "hd": "./assets/splash/cards/card_leaf_reclaim.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_jade_encore": {
+      "preview": "./assets/splash/previews/card_jade_encore.webp",
+      "hd": "./assets/splash/cards/card_jade_encore.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_night_feast": {
+      "preview": "./assets/splash/previews/card_night_feast.webp",
+      "hd": "./assets/splash/cards/card_night_feast.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_trap_mist": {
+      "preview": "./assets/splash/previews/card_trap_mist.webp",
+      "hd": "./assets/splash/cards/card_trap_mist.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_trap_jade": {
+      "preview": "./assets/splash/previews/card_trap_jade.webp",
+      "hd": "./assets/splash/cards/card_trap_jade.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_trap_night": {
+      "preview": "./assets/splash/previews/card_trap_night.webp",
+      "hd": "./assets/splash/cards/card_trap_night.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_002": {
+      "preview": "./assets/splash/previews/card_chr_som_002.webp",
+      "hd": "./assets/splash/cards/card_chr_som_002.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_003": {
+      "preview": "./assets/splash/previews/card_chr_som_003.webp",
+      "hd": "./assets/splash/cards/card_chr_som_003.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_004": {
+      "preview": "./assets/splash/previews/card_chr_som_004.webp",
+      "hd": "./assets/splash/cards/card_chr_som_004.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_005": {
+      "preview": "./assets/splash/previews/card_chr_som_005.webp",
+      "hd": "./assets/splash/cards/card_chr_som_005.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_006": {
+      "preview": "./assets/splash/previews/card_chr_som_006.webp",
+      "hd": "./assets/splash/cards/card_chr_som_006.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_007": {
+      "preview": "./assets/splash/previews/card_chr_som_007.webp",
+      "hd": "./assets/splash/cards/card_chr_som_007.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_008": {
+      "preview": "./assets/splash/previews/card_chr_som_008.webp",
+      "hd": "./assets/splash/cards/card_chr_som_008.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_009": {
+      "preview": "./assets/splash/previews/card_chr_som_009.webp",
+      "hd": "./assets/splash/cards/card_chr_som_009.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_010": {
+      "preview": "./assets/splash/previews/card_chr_som_010.webp",
+      "hd": "./assets/splash/cards/card_chr_som_010.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_011": {
+      "preview": "./assets/splash/previews/card_chr_som_011.webp",
+      "hd": "./assets/splash/cards/card_chr_som_011.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_012": {
+      "preview": "./assets/splash/previews/card_chr_som_012.webp",
+      "hd": "./assets/splash/cards/card_chr_som_012.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_013": {
+      "preview": "./assets/splash/previews/card_chr_som_013.webp",
+      "hd": "./assets/splash/cards/card_chr_som_013.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_016": {
+      "preview": "./assets/splash/previews/card_chr_som_016.webp",
+      "hd": "./assets/splash/cards/card_chr_som_016.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_017": {
+      "preview": "./assets/splash/previews/card_chr_som_017.webp",
+      "hd": "./assets/splash/cards/card_chr_som_017.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_019": {
+      "preview": "./assets/splash/previews/card_chr_som_019.webp",
+      "hd": "./assets/splash/cards/card_chr_som_019.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_020": {
+      "preview": "./assets/splash/previews/card_chr_som_020.webp",
+      "hd": "./assets/splash/cards/card_chr_som_020.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_022": {
+      "preview": "./assets/splash/previews/card_chr_som_022.webp",
+      "hd": "./assets/splash/cards/card_chr_som_022.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_023": {
+      "preview": "./assets/splash/previews/card_chr_som_023.webp",
+      "hd": "./assets/splash/cards/card_chr_som_023.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "card_chr_som_024": {
+      "preview": "./assets/splash/previews/card_chr_som_024.webp",
+      "hd": "./assets/splash/cards/card_chr_som_024.webp",
+      "width": 1024,
+      "height": 1536
+    }
+  },
+  "characters": {
+    "chr_banhbao_bachngoc": {
+      "preview": "./assets/splash/previews/card_demo_04.webp",
+      "hd": "./assets/splash/cards/card_demo_04.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_002": {
+      "preview": "./assets/splash/previews/card_chr_som_002.webp",
+      "hd": "./assets/splash/cards/card_chr_som_002.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_003": {
+      "preview": "./assets/splash/previews/card_chr_som_003.webp",
+      "hd": "./assets/splash/cards/card_chr_som_003.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_004": {
+      "preview": "./assets/splash/previews/card_chr_som_004.webp",
+      "hd": "./assets/splash/cards/card_chr_som_004.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_005": {
+      "preview": "./assets/splash/previews/card_chr_som_005.webp",
+      "hd": "./assets/splash/cards/card_chr_som_005.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_006": {
+      "preview": "./assets/splash/previews/card_chr_som_006.webp",
+      "hd": "./assets/splash/cards/card_chr_som_006.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_007": {
+      "preview": "./assets/splash/previews/card_chr_som_007.webp",
+      "hd": "./assets/splash/cards/card_chr_som_007.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_008": {
+      "preview": "./assets/splash/previews/card_chr_som_008.webp",
+      "hd": "./assets/splash/cards/card_chr_som_008.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_009": {
+      "preview": "./assets/splash/previews/card_chr_som_009.webp",
+      "hd": "./assets/splash/cards/card_chr_som_009.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_010": {
+      "preview": "./assets/splash/previews/card_chr_som_010.webp",
+      "hd": "./assets/splash/cards/card_chr_som_010.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_011": {
+      "preview": "./assets/splash/previews/card_chr_som_011.webp",
+      "hd": "./assets/splash/cards/card_chr_som_011.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_012": {
+      "preview": "./assets/splash/previews/card_chr_som_012.webp",
+      "hd": "./assets/splash/cards/card_chr_som_012.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_013": {
+      "preview": "./assets/splash/previews/card_chr_som_013.webp",
+      "hd": "./assets/splash/cards/card_chr_som_013.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_pho_lamvu": {
+      "preview": "./assets/splash/previews/card_demo_02.webp",
+      "hd": "./assets/splash/cards/card_demo_02.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_goicuon_diepnhi": {
+      "preview": "./assets/splash/previews/card_demo_03.webp",
+      "hd": "./assets/splash/cards/card_demo_03.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_016": {
+      "preview": "./assets/splash/previews/card_chr_som_016.webp",
+      "hd": "./assets/splash/cards/card_chr_som_016.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_017": {
+      "preview": "./assets/splash/previews/card_chr_som_017.webp",
+      "hd": "./assets/splash/cards/card_chr_som_017.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_caphe_davu": {
+      "preview": "./assets/splash/previews/card_demo_05.webp",
+      "hd": "./assets/splash/cards/card_demo_05.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_019": {
+      "preview": "./assets/splash/previews/card_chr_som_019.webp",
+      "hd": "./assets/splash/cards/card_chr_som_019.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_020": {
+      "preview": "./assets/splash/previews/card_chr_som_020.webp",
+      "hd": "./assets/splash/cards/card_chr_som_020.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_bunbo_holinh": {
+      "preview": "./assets/splash/previews/card_demo_01.webp",
+      "hd": "./assets/splash/cards/card_demo_01.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_022": {
+      "preview": "./assets/splash/previews/card_chr_som_022.webp",
+      "hd": "./assets/splash/cards/card_chr_som_022.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_023": {
+      "preview": "./assets/splash/previews/card_chr_som_023.webp",
+      "hd": "./assets/splash/cards/card_chr_som_023.webp",
+      "width": 1024,
+      "height": 1536
+    },
+    "chr_som_024": {
+      "preview": "./assets/splash/previews/card_chr_som_024.webp",
+      "hd": "./assets/splash/cards/card_chr_som_024.webp",
+      "width": 1024,
+      "height": 1536
+    }
+  },
+  "back": {
+    "preview": "./assets/splash/previews/soul_of_meal_back.webp",
+    "hd": "./assets/splash/card-back.webp",
+    "width": 1024,
+    "height": 1536
+  },
+  "coverage": {
+    "cards": 79,
+    "characters": 24
+  },
+  "hdFiles": [
+    "client/assets/splash/cards/card_demo_01.webp",
+    "client/assets/splash/cards/card_demo_02.webp",
+    "client/assets/splash/cards/card_demo_03.webp",
+    "client/assets/splash/cards/card_demo_04.webp",
+    "client/assets/splash/cards/card_demo_05.webp",
+    "client/assets/splash/cards/card_demo_06.webp",
+    "client/assets/splash/cards/card_demo_07.webp",
+    "client/assets/splash/cards/card_demo_08.webp",
+    "client/assets/splash/cards/card_demo_09.webp",
+    "client/assets/splash/cards/card_demo_10.webp",
+    "client/assets/splash/cards/card_demo_11.webp",
+    "client/assets/splash/cards/card_demo_12.webp",
+    "client/assets/splash/cards/card_demo_13.webp",
+    "client/assets/splash/cards/card_demo_14.webp",
+    "client/assets/splash/cards/card_demo_15.webp",
+    "client/assets/splash/cards/card_demo_16.webp",
+    "client/assets/splash/cards/card_demo_17.webp",
+    "client/assets/splash/cards/card_demo_18.webp",
+    "client/assets/splash/cards/card_fire_guard.webp",
+    "client/assets/splash/cards/card_tide_mage.webp",
+    "client/assets/splash/cards/card_wood_scout.webp",
+    "client/assets/splash/cards/card_shadow_duelist.webp",
+    "client/assets/splash/cards/card_spirit_renewal.webp",
+    "client/assets/splash/cards/card_spirit_ward.webp",
+    "client/assets/splash/cards/card_spirit_rally.webp",
+    "client/assets/splash/cards/card_hearth_pepper.webp",
+    "client/assets/splash/cards/card_jade_mushroom.webp",
+    "client/assets/splash/cards/card_rain_keeper.webp",
+    "client/assets/splash/cards/card_lantern_guard.webp",
+    "client/assets/splash/cards/card_shadow_hunter.webp",
+    "client/assets/splash/cards/card_trap_mirror.webp",
+    "client/assets/splash/cards/card_trap_roots.webp",
+    "client/assets/splash/cards/card_trap_embers.webp",
+    "client/assets/splash/cards/card_trap_rally.webp",
+    "client/assets/splash/cards/card_trap_recall.webp",
+    "client/assets/splash/cards/card_trap_reserve.webp",
+    "client/assets/splash/cards/card_ultimate_fire.webp",
+    "client/assets/splash/cards/card_ultimate_water.webp",
+    "client/assets/splash/cards/card_ultimate_wood.webp",
+    "client/assets/splash/cards/card_ultimate_light.webp",
+    "client/assets/splash/cards/card_ultimate_shadow.webp",
+    "client/assets/splash/cards/card_tcg_disarm.webp",
+    "client/assets/splash/cards/card_tcg_scout.webp",
+    "client/assets/splash/cards/card_tcg_refute.webp",
+    "client/assets/splash/cards/card_tcg_resupply.webp",
+    "client/assets/splash/cards/card_tcg_tonic.webp",
+    "client/assets/splash/cards/card_ember_runner.webp",
+    "client/assets/splash/cards/card_mist_keeper.webp",
+    "client/assets/splash/cards/card_sprout_guard.webp",
+    "client/assets/splash/cards/card_jade_watch.webp",
+    "client/assets/splash/cards/card_night_reaper.webp",
+    "client/assets/splash/cards/card_ember_break.webp",
+    "client/assets/splash/cards/card_mist_recall.webp",
+    "client/assets/splash/cards/card_mist_dampen.webp",
+    "client/assets/splash/cards/card_leaf_reclaim.webp",
+    "client/assets/splash/cards/card_jade_encore.webp",
+    "client/assets/splash/cards/card_night_feast.webp",
+    "client/assets/splash/cards/card_trap_mist.webp",
+    "client/assets/splash/cards/card_trap_jade.webp",
+    "client/assets/splash/cards/card_trap_night.webp",
+    "client/assets/splash/cards/card_chr_som_002.webp",
+    "client/assets/splash/cards/card_chr_som_003.webp",
+    "client/assets/splash/cards/card_chr_som_004.webp",
+    "client/assets/splash/cards/card_chr_som_005.webp",
+    "client/assets/splash/cards/card_chr_som_006.webp",
+    "client/assets/splash/cards/card_chr_som_007.webp",
+    "client/assets/splash/cards/card_chr_som_008.webp",
+    "client/assets/splash/cards/card_chr_som_009.webp",
+    "client/assets/splash/cards/card_chr_som_010.webp",
+    "client/assets/splash/cards/card_chr_som_011.webp",
+    "client/assets/splash/cards/card_chr_som_012.webp",
+    "client/assets/splash/cards/card_chr_som_013.webp",
+    "client/assets/splash/cards/card_chr_som_016.webp",
+    "client/assets/splash/cards/card_chr_som_017.webp",
+    "client/assets/splash/cards/card_chr_som_019.webp",
+    "client/assets/splash/cards/card_chr_som_020.webp",
+    "client/assets/splash/cards/card_chr_som_022.webp",
+    "client/assets/splash/cards/card_chr_som_023.webp",
+    "client/assets/splash/cards/card_chr_som_024.webp",
+    "client/assets/splash/card-back.webp"
+  ]
+}

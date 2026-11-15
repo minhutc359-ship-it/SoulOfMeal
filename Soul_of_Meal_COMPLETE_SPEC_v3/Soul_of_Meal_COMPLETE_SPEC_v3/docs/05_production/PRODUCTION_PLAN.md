@@ -54,7 +54,7 @@ Run 30/60 render FPS behavior tests, mobile low-memory benchmarking, 53 old QA a
 | `environment-agent` | map/props spec | tile/props/NPC sprites, collision | Level Designer |
 | `ui-agent` | wireframes/state matrix | responsive components & animation | UX QA |
 | `combat-agent` | rulebooks/events | deterministic simulation + replay | Tech Lead |
-| `vfx-audio-agent` | five-element guide | FX profiles + SFX/voice event links | Audio/Art Lead |
+| `vfx-audio-agent` | five-element guide | FX profiles + SFX event links | Audio/Art Lead |
 | `qa-agent` | test plan + schemas | regression reports and captures | QA Lead |
 | `release-agent` | artifact manifest | versioned assets + compliance checks | Release Manager |
 
@@ -64,6 +64,9 @@ M0 approval and scope lock; M1 Golden Sample; M2 Adventure slice; M3 TCG bot pla
 ## Open gaps remaining after v3
 1. Final balance from long playtests (not inferred from image).
 2. Phaser WebGL and Spine benchmark across target devices.
-3. Production motion and rig review, voice, scene templates and the remaining effects.
+3. Production motion and rig review, scene templates and the remaining effects.
 4. PvP server authority, matchmaking/reconnect/anti-cheat (if in scope).
 5. Ownership/license approvals and publishing / economy legal compliance.
+
+
+Cập nhật 15/11/2026: [Danh mục 24 Vị Linh, splash art và QA](SHARED_ROSTER_SPLASH_QA.md). Voice/TTS đã loại bỏ theo [D-019](../00_foundation/decisions/D-019.md), không còn thuộc hạng mục phát triển.

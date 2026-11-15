@@ -85,6 +85,8 @@
   "lobby": {
     "status": "proposed",
     "max_rounds": 37,
+    "finish_condition": "last_survivor",
+    "overtime": { "status": "proposed", "start_round": 37, "damage_per_round": 5 },
     "opening_neutral_rounds": 2,
     "rounds_per_stage": 5,
     "xp_per_round": 2,

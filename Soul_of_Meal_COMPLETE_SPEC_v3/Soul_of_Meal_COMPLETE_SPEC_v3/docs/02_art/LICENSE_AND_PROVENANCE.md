@@ -21,3 +21,9 @@ The anime chibi art uses the visual direction requested for Soul of Meal. Charac
 ## Original art playtest
 
 The runtime art in `client/assets/original/` was generated for this revision from the written Soul of Meal identity specifications. Source-sheet SHA-256, prompts and review status are tracked in [ORIGINAL_ART_SOURCES.json](ORIGINAL_ART_SOURCES.json). The source frames and atlas metadata are documented in [ORIGINAL_ART_PLAYTEST.md](ORIGINAL_ART_PLAYTEST.md). Elemental cast and impact sounds are synthesized by `scripts/build_element_sfx.py`. Human art and commercial-rights review remain pending.
+
+## Individual card illustrations — 15 November 2026
+
+`client/assets/splash/` contains 79 original card illustrations and one original card back generated with the built-in image generation tool. [SPLASH_ART_JOBS.json](SPLASH_ART_JOBS.json) records each ID, generation prompt, identity reference when used, source hash, HD/preview hashes, dimensions and review status. The generated compositions are encoded as WebP; previews are downscaled without changing composition. No art from the reference trading card games is used.
+
+All 80 compositions have been viewed in QA contact sheets. Technical validation and this visual pass do not constitute final art or commercial-rights approval. The assets remain playtest drafts pending human approval before public release. Retired narration credits are preserved in [RETIRED_VOICE_CREDITS.md](RETIRED_VOICE_CREDITS.md); narration files and their runtime have been removed.
