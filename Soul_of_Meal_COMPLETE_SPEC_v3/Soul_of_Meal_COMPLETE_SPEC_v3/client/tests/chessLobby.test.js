@@ -82,7 +82,7 @@ test('the shared pool reserves shop copies, returns sales and excludes eliminate
   const scarce = structuredClone(config);
   scarce.lobby.pool_by_tier[1] = 1;
   let run = createChessRun(units, scarce);
-  assert.equal(run.shop.filter(Boolean).length, units.filter(unit => unit.cost === 1).length);
+  assert.equal(run.shop.filter(Boolean).length, Math.min(5, units.filter(unit => unit.cost === 1).length));
   const offer = run.shop[0];
   assert.equal(chessPoolCounts(run).get(offer.id), 0);
   run = buyChessOffer(run, 0);

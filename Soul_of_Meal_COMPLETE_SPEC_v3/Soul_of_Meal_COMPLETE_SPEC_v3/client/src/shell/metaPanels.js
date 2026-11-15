@@ -1,6 +1,7 @@
 import { ADVENTURE_OFFERS, GEAR_MAX_LEVEL, GEAR_SLOTS, STORE_UPGRADE_GOLD, STORE_UPGRADE_STONES, itemBonus } from '../modes/adventureStore.js';
 import { BANNERS, META, SPIRITS, bannerOdds, starterSpirits } from '../modes/metaProgress.js';
 import { actorArt, cardBackdrop, cutinArt, HERO_NAMES, itemArt, showcaseArt } from '../render/spriteAssets.js';
+import { spiritIllustration } from '../render/cardArtwork.js';
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>"']/g, character =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
@@ -12,8 +13,9 @@ const statNames = { atk: 'ATK', def: 'DEF', maxHp: 'HP', speed: 'tốc độ/gi�
 export function spiritImage(id, large = false, { showcase = false } = {}) {
   const art = actorArt(id);
   if (art) {
-    const fallback = large && Object.hasOwn(HERO_NAMES, id) ? cutinArt(id) : art;
-    const portrait = showcase && showcaseArt(id);
+    const illustration = showcase && spiritIllustration(id);
+    const fallback = illustration?.preview ?? (large && Object.hasOwn(HERO_NAMES, id) ? cutinArt(id) : art);
+    const portrait = showcase && (illustration?.hd ?? showcaseArt(id));
     return `<img class="spirit-art" src="${escapeHtml(portrait || fallback)}" alt=""
       ${portrait ? `data-fallback-art="${escapeHtml(fallback)}" decoding="async"` : ''}>`;
   }

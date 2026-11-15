@@ -64,8 +64,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 6232,
-      "sha256": "5c776e8c669af0713c326d78f4450af2c02b1f8ef21f3478ee362834ed8460eb"
+      "bytes": 6845,
+      "sha256": "9df328af8d436537c494fcdfbff9c8512611f8e417ccc2f878386ac579778c5b"
     },
     {
       "path": "agents/SPRITE_TASK_HANDOFF.md",
@@ -274,8 +274,8 @@
     },
     {
       "path": "docs/00_foundation/DECISION_REGISTER.md",
-      "bytes": 4312,
-      "sha256": "e923434f2dc76e4531c2f7bbcc4db80efa067ac3500c630445d9e0fc90481c30"
+      "bytes": 4603,
+      "sha256": "d4d65e903aec20e6cb89c269c36bc4b148c7c4628372ace6ca0df9e1426733ae"
     },
     {
       "path": "docs/00_foundation/PROJECT_BIBLE.md",
@@ -289,18 +289,18 @@
     },
     {
       "path": "docs/01_gameplay/AUTO_CHESS_RULEBOOK.md",
-      "bytes": 7089,
-      "sha256": "48eed43ad0ac1217b7f0646320bee54670f5c8afddc76d57952f376e7aa6d0b6"
+      "bytes": 7632,
+      "sha256": "9fe6e81770dbadf1ce21cbe1aaf5da9c835ff1b269a958db7ea65513129d37dc"
     },
     {
       "path": "docs/01_gameplay/TCG_RULEBOOK.md",
-      "bytes": 12701,
-      "sha256": "642a227a370548c740559027582147adc596031582d93f87e71febabee30c410"
+      "bytes": 13718,
+      "sha256": "4b90535e2a19bea65d8943c548df001128cb4c33c04bbaccc1608aaf8d98d16e"
     },
     {
       "path": "docs/02_art/LICENSE_AND_PROVENANCE.md",
-      "bytes": 3457,
-      "sha256": "745eab8db26f09e750319b3645f04c09ee46daadcca3516da411e94e41fee430"
+      "bytes": 4375,
+      "sha256": "62166d2b71afed41061e82301e6ccefb6a1924d327264f68972a5d0098e7fea5"
     },
     {
       "path": "docs/02_art/SPRITE_PIPELINE.md",
@@ -319,8 +319,8 @@
     },
     {
       "path": "docs/03_engineering/ENGINE_ARCHITECTURE.md",
-      "bytes": 13740,
-      "sha256": "2ef927321d502b632c061e743e62370838d77b183a41cca5b1707ff98099419e"
+      "bytes": 13766,
+      "sha256": "a6cf64fa56b05b27be7a0c25d8928e69821dd166d5d1b1196195c279b46b1859"
     },
     {
       "path": "docs/04_qa/ACCEPTANCE_TEST_PLAN.md",
@@ -329,8 +329,8 @@
     },
     {
       "path": "docs/05_production/PRODUCTION_PLAN.md",
-      "bytes": 7674,
-      "sha256": "16b979425e48bcec1ef87e446a6cddba5d524399a965c90a4a3f42df1aeea3c1"
+      "bytes": 7888,
+      "sha256": "e066883153adbea6fe5c8fb07bec85b757c7b0c75ce386cfacbab648fee72f6e"
     },
     {
       "path": "examples/adventure/bunbo_ability.json",
@@ -344,13 +344,13 @@
     },
     {
       "path": "examples/auto_chess/units.json",
-      "bytes": 1740,
-      "sha256": "ac463df606935dd49f9dd04bd820b28e542de6bbaccb4b031b58bb1eaa0805db"
+      "bytes": 9330,
+      "sha256": "db1ebbf31814cdb2a6f546a281bfdd685c568926282feec160999031b97307a9"
     },
     {
       "path": "examples/cards/cards.catalog.json",
-      "bytes": 26423,
-      "sha256": "049e72b26b040b9f9d43fffaf0fcd6c5c48784fa950691b505637aeff93038d8"
+      "bytes": 35694,
+      "sha256": "11a90811d9c68150f2f8f3393e5f887f0ed160f9ac8501f631935dbfcb3dcddb"
     },
     {
       "path": "examples/cards/starter_deck.json",
@@ -639,8 +639,8 @@
     },
     {
       "path": "tests/test_auto_chess.py",
-      "bytes": 10128,
-      "sha256": "1a5e27cd38096fdbe9cc66a74659f31123c2363039fb860691f0761a60c9805f"
+      "bytes": 10154,
+      "sha256": "06e3cf0d5e266d8b1bec092330f5ed1749362b9583ba8f5f131e593cad9dab68"
     },
     {
       "path": "docs/03_engineering/AUTO_CHESS_RULES_REFERENCE.md",
@@ -649,8 +649,8 @@
     },
     {
       "path": "scripts/update_file_index.py",
-      "bytes": 1571,
-      "sha256": "a547124e6a9129fcc982208f1d097b05c0551e41afbe6ecba53dc3fe8c905b22"
+      "bytes": 1722,
+      "sha256": "8441c05bf6d9acd9fe081e3be85c6be60ebca201cb25b9125e9149ebe8ba01a0"
     },
     {
       "path": "docs/03_engineering/TCG_RULES_REFERENCE.md",
@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 27830,
-      "sha256": "207c0d5f481974c29aef57fec5641658a26d97c9b0d5704ce13adf04850314dc"
+      "bytes": 29527,
+      "sha256": "605f053e80d827119ed7b87fea4156e3ecaee2055a26649cab0922689be8d7cd"
     },
     {
       "path": "client/index.html",
@@ -779,8 +779,8 @@
     },
     {
       "path": "client/package.json",
-      "bytes": 411,
-      "sha256": "c4cdc07e5f18b2b993d01e5b5de0c911c0aa95e2d976af1674f0ebffb5ad8638"
+      "bytes": 471,
+      "sha256": "822befee55367c56e4ed436c05ed5fc8e1bb1a316b265b562783a284f4a8addc"
     },
     {
       "path": "client/src/core/events.js",
@@ -789,28 +789,28 @@
     },
     {
       "path": "client/src/core/save.js",
-      "bytes": 5503,
-      "sha256": "ba98261a27a569a88524210ec8da5b27cb5012861402b15017474f332dc56a41"
+      "bytes": 5555,
+      "sha256": "b32a9716c7985f75c8cbbae8101d11e8fdc895cb233a87d5ec502f55da830e16"
     },
     {
       "path": "client/src/main.js",
-      "bytes": 233328,
-      "sha256": "d6fa5ce30e59f57c7e2384214abd2581d6edebeb972c2dd69b06ec3b50fd26fa"
+      "bytes": 237355,
+      "sha256": "52237ec7857bd64e0515a1705669da5f25894ec9d4ab3d9c7631375c2e9469f2"
     },
     {
       "path": "client/src/modes/adventure.js",
-      "bytes": 49037,
-      "sha256": "97b49ef6ac5222667e8c8dde3575aef048a14f520020c686496c2c9c7fc2ec96"
+      "bytes": 48863,
+      "sha256": "0e7b6df1f5db4b3dfcc079513437ebaaedd7340c4df13782563920093787b02e"
     },
     {
       "path": "client/src/modes/autoChess.js",
-      "bytes": 28518,
-      "sha256": "ec080194b36d4e19e425ff362a2d5dd0ff63e3bd05a67d7cf2818d9bbd5959ec"
+      "bytes": 29164,
+      "sha256": "de6c4d42dae90b873ab167e7621aff36cc39758f86824db3ddc8cf2ede0cd1b1"
     },
     {
       "path": "client/src/modes/tcg.js",
-      "bytes": 60542,
-      "sha256": "ac84a0ebbdef02087e0a9dcb80993ced4e3f8ad1c0a8fdd384299eefdfa9bc74"
+      "bytes": 62252,
+      "sha256": "94fdb322ffe9b25f515eadba77eb4775ee4da65c4a22d72260ea2ba08672deab"
     },
     {
       "path": "client/styles.css",
@@ -1259,8 +1259,8 @@
     },
     {
       "path": "client/src/render/spriteAssets.js",
-      "bytes": 5046,
-      "sha256": "89f6199e534a170591eac527da07d4d4f5ea9ba70296773d9f7544f3ed9bb3a0"
+      "bytes": 5191,
+      "sha256": "f6319942582036cf43394fc5669546b420c4b551b43c60ee1ba2d3750f9d648f"
     },
     {
       "path": "client/src/render/spriteRenderer.js",
@@ -1474,8 +1474,8 @@
     },
     {
       "path": "client/src/core/audio.js",
-      "bytes": 7446,
-      "sha256": "f6a09c2e71371a0834db0bc73982723b4bc780cee59b2cd57b4b691c249784f1"
+      "bytes": 8231,
+      "sha256": "adddd3e81e1606b269dfae7cc7c0ddffe9001efd3aaa46554c046f539ff9e249"
     },
     {
       "path": "client/src/modes/adventureBalance.js",
@@ -2174,8 +2174,8 @@
     },
     {
       "path": "client/tests/originalArt.test.js",
-      "bytes": 9694,
-      "sha256": "38af85e4a103ed12fda9fd38044b68be1edcfa969295d10c05ecd7dfbb0adff5"
+      "bytes": 9754,
+      "sha256": "f451462ae1ecda13f2ea650e59a8a51db275da67c00339841d23c3d66899acb7"
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_PLAYTEST.md",
@@ -2209,8 +2209,8 @@
     },
     {
       "path": "docs/04_qa/PLAYTEST_CONCEPT_GAP.md",
-      "bytes": 6913,
-      "sha256": "71c2bb5f6d163e2a12a1f7fb6a29fb44f0291508827829e7d9232a6b00f36c37"
+      "bytes": 7300,
+      "sha256": "0f4a1d842ee80df1d43239e2897873024343ef3c07d3e6d4ae7c823306176a0e"
     },
     {
       "path": "client/assets/original/scenes/title.webp",
@@ -2219,8 +2219,8 @@
     },
     {
       "path": "client/package-lock.json",
-      "bytes": 35864,
-      "sha256": "a8e649e4bdf45f482bf89ea1bb1278c7730e46903d1671cc6e27ce8b75c62e40"
+      "bytes": 35896,
+      "sha256": "178d628aa53f315166dd741cba7386d3f3ae7468b827a6e614b8a0d0eb3cbc02"
     },
     {
       "path": "client/shell.css",
@@ -2244,8 +2244,8 @@
     },
     {
       "path": "client/vite.config.js",
-      "bytes": 1687,
-      "sha256": "27e7b13230e801d7691cfcf2e5ee0517c959137fc20f649d348d233641b982ab"
+      "bytes": 1793,
+      "sha256": "f527fc16d130d30eff423ba234549c17b1061b571ebb715bab84b868490aa0ee"
     },
     {
       "path": "client/src/core/accountApi.js",
@@ -2409,8 +2409,8 @@
     },
     {
       "path": "client/tests/soundScenes.test.js",
-      "bytes": 6973,
-      "sha256": "c67af476b374ae97d3b239eab7b7ea4bebf4987d9f0c556fb832afe761f3b794"
+      "bytes": 7248,
+      "sha256": "59300d39450496da7e58e1642741ceb084060bb71781a30ce0670227d7b86170"
     },
     {
       "path": "examples/characters/boss_bep_truong/identity.json",
@@ -2779,8 +2779,8 @@
     },
     {
       "path": "client/tests/mp3AudioBank.test.js",
-      "bytes": 2565,
-      "sha256": "48b71a63bd2b47e44736b3b9120b83eb6e2de5e2eb99ee64997cc4c4d8c262a6"
+      "bytes": 3002,
+      "sha256": "13d297596536a7ae3f22880c295eaa3c399bab61f0d237296a31e79481ec7bb4"
     },
     {
       "path": "scripts/build_compatibility_audio.py",
@@ -2944,8 +2944,8 @@
     },
     {
       "path": "client/arena.css",
-      "bytes": 39714,
-      "sha256": "0bad57fc9312a2d35c8d48d046852a4c921e564794cd315615d96bf5d87921d7"
+      "bytes": 44269,
+      "sha256": "1bbc215a6e85d7e0a2102cf1751a640e61aeb015a598b2e4ca7db1c32016f4d0"
     },
     {
       "path": "client/src/modes/adventureChallenges.js",
@@ -2969,8 +2969,8 @@
     },
     {
       "path": "client/tests/chessLobby.test.js",
-      "bytes": 9885,
-      "sha256": "80d63b4c6422607c060cffa6860ebc3a91955a0744fa637b7700b97c2135042f"
+      "bytes": 9898,
+      "sha256": "99d1e2f2ccd6ba1f8ce444845fba1f6c712501dfaa6f4bbe7a6f59d460d641d0"
     },
     {
       "path": "client/src/modes/tcgCards.js",
@@ -2990,7 +2990,7 @@
     {
       "path": "client/tests/tcgTactics.test.js",
       "bytes": 13802,
-      "sha256": "8b6b059bda586363e08debc62129c9f2434800143ac3e8f966ac72b13adefb24"
+      "sha256": "7c78c518c31fd86285169e663321ef65e16e7c8c814cb5b489fc694d5001155a"
     },
     {
       "path": "client/src/render/tableDrag.js",
@@ -3179,8 +3179,8 @@
     },
     {
       "path": "client/src/shell/metaPanels.js",
-      "bytes": 13495,
-      "sha256": "42a512ffc2c6b801221c8299e2f32a1c4200dcb6352515fcdaa96002cd4b106b"
+      "bytes": 13668,
+      "sha256": "79feffdb05112e839c21ab67149e032ed297cff7b13bb6f11911f925f734262e"
     },
     {
       "path": "client/tests/metaProgress.test.js",
@@ -3209,8 +3209,8 @@
     },
     {
       "path": "client/scripts/smoke-web-client.cjs",
-      "bytes": 23570,
-      "sha256": "e6e6e0025d276c83427a18d929b745193b5285cd4da7f33cae9ada825862641e"
+      "bytes": 23682,
+      "sha256": "b887c84e1850f12ddde1402b10cbed894fd2c03a57b65a680c09091ed3bd3fe7"
     },
     {
       "path": "client/src/shell/sceneNavigation.js",
@@ -3403,471 +3403,6 @@
       "sha256": "4e4aedb0c6e9a211c191bb248cd70db44b9658616ca8533e095e260ff1cc119e"
     },
     {
-      "path": "client/assets/audio/voice/CREDITS.md",
-      "bytes": 1107,
-      "sha256": "efa684e9eb0eede7065b07bd08759b0ec4e597388951972e29a5e6eb74b0a183"
-    },
-    {
-      "path": "client/assets/audio/voice/commander-attack.mp3",
-      "bytes": 4615,
-      "sha256": "319c41696ca9773441f8f1536dd2bd0981906d447fab3b2b1457f1b8c2d8bf25"
-    },
-    {
-      "path": "client/assets/audio/voice/commander-summon.mp3",
-      "bytes": 7331,
-      "sha256": "3068efe3e15b33b134d653017ad921f02ab3c4911ed66f9b492379df056391fc"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_banhbao_bachngoc.mp3",
-      "bytes": 19452,
-      "sha256": "e27141ace5923c28e6f0798091eb72da188212992911dbca859593bd7dbdb440"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_bunbo_holinh.mp3",
-      "bytes": 21960,
-      "sha256": "cb167326cf9c0be8190c63d6e0cf6db2dd8fed81366430646b2165ece10166d5"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_caphe_davu.mp3",
-      "bytes": 22691,
-      "sha256": "dbbc5d192fa1f06869c41f0cd2367df71c20cfd434f1b1fc74562fea7389565c"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_goicuon_diepnhi.mp3",
-      "bytes": 18721,
-      "sha256": "7b38475b13a744f40468a38316f44f35c4b6b30fc5e582f909fe45a32dfcbbc4"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_pho_lamvu.mp3",
-      "bytes": 20497,
-      "sha256": "568805e53787815e6e9a020780ae213793c41014cd5294308b21eb4f06780c74"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_002.mp3",
-      "bytes": 18721,
-      "sha256": "abf1e48d365905e0a398167717fff4d3fcb1dcd1862891f8ac361db3012176cb"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_003.mp3",
-      "bytes": 21437,
-      "sha256": "5204173e4f9fd9ef7ccf6fa27fc039f9396e5dff4af89f7620e4df26e7631b78"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_004.mp3",
-      "bytes": 23214,
-      "sha256": "931fb71c1dd60f8775d3ecc6d3588a462327386d018d6c286de249cf48ac7b7f"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_005.mp3",
-      "bytes": 19243,
-      "sha256": "37b62b9a4e8ef515d430157653722da1b70aa62771337eeb2c6a3b8ead5864fd"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_006.mp3",
-      "bytes": 19452,
-      "sha256": "e18546c61421ff1968bded3d16b7dac91fc1b351c4c425a9804bfb4d7120e21e"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_007.mp3",
-      "bytes": 20915,
-      "sha256": "c853b1799c61a6d0deb5f3ae757eb238518998f8df0127abf39ea43402b2c8f1"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_008.mp3",
-      "bytes": 21646,
-      "sha256": "70d2cfc3490ca2290eac417e0f1d88c83ed9553d6ebc2bb465c72caf95ce07f7"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_009.mp3",
-      "bytes": 18825,
-      "sha256": "7272a49445da3d5774056459d648586cf7c6f3acbef2fb96c28436a94d340982"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_010.mp3",
-      "bytes": 18930,
-      "sha256": "4d805d2ebc3c619ea5b589f9cb57d66553e05502ad1d5a9c65b4d6efdf6eb917"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_011.mp3",
-      "bytes": 18930,
-      "sha256": "cc4a86f4729feed1ca384fb2a7b362ac87afd4c553764e07d26c402a447be041"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_012.mp3",
-      "bytes": 18825,
-      "sha256": "947c164933a7826b2784ab47e87b0335fcaa44f487c3a9fc6c0a0e66353f86b2"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_013.mp3",
-      "bytes": 21646,
-      "sha256": "95149a58a46174538e9eca0193b140439a5b3fece30769bf02b57e1fe5ad31dc"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_016.mp3",
-      "bytes": 17989,
-      "sha256": "9e5df546226aa9ea57b46a8ca4eb7aeb2e93a52ff805137bc7f6e5dddab5b9f6"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_017.mp3",
-      "bytes": 22273,
-      "sha256": "67a0dfb4a7fdad0ec7a6b39ce03ed9d9c4f5421952e1615a24c5f0c55e40a53f"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_019.mp3",
-      "bytes": 19557,
-      "sha256": "f6d9dabf9da68715a1a1d9b449cd29c92d42860a4b22615c1d63dce04fe399c4"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_020.mp3",
-      "bytes": 20602,
-      "sha256": "87ea7236d0b132192131349682c2192daa0d307059cbc7b649989a0593782e38"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_022.mp3",
-      "bytes": 21437,
-      "sha256": "d402c4f2e0911594ced245b74fd604a6182c51d1dc74d9670de641ed06896ccc"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_023.mp3",
-      "bytes": 22273,
-      "sha256": "7b66e7c2d29a461e8d8d4627fafdd5c41ca141c298da13d8a8b4b6d6678b73d4"
-    },
-    {
-      "path": "client/assets/audio/voice/home-chr_som_024.mp3",
-      "bytes": 24990,
-      "sha256": "aa466272da7a2328bcee4f6b7ec2b505bb4b5a6e174208712af041bec89f66d1"
-    },
-    {
-      "path": "client/assets/audio/voice/npc-caldera_artisan.mp3",
-      "bytes": 15899,
-      "sha256": "71620125ca1a0defd7e2a4b14d2fb4111cf71bd23cd37076c4c0d6be2416e983"
-    },
-    {
-      "path": "client/assets/audio/voice/npc-forest_scout.mp3",
-      "bytes": 19243,
-      "sha256": "4913cbf6c4df193ec917964bdf5248abeea616a04cb1bec251dc3d0b2692f55d"
-    },
-    {
-      "path": "client/assets/audio/voice/npc-garden_keeper.mp3",
-      "bytes": 15482,
-      "sha256": "d1006b0ad775e779b3c8e8544af6c0934d8db2720845356a7bd79b98a3c6a810"
-    },
-    {
-      "path": "client/assets/audio/voice/npc-harbor_boater.mp3",
-      "bytes": 13601,
-      "sha256": "0c6560d2bc4a10230e56735177dc09b83e620261b82300734a90f3256f88d123"
-    },
-    {
-      "path": "client/assets/audio/voice/npc-orchard_keeper.mp3",
-      "bytes": 18094,
-      "sha256": "487c82699ee3a9b5297f111b202cbdfbb422f8af329a6e14b1cc9348bf49ecc9"
-    },
-    {
-      "path": "client/assets/audio/voice/npc-sanctum_keeper.mp3",
-      "bytes": 15064,
-      "sha256": "0492b7d1e77e3435785bdd27c14ea18d52a0d66e4941b6c212ad1e0fbd1cfa2d"
-    },
-    {
-      "path": "client/assets/audio/voice/npc-village_cook.mp3",
-      "bytes": 14750,
-      "sha256": "665547d4100ae050fbe976d78829c1af33b289268c0f5a5deb664ae3f18f4b4c"
-    },
-    {
-      "path": "client/assets/audio/voice/npc-village_guard.mp3",
-      "bytes": 13601,
-      "sha256": "d75e2b3fe8ff1ab5175ad7d69e9042dac5eb82e1dbc43ec62e00ef9603f2580d"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_banhbao_bachngoc.mp3",
-      "bytes": 3674,
-      "sha256": "53e41140af51fa851d5fe3fb99f99565944d558ae2251dc7bbafc48cd29048ff"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_bunbo_holinh.mp3",
-      "bytes": 3152,
-      "sha256": "d293cd98034270abb642062c8bede3d019d8d30d1a7b11d3bbf70c23e9131166"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_caphe_davu.mp3",
-      "bytes": 3779,
-      "sha256": "b912d7ed69a5f92b7cc208a4b311beebb9a4815171647076299beec30aab3a1a"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_goicuon_diepnhi.mp3",
-      "bytes": 3988,
-      "sha256": "6349a511d7d62da7f94cf54b2c90d3676ef1c2ba34101fd677e9d489f9a63b4d"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_pho_lamvu.mp3",
-      "bytes": 4092,
-      "sha256": "a423dc36a91c26de803bcf57ff6d6ba28c12abe260006df354c200db7b9fc1bd"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_002.mp3",
-      "bytes": 4197,
-      "sha256": "928ceaf9095eedcdf8424b0be12d68fdd2b4bfa35a5cc685db3d1d1ad5a319bc"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_003.mp3",
-      "bytes": 4092,
-      "sha256": "68ee740eef321b03a91248e7e9173dccb36bb2987e13da9714b1199742ce5b7d"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_004.mp3",
-      "bytes": 4092,
-      "sha256": "8c529545d59731d2e8b702c2a60151188c0a821b306f2b4ec7fd3d92e52a7218"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_005.mp3",
-      "bytes": 3883,
-      "sha256": "6b3b210e687b78a13f441977993fe940e83c9101709f86b8361b05bde718a721"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_006.mp3",
-      "bytes": 3779,
-      "sha256": "721ad0f6fca1316763b803db464d9bc92654c7d2ffa7425108af3c64d7daf176"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_007.mp3",
-      "bytes": 3779,
-      "sha256": "57880370221a766ef234d1498ac7a6ca2a0b3f29d4b43d38aac3b764d5166889"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_008.mp3",
-      "bytes": 3883,
-      "sha256": "2bea4202823bac8df65e693f60abeb82a58df5d5669c7a06648311fe07688535"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_009.mp3",
-      "bytes": 4197,
-      "sha256": "27e72dbc03c5e0fc57c5d69a0b011466ec14c10e213815d3fa8a8010d38f04dd"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_010.mp3",
-      "bytes": 3988,
-      "sha256": "a6f881e422f93ecfa641f85f78146026b33cef7463a4da49e87544b81d94c82b"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_011.mp3",
-      "bytes": 4092,
-      "sha256": "215bdffd41004f17ca15fdff4c642477a79d0903fa1bc6cfaeb41fd41c1baaad"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_012.mp3",
-      "bytes": 3674,
-      "sha256": "2a0788da6630821665bca1eacbb2bd663da1dbaacc56818f598202b7a8c70933"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_013.mp3",
-      "bytes": 4615,
-      "sha256": "4626b1eaa4c010847255b84a1d75e7262f1285e386f6b93086effdc8d776c09a"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_016.mp3",
-      "bytes": 3779,
-      "sha256": "9f7be3330eae56a02925b2dd3aba75c99c81bba8bd11df8c380133b590ba0558"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_017.mp3",
-      "bytes": 3674,
-      "sha256": "02c9b524385f291f3ef6ad27f390e9fa47ee2d52654842bad16c123ec94a1630"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_019.mp3",
-      "bytes": 3883,
-      "sha256": "cf9baad38108a30320d85e2010365ef9c48ad622a3fd718068c7fb27f59580ea"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_020.mp3",
-      "bytes": 3988,
-      "sha256": "064e8863a4876d91f9e254597433c8cd0573791b6a78fd1971231c47260ac51f"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_022.mp3",
-      "bytes": 4197,
-      "sha256": "26850c037657f2fb446a3869f89c4462a8be85a2fcfb21f8a9c6c368d8873701"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_023.mp3",
-      "bytes": 4406,
-      "sha256": "b7fdb7816925fd01d30bf30c89217cd8f4771379e0b104f3cbd425e71bb642ab"
-    },
-    {
-      "path": "client/assets/audio/voice/skill-chr_som_024.mp3",
-      "bytes": 3779,
-      "sha256": "18b9b93cfcb928f61ba58cb150b3099ce2f858de395f1d7a4c09860c9cedc9e2"
-    },
-    {
-      "path": "client/assets/audio/voice/story-ending-0.mp3",
-      "bytes": 28438,
-      "sha256": "c5a12c200247cb24a5d85208da4e44c61516122d02a7411c14c134a30b94f203"
-    },
-    {
-      "path": "client/assets/audio/voice/story-ending-1.mp3",
-      "bytes": 23841,
-      "sha256": "d8a131ac68f8d445ea7f260a3acce7736b08eb7d276c6bb87d2573cdf73dd285"
-    },
-    {
-      "path": "client/assets/audio/voice/story-ending-2.mp3",
-      "bytes": 25095,
-      "sha256": "1b3b6c8c992ebc2eaf7e8ab1a08a3a6964d59f46c7489882dd70a9d1b7b5ff43"
-    },
-    {
-      "path": "client/assets/audio/voice/story-ending-3.mp3",
-      "bytes": 20810,
-      "sha256": "a121d8abd357e432777e7a18aa3bdb1b1612ec0c06a6095c805b3ded3b82f44c"
-    },
-    {
-      "path": "client/assets/audio/voice/story-feastEnding-0.mp3",
-      "bytes": 23736,
-      "sha256": "99c4aabc7e67bba37807886a0320a764f0590dd21ba55badc64a978ac8019988"
-    },
-    {
-      "path": "client/assets/audio/voice/story-feastEnding-1.mp3",
-      "bytes": 16944,
-      "sha256": "777be8a42cfb25407dfcda4bbf2ebba08c65ac9693e77d4e03aade879b37099a"
-    },
-    {
-      "path": "client/assets/audio/voice/story-feastOpening-0.mp3",
-      "bytes": 24572,
-      "sha256": "986284844b383d85faf2752e7da0955212b05aa326913ef0353d8435153010ba"
-    },
-    {
-      "path": "client/assets/audio/voice/story-feastOpening-1.mp3",
-      "bytes": 17467,
-      "sha256": "120660dcc00c1b4ecef77f1081aef974f15f7c1ceef703a63f74189b0c98729b"
-    },
-    {
-      "path": "client/assets/audio/voice/story-finaleEnding-0.mp3",
-      "bytes": 18825,
-      "sha256": "faf42b31e600b27b79f2913386bcb8db5947146e2a13d596f5fa46bee7599dfa"
-    },
-    {
-      "path": "client/assets/audio/voice/story-finaleEnding-1.mp3",
-      "bytes": 23632,
-      "sha256": "7e587d92d8b0849b018b082808137eec971a4d95d2ef9ec022492a2a0e773f9a"
-    },
-    {
-      "path": "client/assets/audio/voice/story-finaleEnding-2.mp3",
-      "bytes": 18721,
-      "sha256": "e082a87a9f3847a9c56d681d5f01c3e6f2f033692d315891831d7746cdd62f13"
-    },
-    {
-      "path": "client/assets/audio/voice/story-finaleEnding-3.mp3",
-      "bytes": 12556,
-      "sha256": "cb8e7fa3fcf7ec83772ed41b11e6c53a75f614751bb8d706657a18e5ab8b6964"
-    },
-    {
-      "path": "client/assets/audio/voice/story-finaleOpening-0.mp3",
-      "bytes": 18930,
-      "sha256": "6e85b99816b516b69687de0ee78ed2c64d7bd7acc6b96e9a11967d09347f262e"
-    },
-    {
-      "path": "client/assets/audio/voice/story-finaleOpening-1.mp3",
-      "bytes": 14541,
-      "sha256": "93999344ee00c5bf0feadd983083963996dace8c178656aeda2a74c0d4241056"
-    },
-    {
-      "path": "client/assets/audio/voice/story-forestEnding-0.mp3",
-      "bytes": 18825,
-      "sha256": "427a1bf71f7adadbcf827080d338e944a3a45db01681e2255ea0007004b010ee"
-    },
-    {
-      "path": "client/assets/audio/voice/story-forestEnding-1.mp3",
-      "bytes": 22064,
-      "sha256": "f15ea534b602316fc0e4d2b068fbd9933fac084cfa1baaa4e8df7d9450ee508d"
-    },
-    {
-      "path": "client/assets/audio/voice/story-forestEnding-2.mp3",
-      "bytes": 21646,
-      "sha256": "0a07cc5396ea576e32a885c9995f6ed6f1980ca8e1cd414a9e40141fccd741a1"
-    },
-    {
-      "path": "client/assets/audio/voice/story-forestOpening-0.mp3",
-      "bytes": 21019,
-      "sha256": "fd691172cd33da7f1c9cc1a9a2b0dc2edc8bd98ed275a654398cdfb4249c10ab"
-    },
-    {
-      "path": "client/assets/audio/voice/story-forestOpening-1.mp3",
-      "bytes": 22064,
-      "sha256": "58f41543e75f3857e19c2a59a3d4f44d99587da1e4d6107c04bf246dc2a02494"
-    },
-    {
-      "path": "client/assets/audio/voice/story-forestOpening-2.mp3",
-      "bytes": 19348,
-      "sha256": "d8b4767b490030434e150ef6c45517857887ce7a2d55253fb2a2816a82fe015b"
-    },
-    {
-      "path": "client/assets/audio/voice/story-forgeEnding-0.mp3",
-      "bytes": 22273,
-      "sha256": "01d35f4702bbabe3515fc28b68fd594f5aa31473d2f2caf4c926af9a0a1a1e6b"
-    },
-    {
-      "path": "client/assets/audio/voice/story-forgeEnding-1.mp3",
-      "bytes": 26244,
-      "sha256": "5a7152a5f3b225b0895d794b67672e35daa89fc4d2580487ee05255f2c2dd44d"
-    },
-    {
-      "path": "client/assets/audio/voice/story-forgeOpening-0.mp3",
-      "bytes": 18303,
-      "sha256": "cba8ae21af59d6154fb639b130fc64acd328312be8c24ea55e0e47962844e7c6"
-    },
-    {
-      "path": "client/assets/audio/voice/story-forgeOpening-1.mp3",
-      "bytes": 21228,
-      "sha256": "6f50b36c7b04b83d321fe74bcbe89416fdd983ff3b87f3c03f3b3414281f29ec"
-    },
-    {
-      "path": "client/assets/audio/voice/story-harborEnding-0.mp3",
-      "bytes": 13496,
-      "sha256": "0221bcda4c8a953908b6d16fa81c2babf9151b2873f7c134b9875c684fd189f2"
-    },
-    {
-      "path": "client/assets/audio/voice/story-harborEnding-1.mp3",
-      "bytes": 21542,
-      "sha256": "59e7bfd46562dbf3f2b2fc95ed1dbc72210bf71d5b27059d00147e5a8b12927b"
-    },
-    {
-      "path": "client/assets/audio/voice/story-harborEnding-2.mp3",
-      "bytes": 26348,
-      "sha256": "fadaf1cb7f7a97770a660ebb60c7da23fd33a084ca53dbd48dc02a0bc613e47f"
-    },
-    {
-      "path": "client/assets/audio/voice/story-harborOpening-0.mp3",
-      "bytes": 20497,
-      "sha256": "ecd147cd34a8ac032d8d0a054cd213415c18137e8ef746da73a3963fceebc2d5"
-    },
-    {
-      "path": "client/assets/audio/voice/story-harborOpening-1.mp3",
-      "bytes": 15168,
-      "sha256": "fe8137a28758f3b35ac5d367826a33e5f49736d206ee43833db43a38d83ce8fb"
-    },
-    {
-      "path": "client/assets/audio/voice/story-harborOpening-2.mp3",
-      "bytes": 18198,
-      "sha256": "3cb576df640ed0517c028f731647cb1990ee238c5530daacb9919cf72a7bdb4c"
-    },
-    {
-      "path": "client/assets/audio/voice/story-opening-0.mp3",
-      "bytes": 20393,
-      "sha256": "08ffe640f495c01f5531fd9eb38db98ae22a3b7453d6ead0d5f8208cbd25c8bd"
-    },
-    {
-      "path": "client/assets/audio/voice/story-opening-1.mp3",
-      "bytes": 19766,
-      "sha256": "8a224da834d7c58bf423d739fc2ee9233f6dbf4903aee8984e3841ca9ccbe32f"
-    },
-    {
-      "path": "client/assets/audio/voice/story-opening-2.mp3",
-      "bytes": 24990,
-      "sha256": "934c9904e649fe38aa80a5758c682e4cbd0b25d2c5c1f5dec11108baca054d40"
-    },
-    {
-      "path": "client/assets/audio/voice/system-welcome.mp3",
-      "bytes": 8063,
-      "sha256": "82e6839209c8e739485814d03d55a3da7dc4953abc6971ea50db96b2b35c740f"
-    },
-    {
       "path": "client/assets/original/cards/card_ember_break.webp",
       "bytes": 53682,
       "sha256": "0706ba2025faed1eb01f02c21a06ad849eb99adaa19085546409f34c719937dd"
@@ -3951,21 +3486,6 @@
       "path": "client/assets/original/showcase/chr_pho_lamvu.webp",
       "bytes": 502314,
       "sha256": "52dd33f2a00d5e0dcaadd255393e46f26113d9360708e447123752130c40d6aa"
-    },
-    {
-      "path": "client/src/core/voice.js",
-      "bytes": 2799,
-      "sha256": "ca70dc2e770a148c1350d7cde8abe55ebd0ca97cdc77629a33b36d1a9e0df284"
-    },
-    {
-      "path": "client/src/core/voiceLibrary.json",
-      "bytes": 11874,
-      "sha256": "fe34d11841e6bf1ea71be6ce47b773a8bc7a1ee50d4891a2b0dff0584ecfac93"
-    },
-    {
-      "path": "client/tests/voice.test.js",
-      "bytes": 1606,
-      "sha256": "ee2028bbd82450a61a554c8a2b5b0695ee63fa257044f57e6aa8b70b865a1bfc"
     },
     {
       "path": "client/assets/original/showcase/chr_som_002.webp",
@@ -4064,18 +3584,18 @@
     },
     {
       "path": "client/build/offlinePackage.js",
-      "bytes": 2623,
-      "sha256": "52029504f234425b83c560579de0ffedd4e4a92ee5ed518ab14da827cab6ca29"
+      "bytes": 3197,
+      "sha256": "c3ef4e21825b0ed69e1d31bd79c6bfde324a869090f6ac71fcf995b2df2f7b55"
     },
     {
       "path": "client/offline-worker.js",
-      "bytes": 3403,
-      "sha256": "eec4575043915069dd73a1229d2c3db33301c59b84bfaeb5b7a8c2bbafe881be"
+      "bytes": 3542,
+      "sha256": "86e33045d2b9cb3841c5584c75d461021ac15463f65cd00d411651776a985358"
     },
     {
       "path": "client/src/core/offlinePractice.js",
-      "bytes": 3182,
-      "sha256": "94a22cce822603c491231f4762ac99d8c2cc248ed838d1d1c9fce5f82ab543a2"
+      "bytes": 5983,
+      "sha256": "44b4b933aeb1fe6245c8cf392cab40f7dc8ea08601543aab8111d8a3b3560dbf"
     },
     {
       "path": "client/tests/deviceSave.test.js",
@@ -4084,8 +3604,8 @@
     },
     {
       "path": "client/tests/offlinePractice.test.js",
-      "bytes": 9095,
-      "sha256": "22be3e06caed753906471a789ea538a33f2518dc6eb8ae8e82771210d4d3e6fb"
+      "bytes": 14499,
+      "sha256": "64655b08a0792dce0b1041341a8a696ad2ff5927dc0063c14a7ad0543266577d"
     },
     {
       "path": "docs/05_production/MOBILE_SPEC_RECONCILIATION.md",
@@ -4096,6 +3616,1016 @@
       "path": "docs/05_production/images/mobile-offline.jpg",
       "bytes": 156000,
       "sha256": "d8125d11aacefbb4c7e1fcac9bc0a16ff0c6b9540de97f2c8e4ec9536af7425f"
+    },
+    {
+      "path": "client/assets/splash/card-back.webp",
+      "bytes": 735490,
+      "sha256": "eab9fa5a306585cc7a5b8fcdefd07a8717fecd449813d4bc56db3a0b668227be"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_002.webp",
+      "bytes": 617354,
+      "sha256": "3fc5c644afe9f3afd78592170713e94bbfa1bbc7d13c0fa854218d87a6639066"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_003.webp",
+      "bytes": 551474,
+      "sha256": "f0e90b128d542271266d83677b4485a1d56eb8f016a4e943a4dd858b6704d877"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_004.webp",
+      "bytes": 659390,
+      "sha256": "2773144def35f159c4b091824ef4c589f9c4c0877287fbee7fa69778faec1175"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_005.webp",
+      "bytes": 674120,
+      "sha256": "34bc1fe50446148b6328013085d2ba789ebe77a13a16d1320a7bbabe839b490a"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_006.webp",
+      "bytes": 716854,
+      "sha256": "16ad82fe2718f874d97b5081de2e78a041a836d38e4c637e43244083a4cae027"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_007.webp",
+      "bytes": 638272,
+      "sha256": "ed971627d744878266dbae33fd184416b8483b9f9801a4ece6c304f997da475d"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_008.webp",
+      "bytes": 641854,
+      "sha256": "eac661a199945270377d3e3274fab25184d550249d49ea2f5b75939dbedf633e"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_009.webp",
+      "bytes": 695984,
+      "sha256": "37630e397380ffb198881e888ee690e6030aa949a3eb05e858785d0b9a97b114"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_010.webp",
+      "bytes": 665320,
+      "sha256": "3b45d9060618cc2598525a63aae679a2ba6ffa90b1e3a66c89ffb35102e25608"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_011.webp",
+      "bytes": 643838,
+      "sha256": "a7bdc7275a062d1edc1c0269c310847ec10e6b09db1c4fe3ef91dac719a90379"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_012.webp",
+      "bytes": 695564,
+      "sha256": "997d769cffc37f61a02921b1cf2c076e34afa63c59e2eed41c123b556d00fdfc"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_013.webp",
+      "bytes": 644730,
+      "sha256": "2048cb8609c6011f5ae0be9ef829f9e1efb75f604ab86c6e2ba7d0c8c47bc28e"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_016.webp",
+      "bytes": 644818,
+      "sha256": "7cb2ae5d42788f6273a0cf567199b807480d6c39dc0a2b51581d174191da813a"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_017.webp",
+      "bytes": 699898,
+      "sha256": "6a5204c4aff64406af2bdebd1eb18e4df033df3df8fb814c6573fc738bea0f5f"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_019.webp",
+      "bytes": 636832,
+      "sha256": "7aa12d5456515fa15d5f50f3fb9ae235ebd82db0f3153049bdefd6d538c8d5b2"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_020.webp",
+      "bytes": 674950,
+      "sha256": "2173981be605e4ce9b30d28a2b85956af317d1599dcdde7be99a750e91dd2fd2"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_022.webp",
+      "bytes": 706502,
+      "sha256": "da4442697eda2edcf8adebd98c46d66deac54af8a3adbcda7a3916971c77fccf"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_023.webp",
+      "bytes": 770798,
+      "sha256": "f20376e480903ee26d1441d450c64cbff5101077217c3999674092d2e3df90b9"
+    },
+    {
+      "path": "client/assets/splash/cards/card_chr_som_024.webp",
+      "bytes": 704668,
+      "sha256": "bb2c1281bd348737674e94e67c4d530736f6d27cf5ca3c82f2052ed65c40d071"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_01.webp",
+      "bytes": 697402,
+      "sha256": "2c4c9380b75f076ebed6abf272fffd03733ce37e13a5f22c8a9657fb6c5a3784"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_02.webp",
+      "bytes": 699104,
+      "sha256": "450975c11e12153f8d8d777b741d22aeeb4e0b153aa966b1681f7e9ac16c2f27"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_03.webp",
+      "bytes": 742600,
+      "sha256": "11d5ef11822174c79353e6843a90fe768b7d6529ba995649ccaef65e5bf4f408"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_04.webp",
+      "bytes": 587386,
+      "sha256": "a38d141372a18ac437e89ae7b770fbd7565798e8aff67a26fc58bad5c5cb6901"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_05.webp",
+      "bytes": 598484,
+      "sha256": "2923c2976991cc9448d313512d9a3e3c69348bfc97eda9e260ecdc202cf82eb7"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_06.webp",
+      "bytes": 605930,
+      "sha256": "4a0fd542e513dd39e2dea5eea54f734b6ff0ea8b45c9811146b7068acb30d999"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_07.webp",
+      "bytes": 561236,
+      "sha256": "3cd7d4ad5963e7aedb61adf18d6481de05b1516dcb3647870570c39fdb0d68d3"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_08.webp",
+      "bytes": 677746,
+      "sha256": "f53eb6e5c1b19e320130ed1848a61e3cc93efcce3ff529bd773ad43d778bd7b6"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_09.webp",
+      "bytes": 744242,
+      "sha256": "30ae082558a228478f3eadd238821c2864649bd76b4b29bcad8119bad0f55b2c"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_10.webp",
+      "bytes": 649484,
+      "sha256": "528c86e8c4337d71db31689e8b5316f7491e9daa0eff85146ca5b7aae98cf8bb"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_11.webp",
+      "bytes": 682138,
+      "sha256": "ad6bba3c0cd26248b2e35ceacbb3cb846ab51c475635a648a541d57fe54022dc"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_12.webp",
+      "bytes": 651490,
+      "sha256": "e38b06435fa10aa3e32d0c786c7616cfe93f352131f6f9f111313009e7a1d4ba"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_13.webp",
+      "bytes": 571586,
+      "sha256": "31a5e6045d8ff09480f172ff9d3ea5e8384f184bf4ce77385124c37a04960298"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_14.webp",
+      "bytes": 606400,
+      "sha256": "1cb9652182f68041e46956440f1b9258080dc47cb8855731fe0f7d438b33415e"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_15.webp",
+      "bytes": 559006,
+      "sha256": "4269c93e7e5ba240f5df33401c43f699140c262ce252917347eaa6ab725b1ccc"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_16.webp",
+      "bytes": 587486,
+      "sha256": "8c096a7c40741b4def35785b3f915c51bbb876e7f09f2a844ea0013254ee93c3"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_17.webp",
+      "bytes": 554996,
+      "sha256": "c6e5bb8cb3a99ae33539afd16cf2200c0739c78b7a974707fcf2e235eafccd46"
+    },
+    {
+      "path": "client/assets/splash/cards/card_demo_18.webp",
+      "bytes": 663536,
+      "sha256": "bb92d5cb7e3f475ddee97e9f32bb6f4ba7844f027ecb9d7e7ba96c882e7b3f1d"
+    },
+    {
+      "path": "client/assets/splash/cards/card_ember_break.webp",
+      "bytes": 660760,
+      "sha256": "a75a5f4a3f14a3067cfe3a1b062a678bf3dc8de8c1936a2d110f3409dc399cb3"
+    },
+    {
+      "path": "client/assets/splash/cards/card_ember_runner.webp",
+      "bytes": 579732,
+      "sha256": "ec3c7356298ad11cee7dc48ff30290e3207f67bf793256527948644aa889322b"
+    },
+    {
+      "path": "client/assets/splash/cards/card_fire_guard.webp",
+      "bytes": 697150,
+      "sha256": "3b317ae9363117db48df15c116d439e679e2b538628586eddf43ac084202d034"
+    },
+    {
+      "path": "client/assets/splash/cards/card_hearth_pepper.webp",
+      "bytes": 494860,
+      "sha256": "3f9bcff5ee43c76dceef9d1a79c6aae79417c592476a4c488f153bb69d4cf993"
+    },
+    {
+      "path": "client/assets/splash/cards/card_jade_encore.webp",
+      "bytes": 547518,
+      "sha256": "dfa224115db5ca56f4a37c9c29b47ea7734dbd342d2292dad1bd49342231d4c8"
+    },
+    {
+      "path": "client/assets/splash/cards/card_jade_mushroom.webp",
+      "bytes": 662496,
+      "sha256": "9ec28aa76c1dea41bcd2916a31177a658c2ab44567b95410b02ff1be5fcc9e1d"
+    },
+    {
+      "path": "client/assets/splash/cards/card_jade_watch.webp",
+      "bytes": 526010,
+      "sha256": "f4a030786732368ffa47331c4a451f711b4fc38f97d9cdd01ff4dd6daeef6e6e"
+    },
+    {
+      "path": "client/assets/splash/cards/card_lantern_guard.webp",
+      "bytes": 639784,
+      "sha256": "a0cdce702b22b205bde671ee77a5725368e6d65415feff0f8af78ce7c3992553"
+    },
+    {
+      "path": "client/assets/splash/cards/card_leaf_reclaim.webp",
+      "bytes": 743946,
+      "sha256": "12c5ddb17259db479fb1f995fbed2d046dea15e28153338c2abc4b931ff0de95"
+    },
+    {
+      "path": "client/assets/splash/cards/card_mist_dampen.webp",
+      "bytes": 556714,
+      "sha256": "4ee218cb181b410e62be952523a3d8be05c90a4c9217184525db45a357204697"
+    },
+    {
+      "path": "client/assets/splash/cards/card_mist_keeper.webp",
+      "bytes": 641956,
+      "sha256": "0e8807f11d6622ae3b5ba040b590769b1d4a1dc9f9c4e323a607c58f3e42fea1"
+    },
+    {
+      "path": "client/assets/splash/cards/card_mist_recall.webp",
+      "bytes": 731750,
+      "sha256": "033096589e3a06b43c140f596ddb5f723867dfdda0f706cb86a851f529e1b806"
+    },
+    {
+      "path": "client/assets/splash/cards/card_night_feast.webp",
+      "bytes": 630104,
+      "sha256": "686be949a047a0d1b074aef4a10395ae12d986a74d5b5c0ab9d9f907d8725dd8"
+    },
+    {
+      "path": "client/assets/splash/cards/card_night_reaper.webp",
+      "bytes": 649010,
+      "sha256": "b9bb53cfbfdac3b3736c7747321883ac4299218b02e65ac246d39cf7b46b6154"
+    },
+    {
+      "path": "client/assets/splash/cards/card_rain_keeper.webp",
+      "bytes": 742082,
+      "sha256": "1685b87349875a58d99fee0f14a2f241c48c857bd3cdd51bebf472fcf6c0dafc"
+    },
+    {
+      "path": "client/assets/splash/cards/card_shadow_duelist.webp",
+      "bytes": 588654,
+      "sha256": "bf1fcaf5ffea453fc0fc58358c44ed366fc86ab8cc33f7ff94c6e216dde367a6"
+    },
+    {
+      "path": "client/assets/splash/cards/card_shadow_hunter.webp",
+      "bytes": 551474,
+      "sha256": "e72949ea58cf4aeb58329d4303b18b9ab6e326e1636da86aa15f4aae277ed8e2"
+    },
+    {
+      "path": "client/assets/splash/cards/card_spirit_rally.webp",
+      "bytes": 656612,
+      "sha256": "b4d7260676f5d92fbf08a379641a36b301bf9bd80a38d4ca14be14791f30d537"
+    },
+    {
+      "path": "client/assets/splash/cards/card_spirit_renewal.webp",
+      "bytes": 659304,
+      "sha256": "e0784a6653346262a14329b4a007195063a5a39b3e18f135e4b4ae6068beda8b"
+    },
+    {
+      "path": "client/assets/splash/cards/card_spirit_ward.webp",
+      "bytes": 567342,
+      "sha256": "d53627f4fba67d301cdd6053c08d4156152f34aa99c3342b745e17b99740d1aa"
+    },
+    {
+      "path": "client/assets/splash/cards/card_sprout_guard.webp",
+      "bytes": 624802,
+      "sha256": "e9fca92c9f7bc15a427474b94d48825f535ab0bef8cb2c6085ca057ada10b4f1"
+    },
+    {
+      "path": "client/assets/splash/cards/card_tcg_disarm.webp",
+      "bytes": 615136,
+      "sha256": "b5984ee79f3fb492ed5b3dddd8d4b74161ba3e78e92f05498a728f42e8832260"
+    },
+    {
+      "path": "client/assets/splash/cards/card_tcg_refute.webp",
+      "bytes": 522876,
+      "sha256": "05f7808522a163b78d0ac71f805bc61ddddea3d0ed6a39b092c31e0aec0161b2"
+    },
+    {
+      "path": "client/assets/splash/cards/card_tcg_resupply.webp",
+      "bytes": 686926,
+      "sha256": "bc4a41d64053738012ad4421f460f7f826484c301e5d0494c9ff2c590324a2a4"
+    },
+    {
+      "path": "client/assets/splash/cards/card_tcg_scout.webp",
+      "bytes": 623750,
+      "sha256": "2d6c47a4884c19ccbc3a776052c54e51a1a434ee06b5e6af55b1a6ab118dbf8d"
+    },
+    {
+      "path": "client/assets/splash/cards/card_tcg_tonic.webp",
+      "bytes": 549926,
+      "sha256": "6dedf818c3f7c9793e47a36b1c712d84d51bd2490610af3ec34c3cad29a914b5"
+    },
+    {
+      "path": "client/assets/splash/cards/card_tide_mage.webp",
+      "bytes": 695918,
+      "sha256": "de5c221b1020b8bf9bcce2ab2bf54f25efcc094fa219b3bef6563f0c599e3f1b"
+    },
+    {
+      "path": "client/assets/splash/cards/card_trap_embers.webp",
+      "bytes": 651838,
+      "sha256": "2c7fee3d1959343d36155c3673621bc70bdd4a677c5505cf0b524f155d9710d1"
+    },
+    {
+      "path": "client/assets/splash/cards/card_trap_jade.webp",
+      "bytes": 602958,
+      "sha256": "0b42d9982534d5213e1ad5072271b5e9f97cecd42e945767f3176b6ca96aa8a4"
+    },
+    {
+      "path": "client/assets/splash/cards/card_trap_mirror.webp",
+      "bytes": 519352,
+      "sha256": "e606b13ee4e61cd5a1b2a3ba055beddb663f953439c707058c33d6eff652c622"
+    },
+    {
+      "path": "client/assets/splash/cards/card_trap_mist.webp",
+      "bytes": 577272,
+      "sha256": "048bfee31074bd6e1a8908e2fd53cd4c0782e75af197f37563bdc157ef0221a2"
+    },
+    {
+      "path": "client/assets/splash/cards/card_trap_night.webp",
+      "bytes": 509096,
+      "sha256": "d8b56a16b9e2eafd380b2e163e43a6706f946e03fe36a01db1639c51c7d2b796"
+    },
+    {
+      "path": "client/assets/splash/cards/card_trap_rally.webp",
+      "bytes": 526946,
+      "sha256": "7c35ba5dd75a13178380115daef3021827aeb6829d30be3f549d0baa4e0a9f97"
+    },
+    {
+      "path": "client/assets/splash/cards/card_trap_recall.webp",
+      "bytes": 633156,
+      "sha256": "fb09bdccbac7f2f2f04ec78763c89b25cc692c719cc65992c6ae4a4039f79e18"
+    },
+    {
+      "path": "client/assets/splash/cards/card_trap_reserve.webp",
+      "bytes": 711384,
+      "sha256": "4b08710a17df19106c1af87caa52e0528c0c32e21a56f0f6dd7199e8eff33f23"
+    },
+    {
+      "path": "client/assets/splash/cards/card_trap_roots.webp",
+      "bytes": 749248,
+      "sha256": "08b82443a25331ddeb44e00d98a6f48bed4cd8896afcd1e562607650b1e27026"
+    },
+    {
+      "path": "client/assets/splash/cards/card_ultimate_fire.webp",
+      "bytes": 706520,
+      "sha256": "556955229ffab1dc87a3faf29ffa2a35e1f92b9081f9e81fcb8b10b90b2c35c7"
+    },
+    {
+      "path": "client/assets/splash/cards/card_ultimate_light.webp",
+      "bytes": 573920,
+      "sha256": "03aeff80e8e84c49857d01e978af9d664c160043dc9b91a566f43fcfa78c35ef"
+    },
+    {
+      "path": "client/assets/splash/cards/card_ultimate_shadow.webp",
+      "bytes": 658426,
+      "sha256": "208ff003b035fa8a8e622ab9dfbb9f090f13b28c1567bab5746aa459327bd81c"
+    },
+    {
+      "path": "client/assets/splash/cards/card_ultimate_water.webp",
+      "bytes": 781210,
+      "sha256": "f078a712d449a3c826c57c9defef8eedd6bcfb124c37347c8de7301e97cf1a07"
+    },
+    {
+      "path": "client/assets/splash/cards/card_ultimate_wood.webp",
+      "bytes": 686330,
+      "sha256": "b4d35cf2aeead3aba1f8463dc0f9dcd2d1444ca28f77f0dee40ba803097cc32f"
+    },
+    {
+      "path": "client/assets/splash/cards/card_wood_scout.webp",
+      "bytes": 735892,
+      "sha256": "6ba7e23e394eb0037d36ebf82ec6b268b21e388ed0fd4258d99cbbfd431412da"
+    },
+    {
+      "path": "client/assets/splash/manifest.json",
+      "bytes": 25117,
+      "sha256": "12b450142975d0fbc8f72991beb6a351d6c628270759b900dd8759074d69201b"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_002.webp",
+      "bytes": 121868,
+      "sha256": "59df1453df33075c466218cabcc5886df01f133a2944556921f7120ee1be0ef6"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_003.webp",
+      "bytes": 110696,
+      "sha256": "a38de96b8142f9d653888b5659c6f41006c7d44c6f95c1aa27397f8ef28374c2"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_004.webp",
+      "bytes": 131708,
+      "sha256": "32b49e972f11fda752bbc89fc4d4dbded984fc463aa5d8a334635f299be6f1bf"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_005.webp",
+      "bytes": 127082,
+      "sha256": "f70f04fab6ca1650dfceb063e967c3643628e8bcda2e8ecc5766e6318baaf710"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_006.webp",
+      "bytes": 135356,
+      "sha256": "d1afe38829426a5551e16794512d0f713ed334c8761058e29ff0048069b3825a"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_007.webp",
+      "bytes": 137236,
+      "sha256": "ae6d4563c0018d6511cdf068ad95527f0f5dff0925bb9ef38471c12c1b5608e8"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_008.webp",
+      "bytes": 127640,
+      "sha256": "3d56a1450bbe28146f85061fb4128589eee16cda9f8006b6bbd50bd55a141028"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_009.webp",
+      "bytes": 120866,
+      "sha256": "5a542c6d722c216cc971965c83ed5a786439baecbb4418ad3104e4d207f59886"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_010.webp",
+      "bytes": 130126,
+      "sha256": "5cbdf272bdf79fb84abc86b97ea679764270115284a74d2021f6d4572358483a"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_011.webp",
+      "bytes": 130666,
+      "sha256": "50e68a66d21a54f56f60f8df4311c7dade4d51ebbebe2d17b66267e6a16739aa"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_012.webp",
+      "bytes": 142140,
+      "sha256": "90cbd8da9c4de88df2e5cc83eeb8447a097f638b2e3838ecfe6699abb82dcf6c"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_013.webp",
+      "bytes": 126420,
+      "sha256": "e6dec43f790f53e3c04a461edfd8ab7ef529663a27053778696913dcce060364"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_016.webp",
+      "bytes": 124626,
+      "sha256": "79d4e10b7bdb8a60fa39b2d6aa282b4fd37eec26c75f4e89efe9856329349723"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_017.webp",
+      "bytes": 134690,
+      "sha256": "b8a03030067756c6aa7680ede73ed5813675134dcbd43c66fcc60d782a2b5ad1"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_019.webp",
+      "bytes": 134226,
+      "sha256": "ef13cf6727a4fa582cd279d60890a2ccf9824b72a4065f1679cf8e95ed82bdb0"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_020.webp",
+      "bytes": 139658,
+      "sha256": "bb4ac759eb5182bb81069d110e2dfed91182e4336085e7be967f7db4cb2e41f1"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_022.webp",
+      "bytes": 137178,
+      "sha256": "0d43f3ce3143abcc9e33928722bb3a0a5a6e95ab553518ae59cb01757a76536a"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_023.webp",
+      "bytes": 157596,
+      "sha256": "550927792a91dd44ce9ef7af332029edc44aa986efa3bd404433a581f717c5de"
+    },
+    {
+      "path": "client/assets/splash/previews/card_chr_som_024.webp",
+      "bytes": 132836,
+      "sha256": "4babf0379578f090d3cfc7bd1f42f2fbaf960015a2e2ea09979a071471cf614b"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_01.webp",
+      "bytes": 125388,
+      "sha256": "f304484d56a1d2a2c639659fbe1d4ac98d28acc49076168a369d1e43cbb98a5e"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_02.webp",
+      "bytes": 143150,
+      "sha256": "5debfcc8e014672a58e128c8f683d5e8b06ae6b1d405932177d20364eafcd3f4"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_03.webp",
+      "bytes": 149238,
+      "sha256": "6400e6aaf7bf2a2dae0a6764d26a9af9081b64290132db09609cb2fdb3d13f70"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_04.webp",
+      "bytes": 110828,
+      "sha256": "5d7e5026ebdf21ebe407906075abd5eb4d2dfcfc9dfb5a020f72bb2b3c41a194"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_05.webp",
+      "bytes": 114792,
+      "sha256": "a49cf8b05f96d9217650c69e001babc456a3c00faec994f0b8b5e7001e2b01e4"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_06.webp",
+      "bytes": 124078,
+      "sha256": "770c993ee2e4796f968ea3c113edf1a8aba1e1d2a5d78944651cc429aadf1f33"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_07.webp",
+      "bytes": 115306,
+      "sha256": "7984f00f7355c32d5ac9cb711b04574fb54713c79c49ce478e83a1082cd01ca8"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_08.webp",
+      "bytes": 132452,
+      "sha256": "ed45f779ca5cccb586e2cbc7d38c9591084f73c567972b3df4b85e169aa5d95e"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_09.webp",
+      "bytes": 140546,
+      "sha256": "afd8cafe298829f70c3c5f92adff5377629dbab5fab8697859777fae24d82c9d"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_10.webp",
+      "bytes": 128584,
+      "sha256": "3d7e60bad6b826cc177ed2a3a9acfcc41af99066aae8aa8f99343d9513bcf511"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_11.webp",
+      "bytes": 133110,
+      "sha256": "d641ef04abda359493d205c34e8ee736b864382b065fe036bce837f010cd77b1"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_12.webp",
+      "bytes": 130398,
+      "sha256": "058aab32e15ba3e8941e0e1ae93c8dc654902eeee99936aa44272c39fc1212fb"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_13.webp",
+      "bytes": 117360,
+      "sha256": "5fe921a2adf9b5c817baec9d9b3b12d9f7fecc6a121f86947d06ad8322ef9b9b"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_14.webp",
+      "bytes": 118172,
+      "sha256": "07745658a845db7e73cd048b762cb0914d97b27bec316d52139c7d92f5aa7c77"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_15.webp",
+      "bytes": 114664,
+      "sha256": "c191e879d3d6b7ed744b5f98fc979c1b2b4fda450fc6e64726da06a9af283913"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_16.webp",
+      "bytes": 96416,
+      "sha256": "2bed65740b5f2d9d46c48c62384a74d609a979da91bc8611a1981af74deac907"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_17.webp",
+      "bytes": 115694,
+      "sha256": "f9e44dd52b08d5f55684ab7cd58dc8f87572f0aaf615c1f001869742da55ad6c"
+    },
+    {
+      "path": "client/assets/splash/previews/card_demo_18.webp",
+      "bytes": 127006,
+      "sha256": "daa6e03bae1dd0181ea0219f590bb5b76fdd33d29e2beeb63f8da812b0f5bb48"
+    },
+    {
+      "path": "client/assets/splash/previews/card_ember_break.webp",
+      "bytes": 128178,
+      "sha256": "2a92cf6086745b042a3b7d3c516e67f63bbd9701ae88188ed0cfa23470b358d2"
+    },
+    {
+      "path": "client/assets/splash/previews/card_ember_runner.webp",
+      "bytes": 112494,
+      "sha256": "60eb110b876fda872b98ea018c0becf1e52523d1087db900eeb99568503cc352"
+    },
+    {
+      "path": "client/assets/splash/previews/card_fire_guard.webp",
+      "bytes": 133386,
+      "sha256": "2d197314e22606e45c7e664e9166cdd152761350d34c240c4b30f3810404c467"
+    },
+    {
+      "path": "client/assets/splash/previews/card_hearth_pepper.webp",
+      "bytes": 94984,
+      "sha256": "745dc2fd90a3e5065ac0010ad6a68c4c33398b9252ad74bf208bd32dbd58b6a3"
+    },
+    {
+      "path": "client/assets/splash/previews/card_jade_encore.webp",
+      "bytes": 109646,
+      "sha256": "7db000bb7a0204a474d3a5db359ce174a47108240b3e3f3872ff38da661538eb"
+    },
+    {
+      "path": "client/assets/splash/previews/card_jade_mushroom.webp",
+      "bytes": 126680,
+      "sha256": "70bd2e673840bdecf2d7d75da1f169f5fac965f126d730104a1d7569f96d87ec"
+    },
+    {
+      "path": "client/assets/splash/previews/card_jade_watch.webp",
+      "bytes": 101052,
+      "sha256": "2c2226a09f7f1adef4bf4b61d660b593a53d50f2cce566e867a88f8b67619e26"
+    },
+    {
+      "path": "client/assets/splash/previews/card_lantern_guard.webp",
+      "bytes": 128708,
+      "sha256": "e3b76dbdfd6426f6f87d72e96e05df06e136fee4cccbb823a0ece2a083bce19f"
+    },
+    {
+      "path": "client/assets/splash/previews/card_leaf_reclaim.webp",
+      "bytes": 140874,
+      "sha256": "d693d3b7b56b5177b899bdb0edc3f31ef956c2dcd779b5044660353e1285f196"
+    },
+    {
+      "path": "client/assets/splash/previews/card_mist_dampen.webp",
+      "bytes": 97222,
+      "sha256": "e10195e291405f10307476cbf6bfb48d60b70d02d7c56249374fbf75f9ab2526"
+    },
+    {
+      "path": "client/assets/splash/previews/card_mist_keeper.webp",
+      "bytes": 121444,
+      "sha256": "fb70b1339f7abc736978d3617dd6c7fb647962bb529a5f48f64ea513cc5dfee3"
+    },
+    {
+      "path": "client/assets/splash/previews/card_mist_recall.webp",
+      "bytes": 138562,
+      "sha256": "9f73027fdb6edf275d382aca42008d0ecf7f124fd52386fb1abf4964cfd07718"
+    },
+    {
+      "path": "client/assets/splash/previews/card_night_feast.webp",
+      "bytes": 122888,
+      "sha256": "66aa2d9c285697a344685c583530230ab51e67596209b2c241304e8e7c54c7ac"
+    },
+    {
+      "path": "client/assets/splash/previews/card_night_reaper.webp",
+      "bytes": 120500,
+      "sha256": "c7638a69b582e70357e6b2256a016258bce8ad808ee59e696547cadb6ce805e1"
+    },
+    {
+      "path": "client/assets/splash/previews/card_rain_keeper.webp",
+      "bytes": 147062,
+      "sha256": "00a8c2d1658ce4aeb5b9b87a89356598b6634036c0f72874e9eb66a4f9b68c13"
+    },
+    {
+      "path": "client/assets/splash/previews/card_shadow_duelist.webp",
+      "bytes": 109414,
+      "sha256": "9d47d37174919f4f580a56ce37b2da91d80d7d504760c7b3ee5d05d8a5f0b5e1"
+    },
+    {
+      "path": "client/assets/splash/previews/card_shadow_hunter.webp",
+      "bytes": 104760,
+      "sha256": "aeb3c76e8c3eb1bec1bf464f4ac6f52b8cb3d5853e25a2dafe05ab7c4b7c4142"
+    },
+    {
+      "path": "client/assets/splash/previews/card_spirit_rally.webp",
+      "bytes": 114546,
+      "sha256": "c1c05cc181c91b02a4168321682612d465db4ca93da3626013d369e80e83ce1c"
+    },
+    {
+      "path": "client/assets/splash/previews/card_spirit_renewal.webp",
+      "bytes": 130618,
+      "sha256": "c01705f90d1e247b5b7fa8cbceb8132d3372e0bb7b54afb4c7fc810c023d2dfb"
+    },
+    {
+      "path": "client/assets/splash/previews/card_spirit_ward.webp",
+      "bytes": 100542,
+      "sha256": "2a93fba56e278ceec71227678d2cc4223ff0f054d6831d6025c6a07f82d7ad71"
+    },
+    {
+      "path": "client/assets/splash/previews/card_sprout_guard.webp",
+      "bytes": 124912,
+      "sha256": "bd38733c7ac2db4656fc6d1eb1fb5e503ebb1ed592219a247afaa58d2e1657e2"
+    },
+    {
+      "path": "client/assets/splash/previews/card_tcg_disarm.webp",
+      "bytes": 118628,
+      "sha256": "34e85c8045ece53f65007f4f60b9e7a4be83eba0908f42ff849489518171856e"
+    },
+    {
+      "path": "client/assets/splash/previews/card_tcg_refute.webp",
+      "bytes": 108102,
+      "sha256": "f3db1b2938d2bda63f4c4d5150584ec620d89ecb3b36c97c895bebfd9e06f2e2"
+    },
+    {
+      "path": "client/assets/splash/previews/card_tcg_resupply.webp",
+      "bytes": 133098,
+      "sha256": "a495bb98343e63a142e1c98c3b75f3a630d22a7068d48bf8f74de13e400fcf85"
+    },
+    {
+      "path": "client/assets/splash/previews/card_tcg_scout.webp",
+      "bytes": 117452,
+      "sha256": "3ee9a1938a447a94066d412888440149c7f49d93738b790a232a83cc6504824e"
+    },
+    {
+      "path": "client/assets/splash/previews/card_tcg_tonic.webp",
+      "bytes": 100852,
+      "sha256": "64e549e08e16a5c5742bd41a7a5ce7532af80780ae73b8419de31fa45151ac4d"
+    },
+    {
+      "path": "client/assets/splash/previews/card_tide_mage.webp",
+      "bytes": 136234,
+      "sha256": "0c04405bea919ef4d688e1e50e98f2650661b6a9824b8b7fc8aca126b0067ed6"
+    },
+    {
+      "path": "client/assets/splash/previews/card_trap_embers.webp",
+      "bytes": 113594,
+      "sha256": "7388d103936c852e542a8f27450906e738f0b47dfb26534e36e863d87cdcec12"
+    },
+    {
+      "path": "client/assets/splash/previews/card_trap_jade.webp",
+      "bytes": 110910,
+      "sha256": "ca8d5c1747e7c5255dac0b66f1b451f691390e6bd57308c45fbd5df4d7fb4c83"
+    },
+    {
+      "path": "client/assets/splash/previews/card_trap_mirror.webp",
+      "bytes": 111106,
+      "sha256": "48640f6caba0910582451028adbdb4298d02e486402a1f5727db597f63fea71d"
+    },
+    {
+      "path": "client/assets/splash/previews/card_trap_mist.webp",
+      "bytes": 93294,
+      "sha256": "e97e1f262b8a2b388bf3dd8eb9dfab4c69b3c7ebf04bcdb1029928b83acdc299"
+    },
+    {
+      "path": "client/assets/splash/previews/card_trap_night.webp",
+      "bytes": 99508,
+      "sha256": "8058d2985528233be05f470605b26234341b79989dadd3876e2c09282a637a9a"
+    },
+    {
+      "path": "client/assets/splash/previews/card_trap_rally.webp",
+      "bytes": 105988,
+      "sha256": "e15b1252a29c29774e6ab7ffaa08ad4a490225484405060db48bb6a7c2d52346"
+    },
+    {
+      "path": "client/assets/splash/previews/card_trap_recall.webp",
+      "bytes": 113738,
+      "sha256": "02ca6aa1628cfbebd8317af640ed8b90a7494c13da15d5710b2f5733ef898915"
+    },
+    {
+      "path": "client/assets/splash/previews/card_trap_reserve.webp",
+      "bytes": 138190,
+      "sha256": "04551e82d33f5940faf8ea3869675fdd37f47c6d1df6938eedcebe5dc8ddaf5f"
+    },
+    {
+      "path": "client/assets/splash/previews/card_trap_roots.webp",
+      "bytes": 144970,
+      "sha256": "be1f3b37f79c276c0b66be92a30f9aa04ff1cf823388d7a36045ba0c76e5c492"
+    },
+    {
+      "path": "client/assets/splash/previews/card_ultimate_fire.webp",
+      "bytes": 136546,
+      "sha256": "475ccd7239de58ecc479acc859cee2b945bed4a4bb94f1d42510dae9c066ddc2"
+    },
+    {
+      "path": "client/assets/splash/previews/card_ultimate_light.webp",
+      "bytes": 110530,
+      "sha256": "e4e231596004a3c905671941b8328f78d7c273baf20c3e6ade44d5c7a9b9cdf0"
+    },
+    {
+      "path": "client/assets/splash/previews/card_ultimate_shadow.webp",
+      "bytes": 125228,
+      "sha256": "e74b2cb9edacf1f2c7f3bb5bbb87c8df20a82a1b8a1c6acd713be6a97fa4cdcd"
+    },
+    {
+      "path": "client/assets/splash/previews/card_ultimate_water.webp",
+      "bytes": 155064,
+      "sha256": "0ca1298e0a1db1f62b2c248808258a2582c9036850898ac8ba31b8fe708ee7a8"
+    },
+    {
+      "path": "client/assets/splash/previews/card_ultimate_wood.webp",
+      "bytes": 136302,
+      "sha256": "3bae21e1716cccc7487b71a48a90c461eb30cec15c17f105593fe9639249b68a"
+    },
+    {
+      "path": "client/assets/splash/previews/card_wood_scout.webp",
+      "bytes": 146216,
+      "sha256": "090f884cbbf5c77c64ed157fff9ce69724a692bbf86750d3e10608ec7b9efe45"
+    },
+    {
+      "path": "client/assets/splash/previews/soul_of_meal_back.webp",
+      "bytes": 140326,
+      "sha256": "9719115c568b620cd48d01162aca67d0caa4cf8c7aa8d732f231670f1317bd73"
+    },
+    {
+      "path": "client/src/core/musicCrossfade.js",
+      "bytes": 1913,
+      "sha256": "5509f0871567779006412a89c9a6e66bda4eed71fe6234130d071e02e1c670eb"
+    },
+    {
+      "path": "client/src/modes/tcgCombos.proposed.json",
+      "bytes": 511,
+      "sha256": "e4f2cac0f3a1fdc7ff34e0ac79829e6a6d8e8a71c1327e8a282c44637cb24704"
+    },
+    {
+      "path": "client/src/render/cardArtwork.js",
+      "bytes": 5884,
+      "sha256": "388f7035732203223ba036435e9b1fb7d69b6c40be424ecb7f5d71d3ebf07cb4"
+    },
+    {
+      "path": "client/src/render/splashCatalog.json",
+      "bytes": 25117,
+      "sha256": "12b450142975d0fbc8f72991beb6a351d6c628270759b900dd8759074d69201b"
+    },
+    {
+      "path": "client/tests/cardArtwork.test.js",
+      "bytes": 2495,
+      "sha256": "8bfe0656c8f1c2e1fa400abb20a527bac12abe621e5fda68d56932794e98c968"
+    },
+    {
+      "path": "client/tests/musicCrossfade.test.js",
+      "bytes": 3019,
+      "sha256": "eccbf2197d700d2a8d676e4493f1756cf95f7b54a804a1761070b0cfc76b6faa"
+    },
+    {
+      "path": "client/tests/narrationRemoval.test.js",
+      "bytes": 1492,
+      "sha256": "11e7b108cd2b986d9cd8b78bb5633c3083e29bd7b62af7614b1c9d832923cd08"
+    },
+    {
+      "path": "client/tests/sharedRoster.test.js",
+      "bytes": 3918,
+      "sha256": "9e844ea7fd2b7546a53baac5418ed6e6a29df65b2297feca13a09e44c26a3f63"
+    },
+    {
+      "path": "client/tests/tcgFlavorCombo.test.js",
+      "bytes": 3542,
+      "sha256": "de58c4b1e7a7586de81f4dbab4f2c9707616c4e1d2ccc0c36924179fd3e8bce9"
+    },
+    {
+      "path": "docs/00_foundation/decisions/D-019.md",
+      "bytes": 1220,
+      "sha256": "bc46bd5643d48d052eeefd0ab9a1f24cb12597807a1e8f549ed4c4050dbaa866"
+    },
+    {
+      "path": "docs/02_art/RETIRED_VOICE_CREDITS.md",
+      "bytes": 1107,
+      "sha256": "efa684e9eb0eede7065b07bd08759b0ec4e597388951972e29a5e6eb74b0a183"
+    },
+    {
+      "path": "docs/02_art/SPLASH_ART_JOBS.json",
+      "bytes": 264472,
+      "sha256": "48a0f3467a5468dd0854ae96067916bf8010ab7b328ec503a6b32f6aaa7d7c4b"
+    },
+    {
+      "path": "docs/05_production/SHARED_ROSTER_SPLASH_QA.md",
+      "bytes": 5524,
+      "sha256": "4896a8cb0770d1c662300f381468c027f84858587e901cf814de8595de31262b"
+    },
+    {
+      "path": "examples/shared_roster_balance.proposed.json",
+      "bytes": 1479,
+      "sha256": "8d4583ec8d251e2cd24e6bab8d793c56457bdf53d0f90ad6caf317b34a3ce26f"
+    },
+    {
+      "path": "scripts/build_splash_catalog.py",
+      "bytes": 1662,
+      "sha256": "0be2edad67bedcdfa4ae837bc4ea0b6cfed7d369da3d85c7bc8f2a99056c9357"
+    },
+    {
+      "path": "scripts/expand_shared_roster.py",
+      "bytes": 3434,
+      "sha256": "794664194f9920a37e269bfd5b481ce7b738113139c0dbc455673ab0ed2344a1"
+    },
+    {
+      "path": "scripts/prepare_splash_jobs.py",
+      "bytes": 16839,
+      "sha256": "92fcd7b4d30f60c21a00c370914021b3930c28cfec67e7320acc3c5616a3de28"
+    },
+    {
+      "path": "scripts/register_splash_art.py",
+      "bytes": 2161,
+      "sha256": "0d62205c3d61d90b21f0c2c19dec929b925d399f546d8a0694625334434bf94b"
+    },
+    {
+      "path": "client/build/materializeSplashAssets.js",
+      "bytes": 3345,
+      "sha256": "3dbcac53b07e8eb38f41ea060eb2f11b678e07ed64010a0df430faafc61f04b3"
+    },
+    {
+      "path": "client/source-art/README.md",
+      "bytes": 1476,
+      "sha256": "f8219b0adaa13f4630adf09f2cdac2953dbee4ef07c749702e2088c749f1c4e8"
+    },
+    {
+      "path": "client/source-art/splash/manifest.json",
+      "bytes": 29400,
+      "sha256": "03a662bdd0a85822766e1810148e6971949608fbb97feeaffac8fdfe6b494fc8"
+    },
+    {
+      "path": "client/source-art/splash/splash-001.json.gz",
+      "bytes": 3994370,
+      "sha256": "9b95f03da38aa771790099158a451163a8f63349c65fc5c83b973ad7e262a29c"
+    },
+    {
+      "path": "client/source-art/splash/splash-002.json.gz",
+      "bytes": 4020661,
+      "sha256": "3100061cd067bd48c1372df04ad9277e3d5af7d4c6dc3edd47ffa3eb33ae8919"
+    },
+    {
+      "path": "client/source-art/splash/splash-003.json.gz",
+      "bytes": 3334357,
+      "sha256": "38f1d15753123ebcb20204ce823dd81208e85bcad0bc70408913adf063f1fb55"
+    },
+    {
+      "path": "client/source-art/splash/splash-004.json.gz",
+      "bytes": 3614380,
+      "sha256": "89c6357b0820f6f43a0dd470870dad504acaafaf76407bf2511f46b1b556acb4"
+    },
+    {
+      "path": "client/source-art/splash/splash-005.json.gz",
+      "bytes": 3811299,
+      "sha256": "094a0763bb14482aaf1822d4b3afcb733174cadfde61600d792f937a2ebdb8f7"
+    },
+    {
+      "path": "client/source-art/splash/splash-006.json.gz",
+      "bytes": 3944494,
+      "sha256": "50e8ad9982aa72779a412e9c9e487d8a370a7867537f668421cf0cdf24b314fb"
+    },
+    {
+      "path": "client/source-art/splash/splash-007.json.gz",
+      "bytes": 3641662,
+      "sha256": "e96a3ea25cf38de66a38f83745dd45718522b78fc0a951f6e25bf25374020e23"
+    },
+    {
+      "path": "client/source-art/splash/splash-008.json.gz",
+      "bytes": 3603639,
+      "sha256": "05930cb5b057784b77d6998b8c9cff17127c148931c3f0632225ae76ab42444a"
+    },
+    {
+      "path": "client/source-art/splash/splash-009.json.gz",
+      "bytes": 3993128,
+      "sha256": "06f8c964e8da2293fd216971d263ed2c3db4dd5ddb8a200c76930e056290039f"
+    },
+    {
+      "path": "client/source-art/splash/splash-010.json.gz",
+      "bytes": 3803160,
+      "sha256": "14d6e3e8b236ede7cc206abc2ed8104ede62ad8dbfa5a92b46490901281cff7b"
+    },
+    {
+      "path": "client/source-art/splash/splash-011.json.gz",
+      "bytes": 3659796,
+      "sha256": "b2779ccf999465eb79879961003d63ef50509b7ab397cd20a42a5ebcb121b9a9"
+    },
+    {
+      "path": "client/source-art/splash/splash-012.json.gz",
+      "bytes": 3592099,
+      "sha256": "8dda085d3f0055d4d36d331e81b8d741cb46e7bb89095480f653cb224d5566bc"
+    },
+    {
+      "path": "client/source-art/splash/splash-013.json.gz",
+      "bytes": 3940350,
+      "sha256": "126c4925b65597fec8ce6b5c94c54ebc24890a5ce1e3eb797b6c18baec081a20"
+    },
+    {
+      "path": "client/source-art/splash/splash-014.json.gz",
+      "bytes": 3913621,
+      "sha256": "4a6f47eb7fa15313038f4ee05e6b001a3a957c81f28f9da132f3d4d9ffda0070"
+    },
+    {
+      "path": "client/source-art/splash/splash-015.json.gz",
+      "bytes": 4009277,
+      "sha256": "48c2e075d997fb7a415c97d1bc3fb0f8c759f748dcfb017ba29509fd39a9e4bf"
+    },
+    {
+      "path": "client/source-art/splash/splash-016.json.gz",
+      "bytes": 3908950,
+      "sha256": "12efa836de8207378782a7f4132ef38e16460bdbde6784a2e1df54def5d5778e"
+    },
+    {
+      "path": "client/source-art/splash/splash-017.json.gz",
+      "bytes": 1106626,
+      "sha256": "9a3a53eba4ab0cc9ba607d9d30409b1602692c8201f17d6fba3c7a823a6c0253"
+    },
+    {
+      "path": "client/tests/splashSourcePacks.test.js",
+      "bytes": 2814,
+      "sha256": "8d6d974e904d1013b33b23a01298afa0fdba5420cf2482b56f1ab179e2f4619f"
+    },
+    {
+      "path": "docs/05_production/RELEASE_READINESS_AUDIT.md",
+      "bytes": 4772,
+      "sha256": "d3cc77f6981d50ba27e886bbbdff9c61847eef6748d4bd57570716351abc2cd1"
+    },
+    {
+      "path": "scripts/pack_splash_sources.py",
+      "bytes": 2311,
+      "sha256": "2c8b28d099605d544ffbccb64dbdaa63c798106b18b819a5252a283a8d1ee434"
     }
   ]
 }

@@ -26,13 +26,14 @@ export function createDefaultSave() {
     roster: ['chr_bunbo_holinh', 'chr_pho_lamvu', 'chr_goicuon_diepnhi', 'chr_banhbao_bachngoc', 'chr_caphe_davu'].map(spiritMember),
     completedBattles: 0,
     modes: { tcg: null, chess: null },
-    settings: { music: 70, sfx: 80, voice: 80, homeCompanion: null, effectsLimited: false, ambience: 65, reducedMotion: false, reducedSummonMotion: false, autoAdventureUltimate: false },
+    settings: { music: 70, sfx: 80, homeCompanion: null, effectsLimited: false, ambience: 65, reducedMotion: false, reducedSummonMotion: false, autoAdventureUltimate: false },
   };
 }
 
 export function migrateSave(input) {
   const fresh = createDefaultSave();
   if (!input || typeof input !== 'object') return fresh;
+  const { voice: retiredVoice, ...settings } = input.settings ?? {};
   const adventure = { ...fresh.adventure, ...input.adventure };
   adventure.forestClues = restoreForestClues(adventure);
   adventure.chapterTwo = restoreChapterTwo(adventure);
@@ -72,7 +73,7 @@ export function migrateSave(input) {
       meta,
       player: { ...fresh.player, ...input.player, name: meta.profile?.name ?? input.player?.name ?? fresh.player.name },
       adventure,
-      settings: { ...fresh.settings, ...input.settings },
+      settings: { ...fresh.settings, ...settings },
       modes: { ...fresh.modes, ...input.modes },
       roster,
     };

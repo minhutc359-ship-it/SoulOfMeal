@@ -181,8 +181,7 @@ export function interactAdventure(state, save, maps) {
   }
   if (target.kind === 'resident') {
     state.lastMessage = target.label + ' · ' + target.note;
-    const speaker = getAdventureMap(maps, state.map)?.visuals?.find(item => item.id === target.id)?.actorId;
-    return { state, save, changed: false, voice: { text: target.note, speaker, clip: 'npc-' + target.id } };
+    return { state, save, changed: false };
   }
   if (target.kind === 'field_encounter') {
     beginBattle(state, save, target.encounter);

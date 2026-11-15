@@ -1,29 +1,43 @@
 {
-  "catalog_version": "v3-proposed",
+  "catalog_version": "shared-roster-v1-proposed",
   "units": [
     {
       "id": "chr_bunbo_holinh",
       "display_name": "Bún Bò Hỏa Linh",
       "element": "fire",
       "job": "fighter",
-      "cost": 1,
+      "cost": 4,
       "stars": [
         1,
         2,
         3
-      ]
+      ],
+      "baseStats": [
+        835,
+        92,
+        39
+      ],
+      "skill_name": "Ngọn Lửa Ẩm Thực",
+      "balance_status": "PROPOSED"
     },
     {
       "id": "chr_pho_lamvu",
       "display_name": "Phở Lam Vũ",
       "element": "water",
       "job": "mage",
-      "cost": 2,
+      "cost": 3,
       "stars": [
         1,
         2,
         3
-      ]
+      ],
+      "baseStats": [
+        630,
+        100,
+        28
+      ],
+      "skill_name": "Vũ Điệu Hương Phở",
+      "balance_status": "PROPOSED"
     },
     {
       "id": "chr_goicuon_diepnhi",
@@ -35,31 +49,52 @@
         1,
         2,
         3
-      ]
+      ],
+      "baseStats": [
+        720,
+        70,
+        36
+      ],
+      "skill_name": "Khu Vườn Tươi Mát",
+      "balance_status": "PROPOSED"
     },
     {
       "id": "chr_banhbao_bachngoc",
       "display_name": "Bánh Bao Bạch Ngọc",
       "element": "light",
       "job": "guardian",
-      "cost": 4,
+      "cost": 1,
       "stars": [
         1,
         2,
         3
-      ]
+      ],
+      "baseStats": [
+        750,
+        38,
+        45
+      ],
+      "skill_name": "Hấp Khí Hộ Thể",
+      "balance_status": "PROPOSED"
     },
     {
       "id": "chr_caphe_davu",
       "display_name": "Cà Phê Dạ Vũ",
       "element": "shadow",
       "job": "assassin",
-      "cost": 5,
+      "cost": 4,
       "stars": [
         1,
         2,
         3
-      ]
+      ],
+      "baseStats": [
+        675,
+        114,
+        27
+      ],
+      "skill_name": "Dạ Khúc Đắng Ngọt",
+      "balance_status": "PROPOSED"
     },
     {
       "id": "mob_pepper_01",
@@ -96,6 +131,367 @@
         2,
         3
       ]
+    },
+    {
+      "id": "chr_som_002",
+      "display_name": "Súp Nấm Lục Vệ",
+      "element": "wood",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 1,
+      "job": "guardian",
+      "baseStats": [
+        750,
+        38,
+        45
+      ],
+      "skill_name": "Rừng Nấm Kiên Cường",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_003",
+      "display_name": "Cơm Nắm Tròn Trịa",
+      "element": "light",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 1,
+      "job": "support",
+      "baseStats": [
+        570,
+        50,
+        30
+      ],
+      "skill_name": "Nắm Cơm Tiếp Sức",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_004",
+      "display_name": "Trứng Cuộn Vàng Ươm",
+      "element": "fire",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 1,
+      "job": "fighter",
+      "baseStats": [
+        610,
+        62,
+        30
+      ],
+      "skill_name": "Lăn Tròn Nhiệt Huyết",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_005",
+      "display_name": "Khoai Lang Mầm",
+      "element": "wood",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 1,
+      "job": "support",
+      "baseStats": [
+        570,
+        50,
+        30
+      ],
+      "skill_name": "Mầm Non Chữa Lành",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_006",
+      "display_name": "Đậu Hũ Mềm Mại",
+      "element": "water",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 1,
+      "job": "support",
+      "baseStats": [
+        570,
+        48,
+        30
+      ],
+      "skill_name": "Tịnh Thủy Mềm Mại",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_007",
+      "display_name": "Bánh Mì Phong Tốc",
+      "element": "light",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 2,
+      "job": "ranged",
+      "baseStats": [
+        585,
+        82,
+        27
+      ],
+      "skill_name": "Giòn Tan Liên Kích",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_008",
+      "display_name": "Trà Sữa Đào Đào",
+      "element": "water",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 4,
+      "job": "support",
+      "baseStats": [
+        795,
+        80,
+        39
+      ],
+      "skill_name": "Trân Châu Hồi Phục",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_009",
+      "display_name": "Bò Bít Tết Thiết Vệ",
+      "element": "fire",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 3,
+      "job": "guardian",
+      "baseStats": [
+        900,
+        58,
+        51
+      ],
+      "skill_name": "Thiết Bàn Bất Phá",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_010",
+      "display_name": "Bánh Flan Nhật Nguyệt",
+      "element": "shadow",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 2,
+      "job": "mage",
+      "baseStats": [
+        585,
+        82,
+        29
+      ],
+      "skill_name": "Nguyệt Ảnh Ngọt Ngào",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_011",
+      "display_name": "Mì Xào Phong Hành",
+      "element": "fire",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 2,
+      "job": "fighter",
+      "baseStats": [
+        685,
+        72,
+        33
+      ],
+      "skill_name": "Chảo Lửa Liên Hoàn",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_012",
+      "display_name": "Cơm Chiên Kim Sa",
+      "element": "light",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 2,
+      "job": "mage",
+      "baseStats": [
+        555,
+        90,
+        25
+      ],
+      "skill_name": "Tinh Sa Bùng Nổ",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_013",
+      "display_name": "Bánh Xèo Lôi Vũ",
+      "element": "fire",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 2,
+      "job": "assassin",
+      "baseStats": [
+        525,
+        94,
+        21
+      ],
+      "skill_name": "Bánh Xèo Chớp Nhoáng",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_016",
+      "display_name": "Chè Hoa Sen",
+      "element": "wood",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 3,
+      "job": "support",
+      "baseStats": [
+        720,
+        68,
+        36
+      ],
+      "skill_name": "Liên Hoa Tái Sinh",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_017",
+      "display_name": "Mì Ramen Lôi Tiên",
+      "element": "fire",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 2,
+      "job": "mage",
+      "baseStats": [
+        555,
+        90,
+        25
+      ],
+      "skill_name": "Thiên Võng Mì Lửa",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_019",
+      "display_name": "Xôi Gấc Hồng Tâm",
+      "element": "light",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 3,
+      "job": "support",
+      "baseStats": [
+        720,
+        70,
+        36
+      ],
+      "skill_name": "Hồng Phúc Đoàn Viên",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_020",
+      "display_name": "Lẩu Nấm Tinh Tú",
+      "element": "wood",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 4,
+      "job": "mage",
+      "baseStats": [
+        705,
+        110,
+        31
+      ],
+      "skill_name": "Tinh Tú Sôi Trào",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_022",
+      "display_name": "Kem Trăng Tuyết",
+      "element": "water",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 5,
+      "job": "mage",
+      "baseStats": [
+        810,
+        112,
+        38
+      ],
+      "skill_name": "Bạch Nguyệt Tuyết Vũ",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_023",
+      "display_name": "Sushi Long Triều",
+      "element": "water",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 5,
+      "job": "ranged",
+      "baseStats": [
+        810,
+        112,
+        36
+      ],
+      "skill_name": "Long Triều Vạn Tiễn",
+      "balance_status": "PROPOSED"
+    },
+    {
+      "id": "chr_som_024",
+      "display_name": "Bánh Chưng Thanh Long",
+      "element": "wood",
+      "stars": [
+        1,
+        2,
+        3
+      ],
+      "cost": 5,
+      "job": "guardian",
+      "baseStats": [
+        1050,
+        78,
+        57
+      ],
+      "skill_name": "Tứ Phương Hộ Thế",
+      "balance_status": "PROPOSED"
     }
   ]
 }

@@ -1,0 +1,104 @@
+{
+  "status": "PROPOSED",
+  "version": "shared-roster-v1",
+  "roles": {
+    "fighter": {
+      "tcg": [
+        400,
+        400
+      ],
+      "chess": [
+        610,
+        62,
+        30
+      ]
+    },
+    "guardian": {
+      "tcg": [
+        200,
+        700
+      ],
+      "chess": [
+        750,
+        38,
+        45
+      ]
+    },
+    "mage": {
+      "tcg": [
+        450,
+        350
+      ],
+      "chess": [
+        480,
+        80,
+        22
+      ]
+    },
+    "ranged": {
+      "tcg": [
+        400,
+        400
+      ],
+      "chess": [
+        510,
+        72,
+        24
+      ]
+    },
+    "support": {
+      "tcg": [
+        200,
+        600
+      ],
+      "chess": [
+        570,
+        50,
+        30
+      ]
+    },
+    "healer": {
+      "tcg": [
+        150,
+        650
+      ],
+      "chess": [
+        570,
+        48,
+        30
+      ]
+    },
+    "controller": {
+      "tcg": [
+        300,
+        500
+      ],
+      "chess": [
+        510,
+        72,
+        26
+      ]
+    },
+    "assassin": {
+      "tcg": [
+        500,
+        250
+      ],
+      "chess": [
+        450,
+        84,
+        18
+      ]
+    }
+  },
+  "chess_cost_overrides": {
+    "chr_banhbao_bachngoc": 1,
+    "chr_som_017": 2,
+    "chr_som_009": 3,
+    "chr_som_008": 4,
+    "chr_bunbo_holinh": 4,
+    "chr_caphe_davu": 4,
+    "chr_som_020": 4
+  },
+  "notes": "Fixed mode-specific values. Account levels, owned rarity and Adventure equipment never enter TCG or Chess stats."
+}

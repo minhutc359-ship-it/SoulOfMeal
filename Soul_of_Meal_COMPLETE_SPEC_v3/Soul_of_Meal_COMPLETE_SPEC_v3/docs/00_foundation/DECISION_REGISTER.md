@@ -18,7 +18,7 @@ D-018 được chốt ngày 2026-11-11 cho hướng Web Client–Server. Các m�
 | D-010 | Auto Chess economy | Interest `min(floor(pre-payout gold/10), 5)`; configured per-level odds | [D-010](decisions/D-010.md) | Economy simulations; current shop is with replacement |
 | D-011 | Gacha | No monetized gacha in P0; rates/pity need separate approval and transparent disclosure | [D-011](decisions/D-011.md) | Economy/legal review before any future paid pulls |
 | D-012 | FPS | Target 60 FPS high / 30 FPS low; fixed simulation independent of render | [D-012](decisions/D-012.md) | Device profiling; target is not measured performance |
-| D-013 | Audio | 48 kHz source; independent Music/SFX/Voice/Ambience buses | [D-013](decisions/D-013.md) | Platform playback, mix and clipping tests |
+| D-013 | Audio | 48 kHz source; independent Music/SFX/Ambience buses; D-019 removes Voice | [D-013](decisions/D-013.md) | Platform playback, mix and clipping tests |
 | D-014 | Source licenses | Original or appropriately licensed assets; provenance required | [D-014](decisions/D-014.md) | Per-asset legal sign-off |
 | D-015 | UX orientation | D-018 dùng khung 16:9 desktop và layout phù hợp màn hẹp | [D-015](decisions/D-015.md) | Responsive UX/device tests |
 | D-016 | UI density | Minimum 44 dp touch targets; honor OS safe-area insets | [D-016](decisions/D-016.md) | Actual device validation |
@@ -26,3 +26,6 @@ D-018 được chốt ngày 2026-11-11 cho hướng Web Client–Server. Các m�
 | D-018 | Web Client–Server | Phaser 4, TypeScript, React, WebGL, Spine/atlas; account và tiến trình lưu server; 1920×1080 desktop | [D-018](decisions/D-018.md) | Login, server save, ba mode trong một app, asset rollout và benchmark |
 
 Decision records được lưu `docs/00_foundation/decisions/D-XXX.md`, gồm context, decision, approver, date, implications, rollback và test fixtures. Người duyệt được ghi là Project Owner theo xác nhận trong phiên làm việc; tên hiển thị chưa được cung cấp. Các mục có cổng nghiệm thu vẫn là prototype cho đến khi bằng chứng kiểm thử/duyệt tương ứng được ghi nhận.
+
+
+[D-019 — Narration và minh họa theo ID](decisions/D-019.md) cập nhật hướng sản phẩm ngày 15/11/2026: bỏ voice/TTS, giữ chữ, dùng nhạc boss chung và 24 nhận diện xuyên ba chế độ. Cân bằng mới và art vẫn cần nghiệm thu riêng.

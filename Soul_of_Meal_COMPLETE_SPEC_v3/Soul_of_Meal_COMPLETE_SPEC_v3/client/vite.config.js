@@ -3,6 +3,9 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import { writeOfflinePackage } from './build/offlinePackage.js';
+import { materializeSplashAssets } from './build/materializeSplashAssets.js';
+
+materializeSplashAssets();
 
 const client = fileURLToPath(new URL('.', import.meta.url));
 const project = resolve(client, '..');

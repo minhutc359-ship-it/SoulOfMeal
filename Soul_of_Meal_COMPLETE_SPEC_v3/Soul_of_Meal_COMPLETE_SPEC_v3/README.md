@@ -47,7 +47,10 @@
 5. Không sao chép nhân vật/nhạc/asset độc quyền của Princess Connect!, Azur Lane hoặc Legends of Runeterra; chỉ tham khảo nguyên lý trải nghiệm.
 
 ## Lệnh nhanh
+Khôi phục minh họa từ gói nguồn trước khi kiểm tra một bản checkout mới. Lệnh Node dưới đây không cần cài thêm thư viện; `npm --prefix client ci` cũng tự chạy bước này. `FILE_INDEX.json` kiểm tra cả gói nguồn và ảnh đã khôi phục.
+
 ```bash
+node client/build/materializeSplashAssets.js
 python scripts/validate_package.py .
 python scripts/update_file_index.py .
 python -m unittest discover -s tests -v
@@ -59,4 +62,4 @@ python .agents/skills/soul-of-meal-sprite/scripts/make_preview.py --help
 ## Chạy browser runtime
 Client web nằm trong [`client/`](client/README.md). Xem [hướng dẫn ASP.NET Core và PostgreSQL](server/README.md) để bật tài khoản. Từ thư mục chứa tài liệu này, chạy `npm --prefix client ci` và `npm --prefix client run dev` rồi mở `http://localhost:4173/client/`. Kiểm tra bằng `node --test client/tests/*.test.js`.
 
-Bản chơi thử cục bộ gồm tuyến nhiệm vụ Adventure, TCG đấu bot và Auto Chess đấu bot. Cả năm Vị Linh có sprite anime chibi mới. Adventure có cut-in và hiệu ứng theo hệ cho năm tuyệt kỹ, cùng nhạc và âm thanh theo cảnh. Xem [hướng dẫn client](client/README.md) để biết phạm vi kiểm thử và các bước nghiệm thu còn lại.
+Bản chơi thử cục bộ gồm sáu chương Adventure, TCG đấu bot và Auto Chess đấu bot, dùng chung nhận diện của 24 Vị Linh. Danh mục chiến thuật có 79 thẻ và 27 quân; bộ minh họa có ảnh riêng cho từng thẻ cùng ảnh HD tùy chọn. Sprite/rig di chuyển tiếp tục dùng riêng với tranh thẻ. Nhạc chuyển cảnh bằng crossfade, dùng chung nhạc boss và chỉ còn đối thoại chữ. Xem [hướng dẫn client](client/README.md) và [báo cáo kiểm tra danh mục, minh họa](docs/05_production/SHARED_ROSTER_SPLASH_QA.md) để biết phạm vi kiểm thử và các bước nghiệm thu còn lại.

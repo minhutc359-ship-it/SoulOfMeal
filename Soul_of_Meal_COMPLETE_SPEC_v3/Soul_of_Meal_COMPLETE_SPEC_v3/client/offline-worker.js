@@ -3,6 +3,7 @@ const scope = self.registration.scope;
 const prefix = 'soul-of-meal.practice.v1:' + scope + ':';
 const cacheName = prefix + OFFLINE_PACKAGE.build;
 const entries = new Map(OFFLINE_PACKAGE.entries.map(entry => [new URL(entry.url, scope).href, entry]));
+const hdEntries = new Map((OFFLINE_PACKAGE.hdEntries ?? []).map(entry => [new URL(entry.url, scope).href, entry]));
 const manifestURL = new URL('offline-manifest.json', scope).href;
 const indexURL = new URL('index.html', scope).href;
 
@@ -63,7 +64,7 @@ self.addEventListener('fetch', event => {
   if (event.request.mode === 'navigate' && (key === scope || key === indexURL)) key = indexURL;
   // API, authentication, release pointers, POSTs and unknown routes always use
   // the network. A failed API request can never become a cached HTML response.
-  if (!entries.has(key) && key !== manifestURL) return;
+  if (!entries.has(key) && !hdEntries.has(key) && key !== manifestURL) return;
   event.respondWith((async () => {
     const cache = await caches.open(cacheName);
     return await cache.match(key) ?? fetch(event.request);

@@ -3,6 +3,7 @@ const { mkdir, writeFile } = require('node:fs/promises');
 const { join } = require('node:path');
 const { chromium } = require('playwright');
 const catalog = require('../../examples/cards/cards.catalog.json');
+const splashCatalog = require('../src/render/splashCatalog.json');
 
 const base = process.env.SOM_UI_BASE ?? 'http://127.0.0.1:4173';
 const output = process.env.SOM_UI_OUTPUT;
@@ -389,7 +390,7 @@ async function check(page, width, height) {
         const portrait = page.locator('.spirit-stage-art img');
         await portrait.evaluate(image => image.decode());
         assert.ok(await portrait.isVisible());
-        assert.ok((await portrait.getAttribute('src')).endsWith('/showcase/' + id + '.webp'));
+        assert.equal(await portrait.getAttribute('src'), splashCatalog.characters[id]?.preview ?? `./assets/original/showcase/${id}.webp`);
         await click(page, '[data-open-roster]');
       }
       await close(page);

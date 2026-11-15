@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { runInNewContext } from 'node:vm';
 import test from 'node:test';
 import { writeOfflinePackage } from '../build/offlinePackage.js';
-import { enableOfflinePractice, inspectOfflinePractice } from '../src/core/offlinePractice.js';
+import { enableOfflinePractice, enableOfflineHD, inspectOfflinePractice } from '../src/core/offlinePractice.js';
 
 const workerSource = new URL('../offline-worker.js', import.meta.url);
 const scope = 'https://game.example/som/releases/123456789abcdef0123456789abcdef0/client/';
@@ -22,17 +22,17 @@ class CacheStorage {
   async open(key) {
     if (!this.stores.has(key)) this.stores.set(key, new Map());
     const items = this.stores.get(key);
-    return { put: async (url, response) => items.set(String(url), response.clone()),
+    return { put: async (url, response) => items.set(String(url), response.clone()), delete:async url=>items.delete(String(url)),
       match: async url => items.get(String(url))?.clone() };
   }
   async keys() { return [...this.stores.keys()]; }
   async delete(key) { return this.stores.delete(key); }
 }
 
-function workerHarness({ fail, caches = new CacheStorage() } = {}) {
+function workerHarness({ fail, caches = new CacheStorage(), packageManifest = manifest } = {}) {
   const handlers = {}, requests = [];
   let online = true, claimed = false;
-  runInNewContext('const OFFLINE_PACKAGE = ' + JSON.stringify(manifest) + ';\n' + readFileSync(workerSource, 'utf8'), {
+  runInNewContext('const OFFLINE_PACKAGE = ' + JSON.stringify(packageManifest) + ';\n' + readFileSync(workerSource, 'utf8'), {
     self: { registration: { scope }, addEventListener: (name, fn) => { handlers[name] = fn; }, clients: { claim: async () => { claimed = true; } } },
     URL, Request, Response, AbortController, setTimeout, clearTimeout, caches,
     fetch: async request => {
@@ -158,4 +158,78 @@ test('the settings require a complete package and active worker before reporting
   await enableOfflinePractice(env);
   assert.equal((await inspectOfflinePractice({ ...env, isSecureContext: false })).supported, false);
   assert.equal((await inspectOfflinePractice({ ...env, fetch: async () => new Response('', { status: 404 }) })).supported, false);
+});
+
+test('the build separates HD art from the playable offline package and fingerprints HD changes',t=>{
+  const output=mkdtempSync(join(tmpdir(),'som-hd-'));t.after(()=>rmSync(output,{recursive:true,force:true}));
+  mkdirSync(join(output,'client/assets/splash/cards'),{recursive:true});
+  mkdirSync(join(output,'client/assets/splash/previews'),{recursive:true});
+  writeFileSync(join(output,'client/index.html'),'<html>Game</html>');
+  writeFileSync(join(output,'client/assets/splash/cards/test.webp'),'HD');
+  writeFileSync(join(output,'client/assets/splash/previews/test.webp'),'preview');
+  writeFileSync(join(output,'client/assets/splash/manifest.json'),JSON.stringify({hdFiles:['client/assets/splash/cards/test.webp']}));
+  const first=writeOfflinePackage(output,workerSource);
+  assert.equal(first.hdEntries.length,1);assert.equal(first.hdBytes,2);
+  assert.ok(first.entries.some(e=>e.url==='assets/splash/previews/test.webp'));
+  assert.ok(!first.entries.some(e=>e.url==='assets/splash/cards/test.webp'));
+  writeFileSync(join(output,'client/assets/splash/cards/test.webp'),'revised HD');
+  assert.notEqual(writeOfflinePackage(output,workerSource).build,first.build);
+});
+
+test('the active worker serves explicitly cached HD art while retaining the playable core',async()=>{
+  const hd={url:'assets/splash/cards/test.webp',integrity:'sha256-dGVzdA=='};
+  const worker=workerHarness({packageManifest:{...manifest,hdEntries:[hd]}});
+  await worker.lifecycle('install');assert.equal(worker.requests.length,manifest.entries.length);
+  const cache=await worker.caches.open('soul-of-meal.practice.v1:'+scope+':'+manifest.build);
+  await cache.put(new URL(hd.url,scope).href,new Response('HD illustration'));
+  worker.disconnect();
+  assert.equal(await(await worker.intercept(new URL(hd.url,scope).href)).text(),'HD illustration');
+  assert.match(await(await worker.intercept(scope,{mode:'navigate'})).text(),/Offline Soul of Meal/);
+});
+
+test('optional HD download marks completion only after all files and reports progress',async()=>{
+  const hdEntries=['first','second'].map(id=>({url:'assets/splash/cards/'+id+'.webp',integrity:'sha256-dGVzdA=='}));
+  const pack={...manifest,hdEntries,hdBytes:4};
+  const worker=workerHarness({packageManifest:pack});await worker.lifecycle('install');
+  const visited=[],progress=[];
+  const env={location:{href:scope},isSecureContext:true,caches:worker.caches,navigator:{serviceWorker:{getRegistration:async()=>({active:{scriptURL:scope+'offline-worker.js'}})}},
+    fetch:async request=>{
+      const url=request instanceof Request?request.url:String(request);
+      if(url.endsWith('offline-manifest.json'))return Response.json(pack);
+      visited.push(request);return new Response('HD');
+    }};
+  await enableOfflineHD(env,(done,total)=>progress.push([done,total]));
+  assert.equal(visited.length,2);assert.ok(visited.every(r=>r.integrity==='sha256-dGVzdA=='&&r.credentials==='omit'));
+  assert.deepEqual(progress.at(-1),[2,2]);assert.equal((await inspectOfflinePractice(env)).hdReady,true);
+});
+
+test('a failed HD download removes its partial art while preserving the core package and save-independent caches',async()=>{
+  const hdEntries=['first','second'].map(id=>({url:'assets/splash/cards/'+id+'.webp',integrity:'sha256-dGVzdA=='}));
+  const pack={...manifest,hdEntries,hdBytes:4};
+  const worker=workerHarness({packageManifest:pack});await worker.lifecycle('install');
+  const env={location:{href:scope},isSecureContext:true,caches:worker.caches,navigator:{serviceWorker:{getRegistration:async()=>({active:{scriptURL:scope+'offline-worker.js'}})}},
+    fetch:async request=>{
+      const url=request instanceof Request?request.url:String(request);
+      return url.endsWith('offline-manifest.json')?Response.json(pack):new Response('missing',{status:url.includes('second')?404:200});
+    }};
+  await assert.rejects(enableOfflineHD(env),/Gói chơi ngoại tuyến vẫn được giữ/);
+  const cache=await worker.caches.open('soul-of-meal.practice.v1:'+scope+':'+manifest.build);
+  for(const entry of hdEntries)assert.equal(await cache.match(new URL(entry.url,scope).href),undefined);
+  assert.ok(await cache.match(scope+'index.html'));
+  const state=await inspectOfflinePractice(env);assert.equal(state.ready,true);assert.equal(state.hdReady,false);
+});
+
+test('HD download rejects a changed build before creating a cache or downloading art',async()=>{
+  const pack={...manifest,hdEntries:[{url:'assets/splash/cards/test.webp',integrity:'sha256-dGVzdA=='}],hdBytes:2};
+  const worker=workerHarness({packageManifest:pack});await worker.lifecycle('install');
+  const before=await worker.caches.keys();let reads=0;
+  const env={location:{href:scope},isSecureContext:true,caches:worker.caches,
+    navigator:{serviceWorker:{getRegistration:async()=>({active:{scriptURL:scope+'offline-worker.js'}})}},
+    fetch:async request=>{
+      assert.ok(String(request).endsWith('offline-manifest.json'),'no HD request should be sent');
+      return Response.json(++reads===1?pack:{...pack,build:'b'.repeat(64)});
+    }};
+  await assert.rejects(enableOfflineHD(env),/Gói ngoại tuyến đã thay đổi/);
+  assert.deepEqual(await worker.caches.keys(),before);
+  assert.equal((await inspectOfflinePractice({...env,fetch:async()=>Response.json(pack)})).ready,true);
 });

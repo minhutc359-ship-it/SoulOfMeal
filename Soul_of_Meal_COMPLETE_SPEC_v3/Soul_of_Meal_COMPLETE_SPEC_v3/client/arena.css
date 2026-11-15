@@ -470,8 +470,8 @@
 .tcg-strike-controls > div { min-width: 0; flex: 1; font-size: 11px; }
 .tcg-strike-controls small { display: block; margin-top: 3px; color: #ebd6b0; font-size: 10px; }
 .tcg-card-back {
-  background: repeating-linear-gradient(48deg, #503139 0 5px, #442831 5px 10px) !important;
-  border: 1px solid #d5a66c; color: #ffe1a7; text-shadow: 0 0 8px #f1ba5f;
+  background: var(--tcg-card-back-image, repeating-linear-gradient(48deg, #503139 0 5px, #442831 5px 10px)) center/cover !important;
+  border: 1px solid #d5a66c; color: transparent; text-shadow: none;
 }
 .tcg-deal-back {
   display: grid; place-items: center; position: absolute; inset: 0; z-index: 3; font-size: 24px; border-radius: 5px;
@@ -521,3 +521,47 @@
 
 .tcg-new-options label[hidden] { display: none; }
 .tcg-match .lane-stats .lane-weakened { color: #92c8ef; }
+.tcg-card-face { --rarity-glow:#76b8b0; position:relative; isolation:isolate; overflow:hidden; width:100%; max-width:360px; margin:auto; padding:7px; border:2px solid var(--rarity-glow); border-radius:18px; color:#322416; background:linear-gradient(135deg,#fff0c7,#b68142 48%,#fff0c7); box-shadow:0 12px 35px #0007,inset 0 0 0 2px #563b2a; }
+.tcg-card-face.rarity-sr,.rarity-sr { --rarity-glow:#d3a4f4; }
+.tcg-card-face.rarity-ssr,.rarity-ssr { --rarity-glow:#ffdd85; }
+.tcg-card-face > header { display:flex; align-items:center; gap:8px; min-height:43px; padding:7px 9px; background:#fff3d9f5; border-radius:10px 10px 0 0; }
+.tcg-card-face header strong { flex:1; font-size:16px; line-height:1.25; }
+.face-mana { display:grid; place-items:center; flex:none; width:30px; height:30px; border:1px solid #8b6a36; border-radius:50%; color:#fff0c8; background:#173a37; font-weight:800; }
+.face-art { position:relative; aspect-ratio:2/3; overflow:hidden; background:#18352f; }
+.face-art img { display:block; width:100%; height:100%; object-fit:cover; }
+.face-type { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:7px 9px; border-block:1px solid #b89c65; background:#f1debc; font-size:12px; }
+.face-type i { color:#1b6551; font-style:normal; }
+.face-rules { padding:10px; background:#fff4df; font-size:12px; line-height:1.5; }
+.face-rules p { margin:0; }
+.tcg-card-face > footer { display:flex; justify-content:space-between; gap:10px; padding:8px 10px; color:#fff0cc; background:#263a30; border-radius:0 0 10px 10px; font-size:12px; }
+.tcg-card-face footer b span { font-size:16px; }
+.full-art-inspect { align-items:start; grid-template-columns:minmax(230px,360px) minmax(160px,1fr); }
+.full-art-inspect > div { padding:10px; }
+.full-art-figure { margin:0; text-align:center; }
+.full-art-figure img { display:block; max-width:100%; max-height:74dvh; width:auto; height:auto; margin:auto; border-radius:12px; }
+.full-art-figure figcaption,.full-art-figure p { margin:8px 0; font-size:12px; }
+.artbook { width:min(1020px,100%); }
+.artbook-filters { display:flex; flex-wrap:wrap; gap:8px; position:sticky; top:0; z-index:2; padding:8px 0; background:#fff4dc; }
+.artbook-filters input { flex:1; min-width:140px; }
+.artbook-filters :is(input,select) { min-height:44px; max-width:100%; }
+.artbook-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(125px,1fr)); gap:12px; }
+.artbook-grid > button { display:grid; grid-template-rows:auto 1fr auto; gap:5px; padding:5px; border:1px solid #b69254; border-radius:12px; overflow:hidden; background:#18352f; color:#fff0cc; text-align:left; cursor:pointer; }
+.artbook-grid > button[hidden] { display:none; }
+.artbook-grid img { display:block; width:100%; aspect-ratio:2/3; object-fit:cover; border-radius:8px; }
+.artbook-grid strong,.artbook-grid small { padding:0 4px 4px; }
+.artbook-grid strong { font-size:12px; }
+.artbook-grid small { opacity:.75; font-size:10px; }
+.artbook-grid > button:focus-visible { outline:3px solid #e7ac49; outline-offset:3px; }
+.main .tcg-match .has-splash .card-thumb img,.main .shop-unit .shop-art img { object-fit:cover; object-position:50% 35%; filter:none; }
+.main .tcg-match .playing-card.has-splash { border-color:var(--rarity-glow,#bcb88b); box-shadow:inset 0 0 0 1px #fff3ca35; }
+@media(max-width:600px) { .full-art-inspect { display:flex; flex-direction:column; align-items:stretch; }.tcg-card-face { max-width:330px; }.artbook-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.artbook-filters select { flex:1; min-width:0; } }
+.lobby-artbook { position:absolute; right:16px; bottom:16px; z-index:3; min-height:44px; }
+dialog.artbook-dialog { width:min(1040px,96vw); max-width:96vw; }
+dialog.full-art-dialog { width:min(780px,96vw); max-width:96vw; }
+.tcg-card-back { background:var(--tcg-card-back-image,linear-gradient(45deg,#173f35,#9e773a)) center/cover !important; color:transparent !important; text-shadow:none !important; }
+.tcg-recipe-flash.flavor-combo { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 7px; width: min(90%, 380px); padding: 14px; background: #091c2ff2; border: 1px solid #ffe6a0; }
+.flavor-combo img { width: 24%; max-height: 150px; object-fit: cover; border-radius: 8px; }
+.flavor-combo .combo-fire { box-shadow: 0 0 20px #ff6f31; }
+.flavor-combo .combo-water { box-shadow: 0 0 20px #41ccff; }
+.flavor-combo .combo-wood { box-shadow: 0 0 20px #7bf9a8; }
+.flavor-combo strong { flex: 0 0 100%; text-align: center; font-size: 14px; }

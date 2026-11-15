@@ -18,9 +18,49 @@ export async function inspectOfflinePractice(env = globalThis) {
     const registration = await env.navigator.serviceWorker.getRegistration(scope);
     const ready = registration?.active?.scriptURL === new URL('offline-worker.js', scope).href
       && Boolean(await cache?.match(new URL('offline-manifest.json', scope).href));
-    return { supported: true, ready, bytes: manifest.bytes, scope };
+    const hdReady = ready && Boolean(await cache?.match(new URL('offline-hd-marker.json', scope).href));
+    return { supported: true, ready, build: manifest.build, bytes: manifest.bytes, scope, hdReady, hdBytes: manifest.hdBytes ?? 0 };
   } catch {
     return { supported: false };
+  }
+}
+
+export async function enableOfflineHD(env = globalThis, report = () => {}) {
+  const state = await inspectOfflinePractice(env);
+  if (!state.ready) throw new Error('Tải gói ngoại tuyến trước khi tải minh họa HD.');
+  if (state.hdReady) return;
+  const response = await env.fetch(new URL('offline-manifest.json', state.scope), { cache: 'no-cache', credentials: 'omit' });
+  if (!response.ok) throw new Error('Chưa đọc được gói minh họa HD.');
+  const manifest = await response.json();
+  if (manifest.schema !== 1 || manifest.build !== state.build || !Array.isArray(manifest.entries) || !Array.isArray(manifest.hdEntries)) {
+    throw new Error('Gói ngoại tuyến đã thay đổi. Mở lại game và tải gói hiện tại trước khi tải minh họa HD.');
+  }
+  const prefix = new URL('assets/splash/', state.scope).href;
+  const core = new Set(manifest.entries.map(entry => new URL(entry.url, state.scope).href));
+  const files = manifest.hdEntries.map(entry => ({ ...entry, url: new URL(entry.url, state.scope).href }));
+  if (files.some(entry => !entry.url.startsWith(prefix) || core.has(entry.url) || !/^sha256-[A-Za-z0-9+/]+=*$/.test(entry.integrity))) throw new Error('Đường dẫn minh họa HD không hợp lệ.');
+  const cache = await env.caches.open(PREFIX + state.scope + ':' + manifest.build);
+  const pending = [...files], controller = new AbortController();
+  let completed = 0;
+  try {
+    const work = await Promise.allSettled(Array.from({ length: 4 }, async () => {
+      while (pending.length && !controller.signal.aborted) {
+        const entry = pending.shift();
+        const timeout = setTimeout(() => controller.abort(), 45000);
+        try {
+          const result = await env.fetch(new Request(entry.url, { integrity: entry.integrity, credentials: 'omit', cache: 'no-store', redirect: 'error', signal: controller.signal }));
+          if (!result.ok) throw new Error('HD download incomplete');
+          await cache.put(entry.url, result);
+          report(++completed, files.length);
+        } catch (error) { controller.abort(); throw error; }
+        finally { clearTimeout(timeout); }
+      }
+    }));
+    if (work.some(result => result.status === 'rejected')) throw new Error('HD download incomplete');
+    await cache.put(new URL('offline-hd-marker.json', state.scope).href, Response.json({ build: manifest.build }));
+  } catch {
+    await Promise.all(files.map(entry => cache.delete(entry.url)));
+    throw new Error('Chưa tải đủ ảnh HD. Gói chơi ngoại tuyến vẫn được giữ; hãy thử lại khi có mạng và đủ dung lượng.');
   }
 }
 

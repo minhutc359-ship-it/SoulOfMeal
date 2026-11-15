@@ -31,7 +31,7 @@ test('track paths allow local Unicode names and stay inside the audio folder', (
   }
 });
 
-test('scene changes stop the prior loop and bad files fall back without another attempt', async (t) => {
+test('scene changes retire music after the fade and bad files fall back without another attempt', async (t) => {
   const originals = globalThis.Audio;
   const created = [];
   globalThis.Audio = class extends EventTarget {
@@ -41,7 +41,10 @@ test('scene changes stop the prior loop and bad files fall back without another 
   };
   t.after(() => { globalThis.Audio = originals; });
 
-  const player = new GameAudio({ music: 70, ambience: 50, sfx: 80 });
+  let now = 0, tick;
+  const player = new GameAudio({ music: 70, ambience: 50, sfx: 80 }, {
+    now: () => now, schedule: callback => { tick = callback; return 1; }, cancel: () => {},
+  });
   await player.loadSoundtracks(async () => ({ ok: true, json: async () => ({
     login: 'custom/intro.mp3', forest: 'custom/woods.ogg', epic_boss_battle: 'custom/boss.wav',
   }) }));
@@ -53,6 +56,8 @@ test('scene changes stop the prior loop and bad files fall back without another 
   player.setScene('login');
   assert.equal(created[0].plays, 1);
   player.setScene('forest');
+  assert.equal(created[0].pauses, 0);
+  now += 800; tick();
   assert.equal(created[0].pauses, 1);
   assert.ok(created[1].url.endsWith('/custom/woods.ogg'));
   assert.ok(created[2].url.endsWith('/forest_wind.ogg'));
@@ -61,11 +66,13 @@ test('scene changes stop the prior loop and bad files fall back without another 
   player.setScene('forest');
   assert.equal(created.length, 4);
   player.setScene('epic_boss_battle');
+  now += 800; tick();
   assert.equal(created[2].pauses, 1);
   assert.equal(created[3].pauses, 1);
   assert.ok(created[4].url.endsWith('/custom/boss.wav'));
+  const pausesBeforeMute = created[4].pauses;
   player.setSettings({ music: 0, ambience: 50 });
-  assert.equal(created[4].pauses, 1);
+  assert.equal(created[4].pauses, pausesBeforeMute + 1);
 });
 
 test('battle cues distinguish the windup, release, impact, guard and elemental ultimates', async () => {

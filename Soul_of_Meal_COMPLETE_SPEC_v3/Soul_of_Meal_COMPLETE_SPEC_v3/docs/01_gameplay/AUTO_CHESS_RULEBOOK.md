@@ -54,3 +54,8 @@ Right-hand synergy status `active / close / unavailable`; shop card shows name, 
 - On fixed input seed, same round result, shop and event hash repeat identically.
 - Bot extreme has no unfair bonus to odds/stats.
 - At lower visual FPS, target behavior, hit counts and final HP are unchanged.
+
+
+## Shared roster update — 15 November 2026
+
+The browser catalog now has 27 units, covering all 24 shared spirits plus Pepper, Mushroom and Lilia. Character identity and element are common across modes; `baseStats` and tier cost are independent Chess values marked **PROPOSED**. New lobbies retain a complete `catalogSnapshot` for shop, bot preparation, neutral encounters and merges. Older saves without a snapshot retain their original eight-unit catalog, tier costs and stat formula. Updates do not import Adventure levels or equipment.

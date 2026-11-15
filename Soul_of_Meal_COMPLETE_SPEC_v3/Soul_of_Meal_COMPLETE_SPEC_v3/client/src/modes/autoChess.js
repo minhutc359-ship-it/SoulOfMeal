@@ -80,6 +80,7 @@ export function createChessRun(units, shopConfig, seed = 2077) {
     phase: 'prepare', preparationSeconds: CHESS_PREPARATION_SECONDS, round: 1, stage: 1, hp: 100, gold: 10, level: 2, experience: 0,
     bench: [], board: [], shopLocked: false, shop: [], seed, wins: 0, losses: 0,
     streak: 0, log: ['Vòng đầu: chuẩn bị đội hình.'], combat: null, result: null,
+    catalogSnapshot: structuredClone(units),
     opponents: Array.from({ length: 7 }, (_, index) => ({
       id: index + 1, hp: 100, ...(lobby ? { units: [], bench: [], gold: 10, level: 2, experience: 0, streak: 0, items: [] }
         : { units: botRoster(units, index + seed) }),
@@ -127,7 +128,7 @@ export function buyChessOffer(run, slot, destination) {
 }
 
 function newChessUnit(offer, placementOrder) {
-  return { ...offer, ...chessStats(offer.id, 1), star: 1, placementOrder };
+  return { ...offer, ...chessStats(offer.id, 1, offer.baseStats), star: 1, placementOrder };
 }
 
 export function chessBenchSlots(run) {
@@ -461,6 +462,7 @@ export function buyChessExperience(run, units, shopConfig) {
 }
 
 function prepareLobby(run, units, config) {
+  units = chessCatalog(run, units);
   const { neutral, stage } = chessRoundInfo(run);
   run.neutral = neutral ? neutralRoster(units, stage, run.round) : null;
   for (const bot of livingOpponents(run)) {
@@ -538,7 +540,7 @@ function mergeChessCopies(run, announce = true) {
       }
     }
     survivor.star++;
-    Object.assign(survivor, chessStats(survivor.id, survivor.star));
+    Object.assign(survivor, chessStats(survivor.id, survivor.star, survivor.baseStats));
     for (const item of consumed.flatMap(unit => unit.items ?? [])) {
       const placement = chessItemPlacement(survivor, item);
       if (placement) (survivor.items ??= [])[placement.slot] = placement.id;
@@ -556,6 +558,7 @@ function mergeChessCopies(run, announce = true) {
 }
 
 function rollChessShop(run, units, config, bot = null) {
+  units = chessCatalog(run, units);
   const odds = config.probabilities_percent[String(bot?.level ?? run.level)];
   let seed = (run.seed + (run.lobby ? 131 * run.round + 701 * (bot?.id ?? 0) : 0)) >>> 0;
   const pool = chessPoolCounts(run, Boolean(bot));
@@ -586,12 +589,22 @@ function botRoster(units, seed) {
   return Array.from({ length: count }, (_, index) => {
     value = (value * 1664525 + 1013904223) >>> 0;
     const unit = structuredClone(units[value % units.length]);
-    return { ...unit, ...chessStats(unit.id, 1), star: 1, team: 'enemy', actorId: `op:${seed}:${index}`, x: index % 7, y: 1 + Math.floor(index / 7) };
+    return { ...unit, ...chessStats(unit.id, 1, unit.baseStats), star: 1, team: 'enemy', actorId: `op:${seed}:${index}`, x: index % 7, y: 1 + Math.floor(index / 7) };
   });
 }
 
-function chessStats(id, star) {
-  const base = {
+function chessCatalog(run, units) {
+  if (run.catalogSnapshot) return run.catalogSnapshot;
+  const legacy = { chr_bunbo_holinh: 1, chr_pho_lamvu: 2, chr_goicuon_diepnhi: 3,
+    chr_banhbao_bachngoc: 4, chr_caphe_davu: 5, mob_pepper_01: 1, mob_mushroom_01: 2, npc_lilia: 3 };
+  return units.filter(unit => Object.hasOwn(legacy, unit.id)).map(unit => {
+    const { baseStats, ...prior } = unit;
+    return { ...prior, cost: legacy[unit.id] };
+  });
+}
+
+function chessStats(id, star, configured) {
+  const base = configured ?? {
     chr_bunbo_holinh: [690, 68, 34], chr_pho_lamvu: [510, 86, 24],
     chr_goicuon_diepnhi: [590, 52, 31], chr_banhbao_bachngoc: [820, 42, 52],
     chr_caphe_davu: [470, 94, 20], mob_pepper_01: [490, 75, 24],

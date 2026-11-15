@@ -25,6 +25,8 @@ def update_index(root: Path) -> int:
             ("client", "node_modules"), ("client", "dist"), ("server", "bin"), ("server", "obj")
         }
     )
+    present = {path.relative_to(root).as_posix() for path in package_files}
+    entries[:] = [entry for entry in entries if entry["path"] in present]
     for path in package_files:
         relative = path.relative_to(root).as_posix()
         content = path.read_bytes()
