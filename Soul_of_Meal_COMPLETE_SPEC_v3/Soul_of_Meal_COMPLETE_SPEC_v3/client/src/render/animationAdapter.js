@@ -1,6 +1,7 @@
 import { ClipPlayer, validateAnimationManifest } from './clipPlayer.js';
 import { ActorViewRegistry } from './actorViewRegistry.js';
 import { createAnimationManifestRegistry, loadAnimationManifest, resolveCharacterManifest } from './animationManifest.js';
+import { actionAnimating } from './presentationState.js';
 
 if (typeof globalThis.CustomEvent === 'undefined') {
   globalThis.CustomEvent = class CustomEvent extends Event {
@@ -67,6 +68,7 @@ export class AnimationAdapter extends EventTarget {
     this.warnedManifests = new Set();
     this.seenSequences = new Set();
     this.sequenceOrder = [];
+    this.victories = new Set();
     this.handleEvent = this.handleEvent.bind(this);
     this.eventTarget?.addEventListener('game-event', this.handleEvent);
   }
@@ -98,7 +100,7 @@ export class AnimationAdapter extends EventTarget {
     if (!view || !player) return null;
     this.views.upsert({ actorId, x, y, direction: direction ?? view.direction, alive });
     if (!alive) {
-      player.clip.play('defeat', { restart: false });
+      if (player.motion !== 'defeat') player.clip.play('defeat', { force: true, hold: true });
       player.motion = 'defeat';
       return this.getActorState(actorId);
     }
@@ -152,14 +154,16 @@ export class AnimationAdapter extends EventTarget {
       this.dispatchEvent(new CustomEvent('presentation-hit', { detail: { ...event, actions } }));
     } else if (event.type === 'actor_died') {
       const actorId = payload.actor_id ?? event.target_id;
-      if (actorId && this.#play(actorId, 'defeat', true)) actions.push({ actorId, clipId: 'defeat', reason: event.type });
+      const player = this.players.get(actorId);
+      if (player?.clip.play('defeat', { force: true, hold: true })) {
+        player.motion = 'defeat';
+        actions.push({ actorId, clipId: 'defeat', reason: event.type });
+      }
     } else if (event.type === 'battle_finished' || event.type === 'chess_combat_finished') {
       const won = payload.winner_team === 'player' || payload.winner === 'player' || payload.won === true;
       for (const view of this.views.values()) {
-        if (view.team === 'player' && view.alive !== false) {
-          const clipId = won ? 'victory' : 'defeat';
-          if (this.#play(view.actorId, clipId, true)) actions.push({ actorId: view.actorId, clipId, reason: event.type });
-        }
+        // Do not replace a final attack with a victory pose in the same tick.
+        if (won && view.team === 'player' && view.alive !== false) this.victories.add(view.actorId);
       }
     }
 
@@ -169,6 +173,16 @@ export class AnimationAdapter extends EventTarget {
 
   advance(deltaMs) {
     for (const player of this.players.values()) player.clip.advance(deltaMs);
+    for (const actorId of this.victories) {
+      const player = this.players.get(actorId);
+      if (actionAnimating(player?.clip.snapshot())) continue;
+      if (this.views.get(actorId)?.alive !== false) this.#play(actorId, 'victory');
+      this.victories.delete(actorId);
+    }
+  }
+
+  pendingActions() {
+    return [...this.players.values()].some(player => actionAnimating(player.clip.snapshot()));
   }
 
   getActorState(actorId) {
@@ -182,7 +196,7 @@ export class AnimationAdapter extends EventTarget {
     const keep = new Set(actorIds);
     this.views.retain(keep);
     for (const actorId of this.players.keys()) {
-      if (!keep.has(actorId)) this.players.delete(actorId);
+      if (!keep.has(actorId)) { this.players.delete(actorId); this.victories.delete(actorId); }
     }
   }
 
@@ -194,6 +208,7 @@ export class AnimationAdapter extends EventTarget {
   destroy() {
     this.eventTarget?.removeEventListener('game-event', this.handleEvent);
     this.players.clear();
+    this.victories.clear();
     this.views.clear();
     this.seenSequences.clear();
     this.sequenceOrder = [];

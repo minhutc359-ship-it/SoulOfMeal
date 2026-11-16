@@ -1,6 +1,7 @@
 import { SPIRITS } from '../modes/metaProgress.js';
 import { cardBackIllustration, spiritIllustration, escapeArtText as text } from '../render/cardArtwork.js';
 import { actorArt } from '../render/spriteAssets.js';
+import { artworkImage, bindArtworkFallbacks } from '../render/artworkImages.js';
 
 const ELEMENTS = { fire: 'Hỏa', water: 'Thủy', wood: 'Mộc', light: 'Quang', shadow: 'Âm' };
 
@@ -11,8 +12,7 @@ export function gachaResultCard(item, index, { profile = false, hd = false } = {
   const tag = profile ? 'button' : 'article';
   return `<${tag} class="gacha-art-card" data-rarity="${spirit.rarity}" data-result-index="${index}"
     ${profile ? `type="button" data-result-profile="${text(item.id)}" aria-label="Xem hồ sơ ${text(spirit.name)}"` : `aria-label="${text(spirit.name)} · ${spirit.rarity}"`}>
-    <img src="${text(hd ? art?.hd ?? art?.preview ?? actorArt(item.id) : art?.preview ?? actorArt(item.id))}"
-      ${hd && art ? `data-fallback-art="${text(art.preview)}"` : ''} alt="Minh họa ${text(spirit.name)}" decoding="async">
+    ${artworkImage(art, { hd, fallback: actorArt(item.id), characterId: item.id, alt: `Minh họa ${spirit.name}` })}
     <span class="gacha-card-top"><b>${spirit.rarity}</b><small>${ELEMENTS[spirit.element]}</small></span>
     <span class="gacha-card-caption"><strong>${text(spirit.name)}</strong>
       <small>${item.isNew ? 'MỚI · Đã thêm vào bộ sưu tập' : `Trùng · +${item.essence} Tinh Hoa`}</small></span>
@@ -21,6 +21,7 @@ export function gachaResultCard(item, index, { profile = false, hd = false } = {
 }
 
 export function revealGacha(host, receipt, { onProfile, onComplete, reducedMotion, playCue } = {}) {
+  bindArtworkFallbacks(host);
   const items = receipt.items;
   let shown = 0;
   let completed = false;
@@ -77,10 +78,6 @@ export function revealGacha(host, receipt, { onProfile, onComplete, reducedMotio
     const button = event.target.closest('[data-result-profile]');
     if (button && onProfile) { host.close?.(); onProfile(button.dataset.resultProfile); }
   });
-  root.addEventListener('error', event => {
-    const img = event.target;
-    if (img.dataset?.fallbackArt) { img.src = img.dataset.fallbackArt; delete img.dataset.fallbackArt; }
-  }, true);
   if (reducedMotion) showSummary();
   else if (items.length === 1) showNext();
 }

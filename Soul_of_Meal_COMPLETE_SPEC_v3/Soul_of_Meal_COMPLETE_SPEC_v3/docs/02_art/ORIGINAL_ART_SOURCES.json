@@ -240,6 +240,30 @@
       "identity_reference": "client/assets/characters/chr_caphe_davu/original_battle/poses/chr_caphe_davu_pose_00.png",
       "identity_review": "pending",
       "commercial_rights_review": "pending"
+    },
+    "battle_victory": {
+      "date": "2026-11-16",
+      "authoring": "Original OpenAI image generation; resized and encoded to WebP using Pillow",
+      "alpha": false,
+      "source_file": "exec-9ecc6d8c-dee4-443f-9d43-37e356ce6643.png",
+      "source_sha256": "3a572419be4103cc95d2518ee19de0aa0809e9c1e1cc461aef3d31aa566cb362",
+      "runtime_file": "client/assets/original/ui/battle-victory.webp",
+      "runtime_sha256": "2096f4908f7dceeb1c7056b0e8168aefe4a66367d9e9f8989aebf805d8ca6efd",
+      "prompt": "Use case: stylized-concept. Asset: landscape victory result illustration for the original Vietnamese culinary anime-chibi fantasy web game Soul of Meal, 3:2 composition. Scene: a radiant jade-and-gold Vietnamese fantasy banquet courtyard at sunrise. A large ornate golden wooden spoon and rice-bowl trophy, a circular five-element culinary sigil, star anise, lotus petals, and warm magical steam form a triumphant central crest. Celebratory sparks and leaves sweep upward with cinematic depth. Rich hand-painted anime fantasy game key art, detailed lacquered wood and golden trim, deep jade teal and honey-gold palette, hopeful victorious mood. Keep a calm dark teal lower edge and upper center for software-rendered result labels. Full-bleed opaque background. No people, characters, copyrighted game elements, text, lettering, numbers, logos, watermark or UI buttons. This is a finished production game illustration, not a screenshot or mockup.",
+      "identity_review": "not applicable; environment and original culinary props only",
+      "commercial_rights_review": "pending"
+    },
+    "battle_defeat": {
+      "date": "2026-11-16",
+      "authoring": "Original OpenAI image generation; resized and encoded to WebP using Pillow",
+      "alpha": false,
+      "source_file": "exec-a29cd14c-5a6a-4ea9-a1d4-9fc70d9a445c.png",
+      "source_sha256": "af03a54101e4d922eff66b749d189ce4bbc3955c833cfae7a624a655e0d45f4d",
+      "runtime_file": "client/assets/original/ui/battle-defeat.webp",
+      "runtime_sha256": "b5d0e468c53131c3511d8e5659eb0a71e92a73af89dd8f45d5aa169ffea7497e",
+      "prompt": "Use case: stylized-concept. Asset: landscape defeat result illustration for the original Vietnamese culinary anime-chibi fantasy web game Soul of Meal, 3:2 composition. Scene: a quiet jade-and-violet Vietnamese fantasy banquet courtyard after a magical battle at blue twilight. A tipped porcelain rice bowl, a resting ornate wooden spoon and a cracked but softly glowing culinary sigil sit centrally on a carved wooden table. Cooling steam and a few drifting lotus petals suggest a recoverable setback and a new journey. Rich hand-painted anime fantasy game key art, detailed ceramic and lacquered wood, midnight teal, muted violet and a small amber glow, dignified and hopeful rather than gruesome. Keep a calm dark lower edge and upper center for software-rendered result labels. Full-bleed opaque background. No people, characters, copyrighted game elements, text, lettering, numbers, logos, watermark or UI buttons. This is a finished production game illustration, not a screenshot or mockup.",
+      "identity_review": "not applicable; environment and original culinary props only",
+      "commercial_rights_review": "pending"
     }
   },
   "generator": "OpenAI ImageGen, built-in image generation",

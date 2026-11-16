@@ -170,3 +170,7 @@ button.gacha-art-card:hover { border-color: #fff4c0; }
   .gacha-sealed-pack { width: 26dvh; }
   .gacha-pack-progress { margin: 0 0 5px; }
 }
+
+.gacha-cinematic-status { position: absolute; left: 12px; bottom: 8px; max-width: calc(100% - 115px); margin: 0;
+  padding: 7px 10px; color: #fff1c9; background: #151222bf; border-radius: 6px; font-size: clamp(11px, 1.5vw, 15px); }
+.spirit-choice .spirit-art, .bench-unit .chess-portrait { object-fit: cover; object-position: center 30%; }

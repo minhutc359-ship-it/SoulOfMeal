@@ -1,8 +1,9 @@
 import { ADVENTURE_OFFERS, GEAR_MAX_LEVEL, GEAR_SLOTS, STORE_UPGRADE_GOLD, STORE_UPGRADE_STONES, itemBonus } from '../modes/adventureStore.js';
 import { BANNERS, META, SPIRITS, bannerOdds, starterSpirits } from '../modes/metaProgress.js';
-import { actorArt, cardBackdrop, cutinArt, HERO_NAMES, itemArt, showcaseArt } from '../render/spriteAssets.js';
+import { actorArt, itemArt } from '../render/spriteAssets.js';
 import { spiritIllustration } from '../render/cardArtwork.js';
 import { revealGacha } from './gachaPack.js';
+import { artworkImage } from '../render/artworkImages.js';
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>"']/g, character =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
@@ -11,14 +12,12 @@ const ELEMENTS = { fire: 'Hỏa', water: 'Thủy', wood: 'Mộc', light: 'Quang'
 const signs = { fire: '✹', water: '◈', wood: '✿', light: '✦', shadow: '☾' };
 const statNames = { atk: 'ATK', def: 'DEF', maxHp: 'HP', speed: 'tốc độ/giây' };
 
-export function spiritImage(id, large = false, { showcase = false } = {}) {
+export function spiritImage(id, large = false, { showcase = true } = {}) {
   const art = actorArt(id);
   if (art) {
     const illustration = showcase && spiritIllustration(id);
-    const fallback = illustration?.preview ?? (large && Object.hasOwn(HERO_NAMES, id) ? cutinArt(id) : art);
-    const portrait = showcase && (illustration?.hd ?? showcaseArt(id));
-    return `<img class="spirit-art" src="${escapeHtml(portrait || fallback)}" alt=""
-      ${portrait ? `data-fallback-art="${escapeHtml(fallback)}" decoding="async"` : ''}>`;
+    return artworkImage(illustration, { hd: large, fallback: art, className: 'spirit-art',
+      characterId: id, alt: `${showcase ? 'Minh họa' : 'Chibi'} ${SPIRITS[id]?.name ?? id}` });
   }
   const spirit = Object.hasOwn(SPIRITS, id) ? SPIRITS[id] : null;
   return `<span aria-hidden="true" class="spirit-emblem element-${spirit?.element ?? 'light'}">${signs[spirit?.element] ?? '✦'}</span>`;

@@ -13,6 +13,44 @@ function openRig(id) {
 
 const rig = openRig(HERO_ID);
 
+test('the final attack recovery and defeat rig finish after simulation stops at battle_end', () => {
+  const clock = new BattleRigClock(rig, 30);
+  const battle = { tick: 120, phase: 'battle_running' };
+  const hero = { alive: true, action: null };
+  const animation = { requestedClipId: 'attack_a', motionPhase: .5 };
+  clock.contact(battle, 'attack_a');
+  battle.phase = 'battle_end';
+  const contact = clock.frame(battle, hero, animation, 0);
+  const recovery = clock.frame(battle, hero, animation, 3);
+  assert.equal(clock.pending(battle, 0), true);
+  assert.equal(clock.pending(battle, 90), false);
+  assert.equal(contact.id, 'attack_a');
+  assert.equal(recovery.id, 'attack_a');
+  assert.ok(recovery.phase > contact.phase);
+  hero.alive = false;
+  assert.equal(clock.frame(battle, hero, animation, 0).phase, 0);
+  assert.equal(clock.frame(battle, hero, animation, 30).phase, 1);
+  assert.equal(battle.tick, 120);
+});
+
+test('missing or reduced-motion clips cannot keep an Adventure result waiting forever', () => {
+  const clock = new BattleRigClock(rig, 30);
+  const battle = { tick: 120, phase: 'battle_end' };
+  const actor = { alive: true, moving: false, action: null };
+  for (const animation of [
+    { requestedClipId: 'ultimate_01', motionPhase: null, missingClip: true },
+    { requestedClipId: 'ultimate_01', motionPhase: .3, missingClip: true },
+  ]) {
+    clock.frame(battle, actor, animation, 0);
+    assert.equal(clock.pending(battle, 0), false);
+    clock.contact(battle, 'ultimate_01');
+    assert.equal(clock.pending(battle, 0), true);
+    clock.frame(battle, actor, animation, 90);
+    assert.equal(clock.pending(battle, 90), false);
+    clock.lastContact = null;
+  }
+});
+
 test('Bún Bò has separate hair and limb tracks and draws twelve independently attached parts', () => {
   assert.equal(rig.bones.length, 16);
   const bone = name => rig.bones.findIndex(item => item.name === name);

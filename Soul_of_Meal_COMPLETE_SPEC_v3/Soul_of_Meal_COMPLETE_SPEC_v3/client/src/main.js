@@ -32,6 +32,8 @@ import { BOARD_SPRITE, BoardSprites } from './render/boardSprites.js';
 import { bindTableDrag, paintTableGhost } from './render/tableDrag.js';
 import { TcgCardMotion } from './render/tcgCardMotion.js';
 import { DuelEffects } from './render/duelEffects.js';
+import { tcgPresentationPending } from './render/presentationState.js';
+import { battleResultCover, bindBattleResultCover } from './shell/battleResult.js';
 import { ChessReplay } from './render/chessReplay.js';
 import { canvasContext, canvasResolution } from './render/canvasSurface.js';
 import { animatePuzzleStep } from './render/puzzleMotion.js';
@@ -43,12 +45,14 @@ import { openAccountDialog } from './shell/accountDialog.js';
 import { adventureParty, BANNERS, changeParty, drawSpirits, finishOnboarding, META, onboardingName, recruitSpirit, rollStarters, SPIRITS, starterSpirits } from './modes/metaProgress.js';
 import { ADVENTURE_OFFERS, CRAFTED_GEAR_SLOTS, GEAR_SLOTS, adventureGearFor, changeAdventureInventory } from './modes/adventureStore.js';
 import { gachaHistory, gachaOdds, gachaPanel, inventoryRows, renderOnboarding, renderStarterReveal, revealGacha, spiritImage, storeDetail } from './shell/metaPanels.js';
-import { playGachaCinematic } from './shell/gachaCinematicDialog.js';
+import { playGachaCinematic, shouldPlayGachaCinematic } from './shell/gachaCinematicDialog.js';
+import { bindArtworkFallbacks } from './render/artworkImages.js';
 import { openStoryDialog } from './shell/storyDialog.js';
 import { bindSceneNavigation } from './shell/sceneNavigation.js';
 import { cardIllustration, spiritIllustration, cardBackIllustration, tcgCardFace, openArtCollection, openFullArtwork } from './render/cardArtwork.js';
 
 const app = document.querySelector('#app');
+bindArtworkFallbacks(app);
 const cardBack = cardBackIllustration();
 if (cardBack) document.documentElement.style.setProperty('--tcg-card-back-image', `url("${new URL(cardBack.preview, location.href).href}")`);
 const stageHost = document.querySelector('#web-stage');
@@ -91,6 +95,7 @@ gameEvents.addEventListener('game-event', ({ detail }) => {
   const origin = clock ? handleAdventureRigEvent(detail, battle, clock) : undefined;
   if (!delayedSlash) runtime.effects.handle(detail, battle, origin);
   if (detail.rules_version?.startsWith('client-tcg-') && handleTcgPresentation(detail)) return;
+  if (detail.type === 'battle_finished') return; // Result sound belongs after the final presentation.
   if (!delayedSlash && detail.payload.source_kind !== 'auto_chess_attack') {
     runtime.audio.handle(detail);
   }
@@ -705,7 +710,7 @@ function renderHome() {
       <h1 class="sr-only">Hành Trình Vị Linh</h1>
       <button type="button" class="button light lobby-artbook" data-art-collection>Minh họa · Thẻ & Vị Linh</button>
       <button type="button" class="lobby-companion" data-lobby-companion aria-label="Xem hồ sơ ${escapeAttr(companionName)}">
-        ${boardChibi(companion.id, 'lobby:' + companion.id, 'E', spiritImage(companion.id, true))}
+        ${boardChibi(companion.id, 'lobby:' + companion.id, 'E', spiritImage(companion.id, true, { showcase: false }))}
         <span>${escapeHtml(companionName)}</span>
       </button>
       <button type="button" class="lobby-quest" data-lobby-journal aria-haspopup="dialog"><small>Nhiệm vụ</small><strong>${escapeHtml(headline)}</strong></button>
@@ -799,7 +804,7 @@ function renderAdventure() {
     const actor = battle?.actors.find((candidate) => candidate.actor_id === member.id) ?? adventureSpiritStats(member, spiritProfile(save, member.id), undefined, save);
     const skill = adventureBalance.ultimates[actor.id];
     return `<div class="combatant skill-card" data-actor="${actor.id}" data-primed="${actor.energy >= 100}">
-      <span class="party-avatar">${spiritImage(actor.id)}</span>
+      <span class="party-avatar">${spiritImage(actor.id, false, { showcase: false })}</span>
       <div class="skill-info"><strong>${escapeHtml(SPIRITS[actor.id]?.name)}</strong>
         <div class="meter" aria-label="Sinh lực"><i data-hp style="width:${actor.hp / actor.maxHp * 100}%"></i></div>
         <div class="meter energy" aria-label="Năng lượng"><i data-energy style="width:${actor.energy}%"></i></div>
@@ -869,7 +874,7 @@ function renderAdventure() {
           ${inRoom ? '<button class="button light" data-leave-room>Ra quảng trường</button>'
             : guideAction ? '<button class="button light" data-guide-objective>Dẫn đường</button>' : ''}
         </section>`}
-      </aside>${battle ? party : ''}${resultPanel ? `<section class="adventure-result-inline" aria-label="Kết quả phiêu lưu">${resultPanel}</section>` : ''}
+      </aside>${battle ? party : ''}
     </div>
   `);
   app.querySelector('[data-interact]')?.addEventListener('click', doAdventureInteract);
@@ -916,6 +921,7 @@ function renderAdventure() {
     battle.speed = battle.speed === 2 ? 1 : 2;
     updateBattleHud(battle);
   });
+  if (resultPanel && !adventurePresentationPending(battle)) showBattleResult('Kết quả phiêu lưu', resultPanel);
   app.querySelector('[data-battle-result]')?.addEventListener('click', claimAdventureBattle, { once: true });
   app.querySelector('[data-adventure-prepare]')?.addEventListener('click', () => {
     if (leaveAdventureDefeat(adventure)) navigate('roster');
@@ -1506,12 +1512,16 @@ function drawAdventureFrame(deltaSeconds, modalOpen) {
   const moved = Math.hypot(adventure.x - oldX, adventure.y - oldY);
   if (!adventure.battle && moved > 0) runtime.audio.footstep(adventure.map, moved);
   syncAdventureAnimations(adventure, moved > .1);
+  if (adventure.battle?.phase === 'battle_end') {
+    if (runtime.adventureEnding?.battle !== adventure.battle) runtime.adventureEnding = { battle: adventure.battle, elapsed: 0 };
+    else runtime.adventureEnding.elapsed += playbackDelta;
+  }
   runtime.animations.advance(playbackDelta * 1000);
   runtime.effects.advance(playbackDelta);
   if (adventure.battle) {
     if (previousPhase !== adventure.battle.phase || previousWave !== adventure.battle.wave) {
       saveNow();
-      return renderAdventure();
+      if (adventure.battle.phase !== 'battle_end') return renderAdventure();
     }
     if (previousTelegraph !== adventure.battle.bossTelegraph) saveNow();
     updateBattleHud(adventure.battle);
@@ -1548,6 +1558,15 @@ function drawAdventureFrame(deltaSeconds, modalOpen) {
     if (minimap && map) drawWorldMinimap(minimap, map, adventure,
       availableAdventureInteractions(adventure.map, runtime.save, runtime.maps), runtime.minimapObjective);
   }
+  if (adventure.battle?.phase === 'battle_end' && !modalOpen
+      && !app.querySelector('.battle-result-dialog') && !adventurePresentationPending(adventure.battle)) renderAdventure();
+}
+
+function adventurePresentationPending(battle) {
+  if (battle?.phase !== 'battle_end') return false;
+  return runtime.effects.effects.length > 0 || runtime.animations.pendingActions()
+    || [...runtime.rigClocks.values()].some(clock => clock.pending(battle,
+      runtime.adventureEnding?.battle === battle ? runtime.adventureEnding.elapsed * ADVENTURE_TICK_RATE : 0));
 }
 
 function syncAdventureAnimations(adventure, moved) {
@@ -1723,7 +1742,9 @@ function drawBattleScene(context, battle, view) {
   }
   const reducedMotion = app.dataset.motion === 'reduced';
   const interpolate = !battle.paused && battle.phase === 'battle_running' && !reducedMotion;
-  const fraction = interpolate ? Math.min(1, Math.max(0, (battle.accumulator ?? 0) * ADVENTURE_TICK_RATE)) : 0;
+  const fraction = battle.phase === 'battle_end' && runtime.adventureEnding?.battle === battle
+    ? runtime.adventureEnding.elapsed * ADVENTURE_TICK_RATE
+    : interpolate ? Math.min(1, Math.max(0, (battle.accumulator ?? 0) * ADVENTURE_TICK_RATE)) : 0;
   const blend = interpolate ? fraction : 1;
   const actors = [...battle.actors, ...battle.stoves]
     .map(actor => ({ actor, ...battleActorPoint(actor, blend, battle.bossTelegraph?.safeX) })).sort((a, b) => a.y - b.y);
@@ -1933,7 +1954,8 @@ function cardArt(card) {
   if (dedicated) return dedicated;
   if (card.art_prop) return propArt(card.art_prop);
   if (card.art_effect) return combatArt(card.art_effect);
-  return actorArt(card.character_id ?? entry?.character_id)
+  return spiritIllustration(card.character_id ?? entry?.character_id)?.preview
+    ?? actorArt(card.character_id ?? entry?.character_id)
     ?? originalCardArt(card.art_card ?? card.card_id)
     ?? effectArt(card.element ?? entry?.element, card.type === 'fast_spell' ? 'trail' : 'impact');
 }
@@ -2052,9 +2074,10 @@ function tcgImpact(id) {
     <span class="tcg-damage tcg-${impact.style}">${escapeHtml(impact.text ?? '−' + impact.damage)}</span></span>`;
 }
 
-function renderTcg() {
+function renderTcg(resultReady = false) {
   if (!runtime.tcg) runtime.tcg = startTcg(41);
   const match = runtime.tcg;
+  const resultVisible = Boolean(match.result && resultReady === true);
   for (const [id, impact] of runtime.tcgImpacts) {
     if (impact.matchId !== match.battleId || impact.expires <= performance.now()) runtime.tcgImpacts.delete(id);
   }
@@ -2127,7 +2150,7 @@ function renderTcg() {
       <button type="button" data-tcg-challenges>Thử thách</button>
       <button type="button" data-tcg-restart>Ván mới · Bot ${TCG_DIFFICULTIES[match.difficulty] ?? TCG_DIFFICULTIES.normal}</button>
       ${match.result ? '' : '<button type="button" data-tcg-surrender>Đầu hàng</button>'}`)}
-    <div class="match-layout tcg-match" data-mulligan="${opening}" data-match-result="${Boolean(match.result)}" data-tcg-phase="${match.phase}" style="--tcg-columns:${tcgBoardLimit(match)}" ${table ? 'data-direct' : ''}>
+    <div class="match-layout tcg-match" data-mulligan="${opening}" data-match-result="${resultVisible}" data-tcg-phase="${match.phase}" style="--tcg-columns:${tcgBoardLimit(match)}" ${table ? 'data-direct' : ''}>
       <section class="duel-field" aria-label="Bàn đấu thẻ" ${opening ? 'inert' : ''}>
         ${tcgCommander(match, 1, targets, strikes)}
         ${tcgRow(bot.units, 1, targets, declared, blocked, targetIds, defending, canStrike, strikes)}
@@ -2143,7 +2166,7 @@ function renderTcg() {
         ${tcgStageBanners(match)}
         ${runtime.tcgRecipeFlash?.matchId === match.battleId && runtime.tcgRecipeFlash.expires > performance.now() ? `<span class="tcg-recipe-flash${runtime.tcgRecipeFlash.card_ids ? ' flavor-combo' : ''}" role="status">${runtime.tcgRecipeFlash.card_ids?.map((id,index)=>`<img src="${cardIllustration(id)?.preview ?? ''}" alt="" class="combo-${runtime.tcgRecipeFlash.elements[index]}">`).join('') ?? ''}<strong>Combo · ${escapeHtml(runtime.tcgRecipeFlash.name)}</strong></span>` : ''}
       </section>
-      ${match.result ? '' : `<section class="match-command tcg-hand-dock" aria-label="${opening ? 'Đổi bài đầu trận' : 'Điều khiển đấu thẻ'}">
+      ${resultVisible ? '' : `<section class="match-command tcg-hand-dock" ${match.result ? 'inert' : ''} aria-label="${opening ? 'Đổi bài đầu trận' : 'Điều khiển đấu thẻ'}">
         ${trapChoice ? tcgTrapPanel(match) : defending ? tcgDefensePanel(incoming) : `
           <div class="hand-heading"><strong>${opening ? table ? 'Đổi bài · Chọn tối đa 3 lá' : 'Chọn lá muốn đổi' : 'Bài trên tay'}</strong><span>${!opening && user.chainElement && !user.resonanceUsed ? `Cộng hưởng ${ELEMENT_NAMES[user.chainElement]} · ` : ''}${user.hand.length}/${tcgHandLimit(match)} lá</span></div>
           <div class="hand-row" ${graveChoices.length ? 'aria-label="Chọn Vị Linh trong mộ bài"' : ''}>${graveChoices.length
@@ -2156,11 +2179,12 @@ function renderTcg() {
       </section>`}
     </div>
   `);
-  if (match.result) showBattleResult('Kết quả đấu thẻ', `<div class="result-box ${match.winner === 0 ? 'victory' : match.winner === null ? 'draw' : 'defeat'}">
+  if (match.result && resultReady === true) showBattleResult('Kết quả đấu thẻ', `<div class="result-box ${match.winner === 0 ? 'victory' : match.winner === null ? 'draw' : 'defeat'}">
     <strong>${phaseLabel}</strong><p>${escapeHtml(match.log.find(entry => entry.type === 'match_finished')?.text ?? phaseLabel)}
     ${challenge && match.winner === 0 ? ` Kỷ lục thử thách: vòng ${runtime.save.tcgChallengeBests[challenge.id]}.` : ''}</p>
     <div class="action-row"><button class="button" data-tcg-new>Ván mới</button></div></div>`);
-  else tcgCardMotion.render(app, user.hand, app.dataset.motion === 'reduced');
+  tcgCardMotion.render(app, user.hand, app.dataset.motion === 'reduced');
+  runtime.tcgResultPending = match.result && resultReady !== true ? match : null;
   scheduleTcgResponse();
   app.querySelector('[data-tcg-log]').addEventListener('click', () => openInfoDialog('Nhật ký trận', renderTextLog(match.log)));
   app.querySelector('[data-tcg-rules]').addEventListener('click', showTcgRules);
@@ -2254,9 +2278,10 @@ function renderTcg() {
   });
   app.querySelector('[data-tcg-end]')?.addEventListener('click', () => actTcg(() => endTcgTurn(runtime.tcg, 0)));
   app.querySelector('[data-tcg-new]')?.addEventListener('click', () => {
-    const result = app.querySelector('.battle-result-dialog');
     const setup = openTcgSetup(match);
-    setup?.addEventListener('close', () => result?.querySelector('[data-tcg-new]')?.focus(), { once: true });
+    setup?.addEventListener('close', () => {
+      if (runtime.tcg === match && match.result) renderTcg(true);
+    }, { once: true });
   });
   app.querySelector('[data-tcg-restart]')?.addEventListener('click', () => openTcgSetup(match));
   saveNow();
@@ -2822,14 +2847,17 @@ function openInfoDialog(title, body) {
 }
 
 function showBattleResult(title, content) {
-  const dialog = openInfoDialog(title, content);
-  dialog.classList.add('battle-result-dialog');
+  const outcome = /result-box victory/.test(content) ? 'victory' : /result-box draw/.test(content) ? 'draw' : 'defeat';
+  if (outcome === 'victory') runtime.audio.play('sfx_victory', { priority: true });
+  const dialog = openInfoDialog(title, `${battleResultCover(outcome)}<div data-result-details hidden>${content}</div>`);
+  dialog.classList.add('battle-result-dialog', 'battle-result-cover');
   dialog.querySelector('[data-close-info]').remove();
   dialog.querySelector('.result-box').insertAdjacentHTML('beforeend',
     '<div class="action-row"><button type="button" class="button light" data-result-home>Về sảnh</button></div>');
   dialog.querySelector('[data-result-home]').addEventListener('click', () => { dialog.close(); navigate('home'); }, { once: true });
   dialog.addEventListener('cancel', event => event.preventDefault());
-  dialog.querySelector('.result-box button')?.focus({ preventScroll: true });
+  bindBattleResultCover(dialog);
+  return dialog;
 }
 
 function renderChess() {
@@ -2892,7 +2920,7 @@ function renderChess() {
   const selectionHint = activeItem ? CHESS_ITEMS[activeItem].name + ' · Chọn quân sáng' : runtime.selectedBench !== null && run.board.length >= run.level ? 'Đổi với quân đang trên bàn'
     : runtime.selectedBench !== null || runtime.selectedBoard !== null ? 'Chọn vị trí để chuyển hoặc đổi quân'
     : run.bench.length ? 'Kéo quân hoặc chạm để xếp đội' : 'Mua quân để xếp đội';
-  const result = run.phase === 'finished'
+  const result = replaying ? '' : run.phase === 'finished'
     ? `<div class="result-box ${run.result === 'victory' ? 'victory' : 'defeat'}"><strong>${run.placement ? run.placement === 1 ? 'Vô địch đấu trường' : 'Hạng ' + run.placement + '/8'
       : run.result === 'victory' ? remaining ? 'Thắng lượt chơi' : 'Vô địch đấu trường' : 'Lượt chơi đã kết thúc'}</strong><p>${run.wins} trận thắng · ${run.losses} trận thua · ${run.hp} HP chỉ huy còn lại.</p><button class="button" data-chess-new>Bắt đầu lượt chơi mới</button></div>`
     : run.result && !replaying ? `<div class="result-box ${run.result.won ? 'victory' : run.result.draw ? 'draw' : 'defeat'}">
@@ -3006,7 +3034,7 @@ function renderChess() {
   });
   app.querySelectorAll('[data-chess-loot]').forEach(button => button.addEventListener('click', () => {
     app.querySelector('.battle-result-dialog')?.close();
-    updateChess(() => chooseChessLoot(run, button.dataset.chessLoot));
+    updateChess(() => advanceChessRound(chooseChessLoot(run, button.dataset.chessLoot), runtime.units, runtime.shopConfig));
   }));
   app.querySelector('[data-chess-next]')?.addEventListener('click', () => updateChess(() => advanceChessRound(runtime.chess, runtime.units, runtime.shopConfig)));
   app.querySelector('[data-chess-new]')?.addEventListener('click', startNewChessRun);
@@ -3213,7 +3241,6 @@ function drawChessReplay(delta) {
   app.querySelector('[data-chess-replay-progress]').value = Math.min(1, replay.elapsed / replay.duration);
   if (ended) {
     runtime.chessReplay = null;
-    if (runtime.chess.result?.won) runtime.audio.play('sfx_victory');
     renderChess();
   }
 }
@@ -3265,7 +3292,7 @@ function showGachaReceipt(receipt, cinematic = false) {
       navigate('roster');
     },
   });
-  if (cinematic && receipt.items.length !== 10 && !reducedMotion()) {
+  if (shouldPlayGachaCinematic({ fresh: cinematic, reducedMotion: reducedMotion() })) {
     playGachaCinematic(dialog, receipt, {
       renderer: spriteRenderer, reducedMotion, onComplete: showResults,
       playCue: (id, options) => runtime.audio.play(id, options),
@@ -3508,10 +3535,6 @@ function renderRoster() {
   }));
   app.querySelector('[data-open-roster]').addEventListener('click', openSpiritCollection);
   const stage = app.querySelector('.spirit-portrait');
-  const showcase = stage.querySelector('[data-fallback-art]');
-  showcase?.addEventListener('error', () => {
-    showcase.src = showcase.dataset.fallbackArt;
-  }, { once: true });
   const showModel = show => {
     if (!model) return;
     stage.querySelector('.spirit-model').hidden = !show;
@@ -3886,6 +3909,14 @@ function animate(now) {
     else if (event.payload.kind === 'boost') runtime.audio.handle({ ...event, type: 'cast_started' });
     else runtime.audio.handle({ ...event, type: event.payload.kind === 'shield' ? 'shield_applied' : 'heal_resolved' });
   }, runtime.save.settings.effectsLimited);
+  if (runtime.page === 'tcg' && runtime.tcgResultPending === runtime.tcg && runtime.tcg?.result && !modalOpen
+      && !tcgPresentationPending(runtime.tcg.battleId, now, {
+        effects: duelEffects, cards: tcgCardMotion, impacts: runtime.tcgImpacts,
+        cues: [runtime.tcgCutIn, runtime.tcgReveal, runtime.tcgRecipeFlash],
+      })) {
+    runtime.tcgResultPending = null;
+    renderTcg(true);
+  }
   requestAnimationFrame(animate);
 }
 requestAnimationFrame(animate);

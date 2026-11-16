@@ -1,5 +1,6 @@
 import catalog from './splashCatalog.json' with { type: 'json' };
 import { SPIRITS } from '../modes/metaProgress.js';
+import { artworkImage } from './artworkImages.js';
 
 export const cardIllustration = id => catalog.cards[id] ?? null;
 export const spiritIllustration = id => catalog.characters[id] ?? null;
@@ -21,7 +22,7 @@ export function tcgCardFace(card, { rule = '', cost = card.cost } = {}) {
   const text=escapeArtText;
   return `<article class="tcg-card-face rarity-${rarity.toLowerCase()} element-${elementId}" aria-label="Thẻ ${text(card.display_name)}">
     <header><strong>${text(card.display_name)}</strong><span class="face-mana" aria-label="${text(cost)} mana">${text(cost)}</span></header>
-    <div class="face-art">${art ? `<img src="${art.preview}" alt="Minh họa ${text(card.display_name)}" decoding="async">` : ''}</div>
+    <div class="face-art">${artworkImage(art, { alt: `Minh họa ${card.display_name}`, characterId: card.character_id })}</div>
     <div class="face-type"><span><i aria-hidden="true">${glyph}</i> ${element} · ${roleGlyph ? `<i aria-hidden="true">${roleGlyph}</i> `:''}${text(role ?? TYPES[card.type])}</span><b>${rarity}</b></div>
     <div class="face-rules">${card.skill_name ? `<strong>${text(card.skill_name)}</strong>` : ''}<p>${text(rule)}</p></div>
     ${card.type==='unit' ? `<footer><b>ATK <span>${text(card.atk)}</span></b><b>DEF <span>${text(card.max_def)}</span></b></footer>` : `<footer><span>${text(TYPES[card.type])}</span><span>SOUL OF MEAL</span></footer>`}
@@ -44,7 +45,7 @@ export function openArtCollection(openDialog, cards, showCard) {
     ...Object.values(SPIRITS).map(s=>({id:s.id,kind:'spirit',name:s.name,element:s.element,art:spiritIllustration(s.id)}))].filter(e=>e.art);
   const dialog=openDialog('Bộ sưu tập minh họa',`<div class="artbook"><p>${cards.length} thẻ · ${Object.keys(SPIRITS).length} Vị Linh</p>
     <div class="artbook-filters"><input type="search" aria-label="Tìm minh họa" placeholder="Tên thẻ hoặc Vị Linh" data-art-search><select aria-label="Nhóm minh họa" data-art-kind><option value="">Tất cả</option><option value="card">Thẻ bài</option><option value="spirit">Vị Linh</option></select><select aria-label="Hệ minh họa" data-art-element><option value="">Mọi hệ</option>${Object.entries(ELEMENTS).map(([id,[,name]])=>`<option value="${id}">${name}</option>`).join('')}</select></div>
-    <div class="artbook-grid">${entries.map(e=>`<button type="button" data-art-id="${e.id}" data-art-kind="${e.kind}" data-art-element="${e.element}" data-art-name="${text(e.name.toLocaleLowerCase('vi'))}"><img src="${e.art.preview}" loading="lazy" decoding="async" alt=""><strong>${text(e.name)}</strong><small>${e.kind==='card'?'Thẻ bài':'Vị Linh'}</small></button>`).join('')}</div><p data-art-empty hidden>Không có minh họa phù hợp.</p></div>`);
+    <div class="artbook-grid">${entries.map(e=>`<button type="button" data-art-id="${e.id}" data-art-kind="${e.kind}" data-art-element="${e.element}" data-art-name="${text(e.name.toLocaleLowerCase('vi'))}">${artworkImage(e.art, { alt: e.name, characterId: e.kind === 'spirit' ? e.id : '', lazy: true })}<strong>${text(e.name)}</strong><small>${e.kind==='card'?'Thẻ bài':'Vị Linh'}</small></button>`).join('')}</div><p data-art-empty hidden>Không có minh họa phù hợp.</p></div>`);
   dialog.classList.add('artbook-dialog');
   const search=dialog.querySelector('[data-art-search]'),kind=dialog.querySelector('select[data-art-kind]'),element=dialog.querySelector('select[data-art-element]');
   function filter(){

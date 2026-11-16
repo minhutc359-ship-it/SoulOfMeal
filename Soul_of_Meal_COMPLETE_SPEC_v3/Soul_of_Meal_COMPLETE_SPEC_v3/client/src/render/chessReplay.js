@@ -4,6 +4,7 @@ import { actorArt, ELEMENT_ART, sceneArt } from './spriteAssets.js';
 import { drawCombatAccent, drawCombatTrail } from './combatVfx.js';
 import { rigMotion } from './spiritRig.js';
 import { canvasContext, canvasResolution } from './canvasSurface.js';
+import { actionAnimating } from './presentationState.js';
 
 const ATTACK_LEAD = .20;
 const FALL_DURATION = .36;
@@ -35,7 +36,10 @@ export class ChessReplay {
   }
 
   advance(delta, onCue) {
-    this.elapsed = Math.min(this.duration + .42, this.elapsed + delta);
+    this.elapsed += Math.max(0, delta);
+    // Advance existing clips before starting cues in this frame. A late frame
+    // must not consume the entire final clip the instant it is created.
+    for (const actor of this.actors.values()) actor.player.advance(delta * 1000);
     const tick = Math.min(this.combat.tick, Math.floor(this.elapsed * this.combat.tick / this.duration));
     while (this.combat.events[this.eventIndex]?.tick <= tick) {
       const index = this.eventIndex++;
@@ -78,12 +82,13 @@ export class ChessReplay {
       const fraction = this.reducedMotion ? 1 : 1 - Math.exp(-delta * 19);
       actor.viewX += (actor.x - actor.viewX) * fraction;
       actor.viewY += (actor.y - actor.viewY) * fraction;
-      actor.player.advance(delta * 1000);
       if (actor.hp > 0 && Math.abs(actor.x - actor.viewX) + Math.abs(actor.y - actor.viewY) < .015) {
         actor.player.play('idle', { restart: false });
       }
     }
-    return this.elapsed >= this.duration + .42;
+    return this.elapsed >= this.duration && this.eventIndex === this.combat.events.length
+      && !this.impacts.length && !this.approaching.length
+      && ![...this.actors.values()].some(actor => actor.fallUntil > this.elapsed || actionAnimating(actor.player.snapshot()));
   }
 
   draw(canvas, effectsLimited = false) {
