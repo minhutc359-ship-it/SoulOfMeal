@@ -43,12 +43,14 @@ import { openAccountDialog } from './shell/accountDialog.js';
 import { adventureParty, BANNERS, changeParty, drawSpirits, finishOnboarding, META, onboardingName, recruitSpirit, rollStarters, SPIRITS, starterSpirits } from './modes/metaProgress.js';
 import { ADVENTURE_OFFERS, CRAFTED_GEAR_SLOTS, GEAR_SLOTS, adventureGearFor, changeAdventureInventory } from './modes/adventureStore.js';
 import { gachaHistory, gachaOdds, gachaPanel, inventoryRows, renderOnboarding, renderStarterReveal, revealGacha, spiritImage, storeDetail } from './shell/metaPanels.js';
-import { playGachaCinematic } from './shell/gachaCinematicDialog.js';
+import { playGachaCinematic, shouldPlayGachaCinematic } from './shell/gachaCinematicDialog.js';
+import { bindArtworkFallbacks } from './render/artworkImages.js';
 import { openStoryDialog } from './shell/storyDialog.js';
 import { bindSceneNavigation } from './shell/sceneNavigation.js';
 import { cardIllustration, spiritIllustration, cardBackIllustration, tcgCardFace, openArtCollection, openFullArtwork } from './render/cardArtwork.js';
 
 const app = document.querySelector('#app');
+bindArtworkFallbacks(app);
 const cardBack = cardBackIllustration();
 if (cardBack) document.documentElement.style.setProperty('--tcg-card-back-image', `url("${new URL(cardBack.preview, location.href).href}")`);
 const stageHost = document.querySelector('#web-stage');
@@ -705,7 +707,7 @@ function renderHome() {
       <h1 class="sr-only">Hành Trình Vị Linh</h1>
       <button type="button" class="button light lobby-artbook" data-art-collection>Minh họa · Thẻ & Vị Linh</button>
       <button type="button" class="lobby-companion" data-lobby-companion aria-label="Xem hồ sơ ${escapeAttr(companionName)}">
-        ${boardChibi(companion.id, 'lobby:' + companion.id, 'E', spiritImage(companion.id, true))}
+        ${boardChibi(companion.id, 'lobby:' + companion.id, 'E', spiritImage(companion.id, true, { showcase: false }))}
         <span>${escapeHtml(companionName)}</span>
       </button>
       <button type="button" class="lobby-quest" data-lobby-journal aria-haspopup="dialog"><small>Nhiệm vụ</small><strong>${escapeHtml(headline)}</strong></button>
@@ -799,7 +801,7 @@ function renderAdventure() {
     const actor = battle?.actors.find((candidate) => candidate.actor_id === member.id) ?? adventureSpiritStats(member, spiritProfile(save, member.id), undefined, save);
     const skill = adventureBalance.ultimates[actor.id];
     return `<div class="combatant skill-card" data-actor="${actor.id}" data-primed="${actor.energy >= 100}">
-      <span class="party-avatar">${spiritImage(actor.id)}</span>
+      <span class="party-avatar">${spiritImage(actor.id, false, { showcase: false })}</span>
       <div class="skill-info"><strong>${escapeHtml(SPIRITS[actor.id]?.name)}</strong>
         <div class="meter" aria-label="Sinh lực"><i data-hp style="width:${actor.hp / actor.maxHp * 100}%"></i></div>
         <div class="meter energy" aria-label="Năng lượng"><i data-energy style="width:${actor.energy}%"></i></div>
@@ -1933,7 +1935,8 @@ function cardArt(card) {
   if (dedicated) return dedicated;
   if (card.art_prop) return propArt(card.art_prop);
   if (card.art_effect) return combatArt(card.art_effect);
-  return actorArt(card.character_id ?? entry?.character_id)
+  return spiritIllustration(card.character_id ?? entry?.character_id)?.preview
+    ?? actorArt(card.character_id ?? entry?.character_id)
     ?? originalCardArt(card.art_card ?? card.card_id)
     ?? effectArt(card.element ?? entry?.element, card.type === 'fast_spell' ? 'trail' : 'impact');
 }
@@ -3265,7 +3268,7 @@ function showGachaReceipt(receipt, cinematic = false) {
       navigate('roster');
     },
   });
-  if (cinematic && receipt.items.length !== 10 && !reducedMotion()) {
+  if (shouldPlayGachaCinematic({ fresh: cinematic, reducedMotion: reducedMotion() })) {
     playGachaCinematic(dialog, receipt, {
       renderer: spriteRenderer, reducedMotion, onComplete: showResults,
       playCue: (id, options) => runtime.audio.play(id, options),
@@ -3508,10 +3511,6 @@ function renderRoster() {
   }));
   app.querySelector('[data-open-roster]').addEventListener('click', openSpiritCollection);
   const stage = app.querySelector('.spirit-portrait');
-  const showcase = stage.querySelector('[data-fallback-art]');
-  showcase?.addEventListener('error', () => {
-    showcase.src = showcase.dataset.fallbackArt;
-  }, { once: true });
   const showModel = show => {
     if (!model) return;
     stage.querySelector('.spirit-model').hidden = !show;

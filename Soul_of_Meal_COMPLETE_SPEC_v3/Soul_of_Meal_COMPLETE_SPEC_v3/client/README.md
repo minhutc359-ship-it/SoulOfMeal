@@ -200,3 +200,9 @@ Nhạc boss dùng chung `epic_boss_battle`, chuyển cảnh bằng crossfade 800
 - Ghép ba hiển thị nguyên liệu dễ phân biệt, ba bước hướng dẫn, thanh mục tiêu và **Gợi ý** hai ô hợp lệ. Từng nước đi diễn qua đổi ô, phát sáng/xóa bộ ba, rơi và chuỗi ghép tiếp theo; khóa thao tác trong lúc diễn. Đổi không hợp lệ không mất lượt.
 - Ghép bản khắc có mẫu 1–8 và nút chỉ các mảnh cạnh ô trống. Chuyển động đọc trace từ luật xác định, không quyết định điểm hay thưởng.
 - Số sát thương/hồi phục và cut-in Adventure/Auto Chess lớn hơn, tồn tại lâu hơn để đọc rõ. Thiết lập giảm chuyển động vẫn có hiệu lực.
+
+## Đồng bộ minh họa và khôi phục cinematic — 16/11/2026
+
+Bộ sưu tập và các ảnh tĩnh Auto Chess dùng splash preview theo đúng ID của Vị Linh. Mô hình/nhân vật di chuyển vẫn dùng sprite chibi. Hồ sơ và lá gacha hiển thị preview trước rồi nâng lên HD khi HD tải xong; nếu HD lỗi sẽ giữ preview. Chuỗi dự phòng chỉ dùng ảnh của cùng nhân vật và không lặp vô hạn.
+
+Lượt triệu hồi mới ×1 và ×10 đều phát cinematic trước kết quả. Cảnh ×10 dài 10 giây rồi chuyển sang mở gói/lật thẻ. Hoạt ảnh bắt đầu ngay với hiệu ứng và ảnh đã có, không còn bỏ qua sau 2,5 giây khi ảnh tải chậm. Mười lá trong cảnh dùng đúng splash art và khung theo độ hiếm thực tế của biên nhận. **Bỏ qua**, **Giảm hiệu ứng triệu hồi** và xem **Lịch sử** vẫn cho vào kết quả trực tiếp.

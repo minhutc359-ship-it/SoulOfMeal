@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 30921,
-      "sha256": "74408f44ae623c4858e08090d679bff414b98484f46e7616d1a44d49cc13900a"
+      "bytes": 31882,
+      "sha256": "6e3d019b6fbf11ab368855e3afc7563a0d26a60564cea72f6fb1486b75015246"
     },
     {
       "path": "client/index.html",
@@ -794,8 +794,8 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 240741,
-      "sha256": "196fc0b6107645ec375e0d788b83413a42d7fed2bb79c24b5a5f4db3a820f636"
+      "bytes": 240824,
+      "sha256": "b7a876845b0b5027db16df1e57cf894388076e21242c1ee24d68d313ca0ff2a4"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -3159,8 +3159,8 @@
     },
     {
       "path": "client/meta.css",
-      "bytes": 14131,
-      "sha256": "ec7d82353972ddb75813fc7478db154d5474e4e9947f5e6c60bc9a76330077dd"
+      "bytes": 14472,
+      "sha256": "79de6b32de3eced7785f4cc4b03b11b012871091da1bf3d04e9f10be0d88988f"
     },
     {
       "path": "client/src/modes/adventureStore.js",
@@ -3179,8 +3179,8 @@
     },
     {
       "path": "client/src/shell/metaPanels.js",
-      "bytes": 11641,
-      "sha256": "b7400599ddc157a828a6f988b59021eef16340712f1939582c0835f668957954"
+      "bytes": 11528,
+      "sha256": "610bc65ae3031f080a10f221e8381373e4516f58670cfe414eadeeadbb25e18d"
     },
     {
       "path": "client/tests/metaProgress.test.js",
@@ -3229,13 +3229,13 @@
     },
     {
       "path": "client/src/render/gachaCinematic.js",
-      "bytes": 16564,
-      "sha256": "ae7b0615f8d19b2a13bb6b8d97706e2260b1e656e6b745a06bf04b90adb8e9d7"
+      "bytes": 16918,
+      "sha256": "0014419f5b498da37a7b2836e9a3430e0f340064cbc83f0430633127ae75edf6"
     },
     {
       "path": "client/src/shell/gachaCinematicDialog.js",
-      "bytes": 3429,
-      "sha256": "f7f315148cca2adfe99194b74ee9a6aa4e677a82d77263abaf714a4def388cc7"
+      "bytes": 4558,
+      "sha256": "40727e7ccddc2a6ffbcfa1ab64040c71d72a89b4b7c6d8fb5ac9b1c1c15dba3f"
     },
     {
       "path": "client/tests/gachaCinematic.test.js",
@@ -4434,8 +4434,8 @@
     },
     {
       "path": "client/src/render/cardArtwork.js",
-      "bytes": 5884,
-      "sha256": "388f7035732203223ba036435e9b1fb7d69b6c40be424ecb7f5d71d3ebf07cb4"
+      "bytes": 5958,
+      "sha256": "8da9c601965513fa370cc5600c43b5fb63d66c801621a190e68e0bda6deed9da"
     },
     {
       "path": "client/src/render/splashCatalog.json",
@@ -4634,8 +4634,8 @@
     },
     {
       "path": "client/src/shell/gachaPack.js",
-      "bytes": 4954,
-      "sha256": "9dce2bf91ce33510f829d33698755be476d6d59c96e9c32cf9c04703c493dc3f"
+      "bytes": 4757,
+      "sha256": "59f147ceabcfa78af681c8dea579b87c3a9f08ffe53dfde4444d0341622bf54d"
     },
     {
       "path": "client/tests/gachaPack.test.js",
@@ -4651,6 +4651,26 @@
       "path": "docs/05_production/BATTLE_GACHA_PUZZLE_QA.md",
       "bytes": 2777,
       "sha256": "0639d3769ad45fbc39032a136d6b04019012c0f1f9f5af65b85adfcf34a33c4e"
+    },
+    {
+      "path": "client/src/render/artworkImages.js",
+      "bytes": 2648,
+      "sha256": "376173c0f231e2cc8dc7bae7b1ccffde30c341fdaf7d4c11c87c72ee56cca06b"
+    },
+    {
+      "path": "client/tests/gachaIntroPlayback.test.js",
+      "bytes": 5067,
+      "sha256": "b8ce84884355979c076feccc6eaa8641a96116927ee657a2b8bfda2e919da673"
+    },
+    {
+      "path": "client/tests/spiritArtPresentation.test.js",
+      "bytes": 4034,
+      "sha256": "ec78fe9c98724fdc49133dec995d1ab872c04cd9eff5814736ddad872a45953f"
+    },
+    {
+      "path": "docs/05_production/SPIRIT_ART_GACHA_INTRO_QA.md",
+      "bytes": 2943,
+      "sha256": "76a98ec2b19a36d0e2034a53c1fc17b838f04d06983f7cd1b425897ae90586c3"
     }
   ]
 }

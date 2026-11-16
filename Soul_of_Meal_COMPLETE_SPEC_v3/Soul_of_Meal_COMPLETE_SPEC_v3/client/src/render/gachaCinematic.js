@@ -1,5 +1,7 @@
 import { SPIRITS } from '../modes/metaProgress.js';
-import { actorArt, cutinArt, HERO_ID } from './spriteAssets.js';
+import { actorArt, HERO_ID } from './spriteAssets.js';
+
+import { spiritIllustration } from './cardArtwork.js';
 
 export const BANQUET_ART = './assets/original/scenes/gacha_banquet.webp';
 export const CINEMATIC_WIDTH = 960;
@@ -20,10 +22,10 @@ const between = (time, start, end) => smooth(progress(time, start, end));
 const wave = (time, start, end) => Math.sin(progress(time, start, end) * Math.PI);
 
 export function planGachaCinematic(receipt) {
-  const cards = receipt.items.map(({ id }) => ({ id, rarity: SPIRITS[id].rarity, art: actorArt(id) }));
+  const cards = receipt.items.map(({ id }) => ({ id, rarity: SPIRITS[id].rarity, art: spiritIllustration(id)?.preview ?? actorArt(id), fallbackArt: actorArt(id) }));
   const multi = cards.length === 10;
   const spotlight = multi ? cards.find(card => card.rarity === 'SSR') : cards[0];
-  const rarity = multi ? 'SSR' : spotlight.rarity;
+  const rarity = multi ? cards.reduce((highest, card) => Object.keys(RARITY_COLOR).indexOf(card.rarity) > Object.keys(RARITY_COLOR).indexOf(highest) ? card.rarity : highest, 'N') : spotlight.rarity;
   const duration = multi ? 10 : DURATIONS[rarity];
   const reveal = multi ? 8 : rarity === 'SSR' ? 8 : rarity === 'SR' ? 5.5 : 4;
   const impact = multi ? 6 : rarity === 'SSR' ? 6.95 : rarity === 'SR' ? 4.55 : 3.6;
@@ -35,11 +37,11 @@ export function planGachaCinematic(receipt) {
   ];
   if (!multi && rarity === 'SSR') cues.splice(2, 0, { time: 4.1, id: 'sfx_element_light_impact', gain: .8 });
   return { cards, multi, spotlight, rarity, duration, reveal, impact, cues,
-    ending: ENDINGS[spotlight?.id], spotlightArt: spotlight?.id === HERO_ID ? cutinArt(HERO_ID) : spotlight?.art };
+    ending: ENDINGS[spotlight?.id], spotlightArt: spotlight?.art };
 }
 
 export async function loadGachaArt(plan, loadImage) {
-  const urls = new Set([BANQUET_ART, ...plan.cards.map(card => card.art), plan.spotlightArt].filter(Boolean));
+  const urls = new Set([BANQUET_ART, ...plan.cards.flatMap(card => [card.art, card.fallbackArt]), plan.spotlightArt].filter(Boolean));
   return new Map(await Promise.all([...urls].map(async url => [url, await loadImage(url)])));
 }
 
@@ -303,7 +305,7 @@ function drawMultiCards(ctx, plan, assets, time) {
     const flip = between(time, 4, 5.9) * TAU + between(time, 6 + .115 * i, 6.36 + .115 * i) * Math.PI;
     const tint = time < 4 ? '#ffe4a1' : RARITY_COLOR[card.rarity];
     drawCard(ctx, x, y, (.47 + grid * .33) * (.55 + build * .45), flip, Math.cos(angle) * .12 * (1 - grid), tint,
-      time > 6.18 + .115 * i ? assets.get(card.art) : null);
+      time > 6.18 + .115 * i ? (assets.get(card.art) ?? assets.get(card.fallbackArt)) : null);
   }
   ctx.restore();
 }
@@ -369,7 +371,7 @@ export function drawGachaCinematic(ctx, plan, assets, seconds, heroRig) {
       ctx.globalAlpha *= form;
       glow(ctx, CX, CY - 37, 171, color, .28);
       drawCard(ctx, CX, CY - 36 + Math.sin(time * 3) * 7, (.55 + .74 * form) * (premium ? 1.2 : 1), tilt,
-        Math.sin(time * 1.6) * .12, color, !premium && time > plan.impact ? assets.get(plan.spotlight.art) : null);
+        Math.sin(time * 1.6) * .12, color, !premium && time > plan.impact ? (assets.get(plan.spotlight.art) ?? assets.get(plan.spotlight.fallbackArt)) : null);
       ctx.restore();
     }
     if (premium && time >= plan.impact && time < plan.impact + 1.35) drawShatter(ctx, time - plan.impact, color);
@@ -380,7 +382,7 @@ export function drawGachaCinematic(ctx, plan, assets, seconds, heroRig) {
     ctx.save();
     ctx.globalAlpha *= appear;
     drawSignature(ctx, plan.ending, endTime, false);
-    const image = assets.get(plan.spotlightArt) ?? assets.get(plan.spotlight.art);
+    const image = assets.get(plan.spotlightArt) ?? (assets.get(plan.spotlight.art) ?? assets.get(plan.spotlight.fallbackArt));
     const rigTime = endTime - .43;
     if (plan.ending === 'flame' && heroRig) {
       const attacking = rigTime > 0 && rigTime < 1;

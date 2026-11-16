@@ -23,4 +23,4 @@ Mở [http://localhost:4173/client/](http://localhost:4173/client/).
 
 ## Production trên Vercel
 
-Project `soul-of-meal` dùng GitHub `minhutc359-ship-it/SoulOfMeal`, Production Branch `main` và Node.js 24.x. Giữ Root Directory ở gốc repository để Vercel đọc `vercel.json` và lấy dữ liệu `examples/` khi build. Mỗi push vào `main` cần xuất hiện trong Deployments với môi trường **Production** và đúng SHA GitHub. Địa chỉ chơi là [soul-of-meal-roan.vercel.app/client/](https://soul-of-meal-roan.vercel.app/client/).
+Project `soul-of-meal` dùng GitHub `minhutc359-ship-it/SoulOfMeal`, Production Branch `main` và Node.js 24.x. Giữ Root Directory ở gốc repository để Vercel đọc `vercel.json` và lấy dữ liệu `examples/` khi build. Mỗi push vào `main` cần xuất hiện trong Deployments với môi trường **Production** và đúng SHA GitHub. Địa chỉ chơi là [soul-of-meal.vercel.app/client/](https://soul-of-meal.vercel.app/client/).
