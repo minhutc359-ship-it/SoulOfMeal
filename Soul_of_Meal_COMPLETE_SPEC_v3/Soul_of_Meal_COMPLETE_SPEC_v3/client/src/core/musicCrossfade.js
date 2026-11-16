@@ -1,6 +1,6 @@
 /** Presentation-only music mixing; it never advances game simulation. */
 export class MusicCrossfade {
-  constructor({ duration = 800, now = () => performance.now(), schedule, cancel = clearInterval } = {}) {
+  constructor({ duration = 800, now = () => performance.now(), schedule, cancel = timer => globalThis.clearInterval(timer) } = {}) {
     this.duration = duration;
     this.now = now;
     this.schedule = schedule ?? (callback => { const timer = setInterval(callback, 16); timer.unref?.(); return timer; });

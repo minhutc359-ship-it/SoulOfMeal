@@ -58,7 +58,7 @@ export class ChessReplay {
         if (target.hp <= 0) target.fallUntil = this.elapsed + FALL_DURATION;
         this.impacts.push({ targetId: target.actorId, text: damage > absorbed ? '−' + (damage - absorbed) : 'Chặn',
           element: source.element, kind: hp <= 0 ? 'defeat' : damage <= absorbed ? 'guard' : event.payload.skill ? 'cast' : 'hit',
-          start: this.elapsed, end: this.elapsed + .38 });
+          start: this.elapsed, end: this.elapsed + .58 });
         onCue({ type: 'hit_resolved', payload: { element: source.element, absorbed, hp_damage: damage - absorbed } });
       } else if (event.type === 'ability') {
         const target = this.actors.get(event.target_id);
@@ -68,7 +68,7 @@ export class ChessReplay {
         target.shield = shield;
         source.player.play('skill_01', { force: true });
         this.impacts.push({ targetId: target.actorId, text: amount ? '+' + amount : '', element: source.element,
-          kind: source.job === 'guardian' ? 'shield' : 'heal', start: this.elapsed, end: this.elapsed + .45 });
+          kind: source.job === 'guardian' ? 'shield' : 'heal', start: this.elapsed, end: this.elapsed + .62 });
         onCue({ type: 'cast_started', payload: { element: source.element } });
       }
     }
@@ -154,7 +154,7 @@ export class ChessReplay {
         size: ['cast', 'shield'].includes(effect.kind) ? 74 : 51, progress, reducedMotion: this.reducedMotion, effectsLimited });
       context.globalAlpha = Math.min(1, (1 - progress) * 2);
       context.textAlign = 'center';
-      context.font = '800 18px system-ui';
+      context.font = '800 21px system-ui';
       context.strokeStyle = '#172321';
       context.lineWidth = 4;
       const textY = y - 36 - (this.reducedMotion ? 0 : progress * 16);

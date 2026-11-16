@@ -769,8 +769,8 @@
     },
     {
       "path": "client/README.md",
-      "bytes": 29527,
-      "sha256": "605f053e80d827119ed7b87fea4156e3ecaee2055a26649cab0922689be8d7cd"
+      "bytes": 30921,
+      "sha256": "74408f44ae623c4858e08090d679bff414b98484f46e7616d1a44d49cc13900a"
     },
     {
       "path": "client/index.html",
@@ -794,8 +794,8 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 237355,
-      "sha256": "52237ec7857bd64e0515a1705669da5f25894ec9d4ab3d9c7631375c2e9469f2"
+      "bytes": 240741,
+      "sha256": "196fc0b6107645ec375e0d788b83413a42d7fed2bb79c24b5a5f4db3a820f636"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -1484,13 +1484,13 @@
     },
     {
       "path": "client/src/render/battleEffects.js",
-      "bytes": 9836,
-      "sha256": "0111afb6ad2f2a534f2cea714963036cf6ec45741b80d2cdccf6339d7282ad8d"
+      "bytes": 9835,
+      "sha256": "948e938d0648029fb84641124886f2c762144f085d66ef8a48e65e712ef9b543"
     },
     {
       "path": "client/src/render/chessReplay.js",
       "bytes": 11528,
-      "sha256": "5b1685058698f63ae8c4927f845c4aa2ec05468bd46af970cb29de1afb914eb9"
+      "sha256": "4228f8dafa96a2d7c523803fd73227087b9ca1c162066d459873e7dea2fdc2f7"
     },
     {
       "path": "scripts/build_battle_poses.py",
@@ -3159,8 +3159,8 @@
     },
     {
       "path": "client/meta.css",
-      "bytes": 9778,
-      "sha256": "33c969dfc2e1485a2c8b04325aff4b09fab4573f2aea30c1f74e27e2d67aad3a"
+      "bytes": 14131,
+      "sha256": "ec7d82353972ddb75813fc7478db154d5474e4e9947f5e6c60bc9a76330077dd"
     },
     {
       "path": "client/src/modes/adventureStore.js",
@@ -3179,8 +3179,8 @@
     },
     {
       "path": "client/src/shell/metaPanels.js",
-      "bytes": 13668,
-      "sha256": "79feffdb05112e839c21ab67149e032ed297cff7b13bb6f11911f925f734262e"
+      "bytes": 11641,
+      "sha256": "b7400599ddc157a828a6f988b59021eef16340712f1939582c0835f668957954"
     },
     {
       "path": "client/tests/metaProgress.test.js",
@@ -3204,8 +3204,8 @@
     },
     {
       "path": "client/scene.css",
-      "bytes": 38872,
-      "sha256": "b544730cb55435837b832c96c562c43dad8f39c2d3ee6dc56c123f15e6a6c87c"
+      "bytes": 40282,
+      "sha256": "a9e79f1b9e4953f1dd6090d144b2ee3b85e58958635f2a5da44a33a579623692"
     },
     {
       "path": "client/scripts/smoke-web-client.cjs",
@@ -3394,8 +3394,8 @@
     },
     {
       "path": "client/src/modes/adventurePuzzle.js",
-      "bytes": 4378,
-      "sha256": "bf8672b4ccddfe8445a27d5d2d00e15426878ad7e80309554353de1f9134ed8f"
+      "bytes": 5938,
+      "sha256": "9e9d48bd97836484c154e45f1afc649b31feeebe991a7b062d99b12d214d97e9"
     },
     {
       "path": "client/src/render/combatVfx.js",
@@ -4424,8 +4424,8 @@
     },
     {
       "path": "client/src/core/musicCrossfade.js",
-      "bytes": 1913,
-      "sha256": "5509f0871567779006412a89c9a6e66bda4eed71fe6234130d071e02e1c670eb"
+      "bytes": 1940,
+      "sha256": "992c839541908205ebd8bc20ec265e9290197e43894ce0d20d6d14553701e579"
     },
     {
       "path": "client/src/modes/tcgCombos.proposed.json",
@@ -4449,8 +4449,8 @@
     },
     {
       "path": "client/tests/musicCrossfade.test.js",
-      "bytes": 3019,
-      "sha256": "eccbf2197d700d2a8d676e4493f1756cf95f7b54a804a1761070b0cfc76b6faa"
+      "bytes": 3719,
+      "sha256": "c308ea838575e5dd34ae1e9cb432026206d374c48ddfccf37c97d54d00cfcf2a"
     },
     {
       "path": "client/tests/narrationRemoval.test.js",
@@ -4626,6 +4626,31 @@
       "path": "scripts/pack_splash_sources.py",
       "bytes": 2311,
       "sha256": "2c8b28d099605d544ffbccb64dbdaa63c798106b18b819a5252a283a8d1ee434"
+    },
+    {
+      "path": "client/src/render/puzzleMotion.js",
+      "bytes": 1423,
+      "sha256": "35fefd1559ca5cfd000925267e14138620710ec496b897d5cce6fc4da5e3d95d"
+    },
+    {
+      "path": "client/src/shell/gachaPack.js",
+      "bytes": 4954,
+      "sha256": "9dce2bf91ce33510f829d33698755be476d6d59c96e9c32cf9c04703c493dc3f"
+    },
+    {
+      "path": "client/tests/gachaPack.test.js",
+      "bytes": 1539,
+      "sha256": "fc72bc6bf9fa2e46549caeca925e7c99bb377ca3698ccc36953d7091b6480249"
+    },
+    {
+      "path": "client/tests/puzzlePresentation.test.js",
+      "bytes": 2199,
+      "sha256": "8d110dc1acd8852cc8c88e7b77d7e395453bc2f85d5bc9992256c611bd1aacfa"
+    },
+    {
+      "path": "docs/05_production/BATTLE_GACHA_PUZZLE_QA.md",
+      "bytes": 2777,
+      "sha256": "0639d3769ad45fbc39032a136d6b04019012c0f1f9f5af65b85adfcf34a33c4e"
     }
   ]
 }

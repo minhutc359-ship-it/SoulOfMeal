@@ -59,6 +59,20 @@ function hasMove(board) {
   return board.some((_, at) => puzzleMatchesAfterSwap(board, at, at + 1) || puzzleMatchesAfterSwap(board, at, at + SIZE));
 }
 
+export function adventurePuzzleHint(puzzle) {
+  if (puzzle.status !== 'playing') return [];
+  if (ADVENTURE_PUZZLES[puzzle.id].kind === 'slide') {
+    const blank = puzzle.board.indexOf(0);
+    return puzzle.board.flatMap((value, at) => value && adjacent(at, blank, 3) ? [at] : []);
+  }
+  for (let from = 0; from < puzzle.board.length; from++) {
+    for (const to of [from + 1, from + SIZE]) {
+      if (puzzleMatchesAfterSwap(puzzle.board, from, to)) return [from, to];
+    }
+  }
+  return [];
+}
+
 function newBoard(puzzle) {
   for (;;) {
     const board = [];
@@ -84,32 +98,56 @@ export function createAdventurePuzzle(id, seed = 24601) {
 }
 
 export function playAdventurePuzzle(current, from, to) {
-  if (current.status !== 'playing') return current;
+  return resolveAdventurePuzzle(current, from, to).puzzle;
+}
+
+// Presentation trace is derived from deterministic rules, never from animation timing.
+export function resolveAdventurePuzzle(current, from, to) {
+  const steps = [];
+  const unchanged = { puzzle: current, steps };
+  if (current.status !== 'playing') return unchanged;
   const spec = ADVENTURE_PUZZLES[current.id];
   const board = current.board.slice();
   if (spec.kind === 'slide') {
-    if (!Number.isInteger(from) || from < 0 || from >= board.length || board[to] !== 0 || !adjacent(from, to, 3)) return current;
+    if (!Number.isInteger(from) || from < 0 || from >= board.length || board[to] !== 0 || !adjacent(from, to, 3)) return unchanged;
     swap(board, from, to);
     const won = board.every((value, index) => value === (index + 1) % 9);
-    return { ...current, board, moves: current.moves + 1, status: won ? 'won' : 'playing' };
+    steps.push({ kind: 'swap', board: board.slice(), movements: [{ from, to }], size: 3 });
+    return { puzzle: { ...current, board, moves: current.moves + 1, status: won ? 'won' : 'playing' }, steps };
   }
-  if (!puzzleMatchesAfterSwap(board, from, to)) return current;
+  if (!puzzleMatchesAfterSwap(board, from, to)) return unchanged;
   swap(board, from, to);
+  steps.push({ kind: 'swap', board: board.slice(), movements: [{ from, to }, { from: to, to: from }], size: SIZE });
   const next = { ...current, board, moves: current.moves + 1 };
   let hits = matches(board);
   while (hits.size) {
     next.score += hits.size;
+    steps.push({ kind: 'clear', board: board.slice(), cells: [...hits], score: next.score, size: SIZE });
+    const movements = [];
     for (let col = 0; col < SIZE; col++) {
       let write = SIZE - 1;
       for (let row = SIZE - 1; row >= 0; row--) {
         const index = row * SIZE + col;
-        if (!hits.has(index)) board[write-- * SIZE + col] = board[index];
+        if (!hits.has(index)) {
+          const to = write-- * SIZE + col;
+          board[to] = board[index];
+          if (to !== index) movements.push({ from: index, to });
+        }
       }
-      while (write >= 0) board[write-- * SIZE + col] = drawIngredient(next);
+      let above = -1;
+      while (write >= 0) {
+        const to = write-- * SIZE + col;
+        board[to] = drawIngredient(next);
+        movements.push({ from: above-- * SIZE + col, to });
+      }
     }
+    steps.push({ kind: 'fall', board: board.slice(), movements, size: SIZE });
     hits = matches(board);
   }
   next.status = next.score >= spec.goal ? 'won' : next.moves >= spec.moves ? 'lost' : 'playing';
-  if (next.status === 'playing' && !hasMove(board)) next.board = newBoard(next);
-  return next;
+  if (next.status === 'playing' && !hasMove(board)) {
+    next.board = newBoard(next);
+    steps.push({ kind: 'shuffle', board: next.board.slice(), size: SIZE });
+  }
+  return { puzzle: next, steps };
 }

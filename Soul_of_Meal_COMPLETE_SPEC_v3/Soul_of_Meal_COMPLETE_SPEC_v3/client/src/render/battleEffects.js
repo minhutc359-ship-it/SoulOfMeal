@@ -35,7 +35,7 @@ export class BattleEffects {
       this.add('cast', element, Math.max(.38, payload.windup_ticks / 30), { x: source.x, y: source.y - 35 });
       if (Object.hasOwn(HERO_NAMES, source_id)) {
         this.effects = this.effects.filter((effect) => effect.type !== 'cutin');
-        this.add('cutin', element, .63, { id: source_id, text: payload.name });
+        this.add('cutin', element, .85, { id: source_id, text: payload.name });
       }
     } else if (type === 'enemy_skill_released' && source) {
       const { x, y } = payload.aim ?? target ?? source;
@@ -65,7 +65,7 @@ export class BattleEffects {
       const text = type === 'heal_resolved' ? '+' + payload.amount
         : type === 'shield_applied' ? 'Hộ thuẫn +' + payload.amount
           : payload.hp_damage ? '−' + payload.hp_damage : payload.guarded ? 'Hộ thuẫn bếp' : 'Chặn đòn';
-      this.add('impact', element, .72, {
+      this.add('impact', element, .9, {
         x: target.x, y: target.y - (defender.stove ? 27 : 42), text, guarded: payload.guarded,
         accent: type === 'heal_resolved' ? 'heal' : type === 'shield_applied' ? 'shield'
           : payload.guarded || !payload.hp_damage ? 'guard' : 'hit',
@@ -137,7 +137,7 @@ export class BattleEffects {
         context.save();
         context.globalAlpha = fade;
         context.textAlign = 'center';
-        context.font = effect.strong ? '800 23px system-ui' : '700 17px system-ui';
+        context.font = effect.strong ? '800 26px system-ui' : '800 20px system-ui';
         context.strokeStyle = '#14211e';
         context.lineWidth = 4;
         const y = effect.y - 21 - (reducedMotion ? 0 : progress * 30);
