@@ -192,3 +192,11 @@ Từ sảnh hoặc trình sửa bộ bài, mở **Bộ sưu tập minh họa** �
 Ván TCG mới có **Hương Vị Bùng Nổ**: thi triển thành công phép của Hỏa, Thủy, Mộc trong cùng lượt, có quân sống đủ ba hệ, tối đa một lần mỗi lượt. Cân bằng thử nghiệm: 350 sát thương lên từng quân địch và 200 HP chủ soái. Ván cũ giữ luật đã lưu. Auto Chess có 27 quân, phủ đủ 24 Vị Linh; ván mới lưu snapshot catalog và ván cũ giữ giá/chỉ số trước đây.
 
 Nhạc boss dùng chung `epic_boss_battle`, chuyển cảnh bằng crossfade 800 ms. Client không còn voice/TTS; đối thoại chữ tiếp tục hoạt động. Xem [kết quả kiểm tra và các bước nghiệm thu còn lại](../docs/05_production/SHARED_ROSTER_SPLASH_QA.md).
+
+## Sửa màn hình trận, mở gói minh họa và mini game — 16/11/2026
+
+- Sửa `Illegal invocation` khi chuyển nhạc: luôn gọi bộ hẹn giờ bằng ngữ cảnh trình duyệt. Lỗi này có thể ngắt việc dựng màn hình khi vào hoặc chuyển chế độ chơi.
+- Gacha ×10 mở gói rồi lật từng lá bằng splash art HD, có màu khung theo độ hiếm, số thứ tự, nhãn mới/trùng và bảng tổng kết đủ 10 lá. Nút **Hiện tất cả**, lịch sử và chế độ giảm chuyển động mở bảng tổng kết trực tiếp. Kết quả, thứ tự, vé đã trừ và tinh hoa do biên nhận quyết định; lật thẻ không quay lại.
+- Ghép ba hiển thị nguyên liệu dễ phân biệt, ba bước hướng dẫn, thanh mục tiêu và **Gợi ý** hai ô hợp lệ. Từng nước đi diễn qua đổi ô, phát sáng/xóa bộ ba, rơi và chuỗi ghép tiếp theo; khóa thao tác trong lúc diễn. Đổi không hợp lệ không mất lượt.
+- Ghép bản khắc có mẫu 1–8 và nút chỉ các mảnh cạnh ô trống. Chuyển động đọc trace từ luật xác định, không quyết định điểm hay thưởng.
+- Số sát thương/hồi phục và cut-in Adventure/Auto Chess lớn hơn, tồn tại lâu hơn để đọc rõ. Thiết lập giảm chuyển động vẫn có hiệu lực.

@@ -40,3 +40,24 @@ test('game music crossfades into the shared boss scene and restores the prior mo
   game.setScene('forest');time=1200;callback();assert.equal(game.loops.music.path,'forest_theme.ogg');assert.equal(forest.audio.paused,true);
   settings.music=0;game.setSettings(settings);assert.equal(game.loops.music.audio.paused,true);
 });
+
+test('scene changes preserve the browser timer receiver', t => {
+  const prior = globalThis.clearInterval;
+  let calls = 0;
+  globalThis.clearInterval = function(timer) {
+    assert.equal(this, globalThis);
+    assert.equal(timer, 42);
+    calls++;
+  };
+  t.after(() => { globalThis.clearInterval = prior; });
+  let time = 0;
+  const mixer = new MusicCrossfade({ now: () => time, schedule: () => 42 });
+  const first = track(), next = track();
+  mixer.start(first, next, () => .6);
+  time = 800;
+  assert.doesNotThrow(() => mixer.advance());
+  assert.equal(calls, 1);
+  assert.equal(first.audio.paused, true);
+  assert.doesNotThrow(() => mixer.start(next, track(), () => .6));
+  mixer.finish();
+});

@@ -89,7 +89,7 @@ export function gachaPanel(save, bannerId, payment) {
   return `<section class="meta-gacha panel">
     <div class="meta-banner-tabs" role="group" aria-label="Chọn giao ước">${META.banners.map(item =>
       `<button class="button light" data-gacha-banner="${item.id}" aria-pressed="${item.id === banner.id}">${item.name}</button>`).join('')}</div>
-    <div class="meta-gacha-hero" data-rarity="${highlight.rarity}">${spiritImage(highlight.id, true)}</div>
+    <div class="meta-gacha-hero" data-rarity="${highlight.rarity}">${spiritImage(highlight.id, true, { showcase: true })}</div>
     <div class="meta-gacha-controls">
       <h2>${banner.featured ? highlight.name : banner.name}</h2>
       ${banner.featured ? '<p>Vị Linh SSR nổi bật</p>' : ''}
@@ -119,51 +119,7 @@ export function gachaOdds(save, banner) {
     <p class="muted-copy">Tỷ lệ và chi phí đang dùng cho bản chơi thử.</p>`;
 }
 
-export function revealGacha(host, receipt, { onProfile, onComplete, reducedMotion }) {
-  let shown = 0;
-  let timer;
-  host.insertAdjacentHTML('beforeend', `<div class="meta-reveal-grid" data-result-count="${receipt.items.length}">${receipt.items.map(({ id, isNew, essence }) => {
-    const spirit = SPIRITS[id];
-    const artwork = `class="meta-card-front" style="--card-backdrop:url('${cardBackdrop(spirit.element)}')"`;
-    const front = onProfile ? `<button ${artwork} data-result-profile="${id}" disabled>` : `<div ${artwork}>`;
-    return `<div class="meta-reveal-card" data-rarity="${spirit.rarity}" data-revealed="false">
-      <span class="meta-card-back" aria-hidden="true">✦</span>
-      ${front}${spiritImage(id)}<small>${spirit.rarity} · ${ELEMENTS[spirit.element]}</small>
-      <b>${spirit.name}</b><span>${isNew ? 'Mới' : '+' + essence + ' Tinh Hoa'}</span>
-      ${onProfile ? '</button>' : '</div>'}</div>`;
-  }).join('')}</div>
-  <div class="action-row"><button class="button" type="button" data-reveal-all>Hiện tất cả</button></div>`);
-  const cards = [...host.querySelectorAll('.meta-reveal-card')];
-  const skip = host.querySelector('[data-reveal-all]');
-  function finish() {
-    onComplete?.();
-    skip.hidden = true;
-  }
-  function showNext() {
-    const card = cards[shown++];
-    card.dataset.revealed = 'true';
-    const button = card.querySelector('button');
-    if (button) button.disabled = false;
-  }
-  function showAll() {
-    clearTimeout(timer);
-    while (shown < cards.length) showNext();
-    finish();
-  }
-  function animate() {
-    if (!host.isConnected) return;
-    showNext();
-    if (shown < cards.length) timer = setTimeout(animate, 460);
-    else finish();
-  }
-  skip.addEventListener('click', showAll);
-  for (const button of host.querySelectorAll('[data-result-profile]')) {
-    button.addEventListener('click', () => { host.close(); onProfile(button.dataset.resultProfile); });
-  }
-  host.addEventListener('close', () => clearTimeout(timer), { once: true });
-  if (reducedMotion) showAll();
-  else timer = setTimeout(animate, 380);
-}
+export { revealGacha } from './gachaPack.js';
 
 export function gachaHistory(save) {
   if (!save.meta.history.length) return '<p>Chưa có lượt triệu hồi.</p>';

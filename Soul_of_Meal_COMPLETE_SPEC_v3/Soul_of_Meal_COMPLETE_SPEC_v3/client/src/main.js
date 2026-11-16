@@ -23,7 +23,7 @@ import { adventureCamera, battleCamera, adventureViewport, battleActorPoint, SPI
 import { GameAudio } from './core/audio.js';
 import { resolveSoundScene } from './core/soundScenes.js';
 import { ADVENTURE_CHALLENGE_TIERS, adventureChallenge, adventureChallenges } from './modes/adventureChallenges.js';
-import { ADVENTURE_PUZZLES, createAdventurePuzzle, playAdventurePuzzle } from './modes/adventurePuzzle.js';
+import { ADVENTURE_PUZZLES, adventurePuzzleHint, createAdventurePuzzle, resolveAdventurePuzzle } from './modes/adventurePuzzle.js';
 import { adventureJournal } from './modes/adventureJournal.js';
 import { ROOM_EXIT, VILLAGE_ROOMS } from './modes/villageRooms.js';
 import { adventureChronicle, CHAPTER_DIALOGUES } from './modes/adventureStory.js';
@@ -34,6 +34,7 @@ import { TcgCardMotion } from './render/tcgCardMotion.js';
 import { DuelEffects } from './render/duelEffects.js';
 import { ChessReplay } from './render/chessReplay.js';
 import { canvasContext, canvasResolution } from './render/canvasSurface.js';
+import { animatePuzzleStep } from './render/puzzleMotion.js';
 import { renderEntry } from './shell/entry.js';
 import { createAccountApi, accountErrorMessage } from './core/accountApi.js';
 import { createCloudSave } from './core/cloudSave.js';
@@ -559,6 +560,7 @@ function navigate(page, options) {
 }
 
 function showScene(page) {
+  if (page !== 'puzzle') { runtime.puzzlePlayback = null; runtime.puzzleHint = []; }
   if (page !== 'tcg') clearTimeout(tcgResponseTimer);
   tcgTargetResize?.disconnect();
   tcgTargetResize = null;
@@ -1240,6 +1242,8 @@ function doAdventureInteract() {
   if (result.changed) saveNow();
   if (result.puzzle) {
     runtime.adventurePuzzle = createAdventurePuzzle(result.puzzle);
+    runtime.puzzlePlayback = null;
+    runtime.puzzleHint = [];
     runtime.puzzleSelection = null;
     runtime.puzzleNote = '';
     return navigate('puzzle');
@@ -1250,7 +1254,7 @@ function doAdventureInteract() {
 }
 
 const PUZZLE_INGREDIENTS = [
-  ['Ớt', 'fire'], ['Giọt sương', 'water'], ['Lá thơm', 'wood'], ['Mật ong', 'light'], ['Nấm', 'shadow'],
+  ['Ớt', 'fire', '🌶️'], ['Giọt sương', 'water', '💧'], ['Lá thơm', 'wood', '🌿'], ['Mật ong', 'light', '🍯'], ['Nấm', 'shadow', '🍄'],
 ];
 
 function renderAdventurePuzzle() {
@@ -1258,35 +1262,47 @@ function renderAdventurePuzzle() {
   if (!puzzle) return navigate('adventure', { replace: true });
   const spec = ADVENTURE_PUZZLES[puzzle.id];
   const slide = spec.kind === 'slide';
+  const busy = Boolean(runtime.puzzlePlayback);
+  const board = runtime.puzzlePlayback?.board ?? puzzle.board;
+  const hint = runtime.puzzleHint ?? [];
   shell(`<section class="adventure-puzzle" aria-labelledby="puzzle-title">
     <div class="puzzle-copy"><h1 id="puzzle-title">${spec.title}</h1>
       <p>${spec.instructions}</p>
+      <ol class="puzzle-steps">${(slide ? ['Tìm ô trống', 'Chạm mảnh ở cạnh để trượt', 'Xếp đúng mẫu 1–8'] : ['Chọn một nguyên liệu', 'Chọn ô ở cạnh để đổi chỗ', 'Ghép ít nhất 3 ô cùng loại']).map(label => `<li>${label}</li>`).join('')}</ol>
+      ${slide ? '<div class="puzzle-target" aria-label="Mẫu cần ghép">1 2 3<br>4 5 6<br>7 8 □</div>' : `<progress class="puzzle-progress" max="${spec.goal}" value="${runtime.puzzlePlayback?.score ?? puzzle.score}" aria-label="Tiến độ ghép nguyên liệu"></progress>`}
       <p class="puzzle-score">${slide ? `${puzzle.moves} lượt trượt` : `Đã ghép ${puzzle.score}/${spec.goal} · Còn ${spec.moves - puzzle.moves} lượt`}</p>
       ${spec.reward ? `<p>Thưởng: ${spec.reward.gold} vàng, ${spec.reward.essence} tinh hoa và mở Cổng Rừng Nguyên Liệu.</p>` : ''}
       <p class="puzzle-note" role="status">${puzzle.status === 'won' ? 'Đã giải được thử thách.' :
-        puzzle.status === 'lost' ? 'Đã hết lượt. Thử lại để tiếp tục.' : runtime.puzzleNote}</p>
+        puzzle.status === 'lost' ? 'Đã hết lượt. Thử lại để tiếp tục.' : runtime.puzzleNote || (slide ? 'Chọn một mảnh cạnh ô trống.' : 'Đổi không tạo bộ ba sẽ không mất lượt.')}</p>
       <div class="action-row">
         <button class="button light" data-puzzle-back>Quay lại</button>
+        ${puzzle.status === 'playing' ? `<button class="button light" data-puzzle-hint ${busy ? 'disabled' : ''}>${slide ? 'Ô có thể trượt' : 'Gợi ý'}</button>` : ''}
         ${puzzle.status === 'won' ? `<button class="button" data-puzzle-claim>${spec.reward ? 'Nhận thưởng' : 'Tiếp tục nhiệm vụ'}</button>`
-          : puzzle.moves || puzzle.status === 'lost' ? '<button class="button light" data-puzzle-reset>Chơi lại</button>' : ''}
+          : puzzle.moves || puzzle.status === 'lost' ? `<button class="button light" data-puzzle-reset ${busy ? 'disabled' : ''}>Chơi lại</button>` : ''}
       </div>
     </div>
-    <div class="puzzle-board ${slide ? 'sliding-board' : ''}" role="group" aria-label="Bàn giải đố">
-      ${puzzle.board.map((value, index) => {
-        const [name, element] = slide ? [value ? 'Mảnh ' + value : 'Ô trống', 'light'] : PUZZLE_INGREDIENTS[value];
-        return `<button class="puzzle-tile element-${element}" data-puzzle-cell="${index}"
+    <div class="puzzle-board ${slide ? 'sliding-board' : ''}" aria-busy="${busy}" role="group" aria-label="Bàn giải đố">
+      ${board.map((value, index) => {
+        const [name, element, symbol] = slide ? [value ? 'Mảnh ' + value : 'Ô trống', 'light'] : PUZZLE_INGREDIENTS[value];
+        return `<button class="puzzle-tile element-${element} ${hint.includes(index) ? 'puzzle-hint' : ''}" data-puzzle-cell="${index}" data-empty="${slide && !value}"
           aria-label="${name}, ô ${index + 1}" ${slide ? '' : `aria-pressed="${runtime.puzzleSelection === index}"`}
-          ${puzzle.status !== 'playing' || (slide && !value) ? 'disabled' : ''}>
-          ${slide ? value || '' : `<img src="${effectArt(element, 'impact')}" alt=""><small>${name}</small>`}
+          ${busy || puzzle.status !== 'playing' || (slide && !value) ? 'disabled' : ''}>
+          ${slide ? value || '' : `<span class="puzzle-ingredient" aria-hidden="true">${symbol}</span><small>${name}</small>`}
         </button>`;
       }).join('')}
     </div>
   </section>`);
-  const back = () => sceneNavigation.back();
+  const back = () => { runtime.puzzlePlayback = null; runtime.puzzleHint = []; sceneNavigation.back(); };
+  app.querySelector('[data-puzzle-hint]')?.addEventListener('click', () => {
+    runtime.puzzleHint = adventurePuzzleHint(puzzle);
+    runtime.puzzleNote = slide ? 'Các mảnh viền vàng có thể trượt vào ô trống.' : 'Đổi chỗ hai ô có viền vàng để tạo bộ ba.';
+    renderAdventurePuzzle();
+  });
   app.querySelector('[data-puzzle-back]').addEventListener('click', back);
   app.querySelector('[data-puzzle-reset]')?.addEventListener('click', () => {
     runtime.adventurePuzzle = createAdventurePuzzle(puzzle.id, puzzle.seed);
     runtime.puzzleSelection = null;
+    runtime.puzzleHint = [];
     runtime.puzzleNote = '';
     renderAdventurePuzzle();
   });
@@ -1297,18 +1313,41 @@ function renderAdventurePuzzle() {
     if (result.changed) saveNow();
     back();
   });
-  for (const button of app.querySelectorAll('[data-puzzle-cell]')) button.addEventListener('click', () => {
+  for (const button of app.querySelectorAll('[data-puzzle-cell]')) button.addEventListener('click', async () => {
+    if (runtime.puzzlePlayback) return;
     const index = Number(button.dataset.puzzleCell);
     const selected = runtime.puzzleSelection;
+    runtime.puzzleHint = [];
     if (slide || (selected !== null && selected !== index)) {
-      const next = slide ? playAdventurePuzzle(puzzle, index, puzzle.board.indexOf(0)) : playAdventurePuzzle(puzzle, selected, index);
-      runtime.adventurePuzzle = next;
-      runtime.puzzleSelection = !slide && next === puzzle ? index : null;
-      runtime.puzzleNote = next !== puzzle ? '' : slide ? 'Chọn mảnh cạnh ô trống.' : 'Hãy đổi hai ô kề nhau để tạo một bộ ba.';
-      if (next !== puzzle) runtime.audio.play('sfx_ui_confirm', { gain: .5 });
+      const { puzzle: next, steps } = resolveAdventurePuzzle(puzzle, slide ? index : selected, slide ? puzzle.board.indexOf(0) : index);
+      if (next !== puzzle) {
+        const playback = { board: puzzle.board, score: puzzle.score };
+        runtime.puzzlePlayback = playback;
+        runtime.puzzleSelection = null;
+        try {
+          for (const step of steps) {
+            if (runtime.page !== 'puzzle' || runtime.puzzlePlayback !== playback) return;
+            playback.board = step.board;
+            playback.score = step.score ?? playback.score;
+            runtime.puzzleNote = step.kind === 'clear' ? `+${step.cells.length} nguyên liệu · Tổng ${step.score}`
+              : step.kind === 'fall' ? 'Nguyên liệu đang rơi…' : step.kind === 'shuffle' ? 'Đã xáo bàn để có nước đi mới.' : 'Đang đổi ô…';
+            renderAdventurePuzzle();
+            if (step.kind === 'clear') runtime.audio.play('sfx_ui_confirm', { gain: .45 });
+            await animatePuzzleStep(app.querySelector('.puzzle-board'), step, app.dataset.motion === 'reduced');
+          }
+        } finally {
+          if (runtime.puzzlePlayback === playback) runtime.puzzlePlayback = null;
+        }
+        if (runtime.page !== 'puzzle' || runtime.adventurePuzzle !== puzzle) return;
+        runtime.adventurePuzzle = next;
+        runtime.puzzleNote = slide ? 'Đã trượt mảnh.' : `+${next.score - puzzle.score} nguyên liệu trong lượt này.`;
+      } else {
+        runtime.puzzleSelection = slide ? null : index;
+        runtime.puzzleNote = slide ? 'Chọn mảnh ở ngay cạnh ô trống.' : 'Hai ô phải ở cạnh nhau và tạo thành bộ ba. Không mất lượt.';
+      }
     } else {
       runtime.puzzleSelection = selected === index ? null : index;
-      runtime.puzzleNote = '';
+      runtime.puzzleNote = runtime.puzzleSelection === null ? '' : 'Đã chọn. Chạm ô ở cạnh để đổi chỗ.';
     }
     renderAdventurePuzzle();
     if (runtime.adventurePuzzle.status === 'won') app.querySelector('[data-puzzle-claim]').focus();
@@ -3217,7 +3256,8 @@ function showGachaReceipt(receipt, cinematic = false) {
   dialog.classList.add('meta-reveal-dialog');
   const reducedMotion = () => runtime.save.settings.reducedSummonMotion || app.dataset.motion === 'reduced';
   const showResults = () => revealGacha(dialog, receipt, {
-    reducedMotion: true,
+    reducedMotion: reducedMotion() || !cinematic,
+    playCue: (id, options) => runtime.audio.play(id, options),
     onProfile: id => {
       runtime.rosterId = id;
       runtime.rosterFilter = 'owned';
@@ -3225,7 +3265,7 @@ function showGachaReceipt(receipt, cinematic = false) {
       navigate('roster');
     },
   });
-  if (cinematic && !reducedMotion()) {
+  if (cinematic && receipt.items.length !== 10 && !reducedMotion()) {
     playGachaCinematic(dialog, receipt, {
       renderer: spriteRenderer, reducedMotion, onComplete: showResults,
       playCue: (id, options) => runtime.audio.play(id, options),
