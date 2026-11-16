@@ -16,7 +16,9 @@ Date: 2026-11-16. Baseline: main `1c41b5b50826b03ef1b398d593e6511db0e3e9ea`.
 - Show the preview immediately and preload HD separately; replace the displayed image only when HD is ready. Keep the preview when HD fails or the screen has changed.
 - Install image failure handling before images enter the DOM. Deduplicate nested capture handlers, consume each fallback once and never switch to another character's portrait.
 - Restore cinematic eligibility for every fresh single/ten draw. Start its renderer before waiting for artwork, retain already loaded art, and pause elapsed playback while hidden. Keep skip, close, history, and reduced-motion behavior.
-- Display the settled characters' splash art in the intro and use the highest actual rarity for the multi-draw effects. No economy, receipt order, rewards, or random draws are modified.
+- Single-pull intros display the settled character's splash art. Ten-pull intros use the highest actual rarity for effects but keep all ten cards face down, then hand off to the manual pack reader. No economy, receipt order, rewards, or random draws are modified.
+
+Follow-up: [battle result timing and ten-card handoff](BATTLE_RESULT_GACHA_HANDOFF_QA.md).
 
 ## Verification
 

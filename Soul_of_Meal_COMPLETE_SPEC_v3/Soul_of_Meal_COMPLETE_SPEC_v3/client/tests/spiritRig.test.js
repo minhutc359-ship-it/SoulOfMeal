@@ -13,6 +13,24 @@ function openRig(id) {
 
 const rig = openRig(HERO_ID);
 
+test('the final attack recovery and defeat rig finish after simulation stops at battle_end', () => {
+  const clock = new BattleRigClock(rig, 30);
+  const battle = { tick: 120, phase: 'battle_running' };
+  const hero = { alive: true, action: null };
+  const animation = { requestedClipId: 'attack_a', motionPhase: .5 };
+  clock.contact(battle, 'attack_a');
+  battle.phase = 'battle_end';
+  const contact = clock.frame(battle, hero, animation, 0);
+  const recovery = clock.frame(battle, hero, animation, 3);
+  assert.equal(contact.id, 'attack_a');
+  assert.equal(recovery.id, 'attack_a');
+  assert.ok(recovery.phase > contact.phase);
+  hero.alive = false;
+  assert.equal(clock.frame(battle, hero, animation, 0).phase, 0);
+  assert.equal(clock.frame(battle, hero, animation, 30).phase, 1);
+  assert.equal(battle.tick, 120);
+});
+
 test('Bún Bò has separate hair and limb tracks and draws twelve independently attached parts', () => {
   assert.equal(rig.bones.length, 16);
   const bone = name => rig.bones.findIndex(item => item.name === name);

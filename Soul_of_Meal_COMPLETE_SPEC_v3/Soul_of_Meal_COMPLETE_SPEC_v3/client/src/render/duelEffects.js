@@ -86,5 +86,9 @@ export class DuelEffects {
     }
   }
 
+  pending(matchId) {
+    return [...this.attacks, ...this.impacts].some(effect => effect.event.battle_id === matchId);
+  }
+
   clear() { this.attacks = []; this.impacts = []; }
 }

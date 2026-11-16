@@ -43,10 +43,10 @@ test('ten-pull starts immediately and finishes on time even when artwork never l
   const view = playback(t); let finished = 0;
   playGachaCinematic(view.dialog, receipt(10), { renderer: { loadImage: () => new Promise(() => {}) }, playCue() {}, reducedMotion: () => false, onComplete: () => finished++ });
   assert.equal(view.frames.size, 1);
-  for (let time = 0; time < 9000; time += 50) view.tick(time);
+  for (let time = 0; time < 7350; time += 50) view.tick(time);
   assert.equal(finished, 0);
   assert.equal(view.stage.removed, false);
-  for (let time = 9000; time <= 10100; time += 50) view.tick(time);
+  for (let time = 7350; time <= 7500; time += 50) view.tick(time);
   assert.equal(finished, 1);
   assert.equal(view.frames.size, 0);
   view.button.dispatchEvent(new Event('click'));
@@ -63,7 +63,7 @@ test('skip and close cancel queued frames without duplicate results', t => {
   assert.equal(finished, 1);
 });
 
-test('low frame rates keep the ten-second duration instead of stretching the intro', t => {
+test('low frame rates keep the planned duration instead of stretching the intro', t => {
   const view = playback(t); let finished = 0;
   playGachaCinematic(view.dialog, receipt(10), { renderer: { loadImage: () => new Promise(() => {}) }, playCue() {}, reducedMotion: () => false, onComplete: () => finished++ });
   for (let time = 0; time <= 10000; time += 1000) view.tick(time);

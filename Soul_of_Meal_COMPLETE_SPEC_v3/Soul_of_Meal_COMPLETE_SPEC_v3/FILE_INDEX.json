@@ -794,8 +794,8 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 240824,
-      "sha256": "b7a876845b0b5027db16df1e57cf894388076e21242c1ee24d68d313ca0ff2a4"
+      "bytes": 242936,
+      "sha256": "dfc5e05c5a7eff4eae07674253e02efb2f6552870e3ea5cd65ceb3c214d948f8"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -834,8 +834,8 @@
     },
     {
       "path": "client/src/render/animationAdapter.js",
-      "bytes": 9458,
-      "sha256": "bebd9824f6a0e30c3e9767a36165a1fa226808efeae43ca7a2218b0391daf848"
+      "bytes": 10098,
+      "sha256": "af67eebdba52506db48f2d7a9088376abbe71f59c695bfde0f7f2fff15ebc9f4"
     },
     {
       "path": "client/src/render/clipPlayer.js",
@@ -1489,8 +1489,8 @@
     },
     {
       "path": "client/src/render/chessReplay.js",
-      "bytes": 11528,
-      "sha256": "4228f8dafa96a2d7c523803fd73227087b9ca1c162066d459873e7dea2fdc2f7"
+      "bytes": 11973,
+      "sha256": "234fc8be2d9b74b5c3f34f36c2ab757fbb248b70b89493d53bdea2d6e120ad78"
     },
     {
       "path": "scripts/build_battle_poses.py",
@@ -2184,8 +2184,8 @@
     },
     {
       "path": "docs/02_art/ORIGINAL_ART_SOURCES.json",
-      "bytes": 55373,
-      "sha256": "ade6ee47d2ec1b2b82d0058fc8d73bc90b35ca921a5b01de5fc7a802ae319634"
+      "bytes": 58623,
+      "sha256": "6e5b04dcb02c81fde3897b6e02de91471017f8a6f4e7d0c8cf666a55632fccca"
     },
     {
       "path": "scripts/build_element_sfx.py",
@@ -2744,8 +2744,8 @@
     },
     {
       "path": "client/src/render/duelEffects.js",
-      "bytes": 4629,
-      "sha256": "7ad0924175aa793caae8c46a9d4011ae1d042a6bfde3f519a4030a43b1c4774a"
+      "bytes": 4753,
+      "sha256": "012f707589d49c56ba32a91a10911ffd78beef63aa3e70031cd8b9f8db40e370"
     },
     {
       "path": "scripts/build_combat_audio.py",
@@ -2929,13 +2929,13 @@
     },
     {
       "path": "client/src/render/spiritRig.js",
-      "bytes": 19489,
-      "sha256": "7fb96b12e20505cce5c7ccbdb0a85d5f0fd866327086dc3dfe58a11edb51635c"
+      "bytes": 19392,
+      "sha256": "8c536f15d5876a7d01852c721b7003b8687c713de83e766170bbfc54d42b620c"
     },
     {
       "path": "client/tests/spiritRig.test.js",
-      "bytes": 8847,
-      "sha256": "34fc36682f2d5aa28583a49580eea0f9d0b6059d87e4e03320188e9ad5bc185e"
+      "bytes": 9673,
+      "sha256": "44ee4e808ac95c4b80c21e67be3df9b7fdc3046e89856973b70c1305b39ac5b8"
     },
     {
       "path": "client/src/render/adventureStage.js",
@@ -2999,8 +2999,8 @@
     },
     {
       "path": "client/src/render/tcgCardMotion.js",
-      "bytes": 2987,
-      "sha256": "45b84342e097f6fa1193a3e13f0e7c9e2575ee939f67a570acb23db30d9b069a"
+      "bytes": 3062,
+      "sha256": "aed7594d5754204c807709201e783ab100c4948c5913bc3d9b02743ae5fbe689"
     },
     {
       "path": "client/tests/tcgTable.test.js",
@@ -3204,8 +3204,8 @@
     },
     {
       "path": "client/scene.css",
-      "bytes": 40282,
-      "sha256": "a9e79f1b9e4953f1dd6090d144b2ee3b85e58958635f2a5da44a33a579623692"
+      "bytes": 41457,
+      "sha256": "b27cdb564cc843afc1e35814fb1a482868f5b63c4ff3e00f2be83028b0666c7e"
     },
     {
       "path": "client/scripts/smoke-web-client.cjs",
@@ -3229,8 +3229,8 @@
     },
     {
       "path": "client/src/render/gachaCinematic.js",
-      "bytes": 16918,
-      "sha256": "0014419f5b498da37a7b2836e9a3430e0f340064cbc83f0430633127ae75edf6"
+      "bytes": 16788,
+      "sha256": "ef10c91251784364e902ab0b956ff6c25cfc8f4ff30e1dbf8e11ead0bf7e812f"
     },
     {
       "path": "client/src/shell/gachaCinematicDialog.js",
@@ -3239,8 +3239,8 @@
     },
     {
       "path": "client/tests/gachaCinematic.test.js",
-      "bytes": 1858,
-      "sha256": "b1b75687f8fb01fe0ea0508912147e78dfcf543d87f2aeb8587c1f03a9dc26d1"
+      "bytes": 2797,
+      "sha256": "3098f04fd7e98424c4f022e2f66fc24cdba475b6b8d0b51ba44965334a7c2508"
     },
     {
       "path": "client/src/modes/worldCollision.js",
@@ -4659,8 +4659,8 @@
     },
     {
       "path": "client/tests/gachaIntroPlayback.test.js",
-      "bytes": 5067,
-      "sha256": "b8ce84884355979c076feccc6eaa8641a96116927ee657a2b8bfda2e919da673"
+      "bytes": 5063,
+      "sha256": "fd2840576ff034fe9af9e61019ff4ce159b996d9c455ad025a903ddaaeecac61"
     },
     {
       "path": "client/tests/spiritArtPresentation.test.js",
@@ -4669,8 +4669,38 @@
     },
     {
       "path": "docs/05_production/SPIRIT_ART_GACHA_INTRO_QA.md",
-      "bytes": 2943,
-      "sha256": "76a98ec2b19a36d0e2034a53c1fc17b838f04d06983f7cd1b425897ae90586c3"
+      "bytes": 3113,
+      "sha256": "be61b54bcafd6f79c55637f5758d28d5ccdf830d066e1ecea016e2ed065c1b80"
+    },
+    {
+      "path": "client/assets/original/ui/battle-defeat.webp",
+      "bytes": 211802,
+      "sha256": "b5d0e468c53131c3511d8e5659eb0a71e92a73af89dd8f45d5aa169ffea7497e"
+    },
+    {
+      "path": "client/assets/original/ui/battle-victory.webp",
+      "bytes": 273622,
+      "sha256": "2096f4908f7dceeb1c7056b0e8168aefe4a66367d9e9f8989aebf805d8ca6efd"
+    },
+    {
+      "path": "client/src/render/presentationState.js",
+      "bytes": 629,
+      "sha256": "af0275debf9f5d2f817f4a7444f71b012e8cccfc3d5563c1952209d020ae448a"
+    },
+    {
+      "path": "client/src/shell/battleResult.js",
+      "bytes": 1342,
+      "sha256": "cad657dddc2d8ccdca7f50a0051a8229d814e2c2bc48b13ee817178f02e960bc"
+    },
+    {
+      "path": "client/tests/battlePresentation.test.js",
+      "bytes": 7118,
+      "sha256": "bab891af6f404fd2916ee94d48aadd9de2a6ef8f824990461b53f047404f91c1"
+    },
+    {
+      "path": "docs/05_production/BATTLE_RESULT_GACHA_HANDOFF_QA.md",
+      "bytes": 3825,
+      "sha256": "e04cd05fa182d001f2309a8492dd792e908f607437056e8abd820c557646f1f9"
     }
   ]
 }

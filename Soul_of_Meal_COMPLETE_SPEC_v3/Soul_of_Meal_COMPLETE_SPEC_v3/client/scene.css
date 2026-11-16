@@ -177,6 +177,15 @@ html, body, #app { width: 100%; overflow: hidden; overscroll-behavior: none; }
 .battle-result-dialog .result-box > strong { display: block; color: #ffdd99; font: 700 clamp(24px, 5vw, 43px)/1.1 var(--display); }
 .battle-result-dialog .result-box.defeat > strong { color: #ffc0a3; }
 .battle-result-dialog .action-row { justify-content: center; }
+.battle-result-dialog.battle-result-cover { width: min(760px, calc(100vw - 24px)); padding: 0; overflow: hidden; border-radius: 20px; }
+.battle-result-cover .story-heading { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.battle-result-art { display: block; position: relative; width: 100%; padding: 0; border: 0; border-radius: inherit; overflow: hidden; color: #fff1cc; background: #102d2a; cursor: pointer; }
+.battle-result-art[hidden] { display: none; }
+.battle-result-art img { display: block; width: 100%; height: auto; max-height: calc(100dvh - 42px); object-fit: cover; }
+.battle-result-caption { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 5% 16px 4%; background: linear-gradient(#0b172b8c, transparent 35%, transparent 65%, #091b24bb); text-shadow: 0 3px 16px #071f22; }
+.battle-result-caption strong { font: 700 clamp(30px, 7vw, 64px)/1.1 var(--display); }
+.battle-result-caption > span { font-size: clamp(13px, 3vw, 18px); letter-spacing: .08em; }
+.battle-result-art:focus-visible { outline: 4px solid #fff0bd; outline-offset: -6px; }
 
 @media (orientation: portrait) and (max-width: 760px) {
   .rotate-hint { display: block; margin-left: auto; color: #eed5ac; font-size: 10px; text-align: right; }

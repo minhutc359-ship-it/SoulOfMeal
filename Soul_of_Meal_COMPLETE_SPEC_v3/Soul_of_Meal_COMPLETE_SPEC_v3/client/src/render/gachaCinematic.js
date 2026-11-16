@@ -24,10 +24,10 @@ const wave = (time, start, end) => Math.sin(progress(time, start, end) * Math.PI
 export function planGachaCinematic(receipt) {
   const cards = receipt.items.map(({ id }) => ({ id, rarity: SPIRITS[id].rarity, art: spiritIllustration(id)?.preview ?? actorArt(id), fallbackArt: actorArt(id) }));
   const multi = cards.length === 10;
-  const spotlight = multi ? cards.find(card => card.rarity === 'SSR') : cards[0];
+  const spotlight = multi ? undefined : cards[0];
   const rarity = multi ? cards.reduce((highest, card) => Object.keys(RARITY_COLOR).indexOf(card.rarity) > Object.keys(RARITY_COLOR).indexOf(highest) ? card.rarity : highest, 'N') : spotlight.rarity;
-  const duration = multi ? 10 : DURATIONS[rarity];
-  const reveal = multi ? 8 : rarity === 'SSR' ? 8 : rarity === 'SR' ? 5.5 : 4;
+  const duration = multi ? 7.4 : DURATIONS[rarity];
+  const reveal = multi ? 6.6 : rarity === 'SSR' ? 8 : rarity === 'SR' ? 5.5 : 4;
   const impact = multi ? 6 : rarity === 'SSR' ? 6.95 : rarity === 'SR' ? 4.55 : 3.6;
   const cues = [
     { time: .12, id: 'sfx_skill_ready', gain: .67 },
@@ -41,7 +41,7 @@ export function planGachaCinematic(receipt) {
 }
 
 export async function loadGachaArt(plan, loadImage) {
-  const urls = new Set([BANQUET_ART, ...plan.cards.flatMap(card => [card.art, card.fallbackArt]), plan.spotlightArt].filter(Boolean));
+  const urls = new Set([BANQUET_ART, ...(!plan.multi ? plan.cards.flatMap(card => [card.art, card.fallbackArt]) : []), plan.spotlightArt].filter(Boolean));
   return new Map(await Promise.all([...urls].map(async url => [url, await loadImage(url)])));
 }
 
@@ -289,23 +289,24 @@ function drawSignature(ctx, ending, t, front) {
   }
 }
 
-function drawMultiCards(ctx, plan, assets, time) {
+export function gachaMultiCardLayout(time) {
   const build = between(time, 1.8, 3.7);
-  if (!build) return;
   const grid = between(time, 5.65, 6.6);
-  const hide = plan.spotlight ? 1 - between(time, 7.65, 8.06) : 1;
-  ctx.save();
-  ctx.globalAlpha *= build * hide;
   const orbit = time * .43 * (1 - grid);
-  for (let i = 0; i < plan.cards.length; i++) {
-    const card = plan.cards[i];
+  return Array.from({ length: 10 }, (_, i) => {
     const angle = i * TAU / 10 + orbit - Math.PI / 2;
     const x = CX + (1 - grid) * Math.cos(angle) * 249 + grid * ((i % 5) - 2) * 135;
     const y = CY + (1 - grid) * Math.sin(angle) * 143 + grid * (i < 5 ? -78 : 78);
-    const flip = between(time, 4, 5.9) * TAU + between(time, 6 + .115 * i, 6.36 + .115 * i) * Math.PI;
-    const tint = time < 4 ? '#ffe4a1' : RARITY_COLOR[card.rarity];
-    drawCard(ctx, x, y, (.47 + grid * .33) * (.55 + build * .45), flip, Math.cos(angle) * .12 * (1 - grid), tint,
-      time > 6.18 + .115 * i ? (assets.get(card.art) ?? assets.get(card.fallbackArt)) : null);
+    return { x, y, scale: (.47 + grid * .33) * (.55 + build * .45), tilt: Math.cos(angle) * .12 * (1 - grid), opacity: build };
+  });
+}
+
+function drawMultiCards(ctx, time) {
+  ctx.save();
+  for (const card of gachaMultiCardLayout(time)) {
+    ctx.globalAlpha = card.opacity;
+    // Identity and rarity faces belong exclusively to the manual pack reader.
+    drawCard(ctx, card.x, card.y, card.scale, 0, card.tilt, '#ffe4a1', null);
   }
   ctx.restore();
 }
@@ -319,7 +320,7 @@ export function drawGachaCinematic(ctx, plan, assets, seconds, heroRig) {
   const charge = wave(time, sealStart, plan.impact + .48);
   const strike = wave(time, plan.impact - .12, plan.impact + .68);
   const firstBlast = premium && !plan.multi ? wave(time, 3.9, 4.63) : 0;
-  const ending = time >= plan.reveal;
+  const ending = !plan.multi && time >= plan.reveal;
   const endTime = Math.max(0, time - plan.reveal);
   const zoom = 1 + .14 * between(time, 0, 3.8) + .045 * between(time, plan.reveal, plan.duration);
   const shake = (strike + firstBlast) * intensity;
@@ -361,7 +362,7 @@ export function drawGachaCinematic(ctx, plan, assets, seconds, heroRig) {
   }
   if (charge > 0) drawRibbons(ctx, time, color, charge * (.3 + intensity * .63), premium ? 5 : intensity > .4 ? 3 : 2);
   drawParticles(ctx, time, color, intensity, strike);
-  if (plan.multi) drawMultiCards(ctx, plan, assets, time);
+  if (plan.multi) drawMultiCards(ctx, time);
   else {
     const start = premium ? 4.05 : plan.rarity === 'SR' ? 2.85 : 1.4;
     const form = between(time, start, start + .73);

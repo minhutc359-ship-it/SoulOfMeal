@@ -185,7 +185,7 @@ export class BattleRigClock {
     if (this.defeat?.battle !== battle || actor.alive) this.defeat = null;
     if (!actor.alive) {
       this.defeat ??= { battle, tick: battle.tick };
-      const phase = battle.phase === 'battle_end' || animation?.motionPhase == null
+      const phase = animation?.motionPhase == null
         ? 1 : clamp((tick - this.defeat.tick) / this.tickRate / this.rig.clips.defeat.duration);
       return { id: 'defeat', phase };
     }
@@ -209,9 +209,9 @@ export class BattleRigClock {
       }
     }
     const previous = this.lastContact;
-    if (previous && actor.alive && battle.phase === 'battle_running' && animation.requestedClipId !== 'hit') {
+    if (previous && actor.alive && animation.requestedClipId !== 'hit') {
       const { id, clip, tick } = previous;
-      const elapsed = battle.tick === tick ? 0 : battle.tick + tickFraction - tick;
+      const elapsed = battle.tick + tickFraction - tick;
       const time = clip.contact + elapsed / this.tickRate;
       if (battle.tick >= tick && time < clip.duration) return { id, phase: time / clip.duration };
     }

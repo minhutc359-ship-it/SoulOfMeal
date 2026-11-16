@@ -3,6 +3,8 @@ export class TcgCardMotion {
   #hand = new Set();
   #overlays = new Set();
 
+  pending() { return this.#queue.length > 0 || this.#overlays.size > 0; }
+
   clear() {
     this.#queue = [];
     this.#hand.clear();
