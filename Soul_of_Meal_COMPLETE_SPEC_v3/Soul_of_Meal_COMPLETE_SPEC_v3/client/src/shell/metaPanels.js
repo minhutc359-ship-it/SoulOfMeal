@@ -2,6 +2,7 @@ import { ADVENTURE_OFFERS, GEAR_MAX_LEVEL, GEAR_SLOTS, STORE_UPGRADE_GOLD, STORE
 import { BANNERS, META, SPIRITS, bannerOdds, starterSpirits } from '../modes/metaProgress.js';
 import { actorArt, cardBackdrop, cutinArt, HERO_NAMES, itemArt, showcaseArt } from '../render/spriteAssets.js';
 import { spiritIllustration } from '../render/cardArtwork.js';
+import { revealGacha } from './gachaPack.js';
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>"']/g, character =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
