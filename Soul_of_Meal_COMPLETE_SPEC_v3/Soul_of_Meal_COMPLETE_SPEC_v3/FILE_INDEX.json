@@ -794,8 +794,8 @@
     },
     {
       "path": "client/src/main.js",
-      "bytes": 242936,
-      "sha256": "dfc5e05c5a7eff4eae07674253e02efb2f6552870e3ea5cd65ceb3c214d948f8"
+      "bytes": 242916,
+      "sha256": "37b88e4dbc1c88b630100cb95f5b101d5cb6e4c337766fe326eac61e4fdb601a"
     },
     {
       "path": "client/src/modes/adventure.js",
@@ -2929,13 +2929,13 @@
     },
     {
       "path": "client/src/render/spiritRig.js",
-      "bytes": 19392,
-      "sha256": "8c536f15d5876a7d01852c721b7003b8687c713de83e766170bbfc54d42b620c"
+      "bytes": 19805,
+      "sha256": "24b7f4236661b2df33b972d5acc494a91a26d6363cdf764e59c17727b7968d32"
     },
     {
       "path": "client/tests/spiritRig.test.js",
-      "bytes": 9673,
-      "sha256": "44ee4e808ac95c4b80c21e67be3df9b7fdc3046e89856973b70c1305b39ac5b8"
+      "bytes": 10543,
+      "sha256": "84b32f843ab706dc3598acf9f9658ec3272e72e947099607177cc350b53c2935"
     },
     {
       "path": "client/src/render/adventureStage.js",
@@ -4699,8 +4699,8 @@
     },
     {
       "path": "docs/05_production/BATTLE_RESULT_GACHA_HANDOFF_QA.md",
-      "bytes": 3825,
-      "sha256": "e04cd05fa182d001f2309a8492dd792e908f607437056e8abd820c557646f1f9"
+      "bytes": 3974,
+      "sha256": "ebdf9ed77e9a4033effb76041c3fb5771ec9f53ec09ebe2ac9280de004e79ca7"
     }
   ]
 }

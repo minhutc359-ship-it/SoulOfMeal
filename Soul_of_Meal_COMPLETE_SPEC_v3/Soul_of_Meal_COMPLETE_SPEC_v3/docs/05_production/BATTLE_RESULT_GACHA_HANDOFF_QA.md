@@ -18,7 +18,7 @@ Date: 2026-11-16. Follow-up to the spirit-art and summon-intro correction.
 
 - Regression tests cover late TCG contact, outstanding impact/card/cut-in tails, match scoping, final Adventure attack priority, held defeat completion, rig recovery after a frozen simulation tick, Chess impacts longer than the old tail, longer character clips, single-use image continuation, packaged image files, ten-card grid geometry, no multi-pull face loads and no SSR spotlight.
 - Chromium: the TCG defeat illustration loaded, tapping it opened the new-match setup directly, canceling restored the result, and starting a new match worked. A fresh ten-pull entered the cinematic with card backs, handed off to the unopened pack, and revealed cards 1 and 2 only through the separate manual reader. No game-source warning/error was observed; browser extension metadata warnings were unrelated.
-- Full JavaScript/Python tests, TypeScript, production build and package validation are required for this change. Real-device Safari iOS/Android acceptance and full end-to-end Adventure/Chess matches remain manual QA items; their presentation regressions are covered by automated tests.
+- 219 JavaScript tests, 66 Python tests, TypeScript, production build and validation of 940 indexed package files pass. Adventure rig waiting uses finite contact/death durations, so missing or reduced-motion fallback clips cannot keep the result waiting forever. Real-device Safari iOS/Android acceptance and full end-to-end Adventure/Chess matches remain manual QA items; their presentation regressions are covered by automated tests.
 
 ## Acceptance on devices
 

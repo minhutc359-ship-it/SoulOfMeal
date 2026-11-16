@@ -240,6 +240,15 @@ export class BattleRigClock {
     }
     return motion;
   }
+
+  pending(battle, tickFraction = 0) {
+    const tick = battle.tick + tickFraction;
+    const falling = this.defeat?.battle === battle
+      && tick < this.defeat.tick + this.tickRate * this.rig.clips.defeat.duration;
+    const contact = this.lastContact;
+    return Boolean(falling || contact?.battle === battle
+      && tick < contact.tick + this.tickRate * (contact.clip.duration - contact.clip.contact));
+  }
 }
 
 async function loadSpiritRig(renderer, id, signal) {

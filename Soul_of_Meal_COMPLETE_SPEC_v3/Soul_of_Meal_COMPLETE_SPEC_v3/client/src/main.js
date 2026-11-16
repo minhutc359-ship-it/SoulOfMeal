@@ -1565,8 +1565,8 @@ function drawAdventureFrame(deltaSeconds, modalOpen) {
 function adventurePresentationPending(battle) {
   if (battle?.phase !== 'battle_end') return false;
   return runtime.effects.effects.length > 0 || runtime.animations.pendingActions()
-    || [...runtime.rigClocks.values()].some(clock => clock.lastFrame?.battle === battle
-      && !['idle', 'walk', 'run', 'victory'].includes(clock.lastFrame.motion.id) && clock.lastFrame.motion.phase < 1);
+    || [...runtime.rigClocks.values()].some(clock => clock.pending(battle,
+      runtime.adventureEnding?.battle === battle ? runtime.adventureEnding.elapsed * ADVENTURE_TICK_RATE : 0));
 }
 
 function syncAdventureAnimations(adventure, moved) {
